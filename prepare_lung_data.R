@@ -490,18 +490,18 @@ dmode <- function(x, breaks="Sturges") {
   # ########################################################prepare the Quake dataset########################################################
   
   #load some meta data from quake paper: 
-  load('/net/trapnell/vol1/home/xqiu/Projects/BEAM/Xiaojie_reproduce/SRR_cell_type') #cell type specification from Quake lung paper
-  load('/net/trapnell/vol1/home/xqiu/Projects/BEAM/Xiaojie_reproduce/quake_gene_name') #genes studied in Quake lung paper
+  load('./Quake_data/SRR_cell_type') #cell type specification from Quake lung paper
+  load('./Quake_data/quake_gene_name') #genes studied in Quake lung paper
   transcript_num <- 38919 #number of genes in the genome, excluding ERCC spikein 
 
   # Load up the Quake paper data as relative expression values (classic FPKM)
   
-  sra_table <- read.delim("/net/trapnell/vol1/home/xqiu/Projects/BEAM/Xiaojie_reproduce/quake_lung/SraRunTable.txt")
+  sra_table <- read.delim("./Quake_data/quake_lung/SraRunTable.txt")
   sra_table$Run <- paste(sra_table$Run, "_0", sep="")
   
-  fpkm_matrix <- read.delim("/net/trapnell/vol1/home/xqiu/Projects/BEAM/Xiaojie_reproduce/quake_lung/standard_normalized_out/genes.fpkm_table", row.names="tracking_id")
+  fpkm_matrix <- read.delim("./Quake_data/quake_lung/standard_normalized_out/genes.fpkm_table", row.names="tracking_id")
   #fpkm_matrix <- fpkm_matrix[,-1]
-  sample_sheet <- read.delim("/net/trapnell/vol1/home/xqiu/Projects/BEAM/Xiaojie_reproduce/quake_lung/standard_normalized_out/samples.table", row.names="sample_id")
+  sample_sheet <- read.delim("./Quake_data/quake_lung/standard_normalized_out/samples.table", row.names="sample_id")
   sample_sheet <- merge(sample_sheet, sra_table, by.x="row.names", by.y="Run")
   row.names(sample_sheet) <- sample_sheet$Row.names 
   sample_sheet <- sample_sheet[,-1]
@@ -513,9 +513,9 @@ dmode <- function(x, breaks="Sturges") {
   
   #fpkm_matrix <- fpkm_matrix * sample_sheet$internal_scale ############### this is wrong since each matrix row will multiple one value in the vector 
   # fpkm_matrix <- t(t(fpkm_matrix) * sample_sheet$internal_scale)
-  gene_ann <- read.delim("/net/trapnell/vol1/home/xqiu/Projects/BEAM/Xiaojie_reproduce/quake_lung/standard_normalized_out/genes.attr_table", row.names="tracking_id")
+  gene_ann <- read.delim("./Quake_data/quake_lung/standard_normalized_out/genes.attr_table", row.names="tracking_id")
   
-  gencode_biotypes <- read.delim("/net/trapnell/vol1/home/xqiu/Projects/BEAM/Xiaojie_reproduce/quake_lung/gencode_biotypes.txt")
+  gencode_biotypes <- read.delim("./Quake_data/quake_lung/gencode_biotypes.txt")
   gencode_biotypes <- gencode_biotypes[,c(1,2)]
   spike_names <- row.names(fpkm_matrix)[grepl("ERCC", row.names(fpkm_matrix))]
   spike_biotypes <- data.frame(gene_id=spike_names, biotype="spike")
@@ -546,7 +546,7 @@ dmode <- function(x, breaks="Sturges") {
   
   # Load up the ERCC spike-in control metadata, which we will use to 
   # convert the standard FPKM values to absolute values 
-  input.ERCC.annotation<-read.delim("/net/trapnell/vol1/home/xqiu/Projects/BEAM/Xiaojie_reproduce/quake_lung/ERCC_specification.txt", header=T)
+  input.ERCC.annotation<-read.delim("./Quake_data/quake_lung/ERCC_specification.txt", header=T)
   colnames(input.ERCC.annotation)<-c("Resort_ID",
                                      "ERCC_ID",
                                      "subgroup",
@@ -726,9 +726,9 @@ dmode <- function(x, breaks="Sturges") {
   }, input.ERCC.annotation, volume = 10, dilution = 1/40000, capture_efficiency = capture_efficiency)
     
   # Load up the isoform-level read counts
-  count_matrix <- read.delim("/net/trapnell/vol1/home/xqiu/Projects/BEAM/Xiaojie_reproduce/quake_lung/standard_normalized_out/isoforms.fpkm_table", row.names="tracking_id")
+  count_matrix <- read.delim("./Quake_data/quake_lung/standard_normalized_out/isoforms.fpkm_table", row.names="tracking_id")
   #fpkm_matrix <- fpkm_matrix[,-1]
-  isoform_ann <- read.delim("/net/trapnell/vol1/home/xqiu/Projects/BEAM/Xiaojie_reproduce/quake_lung/standard_normalized_out/isoforms.attr_table", row.names="tracking_id")
+  isoform_ann <- read.delim("./Quake_data/quake_lung/standard_normalized_out/isoforms.attr_table", row.names="tracking_id")
   isoform_ann$isoform_id <- row.names(isoform_ann)
   
   isoform_ann <- merge(isoform_ann, gene_ann[, c("gene_id", "biotype")], by.x="gene_id", by.y="row.names")
