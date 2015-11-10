@@ -16,14 +16,43 @@
  # install_github("cole-trapnell-lab/monocle-dev", auth_token = "2b5f9747e17c8512f1ecd2bf76f5df4730be21e2")
  # install_github("cole-trapnell-lab/branch-diff", auth_token = "2b5f9747e17c8512f1ecd2bf76f5df4730be21e2")
 
- install.packages('../xacHelper_0.0.0.9000.tar.gz', dependencies = TRUE)
- install.packages('../monocle_1.99.0.tar.gz', dependencies = TRUE)
+ install.packages('./xacHelper_0.0.0.9000.tar.gz', dependencies = TRUE)
+ install.packages('./monocle_1.99.0.tar.gz', dependencies = TRUE)
  library(monocle)
  library(xacHelper)
 
  load_all_libraries()
+ 
+ #   #load all the go/reactome/kegg datasets for the analysis: 
+ root_directory <- "./Quake_data"
+
+ human_go_gsc <- loadGSCSafe(paste(root_directory,"/GMT/EM_pathways/Human/symbol/Human_GO_AllPathways_with_GO_iea_June_20_2014_symbol.gmt", sep=""), encoding="latin1")
+ names(human_go_gsc$gsc) <- str_split_fixed(names(human_go_gsc$gsc), "%", 2)[,1]
+
+ human_reactome_gsc <- loadGSCSafe(paste(root_directory,"/GMT/EM_pathways/Human/symbol/Pathways/Human_Reactome_June_20_2014_symbol.gmt", sep=""), encoding="latin1")
+ names(human_reactome_gsc$gsc) <- str_split_fixed(names(human_reactome_gsc$gsc), "%", 2)[,1]
+
+ mouse_go_gsc <- loadGSCSafe(paste(root_directory,"/GMT/EM_pathways/Mouse/by_symbol/GO/MOUSE_GO_bp_with_GO_iea_symbol.gmt", sep=""), encoding="latin1")
+ names(mouse_go_gsc$gsc) <- str_split_fixed(names(mouse_go_gsc$gsc), "%", 2)[,1]
+
+ mouse_reactome_gsc <- loadGSCSafe(paste(root_directory,"/GMT/EM_pathways/Mouse/by_symbol/Pathways/Mouse_Reactome_June_20_2014_symbol.gmt", sep=""), encoding="latin1")
+ names(mouse_reactome_gsc$gsc) <- str_split_fixed(names(mouse_reactome_gsc$gsc), "%", 2)[,1]
+
+ mouse_kegg_gsc <- loadGSCSafe(paste(root_directory,"/GMT/EM_pathways/Mouse/by_symbol/Pathways/Mouse_Human_KEGG_June_20_2014_symbol.gmt", sep=""), encoding="latin1")
+ names(mouse_kegg_gsc$gsc) <- str_split_fixed(names(mouse_kegg_gsc$gsc), "%", 2)[,1]
+
+ mouse_go_gsc_cc <- loadGSCSafe(paste(root_directory,"/GMT/EM_pathways/Mouse/by_symbol/GO/MOUSE_GO_cc_with_GO_iea_symbol.gmt", sep=""), encoding="latin1")
+ names(mouse_go_gsc_cc$gsc) <- str_split_fixed(names(mouse_go_gsc_cc$gsc), "%", 2)[,1]
+ mouse_go_gsc_mf <- loadGSCSafe(paste(root_directory,"/GMT/EM_pathways/Mouse/by_symbol/GO/MOUSE_GO_mf_with_GO_iea_symbol.gmt", sep=""), encoding="latin1")
+ names(mouse_go_gsc_mf$gsc) <- str_split_fixed(names(mouse_go_gsc_mf$gsc), "%", 2)[,1]
+
+ mouse_reactome_gsc <- loadGSCSafe(paste(root_directory,"/GMT/EM_pathways/Mouse/by_symbol/Pathways/Mouse_Reactome_June_20_2014_symbol.gmt", sep=""), encoding="latin1")
+ names(mouse_reactome_gsc$gsc) <- str_split_fixed(names(mouse_reactome_gsc$gsc), "%", 2)[,1]
+
+ mouse_kegg_gsc <- loadGSCSafe(paste(root_directory,"/GMT/EM_pathways/Mouse/by_symbol/Pathways/Mouse_Human_KEGG_June_20_2014_symbol.gmt", sep=""), encoding="latin1")
+ names(mouse_kegg_gsc$gsc) <- str_split_fixed(names(mouse_kegg_gsc$gsc), "%", 2)[,1]
+
  #set the directory: 
- elife_directory = "./"
  prog_cell_state = "#979797"
  AT1_cell_state = "#F05662" 
  AT2_cell_state = "#7990C8" 
@@ -31,7 +60,7 @@
  AT2_Lineage = "#337DB9" 
 #  #load the data: 
 #  # load('xiaojie_test_data.gz') #make the dataset
- source('monocle_helper_functions.R')
+ source('./monocle_helper_functions.R')
  Shalek_valid_genes <- read.table('./Aviv_data/valid_genes_for_analyis.txt', header = T)
  Shalek_exprs_mat <- read.table("./Aviv_data/cuffnorm_output_files/genes.fpkm_table", row.names = 1, header = T)
  Shalek_fd <- read.table("./Aviv_data/cuffnorm_output_files/genes.attr_table", row.names = 1, header = T)

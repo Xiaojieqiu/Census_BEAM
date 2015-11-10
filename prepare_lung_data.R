@@ -1,487 +1,5 @@
-  packages = c("ggplot2", "VGAM", "igraph", "pRlyr", "combinat", "fastICA", "irlba", "matrixStats", "reshape2", "R.utils", "snow", 
-             "stringr", "modeest", "Hmisc", "boot", "doMC", "data.table", "fitdistrplus", "ggdendro", "gplots", "princurve", "sp", "venneuler",
-             "lmtest", "MASS", "mixsmsn", "pheatmap", "plyr", "pscl", "RColorBrewer", "VennDiagram", "zoo", "raster", "colorRamps", "grid")
-  install.packages(packages, repo = 'http://cran.fhcrc.org/')
+  use_select_algorithm = TRUE
 
-  bio_packages = c("Biobase", "BiocGenerics",  "limma", "edgeR", "DESeq", "DESeq2", "piano")
-  source("http://bioconductor.org/biocLite.R")
-  biocLite(bio_packages)
-
-  get_mc_list <- function(volume, dilution){
-  mat <- matrix(
-    c(-3.652201, 2.263576,
-      -3.652201, 2.263576,
-      -3.652201, 2.263576,
-      -3.652347, 2.26371,
-      -3.653535, 2.264639,
-      -3.652076, 2.263407,
-      -3.648284, 2.260313,
-      -3.650168, 2.262497,
-      -3.65139,  2.264297,
-      -3.64543,  2.263617,
-      -3.663548, 2.287196,
-      -3.686309, 2.321314,
-      -3.735227, 2.380282,
-      -3.870832, 2.523883,
-      -4.024396, 2.677024,
-      -4.070794, 2.744178,
-      -4.277778, 2.932929,
-      -4.496089, 3.132498,
-      -4.584481, 3.201793,
-      -4.765763, 3.353782),
-    ncol = 2, byrow = TRUE, dimnames = list(
-      c(0.01430512,
-        0.02861023,
-        0.05722046,
-        0.11444092,
-        0.22888184,
-        0.45776367,
-        0.91552734,
-        1.83105469,
-        3.66210938,
-        7.32421875,
-        14.6484375,
-        29.296875,
-        58.59375,
-        117.1875,
-        234.375,
-        468.75,
-        937.5,
-        1875,
-        3750,
-        7500), c('m', 'c')))
-  mat[, 1] <- mat[, 1] + log10(volume / 10 * 40000 / dilution)
-  return(mat)
-}
-
-relative2abs_mc <- function (relative_expr_matrix, t_estimate = estimate_t(relative_expr_matrix), m, c,
-                             detection_threshold = 0.01430512, ERCC_controls = NULL, ERCC_annotation = NULL,
-                             volume = 10, dilution = 40000, return_all = FALSE, cores = 1,
-                             mixture_type = 1, verbose = FALSE)
-{
-  if (detection_threshold < 0.01430512 | detection_threshold >
-        7500)
-    stop("concentration detection limit should be between 0.01430512 and 7500")
-  else mc_id <- round(detection_threshold/0.01430512)
-  if (mixture_type == 1)
-    mixture_name = "conc_attomoles_ul_Mix1"
-  else mixture_name = "conc_attomoles_ul_Mix2"
-  Cell <- NULL
-  if (!is.null(ERCC_controls) | !is.null(ERCC_annotation)) {
-    if (is.null(ERCC_controls) | is.null(ERCC_annotation))
-      stop("If you want to transform the data to copy number with your spikein data, please provide both of ERCC_controls and ERCC_annotation data frame...")
-    valid_ids <- which(ERCC_annotation[, mixture_name] >=
-                         detection_threshold)
-    if (verbose)
-      message("Performing robust linear regression for each cell based on the spikein data...")
-    molModels <- apply(ERCC_controls, 2, function(cell_exprs,
-                                                  input.ERCC.annotation, valid_ids) {
-      spike_df <- input.ERCC.annotation
-      spike_df <- cbind(spike_df, cell_exprs[row.names(spike_df)])
-      colnames(spike_df)[length(colnames(spike_df))] <- "FPKM"
-      spike_df$numMolecules <- spike_df[, mixture_name] *
-        (volume * 10^(-3) * 1/dilution * 10^(-18) * 6.02214129 *
-           10^(23))
-      spike_df$rounded_numMolecules <- round(spike_df[,
-                                                      mixture_name] * (volume * 10^(-3) * 1/dilution *
-                                                                         10^(-18) * 6.02214129 * 10^(23)))
-      if (is.null(valid_ids))
-        spike_df <- subset(spike_df, FPKM >= 1e-10)
-      else {
-        spike_df <- spike_df[valid_ids, ]
-        spike_df <- subset(spike_df, FPKM >= 1e-10)
-      }
-      spike_df$log_fpkm <- log10(spike_df$FPKM)
-      spike_df$log_numMolecules <- log10(spike_df$numMolecules)
-      molModel <- tryCatch({
-        molModel <- rlm(log_numMolecules ~ log_fpkm,
-                        data = spike_df)
-        molModel
-      }, error = function(e) {
-        print(e)
-        NULL
-      })
-      molModel
-    }, ERCC_annotation, valid_ids)
-    if (verbose)
-      message("Apply the fitted robust linear regression model to recovery the absolute copy number for all transcripts each cell...")
-    norm_fpkms <- mcmapply(function(cell_exprs, molModel) {
-      tryCatch({
-        norm_df <- data.frame(log_fpkm = log10(cell_exprs))
-        res <- 10^predict(molModel, type = "response",
-                          newdata = norm_df)
-      }, error = function(e) {
-        rep(NA, length(cell_exprs))
-      })
-    }, split(as.matrix(relative_expr_matrix), rep(1:ncol(relative_expr_matrix),
-                                                  each = nrow(relative_expr_matrix))), molModels, mc.cores = cores)
-    k_b_solution <- data.frame(b = unlist(lapply(molModels,
-                                                 FUN = function(x) {
-                                                   intercept = x$coefficients[1]
-                                                 })), k = unlist(lapply(molModels, FUN = function(x) {
-                                                   slope = x$coefficients[2]
-                                                 })))
-    kb_model <- rlm(b ~ k, data = k_b_solution)
-    m <- kb_model$coefficients[2]
-    c <- kb_model$coefficients[1]
-    if (return_all == T) {
-      return(list(norm_cds = norm_fpkms, m = m, c = c,
-                  k_b_solution = k_b_solution))
-    }
-    norm_fpkms
-  }
-  else {
-    if (verbose)
-      message("Estimating the slope and intercept for the linear regression between relative expression value and copy number based on the lowest detection limits...")
-    mc_list <- get_mc_list(volume, dilution)
-    # m <- mc_list[mc_id, 1]
-    # c <- mc_list[mc_id, 2]
-    split_relative_exprs <- split(as.matrix(relative_expr_matrix),
-                                  col(relative_expr_matrix, as.factor = T))
-    names(t_estimate) <- colnames(relative_expr_matrix)
-    total_rna_df <- data.frame(Cell = colnames(relative_expr_matrix),
-                               t_estimate = t_estimate)
-    k_b_solution <- plyr::ddply(total_rna_df, .(Cell), function(x) {
-      a_matrix <- matrix(c(log10(x[, "t_estimate"]), 1,
-                           m, -1), ncol = 2, nrow = 2, byrow = T)
-      colnames(a_matrix) <- c("k", "b")
-      b_matrix <- matrix(c(0, -c), nrow = 2, byrow = T)
-      k_b_solution <- t(solve(a_matrix, b_matrix))
-    })
-    rownames(k_b_solution) <- k_b_solution$Cell
-    k_b_solution <- t(k_b_solution[, c(2, 3)])
-    split_kb <- split(k_b_solution, col(k_b_solution, as.factor = T))
-    
-    if (verbose)
-      message("Apply the estimated linear regression model to recovery the absolute copy number for all transcripts each cell...")
-    adj_split_relative_expr <- mcmapply(norm_kb, split_kb,
-                                        split_relative_exprs, mc.cores = cores)
-    total_rna_df$estimate_k <- k_b_solution[1, ]
-    total_rna_df$estimate_b <- k_b_solution[2, ]
-    norm_cds <- adj_split_relative_expr
-    row.names(norm_cds) <- row.names(relative_expr_matrix)
-    colnames(norm_cds) <- colnames(relative_expr_matrix)
-    if (verbose)
-      message("Return results...")
-    if (return_all == T) {
-      return(list(norm_cds = norm_cds, m = m, c = c, k_b_solution = k_b_solution))
-    }
-    norm_cds
-  }
-}
-
-#' Calculate the probability vector 
-makeprobsvec<-function(p){
-  phat<-p/sum(p)
-  phat[is.na(phat)] = 0
-  phat
-}
-
-#' Calculate the probability matrix for a relative abundance matrix
-makeprobs<-function(a){
-  colSums<-apply(a,2,sum)
-  b<-t(t(a)/colSums)
-  b[is.na(b)] = 0
-  b
-}
-
-#' Calculate the Shannon entropy based on the probability vector
-shannon.entropy <- function(p) {
-  if (min(p) < 0 || sum(p) <=0)
-    return(Inf)
-  p.norm<-p[p>0]/sum(p)
-  -sum( log10(p.norm)*p.norm)
-}
-
-#' Calculate the Jessen-Shannon distance for two probability distribution 
-JSdistVec <- function (p, q) 
-{
-  JSdiv <- shannon.entropy((p + q)/2) - (shannon.entropy(p) + 
-                                           shannon.entropy(q)) * 0.5
-  JSdiv[is.infinite(JSdiv)] <- 1
-  JSdiv[JSdiv < 0] <- 0
-  JSdist <- sqrt(JSdiv)
-  JSdist
-}
-
-#' Recover the absolute transcript counts based on m,c and t estimate for a single cell (Used in the optimization function)
-opt_norm_t <- function(t, fpkm, m, c, expr_thresh = 0.1, pseudocnt = NULL, return_norm = FALSE) {
-  a_matrix <- matrix(c(log10(t), 1, m,
-                       -1), ncol = 2, nrow = 2, byrow = T)
-  colnames(a_matrix) <- c("k", "b")
-  b_matrix <- matrix(c(0, -c), nrow = 2, byrow = T)
-  kb <- t(solve(a_matrix, b_matrix))
-  
-  k <- kb[1]
-  b <- kb[2]
-  #print(kb)
-  tmp <- k * log10(fpkm) + b
-  abs_cnt <- 10^tmp
-  
-  if(return_norm) return(abs_cnt)
-  
-  if(!is.null(pseudocnt)){
-    10^dmode(log10(abs_cnt[fpkm > expr_thresh] + pseudocnt)) #keep the original scale
-    k * dmode(log10(fpkm[fpkm > expr_thresh])) + b
-  }
-  else
-    10^dmode(log10(abs_cnt[abs_cnt > expr_thresh]))
-}
-
-#' optimization based on mc functions
-optim_mc_func_fix_c <- function (m, c, t_estimate = estimate_t(TPM_isoform_count_cds),
-          relative_expr_matrix = relative_expr_matrix, split_relative_expr_matrix = split_relative_exprs,
-          spike_data = spike_df, alpha = rep(1, ncol(relative_expr_matrix)), total_RNAs = rep(50000, ncol(relative_expr_matrix)),
-          cores = 1, weight = 0.5, add_kl_divergence  = T,  ...) {
-  if(is.null(spike_data$log_numMolecule))
-    spike_data$log_numMolecules <- log10(spike_data$numMolecules)
-  
-  m_val <- m
-  c_val <- c
-  
-  cell_num <- ncol(relative_expr_matrix)
-  names(t_estimate) <- colnames(relative_expr_matrix)
-  split_t <- split(t(t_estimate), col(as.matrix(t(t_estimate)), as.factor = T))
-  
-  total_rna_df <- data.frame(Cell = colnames(relative_expr_matrix), t_estimate = t_estimate)
-  
-  t_k_b_solution <- tryCatch({
-    k_b_solution <- plyr::ddply(total_rna_df, .(Cell), function(x) {
-      a_matrix <- matrix(c(log10(x[, "t_estimate"]), 1,
-                           m_val, -1), ncol = 2, nrow = 2, byrow = T)
-      colnames(a_matrix) <- c("k", "b")
-      b_matrix <- matrix(c(0, -c_val), nrow = 2, byrow = T)
-      k_b_solution <- t(solve(a_matrix, b_matrix))
-    })
-    k_b_solution},
-    error = function(e) {print(e); c(NA, NA)}
-  )
-  
-  if(any(is.na(t_k_b_solution)))
-    return(NA)
-  
-  cell_dmode <- tryCatch({
-    if(cores > 1){
-      cell_dmode <- mcmapply(opt_norm_t, split_t, split_relative_expr_matrix, m = m_val, c = c_val, pseudocnt = 0.01, mc.cores = cores)
-      adj_est_std_cds <- mcmapply(opt_norm_t, split_t, split_relative_expr_matrix, m = m_val, c = c_val, pseudocnt = 0.01, return_norm = T, mc.cores = cores)
-    }
-    else {
-      cell_dmode <- mapply(opt_norm_t, split_t, split_relative_expr_matrix, m = m_val, c = c_val, pseudocnt = 0.01)
-      adj_est_std_cds <- mapply(opt_norm_t, split_t, split_relative_expr_matrix, m = m_val, c = c_val, pseudocnt = 0.01, return_norm = T)
-    }
-    cell_dmode},
-    error = function(e) {print(e); NA}
-  )
-  
-  if(any(is.na(cell_dmode)))
-    return(NA)
-  
-  sum_total_cells_rna <- colSums(adj_est_std_cds)
-  
-  #minimization function:
-  dmode_rmse_weight_total <- mean(weight*((cell_dmode - alpha)/alpha)^2 + (1 - weight)*((sum_total_cells_rna -  total_RNAs)/total_RNAs)^2)
-
-  split_relative_expr_matrix <- split(t(adj_est_std_cds), 1:ncol(adj_est_std_cds))
-  round_split_relative_expr_matrix <- split(t(round(adj_est_std_cds)), 1:ncol(adj_est_std_cds))
-  
-  p_df <- makeprobs(relative_expr_matrix) #relative expression
-  p_list <- split(t(p_df), 1:ncol(p_df))
-  q_df_round <- makeprobs(round(adj_est_std_cds)) #round
-  q_df <- makeprobs(adj_est_std_cds) #no rounding
-  q_list <- split(t(q_df), 1:ncol(q_df))
-  q_list_round <- split(t(q_df_round), 1:ncol(q_df_round))
-  
-  dist_divergence <- mcmapply(function(x, y) {
-    JSdistVec(x, y)
-  }, p_list, q_list, mc.cores = cores)
-  
-  dist_divergence_round <- mcmapply(function(x, y) {
-    JSdistVec(x, y)
-  }, p_list, q_list_round, mc.cores = cores)
-  
-  gm_dist_divergence <- exp(mean(log(dist_divergence)))
-  
-  if(add_kl_divergence)
-    res <- 0.25 * log10(dmode_rmse_weight_total + 1) + 0.75 * gm_dist_divergence
-  else
-    res <- log10(dmode_rmse_weight_total + 1)
-  
-  #use the algorithm:
-  if(add_kl_divergence)
-    res <- (weight * (mean(((cell_dmode - alpha)/alpha)^2) - 0)) + (1 - weight) * (gm_dist_divergence - 0.0) + dmode_rmse_weight_total
-  else
-    res <- log10(dmode_rmse_weight_total + 1)
-  
-  message('current m, c values are ', c(m = m, c = c))
-  message('dmode_rmse_weight_total is ', mean(((cell_dmode - alpha)/alpha)^2) - 0)
-  message('gm_dist_divergence is ', gm_dist_divergence)
-  
-  if(is.finite(dmode_rmse_weight_total))
-    return(res)
-  else
-    return(10)
-}
-
-relative2abs_optim_fix_c <- function (relative_expr_matrix, t_estimate = estimate_t(relative_expr_matrix), m = -3.652201, c = 2.263576, m_rng = c(-10, -0.1),
-                                      detection_threshold = 0.01430512, ERCC_controls = NULL, ERCC_annotation = NULL,
-                                      volume = 10, dilution = 40000, return_all = FALSE, cores = 1, alpha_v = 1, total_RNAs = 50000, weight = 0.5,
-                                      mixture_type = 1, verbose = FALSE, optim_num = 1) {
-  if (detection_threshold < 0.01430512 | detection_threshold >
-        7500)
-    stop("concentration detection limit should be between 0.01430512 and 7500")
-  else mc_id <- round(detection_threshold/0.01430512)
-  if (mixture_type == 1)
-    mixture_name = "conc_attomoles_ul_Mix1"
-  else mixture_name = "conc_attomoles_ul_Mix2"
-  Cell <- NULL
-  if (!is.null(ERCC_controls) | !is.null(ERCC_annotation)) {
-    if (is.null(ERCC_controls) | is.null(ERCC_annotation))
-      stop("If you want to transform the data to copy number with your spikein data, please provide both of ERCC_controls and ERCC_annotation data frame...")
-    valid_ids <- which(ERCC_annotation[, mixture_name] >=
-                         detection_threshold)
-    if (verbose)
-      message("Performing robust linear regression for each cell based on the spikein data...")
-    molModels <- apply(ERCC_controls, 2, function(cell_exprs,
-                                                  input.ERCC.annotation, valid_ids) {
-      spike_df <- input.ERCC.annotation
-      spike_df <- cbind(spike_df, cell_exprs[row.names(spike_df)])
-      colnames(spike_df)[length(colnames(spike_df))] <- "FPKM"
-      spike_df$numMolecules <- spike_df[, mixture_name] *
-        (volume * 10^(-3) * 1/dilution * 10^(-18) * 6.02214129 *
-           10^(23))
-      spike_df$rounded_numMolecules <- round(spike_df[,
-                                                      mixture_name] * (volume * 10^(-3) * 1/dilution *
-                                                                         10^(-18) * 6.02214129 * 10^(23)))
-      if (is.null(valid_ids))
-        spike_df <- subset(spike_df, FPKM >= 1e-10)
-      else {
-        spike_df <- spike_df[valid_ids, ]
-        spike_df <- subset(spike_df, FPKM >= 1e-10)
-      }
-      spike_df$log_fpkm <- log10(spike_df$FPKM)
-      spike_df$log_numMolecules <- log10(spike_df$numMolecules)
-      molModel <- tryCatch({
-        molModel <- rlm(log_numMolecules ~ log_fpkm,
-                        data = spike_df)
-        molModel
-      }, error = function(e) {
-        print(e)
-        NULL
-      })
-      molModel
-    }, ERCC_annotation, valid_ids)
-    if (verbose)
-      message("Apply the fitted robust linear regression model to recovery the absolute copy number for all transcripts each cell...")
-    norm_fpkms <- mcmapply(function(cell_exprs, molModel) {
-      tryCatch({
-        norm_df <- data.frame(log_fpkm = log10(cell_exprs))
-        res <- 10^predict(molModel, type = "response",
-                          newdata = norm_df)
-      }, error = function(e) {
-        rep(NA, length(cell_exprs))
-      })
-    }, split(as.matrix(relative_expr_matrix), rep(1:ncol(relative_expr_matrix),
-                                                  each = nrow(relative_expr_matrix))), molModels, mc.cores = cores)
-    k_b_solution <- data.frame(b = unlist(lapply(molModels,
-                                                 FUN = function(x) {
-                                                   intercept = x$coefficients[1]
-                                                 })), k = unlist(lapply(molModels, FUN = function(x) {
-                                                   slope = x$coefficients[2]
-                                                 })))
-    kb_model <- rlm(b ~ k, data = k_b_solution)
-    m <- kb_model$coefficients[2]
-    c <- kb_model$coefficients[1]
-    if (return_all == T) {
-      return(list(norm_cds = norm_fpkms, m = m, c = c,
-                  k_b_solution = k_b_solution))
-    }
-    norm_fpkms
-  }
-  else {
-    split_relative_exprs <- split(as.matrix(relative_expr_matrix),
-                                  col(relative_expr_matrix, as.factor = T))
-    names(t_estimate) <- colnames(relative_expr_matrix)
-    
-    if(verbose)
-      message('optimizating mc values...')
-    #the t_estimate may also need to optimized:
-    for(optim_iter in 1:optim_num) {
-      if(verbose)
-        message(paste('optimization cycle', optim_iter, '...'))
-      
-      optim_para <- optim(par = c(m = m),
-                          optim_mc_func_fix_c, gr = NULL, c = c, t_estimate = t_estimate,
-                          alpha = alpha_v, total_RNAs = total_RNAs, cores = cores, weight = weight, pseudocnt = 0.01,
-                          relative_expr_matrix = relative_expr_matrix, split_relative_expr_matrix = split_relative_exprs,
-                          method = c("Brent"),
-                          lower = c(rep(as.vector(t_estimate) - 0, 0), m_rng[1]), #search half low or up of the t_estimate
-                          upper = c(rep(as.vector(t_estimate) + 0, 0), m_rng[2]), #m, c is between (-0.1 to -10 and 0.1 to 10)
-                          control = list(factr = 1e12, pgtol = 1e-3, trace = 1, ndeps = c(1e-3) ), #as.vector(t_estimate) / 1000,
-                          hessian = FALSE)
-      if(verbose)
-        message('optimization is done!')
-      
-      m <- optim_para$par[1]
-      c <- c
-      
-      total_rna_df <- data.frame(Cell = colnames(relative_expr_matrix),
-                                 t_estimate = t_estimate)
-      if (verbose)
-        message("Estimating the slope and intercept for the linear regression between relative expression value and copy number...")
-      
-      k_b_solution <- plyr::ddply(total_rna_df, .(Cell), function(x) {
-        a_matrix <- matrix(c(log10(x[, "t_estimate"]), 1,
-                             m, -1), ncol = 2, nrow = 2, byrow = T)
-        colnames(a_matrix) <- c("k", "b")
-        b_matrix <- matrix(c(0, -c), nrow = 2, byrow = T)
-        k_b_solution <- t(solve(a_matrix, b_matrix))
-      })
-      
-      rownames(k_b_solution) <- k_b_solution$Cell
-      k_b_solution <- t(k_b_solution[, c(2, 3)])
-      split_kb <- split(k_b_solution, col(k_b_solution, as.factor = T))
-      if (verbose)
-        message("Apply the estimated linear regression model to recovery the absolute copy number for all transcripts each cell...")
-      adj_split_relative_expr <- mcmapply(norm_kb, split_kb,
-                                          split_relative_exprs, mc.cores = cores)
-      total_rna_df$estimate_k <- k_b_solution[1, ]
-      total_rna_df$estimate_b <- k_b_solution[2, ]
-      norm_cds <- adj_split_relative_expr
-      row.names(norm_cds) <- row.names(relative_expr_matrix)
-      colnames(norm_cds) <- colnames(relative_expr_matrix)
-      
-      #update t_estimate, alpha_v, total_RNAs
-      t_estimate <- 10^(-(m + c / total_rna_df$estimate_k))
-      alpha_v <- estimate_t(norm_cds) #apply(norm_cds, 2, function(x) mlv(round(x)[round(x) > .1], method = "mfv")$M) 
-      total_RNAs <- apply(norm_cds, 2, sum)
-    }
-    
-    if (verbose)
-      message("Return results...")
-    if (return_all == T) {
-      return(list(norm_cds = norm_cds, m = m, c = c, k_b_solution = k_b_solution))
-    }
-    norm_cds
-  }
-}
-
-#use the deconvoluated linear regression parameters to normalize the log_relative_expr
-norm_kb <- function(kb, exprs_cds) {
-  k <- kb[1]
-  b <- kb[2]
-  tmp <- k * log10(exprs_cds) + b
-  norm_exprs <- 10^tmp
-  
-  norm_exprs
-}
-
-dmode <- function(x, breaks="Sturges") {
-  den <- density(x, kernel=c("gaussian"))
-  ( den$x[den$y==max(den$y)] )
-}
-
-  install.packages('../xacHelper_0.0.0.9000.tar.gz', dependencies = TRUE)
-  install.packages('../monocle_1.99.0.tar.gz', dependencies = TRUE)
   library(monocle)
   library(xacHelper)
   elife_directory = "./"
@@ -808,8 +326,11 @@ dmode <- function(x, breaks="Sturges") {
   TPM <- esApply(standard_cds, 2, function(x) x / sum(x) * 10^6)
   tpm_align <- melt(TPM)
   tpm_align <- tpm_align[tpm_align$value > 0.1, ]
-  qplot(value, log = 'x', geom = 'density', color = Var2, data = tpm_align) + theme_bw() + theme(legend.position = 'none') + xlab('TPM')
   
+  pdf('tpm_align_distr.pdf')
+  qplot(value, log = 'x', geom = 'density', color = Var2, data = tpm_align) + theme_bw() + theme(legend.position = 'none') + xlab('TPM')
+  dev.off()
+
   TPM_cds <- newCellDataSet(TPM, 
                             phenoData = new("AnnotatedDataFrame", data = pData(standard_cds)),
                             featureData = new("AnnotatedDataFrame", data = fData(standard_cds)),
@@ -834,13 +355,17 @@ dmode <- function(x, breaks="Sturges") {
   tpm_test_selected$z_fraction <- log10(fraction[tpm_test_selected$Cell])
   tpm_test_selected$R_plus_z <- tpm_test_selected[, 'R_rho_ij'] + tpm_test_selected[, 'z_fraction']
   
+  pdf('molModel_kb_relationship.pdf')
   qplot(unlist(lapply(molModels_select, function(x) coef(x)[2])), unlist(lapply(molModels_select, function(x) coef(x)[1]))) + 
     geom_abline(intercept = mean(tpm_test_selected$c_mean_y_ij), slope = -mean(tpm_test_selected$m_mean_x_ij))
-  
+  dev.off()
+
   #plot all the parameters
   tpm_data <- tpm_test_selected[, -which(colnames(tpm_test_selected) %in% c('Cell', 'Time'))]
+  pdf('compare_all_algorithm_param.pdf')
   plotmatrix2(tpm_data, myLab= 'Parameters related to the recovery algorithm', read_count = NULL, useCounts = T, logMode = F, pseudocount = 0, alpha = 1)
-  
+  dev.off()
+
   norm_fpkms_select <- mapply(function(cell_exprs, molModel) {
     tryCatch({
       norm_df <- data.frame(log_fpkm=log10(cell_exprs))
@@ -892,19 +417,24 @@ dmode <- function(x, breaks="Sturges") {
   cmpr_Quake_norm_cds_optim_weight_fix_c <- relative2abs(TPM_cds, t_estimate = estimate_t(TPM_isoform_count_cds, relative_expr_thresh = .1),                                                   
                                                                 alpha_v = 1, total_RNAs = 50000, weight = 0.01, 
                                                                 verbose = T, return_all = T, cores = 2, m =  -4.864207, c = mean(mean_m_c_select[1, ]))
-  
+  pdf('opt_m_fix_c_algorithm.pdf')
   qplot(esApply(absolute_cds_select[1:transcript_num, ], 2, sum)[optim_sum > 10], apply(Quake_norm_cds_optim_weight_fix_c$norm_cds[1:transcript_num, ], 2, sum)[optim_sum > 10], log = 'xy') + geom_abline() + geom_smooth(method = 'rlm') + xlab('spikein total RNA counts') + 
     geom_smooth(method = 'rlm') + ylab('Optimized total RNA counts') + ggtitle('Quake lung data: Optimizing m with fixed c directly calculated')
-  
+  dev.off()
+
   Quake_norm_cds_optim_mc <- relative2abs_mc(relative_expr_matrix = exprs(TPM_cds), t_estimate = estimate_t(TPM_isoform_count_cds, relative_expr_thresh = .1),                                                   
                                              verbose = T, return_all = T, cores = 2, m =  -4.277778, c = 2.932929)
-  
+
+  pdf('true_mc_algorithm.pdf')
   qplot(esApply(absolute_cds_select[1:transcript_num, ], 2, sum)[optim_sum > 10], apply(Quake_norm_cds_optim_mc$norm_cds[1:transcript_num, ], 2, sum)[optim_sum > 10], log = 'xy') + geom_abline() + geom_smooth(method = 'rlm') + xlab('spikein total RNA counts') + 
     geom_smooth(method = 'rlm') + ylab('Optimized total RNA counts') + ggtitle('Quake lung data: Use the true m/c values')
-  
+  dev.off()
+
+  pdf('lower_end_removed.pdf')
   qplot(esApply(absolute_cds[1:transcript_num, ], 2, sum), esApply(absolute_cds_select[1:transcript_num, ], 2, sum), log = 'xy') + geom_abline() + geom_smooth(method = 'rlm') + xlab('spikein total RNA counts (all expressed spikein transcripts)') + 
     geom_smooth(method = 'rlm') + ylab('spikein total RNA counts (lower end removed)') + ggtitle('Comparing the effect of removing lower end or not')
-  
+  dev.off()
+
   ################################## this long section is used to generate all the data for making the figure 1e: ##################################
   #generate the test p-val as well as the permutation pval
   
@@ -983,8 +513,10 @@ dmode <- function(x, breaks="Sturges") {
   pData(absolute_cds_subset)$Cell_type <- SRR_cell_type[colnames(absolute_cds_subset), 'putative_cell_type']
   absolute_cds_subset@expressionFamily <- negbinomial()
 
+  pdf('quake_absolute_cds_subset.pdf')
   plot_spanning_tree(absolute_cds_subset, color_by="Cell_type", show_backbone=T, show_cell_names = F)
-  
+  dev.off()
+
   ########test the tree constructed with either absolute transcript counts or FPKM dataset after removing the ciliated and clara cells (use either add_quake_gene_all_marker_ids or all_AT12_markers as ordering genes)
   # remove the Clara, Ciliated cells for tree construction (use cell type assignment from Quake paper): 
   other_cell_names <- SRR_cell_type[SRR_cell_type[, 5] %in% c('ciliated', 'Clara'), 6]
@@ -996,15 +528,21 @@ dmode <- function(x, breaks="Sturges") {
   
   # absolute_cds.quake_maker <- orderCells(absolute_cds.quake_maker, num_paths = 2, reverse = F)
   AT12_cds_subset <- orderCells(AT12_cds_subset, num_paths = 2, reverse = F) #SRR1033962_0 
-  plot_spanning_tree(AT12_cds_subset, color_by="Time", show_backbone=T, show_cell_names = F)
   
+  pdf('quake_AT12_cds_subset.pdf')
+  plot_spanning_tree(AT12_cds_subset, color_by="Time", show_backbone=T, show_cell_names = F)
+  dev.off()
+
   # use all marker genes and the quake_gene_list used before for performing the tree construction used for the later analysis: 
   AT12_cds_subset_all_gene <- reduceDimension(standard_cds[add_quake_gene_all_marker_ids, !(colnames(standard_cds) %in% paste(other_cell_names, "_0", sep = ''))], use_irlba = F, use_vst = F) 
   AT12_cds_subset_all_gene <- orderCells(AT12_cds_subset_all_gene, num_paths = 2, reverse = F) #SRR1033962_0 
   
   pData(AT12_cds_subset_all_gene)$Cell_type <- SRR_cell_type[colnames(AT12_cds_subset_all_gene), 'putative_cell_type']
-  plot_spanning_tree(AT12_cds_subset_all_gene, color_by="Time", show_backbone=T, show_cell_names = F)
   
+  pdf('quake_AT12_cds_subset_all_gene.pdf')
+  plot_spanning_tree(AT12_cds_subset_all_gene, color_by="Time", show_backbone=T, show_cell_names = F)
+  dev.off()
+
   # use the tree construction information for the absolute_cds (we can also use use_for_ordering to generate the tree)
   #pData(absolute_cds) <- pData(AT12_cds_subset_all_gene)
   
@@ -1051,7 +589,6 @@ dmode <- function(x, breaks="Sturges") {
   plot_spanning_tree(quake_maker_cds, color_by="State", show_backbone=T, show_cell_names = F)
   
   #assign pseudotime associated data calculated with FPKM values to all datasets: USE THE ORIGINAL CELL ORDERING
-  load('AT12_cds_subset_all_gene')
   abs_AT12_cds_subset_all_gene <- absolute_cds[, colnames(AT12_cds_subset_all_gene)] #AT12_cds_subset_all_gene ONLY INCLUDES CELLS OTHER THAN THE CLARA OR CILIATED CELLS
   pData(abs_AT12_cds_subset_all_gene) <- pData(AT12_cds_subset_all_gene[, colnames(AT12_cds_subset_all_gene)])
   mc_AT12_cds_subset_all_gene <- mc_adj_cds[, colnames(AT12_cds_subset_all_gene)] #AT12_cds_subset_all_gene ONLY INCLUDES CELLS OTHER THAN THE CLARA OR CILIATED CELLS
@@ -1059,4 +596,16 @@ dmode <- function(x, breaks="Sturges") {
   std_AT12_cds_subset_all_gene <- standard_cds[, colnames(AT12_cds_subset_all_gene)]
   pData(std_AT12_cds_subset_all_gene) <- pData(AT12_cds_subset_all_gene[, colnames(std_AT12_cds_subset_all_gene)])
 
+  #estimate size and dispersion parameters
+  absolute_cds <- estimateDispersions(absolute_cds)
+  mc_adj_cds <- estimateSizeFactors(mc_adj_cds)
+  mc_adj_cds <- estimateDispersions(mc_adj_cds)
+
+  abs_AT12_cds_subset_all_gene <- estimateSizeFactors(abs_AT12_cds_subset_all_gene)
+  abs_AT12_cds_subset_all_gene <- estimateDispersions(abs_AT12_cds_subset_all_gene)
+  mc_AT12_cds_subset_all_gene <- estimateSizeFactors(mc_AT12_cds_subset_all_gene)
+  mc_AT12_cds_subset_all_gene <- estimateDispersions(mc_AT12_cds_subset_all_gene)
+
   #save to the folder: 
+#  save.image('prepare_lung_data.RData')
+

@@ -1,67 +1,74 @@
- ###################the muscle data####################
-  #Cole's code to order the muscle cells##
-  HSMM_fpkm_matrix <- read.delim("/net/trapnell/vol1/home/xqiu/Projects/BEAM/Xiaojie_reproduce/muscle/HSMM/sc-RNA-Seq/HSMM_cuffnorm_out/genes.fpkm_table")
-  row.names(HSMM_fpkm_matrix) <- HSMM_fpkm_matrix$tracking_id
-  HSMM_fpkm_matrix <- HSMM_fpkm_matrix[,-1]
+ #  library(monocle)
+ #  library(xacHelper)
+ #  elife_directory = "./"
+ #  use_select_algorithm <- T
+
+ #  load_all_libraries()
+
+ # ###################the muscle data####################
+ #  #Cole's code to order the muscle cells##
+ #  HSMM_fpkm_matrix <- read.delim("./HSMM_data/muscle/HSMM/HSMM_cuffnorm_out/genes.fpkm_table")
+ #  row.names(HSMM_fpkm_matrix) <- HSMM_fpkm_matrix$tracking_id
+ #  HSMM_fpkm_matrix <- HSMM_fpkm_matrix[,-1]
   
-  HSMM_isoform_fpkm_matrix <- read.delim("/net/trapnell/vol1/home/xqiu/Projects/BEAM/Xiaojie_reproduce/muscle/HSMM/sc-RNA-Seq/HSMM_cuffnorm_out/isoforms.fpkm_table")
-  row.names(HSMM_isoform_fpkm_matrix) <- HSMM_isoform_fpkm_matrix$tracking_id
-  HSMM_isoform_fpkm_matrix <- HSMM_isoform_fpkm_matrix[,-1]
+ #  HSMM_isoform_fpkm_matrix <- read.delim("./HSMM_data/muscle/HSMM/HSMM_cuffnorm_out/isoforms.fpkm_table")
+ #  row.names(HSMM_isoform_fpkm_matrix) <- HSMM_isoform_fpkm_matrix$tracking_id
+ #  HSMM_isoform_fpkm_matrix <- HSMM_isoform_fpkm_matrix[,-1]
   
-  sample_sheet <- read.delim("/net/trapnell/vol1/home/xqiu/Projects/BEAM/Xiaojie_reproduce/muscle/HSMM/sc-RNA-Seq/sample_sheet.txt")
-  sample_sheet$cell_id <- paste(sample_sheet$cell_id, "_0", sep="")
-  row.names(sample_sheet) <- sample_sheet$cell_id
-  sample_sheet <- sample_sheet[colnames(HSMM_fpkm_matrix),]
+ #  sample_sheet <- read.delim("./HSMM_data/muscle/HSMM/sample_sheet.txt")
+ #  sample_sheet$cell_id <- paste(sample_sheet$cell_id, "_0", sep="")
+ #  row.names(sample_sheet) <- sample_sheet$cell_id
+ #  sample_sheet <- sample_sheet[colnames(HSMM_fpkm_matrix),]
   
-  cell_is_valid_singleton <- row.names(subset(sample_sheet, Control == FALSE & Unusual.Shape == FALSE & Debris == FALSE & Clump == FALSE & Cells.in.Well == 1)) 
-  sample_sheet <- sample_sheet[cell_is_valid_singleton,]
+ #  cell_is_valid_singleton <- row.names(subset(sample_sheet, Control == FALSE & Unusual.Shape == FALSE & Debris == FALSE & Clump == FALSE & Cells.in.Well == 1)) 
+ #  sample_sheet <- sample_sheet[cell_is_valid_singleton,]
   
-  HSMM_fpkm_matrix <- HSMM_fpkm_matrix[,row.names(sample_sheet)]
-  HSMM_isoform_fpkm_matrix <- HSMM_isoform_fpkm_matrix[,row.names(sample_sheet)]
+ #  HSMM_fpkm_matrix <- HSMM_fpkm_matrix[,row.names(sample_sheet)]
+ #  HSMM_isoform_fpkm_matrix <- HSMM_isoform_fpkm_matrix[,row.names(sample_sheet)]
     
-  #use the new recovery algorithm: 
-  TPM_HSMM_isoform_fpkm_matrix <- apply(HSMM_isoform_fpkm_matrix, 2, function(x) x / sum(x) * 10^6)
+ #  #use the new recovery algorithm: 
+ #  TPM_HSMM_isoform_fpkm_matrix <- apply(HSMM_isoform_fpkm_matrix, 2, function(x) x / sum(x) * 10^6)
   
-  HSMM_fpkm_matrix_adj_select <- relative2abs_optim_fix_c(HSMM_fpkm_matrix, t_estimate = estimate_t(TPM_HSMM_isoform_fpkm_matrix, relative_expr_thresh = 0.1), 
-                                                          alpha_v = 1, total_RNAs = 50000, weight = 0.01, verbose = T, return_all = T, cores = 2, m =  -4.864207, c = 2.77514) # mean(mean_m_c_select[1, ])
-  gene_ann <- read.delim("/net/trapnell/vol1/home/xqiu/Projects/BEAM/Xiaojie_reproduce/Muscle/HSMM/sc-RNA-Seq/gene_annotations.txt")
+ #  HSMM_fpkm_matrix_adj_select <- relative2abs_optim_fix_c(HSMM_fpkm_matrix, t_estimate = estimate_t(TPM_HSMM_isoform_fpkm_matrix, relative_expr_thresh = 0.1), 
+ #                                                          alpha_v = 1, total_RNAs = 50000, weight = 0.01, verbose = T, return_all = T, cores = 2, m =  -4.864207, c = 2.77514) # mean(mean_m_c_select[1, ])
+ #  gene_ann <- read.delim("./HSMM_data/muscle/HSMM/gene_annotations.txt")
   
-  mito_genes <- subset(gene_ann, grepl("chrM", gene_ann$locus))$gene_short_name
+ #  mito_genes <- subset(gene_ann, grepl("chrM", gene_ann$locus))$gene_short_name
   
-  gencode_biotypes <- read.delim("/net/trapnell/vol1/home/xqiu/Projects/BEAM/Xiaojie_reproduce/Muscle/HSMM/sc-RNA-Seq/gencode_biotypes.txt")
+ #  gencode_biotypes <- read.delim("./HSMM_data/muscle/HSMM/gencode_biotypes.txt")
   
-  gene_ann <- merge(gene_ann, gencode_biotypes, by = "gene_id")
-  row.names(gene_ann) <- gene_ann$gene_id
-  gene_ann <- gene_ann[,c("gene_short_name", "biotype")]
-  gene_ann <- gene_ann[row.names(HSMM_fpkm_matrix),]
-  #sample_sheet <- sample_sheet[colnames(fpkm_matrix_adj),]
+ #  gene_ann <- merge(gene_ann, gencode_biotypes, by = "gene_id")
+ #  row.names(gene_ann) <- gene_ann$gene_id
+ #  gene_ann <- gene_ann[,c("gene_short_name", "biotype")]
+ #  gene_ann <- gene_ann[row.names(HSMM_fpkm_matrix),]
+ #  #sample_sheet <- sample_sheet[colnames(fpkm_matrix_adj),]
   
-  pd <- new("AnnotatedDataFrame", data = sample_sheet)
-  fd <- new("AnnotatedDataFrame", data = gene_ann)
+ #  pd <- new("AnnotatedDataFrame", data = sample_sheet)
+ #  fd <- new("AnnotatedDataFrame", data = gene_ann)
   
-  HSMM_fpkm_matrix_cds <-  newCellDataSet(HSMM_fpkm_matrix, 
-                                     phenoData = pd, 
-                                     featureData = fd, 
-                                     expressionFamily=negbinomial(), 
-                                     lowerDetectionLimit=1)
+ #  HSMM_fpkm_matrix_cds <-  newCellDataSet(HSMM_fpkm_matrix, 
+ #                                     phenoData = pd, 
+ #                                     featureData = fd, 
+ #                                     expressionFamily=negbinomial(), 
+ #                                     lowerDetectionLimit=1)
 
-  HSMM_fpkm_matrix_adj <- relative2abs(HSMM_fpkm_matrix_cds, t_estimate = estimate_t(HSMM_isoform_fpkm_matrix), cores=1)
+ #  HSMM_fpkm_matrix_adj <- relative2abs(HSMM_fpkm_matrix_cds, t_estimate = estimate_t(HSMM_isoform_fpkm_matrix), cores=1)
 
 
-  HSMM <-  newCellDataSet(HSMM_fpkm_matrix_adj, 
-                          phenoData = pd, 
-                          featureData = fd, 
-                          expressionFamily=negbinomial(), 
-                          lowerDetectionLimit=1)
-  HSMM_abs_select <-  newCellDataSet(HSMM_fpkm_matrix_adj_select$norm_cds, 
-                                     phenoData = pd, 
-                                     featureData = fd, 
-                                     expressionFamily=negbinomial(), 
-                                     lowerDetectionLimit=1)
-  qplot(esApply(HSMM, 2, sum), apply(HSMM_fpkm_matrix_adj_select$norm_cds, 2, sum), log = 'xy') + xlab('Previous recovery algorithm') +
-    ylab('New recovery algorithm') + ggtitle('Compare the result from previous and current recovery algorithm (HSMM data)') + geom_smooth(method = 'rlm') + geom_abline()
+ #  HSMM <-  newCellDataSet(HSMM_fpkm_matrix_adj, 
+ #                          phenoData = pd, 
+ #                          featureData = fd, 
+ #                          expressionFamily=negbinomial(), 
+ #                          lowerDetectionLimit=1)
+ #  HSMM_abs_select <-  newCellDataSet(HSMM_fpkm_matrix_adj_select$norm_cds, 
+ #                                     phenoData = pd, 
+ #                                     featureData = fd, 
+ #                                     expressionFamily=negbinomial(), 
+ #                                     lowerDetectionLimit=1)
+ #  qplot(esApply(HSMM, 2, sum), apply(HSMM_fpkm_matrix_adj_select$norm_cds, 2, sum), log = 'xy') + xlab('Previous recovery algorithm') +
+ #    ylab('New recovery algorithm') + ggtitle('Compare the result from previous and current recovery algorithm (HSMM data)') + geom_smooth(method = 'rlm') + geom_abline()
   
-  # valid_HSMM_cell <- load('valid_HSMM_cell') #load the cells
+ #  # valid_HSMM_cell <- load('valid_HSMM_cell') #load the cells
   
   if(use_select_algorithm)
     exprs(HSMM) <- HSMM_fpkm_matrix_adj_select$norm_cds
@@ -222,3 +229,5 @@
   muscle_df$data_type = c("Transcript (size normalization)", "Transcript (size normalization)", "FPKM", "FPKM")
   
   muscle_df$class = '3relative'
+
+  save.image('analysis_HSMM_data.RData')
