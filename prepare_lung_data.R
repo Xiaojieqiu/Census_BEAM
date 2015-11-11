@@ -549,8 +549,10 @@
   test <- setOrderingFilter(standard_cds[, !(colnames(standard_cds) %in% paste(other_cell_names, "_0", sep = ''))], add_quake_gene_all_marker_ids)
   test <- reduceDimension(test[, !(colnames(test) %in% paste(other_cell_names, "_0", sep = ''))], use_irlba = F, use_vst = F) 
   test <- orderCells(test, num_paths = 2, reverse = F) #SRR1033962_0 
+  pdf('test_tree.pdf')
   plot_spanning_tree(test, color_by="Time", show_backbone=T, show_cell_names = F)
-  
+  dev.off()
+
   # switch the state 2/3 to ensure that we get the exact plots in the paper: 
   State <- pData(AT12_cds_subset_all_gene)$State
   pData(AT12_cds_subset_all_gene)$State[State == 2] <- 3
@@ -561,7 +563,10 @@
   AT12_cds_subset_all_gene2 <- reduceDimension(absolute_cds[add_quake_gene_all_marker_ids, !(colnames(absolute_cds) %in% paste(other_cell_names, "_0", sep = ''))], max_components = 2, use_irlba=T, fun="exp", use_vst = F)  
   AT12_cds_subset_all_gene2 <- orderCells(AT12_cds_subset_all_gene2, num_paths = 2, reverse = T) #SRR1033962_0 
   
+  pdf('AT12_cds_subset_all_gene2.pdf.pdf')
   plot_spanning_tree(AT12_cds_subset_all_gene2, color_by="Time", show_backbone=T, show_cell_names = F)
+  dev.off()
+
   absolute_cds@expressionFamily <- negbinomial()
   # calculate size factors as well as dispersion parameters for later analysis: 
   absolute_cds <- estimateSizeFactors(absolute_cds)
@@ -585,7 +590,9 @@
   quake_maker_cds <- orderCells(quake_maker_cds, num_paths = 2, reverse = F) #SRR1033962_0 
   quake_maker_cds <- orderCells(quake_maker_cds, num_paths = 2, reverse = T) #SRR1033962_0 
 
+  pdf('quake_maker_cds.pdf.pdf')
   plot_spanning_tree(quake_maker_cds, color_by="State", show_backbone=T, show_cell_names = F)
+  dev.off()
   
   #assign pseudotime associated data calculated with FPKM values to all datasets: USE THE ORIGINAL CELL ORDERING
   abs_AT12_cds_subset_all_gene <- absolute_cds[, colnames(AT12_cds_subset_all_gene)] #AT12_cds_subset_all_gene ONLY INCLUDES CELLS OTHER THAN THE CLARA OR CILIATED CELLS
