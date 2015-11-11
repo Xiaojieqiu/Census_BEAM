@@ -1,5 +1,5 @@
 #download the data necessary for the analysis: 
-wget -r --no-parent http://www.gs.washington.edu/~xqiu/proj/BEAM/
+wget -r --no-parent --no-directories http://www.gs.washington.edu/~xqiu/proj/BEAM/
 
 #prepare the data for the lung analysis
 R CMD prepare_lung_data.R 

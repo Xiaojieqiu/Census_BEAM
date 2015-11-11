@@ -1,8 +1,12 @@
- # save.image('HSMM_all_data.RData')
-  #save the data: 
-  # save.image(file = 'run8.RData') #a lot of the following analysis require multiple cores to finish in days. So I run the above results on my iMac and run the following analysis on cluster
-    
-  #specify states used for branchTest and calABCs
+  load('prepare_lung_data.RData')
+  
+  library(monocle)
+  library(xacHelper)
+  elife_directory = "./"
+
+  load_all_libraries()
+      
+  # specify states used for branchTest and calABCs
   progenitor_state <- 1
   lineage_states <- c(2, 3)
 
@@ -140,3 +144,5 @@
   #                                             integer_expression = FALSE,
   #                                             num = 5000)
   
+  save.image('analysis_lung_data.RData')
+

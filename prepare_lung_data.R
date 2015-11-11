@@ -2,7 +2,6 @@
 
   library(monocle)
   library(xacHelper)
-  elife_directory = "./"
 
   load_all_libraries()
   # ########################################################prepare the Quake dataset########################################################
@@ -607,5 +606,5 @@
   mc_AT12_cds_subset_all_gene <- estimateDispersions(mc_AT12_cds_subset_all_gene)
 
   #save to the folder: 
-#  save.image('prepare_lung_data.RData')
+ save.image('prepare_lung_data.RData')
 

@@ -1,3 +1,9 @@
+  load('prepare_lung_data.RData')
+  library(monocle)
+  library(xacHelper)
+
+  load_all_libraries()
+
 #########################run the following scripts in remote sever#############################
 
   # source('DevTree_func.R') #load all functions from DevTree package: 
@@ -227,10 +233,12 @@
   df3$class = '3relative'
 
   # figure 2b: 
+  pdf('fig_SI_benchmark_df3.pdf')
   qplot(factor(Type), value, stat = "identity", geom = 'bar', position = 'dodge', fill = data_type, data = melt(df3)) + #facet_wrap(~variable) + 
   ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
   ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank())
-  
+  dev.off()
+
   # only show new size normalization: 
   df3.1 <- df3
   df3.1[, 'Type'] <- c('SCDE', 'SCDE', 'DESeq1', 'DESeq1', 'DESeq2', 'DESeq2', 'edgeR', 'edgeR', 'Monocle', 'Monocle', 'Monocle', 'Monocle') # geom_bar(stat = 'identity', position = 'dodge') 
@@ -245,16 +253,28 @@
                           mc_mean = apply(new_mc_cds_14_18[1:transcript_num, ], 1, mean), 
                           read_mean = apply(count_cds[1:transcript_num, ], 1, mean) )
   
+  pdf('fpkm_mean.pdf')
   qplot(log10(pval_mean[, 'fpkm_mean'] + 1), pval_mean[, 'std'])
+  dev.off()
+  
+  pdf('spike_mean.pdf')
   qplot(log10(pval_mean[, 'spike_mean'] + 1), pval_mean[, 'abs'])
-  qplot(log10(pval_mean[, 'mc_mean'] + 1), pval_mean[, 'mc'])
-  qplot(log10(pval_mean[, 'read_mean'] + 1), pval_mean[, 'read'])
+  dev.off()
 
+  pdf('mc_mean.pdf')
+  qplot(log10(pval_mean[, 'mc_mean'] + 1), pval_mean[, 'mc'])
+  dev.off()
+
+  pdf('read_mean.pdf')
+  qplot(log10(pval_mean[, 'read_mean'] + 1), pval_mean[, 'read'])
+  dev.off()
 
   # figure a: 
+  pdf('fig_SI_benchmark.pdf')
   qplot(factor(Type), value, stat = "identity", geom = 'bar', position = 'dodge', fill = data_type, data = melt(df3)) + #facet_wrap(~variable) + 
   ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
   ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank())
+  dev.off()
 
   # only show new size normalization: 
   df3.1 <- df3
@@ -265,15 +285,18 @@
   df3.1 <- df3.1[c(1:8, 10:14), ]
 
   colnames(df3.1)[1:3] <- c('Precision', 'Recall', 'F1 score')
+
+  pdf('eLife_fig_SI_benchmark.pdf', width = 3, height = 2)
   ggplot(aes(factor(Type), value,  fill = data_type), data = melt(df3.1)) + geom_bar(position = position_dodge(), stat = 'identity') + #facet_wrap(~variable) + 
   ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
   ggtitle('') + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + nm_theme() + xlab('')
-  ggsave(paste(elife_directory, 'SI/eLife_fig_SI_benchmark.pdf', sep = ''), width = 3, height = 2)
+  dev.off()
 
+  pdf('eLife_fig_SI_benchmark_helper.pdf', width = 3, height = 2)
   ggplot(aes(factor(Type), value,  fill = data_type), data = melt(df3.1)) + geom_bar(position = position_dodge(), stat = 'identity') + #facet_wrap(~variable) + 
   ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
   ggtitle('') + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank())
-  ggsave(paste(elife_directory, 'SI/eLife_fig_SI_benchmark_helper.pdf', sep = ''), width = 3, height = 2)
+  dev.off()
 
   #show only the spike-in / mc algorithm test: 
   mc_spikein_df <- plot_pre_rec_f1(test_p_list = list(mode_size_norm_permutate_ratio_by_geometric_mean = new_abs_size_norm_monocle_p_ratio_by_geometric_mean,
@@ -289,12 +312,14 @@
   mc_spikein_df[, 'Type'] <- c('Monocle', 'Monocle') # geom_bar(stat = 'identity', position = 'dodge') 
   colnames(mc_spikein_df)[1:3] <- c('Precision', 'Recall', 'F1 score')
 
+  pdf('eLife_fig_4_mc_spikein_benchmark.pdf', width = 1.5, height = 1.7)
   ggplot(aes(factor(Type), value,  fill = data_type), data = melt(mc_spikein_df)) + geom_bar(position = position_dodge(), stat = 'identity') + #facet_wrap(~variable) + 
   ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
   ggtitle('') + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + nm_theme() + xlab('') + theme(axis.text.x=element_blank(), axis.ticks.x=element_blank())
-  ggsave(paste(elife_directory, '/eLife_fig_4_mc_spikein_benchmark.pdf', sep = ''), width = 1.5, height = 1.7)
+  dev.off()
 
+  pdf('fig_4_mc_spikein_benchmark_helper.pdf', width = 3, height = 2)
   ggplot(aes(factor(Type), value,  fill = data_type), data = melt(mc_spikein_df)) + geom_bar(position = position_dodge(), stat = 'identity') + #facet_wrap(~variable) + 
   ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
   ggtitle('') + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank())
-  ggsave(paste(elife_directory, '/eLife_fig_4_mc_spikein_benchmark_helper.pdf', sep = ''), width = 3, height = 2)
+  dev.off()

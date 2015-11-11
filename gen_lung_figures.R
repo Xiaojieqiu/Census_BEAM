@@ -1,4 +1,5 @@
-##
+##load the data: 
+load('analysis_lung_data.RData')
 
 #color scheme: 
 prog_cell_state = "#979797"
