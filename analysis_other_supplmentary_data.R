@@ -1,3 +1,5 @@
+  load('prepare_lung_data.RData')
+
   library(monocle)
   library(xacHelper)
   elife_directory = "./"
