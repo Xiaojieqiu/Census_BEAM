@@ -1,5 +1,10 @@
+library(monocle)
+library(xacHelper)
+
+load_all_libraries()
+
 ##load the data: 
-load('analysis_lung_data.RData')
+# load('analysis_lung_data.RData')
 
 #color scheme: 
 prog_cell_state = "#979797"
@@ -9,17 +14,17 @@ AT1_Lineage = "#BD1C7C"
 AT2_Lineage = "#337DB9" 
 
 #########################################################################################################
-#debug the functions (see runme_eLife_test.R): 
+#debug the functions (see runme_submission_test.R): 
 
 #########################################################################################################
-# generate the figures for eLife paper: 
+# generate the figures for submission paper: 
 # generate the figure again with package from Develop branch: 
 
 #########################################################################################################
 # figure 1a: 
 # panel a:
-# elife_directory <- "/Users/xqiu/Dropbox (Cole Trapnell's Lab)/manuscript/Manuscript_eLife/AI/"
-elife_directory <- "./"
+# submission_directory <- "/Users/xqiu/Dropbox (Cole Trapnell's Lab)/manuscript/Manuscript_submission/AI/"
+submission_directory <- "./"
 
 #marker from Quake paper AT1 (Pdpn, Ager) and AT2 (Sftpc, Sftpb) cells) with examples of cell cycle genes
 markers <- c('Pdpn', 'Sftpb', 'Ccnb2', 'Cdk1') #Ccnb2, Cdk1
@@ -32,7 +37,7 @@ abs_AT12_cds_subset_all_gene@minSpanningTree <- AT12_cds_subset_all_gene@minSpan
 plot_spanning_tree(abs_AT12_cds_subset_all_gene, color_by="Time", show_backbone=T, backbone_color = 'black',
     markers=markers, show_cell_names = F, show_all_lineages = F, cell_link_size = 0.2) + 
         scale_size(range = c(0.1, 2.5)) + nm_theme()
-ggsave(paste(elife_directory, 'eLife_fig1a.pdf', sep = ''), height = 2, width = 2.5)
+ggsave(paste(submission_directory, 'submission_fig1a.pdf', sep = ''), height = 2, width = 2.5)
 
 #figure 1b: 
 # markers <- c('Soat1', 'S100g', 'Clic5', 'Muc1')
@@ -59,7 +64,7 @@ colour[names(colour) == 'AT1'] <- AT1_Lineage
 colour[names(colour) ==  'AT2'] <- AT2_Lineage
 
 plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[example_ids, ], cell_color_by = "Time", trajectory_color_by = "Lineage", fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', normalize = F, stretch = T, lineage_labels = c('AT1', 'AT2'), cell_size = 1, ncol = 2) + nm_theme()+ ylab('Transcript counts') + xlab('Pseudotime')
-ggsave(paste(elife_directory, 'eLife_fig1b.pdf', sep = ''), height = 2, width = 3)
+ggsave(paste(submission_directory, 'submission_fig1b.pdf', sep = ''), height = 2, width = 3)
 
 #########################################################################################################
 #figure 2: 
@@ -86,7 +91,7 @@ abs_house_keeping_marker_branchTest_res[fig2_genes_ids, 'pval']
 plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[fig2_genes_ids, ], color_by = "Time", panel_order = fig2_genes, 
     trajectory_color_by = "Lineage", trend_formula = '~sm.ns(Pseudotime, df = 3)*Lineage', reducedModelFormulaStr = '~sm.ns(Pseudotime, df = 3)', 
      normalize = T, stretch = T, lineage_labels = c('AT1', 'AT2'), cell_size = 1, ncol = 2, add_pval = T) + nm_theme()+ ylab('Transcript counts') + xlab('Pseudotime')
-ggsave(filename = paste(elife_directory, 'eLife_fig2b.pdf'), width = 2.6, height = 1.75)
+ggsave(filename = paste(submission_directory, 'submission_fig2b.pdf'), width = 2.6, height = 1.75)
 
 #fig 2c: 
 markers <- c('Rtkn2', 'Sdpr', 'Egfl6', 'Hc') #Rtkn2: AT1 early; Sdpr: AT1 late; Egfl6: AT2 early; Hc: AT2 late
@@ -120,7 +125,7 @@ colour[names(colour) ==  'AT2'] <- AT2_Lineage
 plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[example_ids, ], color_by = "Time", panel_order = markers, trajectory_color_by = 'Lineage', 
     fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', reducedModelFormulaStr = '~sm.ns(Pseudotime, df = 3)', normalize = T, stretch = T,
     lineage_labels = c('AT1', 'AT2'), cell_size = 1, ncol = 2, bifurcation_time  = abs(bif_time)) + nm_theme()+ ylab('Transcript counts') + xlab('Pseudotime')
-ggsave(paste(elife_directory, 'eLife_fig2b_time.pdf', sep = ''), height = 2, width = 3)
+ggsave(paste(submission_directory, 'submission_fig2b_time.pdf', sep = ''), height = 2, width = 3)
 
 abs_str_logfc_df_list <- calILRs(cds = abs_AT12_cds_subset_all_gene[add_quake_gene_all_marker_ids, ], lineage_states = c(2, 3), stretch = T,cores = 1, 
     trend_formula = "~sm.ns(Pseudotime, df = 3) * Lineage", ILRs_limit = 3, 
@@ -153,7 +158,7 @@ data <- subset(data, !is.na(type))
 qplot(type, abs(bifurcation_time_point), color = type, geom = c('jitter', 'boxplot'), data = data, alpha = I(0.7)) + 
     xlab('') + ylab('bifurcation time point') + #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
     nm_theme()
-ggsave(filename = paste(elife_directory, 'eLife_fig2c.pdf'), width = 2.25, height = 1.25)
+ggsave(filename = paste(submission_directory, 'submission_fig2c.pdf'), width = 2.25, height = 1.25)
 
 #figure 2d: 
 add_quake_gene_all_marker_ids_branchTest_res <- weihgted_relative_abs_AT12_cds_subset_all_gene[add_quake_gene_all_marker_ids, ]
@@ -164,8 +169,8 @@ bk <- seq(-3.1,3.1, by=0.1)
 hmcols <- jet.colors(length(bk) - 1)
 
 #Quake figure in the paper: 
-valid_add_quake_gene_all_marker_ids_res_no_fit_log <- plot_genes_branched_heatmap(abs_AT12_cds_subset_all_gene[add_quake_gene_all_marker_ids, ], num_clusters=4, norm_method = "log", use_fitting_curves = F, scaling = F, hmcols = hmcols, file_name = paste(elife_directory, 'eLife_fig2d.pdf'))
-valid_add_quake_gene_all_marker_ids_res_FIT_log <- plot_genes_branched_heatmap(abs_AT12_cds_subset_all_gene[add_quake_gene_all_marker_ids, ], num_clusters=4, norm_method = "log", use_fitting_curves = T, scaling = F, hmcols = hmcols, file_name = paste(elife_directory, 'eLife_fig2d.1.pdf'))
+valid_add_quake_gene_all_marker_ids_res_no_fit_log <- plot_genes_branched_heatmap(abs_AT12_cds_subset_all_gene[add_quake_gene_all_marker_ids, ], num_clusters=4, norm_method = "log", use_fitting_curves = F, scaling = F, hmcols = hmcols, file_name = paste(submission_directory, 'submission_fig2d.pdf'))
+valid_add_quake_gene_all_marker_ids_res_FIT_log <- plot_genes_branched_heatmap(abs_AT12_cds_subset_all_gene[add_quake_gene_all_marker_ids, ], num_clusters=4, norm_method = "log", use_fitting_curves = T, scaling = F, hmcols = hmcols, file_name = paste(submission_directory, 'submission_fig2d.1.pdf'))
 
 #add the AT1/2 early/late annotation: 
 #add cell cycle genes
@@ -179,7 +184,7 @@ add_annotation_row <- data.frame(significance = as.numeric(cell_cycle_timing_exa
 
 time_annotated_heatmap <- plot_genes_branched_heatmap(abs_AT12_cds_subset_all_gene[c(timing_example_ids, cell_cycle_markers_id), ], 
     num_clusters=4, norm_method = "log", use_fitting_curves = F, scaling = F, hmcols = hmcols, use_gene_short_name = T,
-    add_annotation_row = add_annotation_row, file_name = paste(elife_directory, 'eLife_fig2d_annotation.pdf'), show_rownames = T)
+    add_annotation_row = add_annotation_row, file_name = paste(submission_directory, 'submission_fig2d_annotation.pdf'), show_rownames = T)
 
 #########################################################################################################
 #figure 3: 
@@ -190,7 +195,7 @@ test <- exprs(iso_absolute_cds)[1:38919, ] #filter out the spike-in trnascripts
 mode <-apply(test, 2, function(x) mlv(round(x)[round(x) > .1], method = "mfv")$M) #calculate the mode of transcript counts
 ggplot(data = data.frame(mode = mode), aes(x = mode)) + geom_bar(fill = I('red'), size = .5) + #geom_vline(x = 1, linetype = 'longdash', color = I('blue'), size = .2) + 
     xlab('Mode of transcript counts') + ylab('Cells') + scale_x_continuous(breaks = 1:10) + monocle_theme_opts() + nm_theme() #make figure 1.a
-ggsave(filename = paste(elife_directory, 'eLife_fig3a.pdf', sep = ''), width = 1.38, height = 1.25)
+ggsave(filename = paste(submission_directory, 'submission_fig3a.pdf', sep = ''), width = 1.38, height = 1.25)
 
 # mode_df <- data.frame(mode = estimate_t(absolute_cds), Time = pData(absolute_cds)$Time)
 # ggplot(aes(x = mode), data = mode_df) + geom_bar(fill = I('red'), size = .5) + 
@@ -208,7 +213,7 @@ df$estimate_mode <- estimate_t(exprs(isoform_count_cds))
 
 #make figure 3b
 qplot(ceiling(mode_transcript), fill = I('red'), data = df)  + xlab('Transcript count for most frequent log10(FPKM)') + ylab('Cells') + nm_theme() #+ geom_vline(x = 1, linetype = 'longdash', color = I('blue'), size = .1)
-ggsave(filename = paste(elife_directory, 'eLife_fig3b.pdf'), width = 2.2, height = 1.4)
+ggsave(filename = paste(submission_directory, 'submission_fig3b.pdf'), width = 2.2, height = 1.4)
 
 #fig 3c: 
 kb_df <- t(rbind.data.frame(lapply(molModels, function(x) c(b = coef(x)[1], k = coef(x)[2]))))
@@ -216,10 +221,10 @@ colnames(kb_df) <- c('b', 'k')
 
 t <- -kb_df[, 'b'] / kb_df[, 'k']
 qplot(k, b, data = as.data.frame(kb_df), color = Time) + scale_size(range = c(0.1, 2.5)) + nm_theme() 
-ggsave(paste(elife_directory, "eLife_fig3c.pdf", sep = ''), height = 2, width = 2)
+ggsave(paste(submission_directory, "submission_fig3c.pdf", sep = ''), height = 2, width = 2)
 
 qplot(k, b, data = as.data.frame(kb_df), size = t, color = Time) + scale_size(range = c(0.1, 2.5)) #+ nm_theme() 
-ggsave(paste(elife_directory, "eLife_fig3c_helper.pdf", sep = ''), height = 2, width = 2)
+ggsave(paste(submission_directory, "submission_fig3c_helper.pdf", sep = ''), height = 2, width = 2)
 
 #fig 4e: 
 
@@ -259,7 +264,7 @@ ggplot( NULL ) + geom_raster( data = rdf , aes( x , y , fill = log10(layer) ) ) 
     theme(panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) +
     theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank()) + scale_size(range = c(0.1, 2)) + 
     theme(panel.background = element_rect(fill='white')) + nm_theme()
-ggsave(filename = paste(elife_directory, 'eLife_fig4E.pdf', sep = ''), width = 1.38, height = 1.25)
+ggsave(filename = paste(submission_directory, 'submission_fig4E.pdf', sep = ''), width = 1.38, height = 1.25)
 
 #create the helper pdf file to annotate the figure: 
 ggplot( NULL ) + geom_raster( data = rdf , aes( x , y , fill = log10(layer) ) ) + 
@@ -275,7 +280,7 @@ ggplot( NULL ) + geom_raster( data = rdf , aes( x , y , fill = log10(layer) ) ) 
     theme(panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) +
     theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank()) + scale_size(range = c(0.1, 2)) + 
     theme(panel.background = element_rect(fill='white'))
-ggsave(filename = paste(elife_directory, 'eLife_fig4d_helper.pdf', sep = ''), width = 5, height = 1.5)
+ggsave(filename = paste(submission_directory, 'submission_fig4d_helper.pdf', sep = ''), width = 5, height = 1.5)
 
 #fig 3f: 
 qplot(pData(absolute_cds)$endogenous_RNA[pData(absolute_cds)$endogenous_RNA > 1e3], 
@@ -284,7 +289,7 @@ qplot(pData(absolute_cds)$endogenous_RNA[pData(absolute_cds)$endogenous_RNA > 1e
     xlab("Total endogenous mRNA \n (spike-in)") +
     ylab("Total endogenous mRNA \n (spike-in free algorithm)") + #scale_size(range = c(0.25, 0.25)) + 
     scale_color_discrete(name = "Time points") + nm_theme()
-ggsave(filename = paste(elife_directory, 'eLife_fig3f.pdf', sep = ''), width = 2, height = 1.7)
+ggsave(filename = paste(submission_directory, 'submission_fig3f.pdf', sep = ''), width = 2, height = 1.7)
 
 #fig 3g:
 Time <- pData(abs_AT12_cds_subset_all_gene)$Time
@@ -307,7 +312,7 @@ qplot(spikein + 1, mc_algorithm + 1, log = 'xy',
     scale_size(range = c(1.5, 1)) +  geom_abline() + xlab('Transcript counts (Spike-in)') + scale_size(range = c(0.25, 0.25)) + 
         ylab('Transcript counts (Recovery algorithm)') + nm_theme()
 
-ggsave(filename = paste(elife_directory, 'eLife_fig3g.pdf', sep = ''), width = 5, height = 1.5)
+ggsave(filename = paste(submission_directory, 'submission_fig3g.pdf', sep = ''), width = 5, height = 1.5)
 
 #fig 3h: 
 #show only the spike-in / mc algorithm test: 
@@ -327,12 +332,12 @@ colnames(mc_spikein_df)[1:3] <- c('Precision', 'Recall', 'F1 score')
 ggplot(aes(factor(Type), value,  fill = data_type), data = melt(mc_spikein_df)) + geom_bar(position = position_dodge(), stat = 'identity') + #facet_wrap(~variable) + 
 ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
 ggtitle('') + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + nm_theme() + xlab('') + theme(axis.text.x=element_blank(), axis.ticks.x=element_blank())
-ggsave(paste(elife_directory, '/eLife_fig_3h.pdf', sep = ''), width = 1.5, height = 1.7)
+ggsave(paste(submission_directory, '/submission_fig_3h.pdf', sep = ''), width = 1.5, height = 1.7)
 
 ggplot(aes(factor(Type), value,  fill = data_type), data = melt(mc_spikein_df)) + geom_bar(position = position_dodge(), stat = 'identity') + #facet_wrap(~variable) + 
 ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
 ggtitle('') + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank())
-ggsave(paste(elife_directory, '/eLife_fig_3h_helper.pdf', sep = ''), width = 3, height = 2)
+ggsave(paste(submission_directory, '/submission_fig_3h_helper.pdf', sep = ''), width = 3, height = 2)
 
 #########################################################################################################
 #figure 4: 
@@ -350,7 +355,7 @@ ggsave(paste(elife_directory, '/eLife_fig_3h_helper.pdf', sep = ''), width = 3, 
 # qplot(c('AT1', 'AT2'), Lineage_gene_num, stat = 'identity', geom = 'bar', fill = c(AT1_Lineage, AT2_Lineage)) + 
 #     xlab('Lineages') + ylab('Gene number') +  scale_fill_manual(name = "", values = c(AT1_Lineage, AT2_Lineage), labels = c("AT1", "AT2")) + 
 #     nm_theme()
-# ggsave(paste(elife_directory, 'eLife_fig4a.pdf', sep = ''), width = 1, height = 1.2)
+# ggsave(paste(submission_directory, 'submission_fig4a.pdf', sep = ''), width = 1, height = 1.2)
 
 #panel b: 
 # branch_gene_str_norm_div_df <- abs_AT12_cds_subset_all_gene_ILRs_list$str_logfc_df[row.names(weihgted_relative_abs_AT12_cds_subset_all_gene[weihgted_relative_abs_AT12_cds_subset_all_gene[, 'qval'] <= 0.05, ]), ]
@@ -360,14 +365,14 @@ fData(abs_AT12_cds_subset_all_gene)$num_cell_expressed <- esApply(abs_AT12_cds_s
 valid_expressed_genes <- row.names(subset(fData(abs_AT12_cds_subset_all_gene), num_cell_expressed > 5))
 
 all_AT12_heatmap <- plot_genes_branched_heatmap(abs_AT12_cds_subset_all_gene[quake_branch_genes[quake_branch_genes %in% valid_expressed_genes], ], 
-    stretch = T, file_name = paste(elife_directory, "eLife_fig4b.pdf", sep = ''))
+    stretch = T, file_name = paste(submission_directory, "submission_fig4b.pdf", sep = ''))
 
 clusters <- as.numeric(all_AT12_heatmap$annotation_row$Cluster); 
 names(clusters) <- fData(abs_AT12_cds_subset_all_gene[row.names(all_AT12_heatmap$annotation_row), ])$gene_short_name
 
 branchGenes_gsa_results_branch_genes <- collect_gsa_hyper_results(abs_AT12_cds_subset_all_gene[, ], mouse_go_gsc, clusters)
 
-pdf(paste(elife_directory, "eLife_fig4b_go_enrichment.pdf", sep = ''), height=100, width=15)
+pdf(paste(submission_directory, "submission_fig4b_go_enrichment.pdf", sep = ''), height=100, width=15)
 plot_gsa_hyper_heatmap(abs_AT12_cds_subset_all_gene, branchGenes_gsa_results_branch_genes, significance = 1e-2)
 dev.off()
 
@@ -409,7 +414,7 @@ valid_hyper_df$cluster_color <- cluster_color[as.numeric(valid_hyper_df$cluster_
 
 qplot(cluster_id, gene_set, fill=cluster_color, geom="tile", data=valid_hyper_df) + nm_theme() + scale_fill_manual(values=cluster_color)  + 
     theme(axis.text.x = element_text(angle = 0, hjust = 1)) + xlab('') + ylab('')
-ggsave(paste(elife_directory, "eLife_fig4c.pdf", sep = ''), height = 6, width = 2)
+ggsave(paste(submission_directory, "submission_fig4c.pdf", sep = ''), height = 6, width = 2)
 
 #Figure 4d: 
 colour_cell <- rep(0, length(new_cds$Lineage))
@@ -431,7 +436,7 @@ plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[branch_motif_Tfs_id
                 trajectory_color_by = "Lineage", fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', normalize = F, stretch = T,
                 lineage_labels = c('AT1', 'AT2'), cell_size = 1, ncol = 4, reducedModelFormulaStr = "~sm.ns(Pseudotime, df=3)", add_pval = T) + 
                 ylab('Transcript counts') + nm_theme() + xlab('Pseudotime')
-ggsave(paste(elife_directory, 'eLife_fig4d.pdf', sep = ''), height = 3, width = 5)
+ggsave(paste(submission_directory, 'submission_fig4d.pdf', sep = ''), height = 3, width = 5)
 
 # #Tcf12 is not the branching genes anymore
 # plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene['ENSMUSG00000032228.10', ], cell_color_by = "State", 

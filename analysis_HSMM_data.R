@@ -70,128 +70,128 @@
   
  #  # valid_HSMM_cell <- load('valid_HSMM_cell') #load the cells
   
-  if(use_select_algorithm)
-    exprs(HSMM) <- HSMM_fpkm_matrix_adj_select$norm_cds
+#   if(use_select_algorithm)
+#     exprs(HSMM) <- HSMM_fpkm_matrix_adj_select$norm_cds
   
-    ######################################analysis code for the HSMM dataset######################################
-  pData(HSMM)$Total_mRNAs <- colSums(exprs(HSMM))
+#     ######################################analysis code for the HSMM dataset######################################
+#   pData(HSMM)$Total_mRNAs <- colSums(exprs(HSMM))
   
-  #HSMM <- HSMM[,row.names(subset(pData(HSMM), Total_mRNAs >= 10000 & Total_mRNAs <= 100000))]
-  HSMM <- detectGenes(HSMM, min_expr = 0.1)
+#   #HSMM <- HSMM[,row.names(subset(pData(HSMM), Total_mRNAs >= 10000 & Total_mRNAs <= 100000))]
+#   HSMM <- detectGenes(HSMM, min_expr = 0.1)
   
-  # myo_and_fibro_expressed_genes <- row.names(subset(fData(HSMM),
-  # num_cells_expressed >= 15 &
-  # biotype %in% c("protein_coding", "lincRNA")))
-  # vstExprs(HSMM) <- computeVarianceStabilizedValues(HSMM, model_row_names=myo_and_fibro_expressed_genes, modelFormulaStr="expression~Media", cores=12)
+#   # myo_and_fibro_expressed_genes <- row.names(subset(fData(HSMM),
+#   # num_cells_expressed >= 15 &
+#   # biotype %in% c("protein_coding", "lincRNA")))
+#   # vstExprs(HSMM) <- computeVarianceStabilizedValues(HSMM, model_row_names=myo_and_fibro_expressed_genes, modelFormulaStr="expression~Media", cores=12)
   
-  PDGFRA_expr <- exprs(HSMM[row.names(subset(fData(HSMM), gene_short_name %in% c("PDGFRA"))),])
-  SPHK1_expr <- exprs(HSMM[row.names(subset(fData(HSMM), gene_short_name %in% c("SPHK1"))),])
-  ANPEP_expr <- exprs(HSMM[row.names(subset(fData(HSMM), gene_short_name %in% c("ANPEP"))),])
-  MEF2C_expr <- exprs(HSMM[row.names(subset(fData(HSMM), gene_short_name %in% c("MEF2C"))),])
-  MYF5_expr <- exprs(HSMM[row.names(subset(fData(HSMM), gene_short_name %in% c("MYF5"))),])
-  
-  
-  pData(HSMM)$PDGFRA <- as.vector(PDGFRA_expr)
-  pData(HSMM)$SPHK1 <- as.vector(SPHK1_expr)
-  pData(HSMM)$ANPEP <- as.vector(ANPEP_expr)
-  pData(HSMM)$MEF2C <- as.vector(MEF2C_expr)
-  pData(HSMM)$MYF5 <- as.vector(MYF5_expr)
+#   PDGFRA_expr <- exprs(HSMM[row.names(subset(fData(HSMM), gene_short_name %in% c("PDGFRA"))),])
+#   SPHK1_expr <- exprs(HSMM[row.names(subset(fData(HSMM), gene_short_name %in% c("SPHK1"))),])
+#   ANPEP_expr <- exprs(HSMM[row.names(subset(fData(HSMM), gene_short_name %in% c("ANPEP"))),])
+#   MEF2C_expr <- exprs(HSMM[row.names(subset(fData(HSMM), gene_short_name %in% c("MEF2C"))),])
+#   MYF5_expr <- exprs(HSMM[row.names(subset(fData(HSMM), gene_short_name %in% c("MYF5"))),])
   
   
-  SPHK1_thresh <- 1
-  PDGFRA_thresh <- 1
-  ANPEP_thresh <- Inf #0.1
-  MEF2C_thresh <- 5 #0.1
-  MYF5_thresh <- 1 #0.1
+#   pData(HSMM)$PDGFRA <- as.vector(PDGFRA_expr)
+#   pData(HSMM)$SPHK1 <- as.vector(SPHK1_expr)
+#   pData(HSMM)$ANPEP <- as.vector(ANPEP_expr)
+#   pData(HSMM)$MEF2C <- as.vector(MEF2C_expr)
+#   pData(HSMM)$MYF5 <- as.vector(MYF5_expr)
   
-  #cell_is_hsmm <- (pData(HSMM)$MEF2C > MEF2C_thresh | pData(HSMM)$MYF5 > MYF5_thresh) 
-  cell_is_hsmm <- (pData(HSMM)$MEF2C > MEF2C_thresh | pData(HSMM)$MYF5 > MYF5_thresh) 
   
-  names(cell_is_hsmm) <- row.names(pData(HSMM))
-  pData(HSMM)$CellType <- "Myoblast"
-  pData(HSMM)$CellType[cell_is_hsmm == FALSE] <-  "Fibroblast"
+#   SPHK1_thresh <- 1
+#   PDGFRA_thresh <- 1
+#   ANPEP_thresh <- Inf #0.1
+#   MEF2C_thresh <- 5 #0.1
+#   MYF5_thresh <- 1 #0.1
   
-  HSMM_myo <- HSMM[,pData(HSMM)$CellType == "Myoblast" ] #& pData(HSMM)$Total_mRNAs > 10000 & pData(HSMM)$num_genes_expressed > 1000 & pData(HSMM)$Total_mRNAs < 40000  
-  # HSMM_myo <- HSMM[, valid_HSMM_cell]
+#   #cell_is_hsmm <- (pData(HSMM)$MEF2C > MEF2C_thresh | pData(HSMM)$MYF5 > MYF5_thresh) 
+#   cell_is_hsmm <- (pData(HSMM)$MEF2C > MEF2C_thresh | pData(HSMM)$MYF5 > MYF5_thresh) 
   
-  HSMM_expressed_genes <- row.names(subset(fData(HSMM_myo), 
-                                           num_cells_expressed >= 15 & 
-                                             biotype %in% c("protein_coding", "lincRNA")))
+#   names(cell_is_hsmm) <- row.names(pData(HSMM))
+#   pData(HSMM)$CellType <- "Myoblast"
+#   pData(HSMM)$CellType[cell_is_hsmm == FALSE] <-  "Fibroblast"
   
-  #HSMM_myo <- setOrderingFilter(HSMM_myo, HSMM_ordering_genes)
+#   HSMM_myo <- HSMM[,pData(HSMM)$CellType == "Myoblast" ] #& pData(HSMM)$Total_mRNAs > 10000 & pData(HSMM)$num_genes_expressed > 1000 & pData(HSMM)$Total_mRNAs < 40000  
+#   # HSMM_myo <- HSMM[, valid_HSMM_cell]
   
-  HSMM_myo <- estimateSizeFactors(HSMM_myo)
+#   HSMM_expressed_genes <- row.names(subset(fData(HSMM_myo), 
+#                                            num_cells_expressed >= 15 & 
+#                                              biotype %in% c("protein_coding", "lincRNA")))
   
-  HSMM_myo <- estimateDispersions(HSMM_myo)
+#   #HSMM_myo <- setOrderingFilter(HSMM_myo, HSMM_ordering_genes)
   
-  #HSMM_myo <- computeVarianceStabilizedValues(HSMM_myo, model_row_names=HSMM_expressed_genes, modelFormulaStr="expression~Media", cores=12)
-  HSMM_myo_grp_res <- differentialGeneTest(HSMM_myo[, ], 
-                                               fullModelFormulaStr = "~Media", #log10(Total_mRNAs) + spike_total_mRNAs
-                                               reducedModelFormulaStr = "~1", cores = detectCores(), relative = T)
+#   HSMM_myo <- estimateSizeFactors(HSMM_myo)
+  
+#   HSMM_myo <- estimateDispersions(HSMM_myo)
+  
+#   #HSMM_myo <- computeVarianceStabilizedValues(HSMM_myo, model_row_names=HSMM_expressed_genes, modelFormulaStr="expression~Media", cores=12)
+#   HSMM_myo_grp_res <- differentialGeneTest(HSMM_myo[, ], 
+#                                                fullModelFormulaStr = "~Media", #log10(Total_mRNAs) + spike_total_mRNAs
+#                                                reducedModelFormulaStr = "~1", cores = detectCores(), relative = T)
 
-  std_HSMM <-  newCellDataSet(HSMM_fpkm_matrix[row.names(HSMM_myo), colnames(HSMM_myo)], 
-                              phenoData = new("AnnotatedDataFrame", data = pData(HSMM_myo)), 
-                              featureData = new("AnnotatedDataFrame", data = fData(HSMM_myo)), 
-                              expressionFamily=tobit(), 
-                              lowerDetectionLimit=1)
-  std_HSMM <- detectGenes(std_HSMM, min_expr = 0.1)
-  std_HSMM_grp_res <- differentialGeneTest(std_HSMM[, ], 
-                                               fullModelFormulaStr = "~Media", #log10(Total_mRNAs) + spike_total_mRNAs
-                                               reducedModelFormulaStr = "~1", cores = detectCores(), relative = T)
+#   std_HSMM <-  newCellDataSet(HSMM_fpkm_matrix[row.names(HSMM_myo), colnames(HSMM_myo)], 
+#                               phenoData = new("AnnotatedDataFrame", data = pData(HSMM_myo)), 
+#                               featureData = new("AnnotatedDataFrame", data = fData(HSMM_myo)), 
+#                               expressionFamily=tobit(), 
+#                               lowerDetectionLimit=1)
+#   std_HSMM <- detectGenes(std_HSMM, min_expr = 0.1)
+#   std_HSMM_grp_res <- differentialGeneTest(std_HSMM[, ], 
+#                                                fullModelFormulaStr = "~Media", #log10(Total_mRNAs) + spike_total_mRNAs
+#                                                reducedModelFormulaStr = "~1", cores = detectCores(), relative = T)
 
-  HSMM_ordering_genes <- rownames(subset(HSMM_myo_grp_res, qval < 1e-5))  
-  std_HSMM_ordering_genes <- rownames(subset(std_HSMM_grp_res, qval < 1e-5)) 
+#   HSMM_ordering_genes <- rownames(subset(HSMM_myo_grp_res, qval < 1e-5))  
+#   std_HSMM_ordering_genes <- rownames(subset(std_HSMM_grp_res, qval < 1e-5)) 
 
-  # HSMM_ordering_genes <- selectGenesInExpressionRange(HSMM_myo, 5, Inf, 0.1, stat_fun=function(x) { median(round(x)) })
+#   # HSMM_ordering_genes <- selectGenesInExpressionRange(HSMM_myo, 5, Inf, 0.1, stat_fun=function(x) { median(round(x)) })
   
-  HSMM_myo <- setOrderingFilter(HSMM_myo, c(HSMM_ordering_genes, std_HSMM_ordering_genes))
+#   HSMM_myo <- setOrderingFilter(HSMM_myo, c(HSMM_ordering_genes, std_HSMM_ordering_genes))
   
-  HSMM_myo <- reduceDimension(HSMM_myo, max_components = 2, use_irlba=T, use_vst=T, pseudo_expr=0, fun="exp")
-  #HSMM_myo <- reduceDimension(HSMM_myo, max_components = 2, use_irlba=T, use_vst=F, pseudo_expr=0.5, fun="exp")
+#   HSMM_myo <- reduceDimension(HSMM_myo, max_components = 2, use_irlba=T, use_vst=T, pseudo_expr=0, fun="exp")
+#   #HSMM_myo <- reduceDimension(HSMM_myo, max_components = 2, use_irlba=T, use_vst=F, pseudo_expr=0.5, fun="exp")
   
-  HSMM_myo <- orderCells(HSMM_myo, reverse=F, num_paths=1, root_cell = 'T48_CT_G10_0')
+#   HSMM_myo <- orderCells(HSMM_myo, reverse=F, num_paths=1, root_cell = 'T48_CT_G10_0')
   
-  #std of HSMM: 
+#   #std of HSMM: 
 
   
-  #order the cells with the fpkm data: 
-#  std_HSMM <- estimateSizeFactors(std_HSMM)
+#   #order the cells with the fpkm data: 
+# #  std_HSMM <- estimateSizeFactors(std_HSMM)
   
-#  std_HSMM <- estimateDispersions(std_HSMM, cores=detectCores())
+# #  std_HSMM <- estimateDispersions(std_HSMM, cores=detectCores())
 
-  # std_HSMM_ordering_genes <- selectGenesInExpressionRange(std_HSMM, 5, Inf, 0.1, stat_fun=function(x) { median(round(x)) })
-  # HSMM_myo <- computeVarianceStabilizedValues(HSMM_myo, model_row_names=HSMM_expressed_genes, modelFormulaStr="expression~Media", cores=12)
-  std_HSMM <- setOrderingFilter(std_HSMM, c(HSMM_ordering_genes, std_HSMM_ordering_genes))
+#   # std_HSMM_ordering_genes <- selectGenesInExpressionRange(std_HSMM, 5, Inf, 0.1, stat_fun=function(x) { median(round(x)) })
+#   # HSMM_myo <- computeVarianceStabilizedValues(HSMM_myo, model_row_names=HSMM_expressed_genes, modelFormulaStr="expression~Media", cores=12)
+#   std_HSMM <- setOrderingFilter(std_HSMM, c(HSMM_ordering_genes, std_HSMM_ordering_genes))
    
-  std_HSMM <- reduceDimension(std_HSMM, max_components = 2, use_irlba=T, use_vst=F, pseudo_expr=0.1)
-  #HSMM_myo <- reduceDimension(HSMM_myo, max_components = 2, use_irlba=T, use_vst=F, pseudo_expr=0.5, fun="exp")
+#   std_HSMM <- reduceDimension(std_HSMM, max_components = 2, use_irlba=T, use_vst=F, pseudo_expr=0.1)
+#   #HSMM_myo <- reduceDimension(HSMM_myo, max_components = 2, use_irlba=T, use_vst=F, pseudo_expr=0.5, fun="exp")
   
-  std_HSMM <- orderCells(std_HSMM, reverse=F, num_paths=1, root_cell = 'T48_CT_G10_0')
+#   std_HSMM <- orderCells(std_HSMM, reverse=F, num_paths=1, root_cell = 'T48_CT_G10_0')
   
-  ################################################data for generating the muscle p-val for calculating the result################################################
-  std_HSMM_myo_pseudotime_res_ori <- differentialGeneTest((std_HSMM[, ]), relative_expr = F, 
-                                                          fullModelFormulaStr = "~sm.ns(Pseudotime, df = 3)", #log10(Total_mRNAs) + spike_total_mRNAs
-                                                          reducedModelFormulaStr = "~1", cores = detectCores())
+#   ################################################data for generating the muscle p-val for calculating the result################################################
+#   std_HSMM_myo_pseudotime_res_ori <- differentialGeneTest((std_HSMM[, ]), relative_expr = F, 
+#                                                           fullModelFormulaStr = "~sm.ns(Pseudotime, df = 3)", #log10(Total_mRNAs) + spike_total_mRNAs
+#                                                           reducedModelFormulaStr = "~1", cores = detectCores())
   
-  std_HSMM_myo <- std_HSMM[, colnames(HSMM_myo)]
-  std_count_d <- DESeq::newCountDataSet(round(exprs(std_HSMM_myo)), pData(std_HSMM_myo)$Time) 
-  #we should use read counts if we need to compare the relative expression performances
-  std_HSMM_myo_DEseq_pseudotime_res <- DESeq1_pseudotime_test(std_count_d[, ], scale = F, Pseudotime = pData(std_HSMM_myo)$Pseudotime) 
+#   std_HSMM_myo <- std_HSMM[, colnames(HSMM_myo)]
+#   std_count_d <- DESeq::newCountDataSet(round(exprs(std_HSMM_myo)), pData(std_HSMM_myo)$Time) 
+#   #we should use read counts if we need to compare the relative expression performances
+#   std_HSMM_myo_DEseq_pseudotime_res <- DESeq1_pseudotime_test(std_count_d[, ], scale = F, Pseudotime = pData(std_HSMM_myo)$Pseudotime) 
   
-  HSMM_myo_size_norm_res <- differentialGeneTest(HSMM_myo[, ], 
-                                                 fullModelFormulaStr = "~sm.ns(Pseudotime, df = 3)", #log10(Total_mRNAs) + spike_total_mRNAs
-                                                 reducedModelFormulaStr = "~1", cores = detectCores(), relative = T)
+#   HSMM_myo_size_norm_res <- differentialGeneTest(HSMM_myo[, ], 
+#                                                  fullModelFormulaStr = "~sm.ns(Pseudotime, df = 3)", #log10(Total_mRNAs) + spike_total_mRNAs
+#                                                  reducedModelFormulaStr = "~1", cores = detectCores(), relative = T)
   
-  # save.image()
-  #create size normalized cds for permutation tests: 
-  HSMM_myo_size_norm <- newCellDataSet(t(t(exprs(HSMM_myo[, ])) / sizeFactors(HSMM_myo)), 
-                                       phenoData = new("AnnotatedDataFrame", data = pData(HSMM_myo)), 
-                                       featureData = new("AnnotatedDataFrame", data = fData(HSMM_myo[, ])), 
-                                       expressionFamily = negbinomial(), 
-                                       lowerDetectionLimit = HSMM_myo@lowerDetectionLimit)
-  HSMM_myo_size_norm <- estimateSizeFactors(HSMM_myo_size_norm)
-  HSMM_myo_size_norm_count_d <- DESeq::newCountDataSet(round(exprs(HSMM_myo_size_norm)), pData(HSMM_myo_size_norm)$Time) 
-  size_norm_HSMM_myo_DEseq_pseudotime_res <- DESeq1_pseudotime_test(HSMM_myo_size_norm_count_d[, ], scale = F, Pseudotime = pData(HSMM_myo_size_norm)$Pseudotime)
+#   # save.image()
+#   #create size normalized cds for permutation tests: 
+#   HSMM_myo_size_norm <- newCellDataSet(t(t(exprs(HSMM_myo[, ])) / sizeFactors(HSMM_myo)), 
+#                                        phenoData = new("AnnotatedDataFrame", data = pData(HSMM_myo)), 
+#                                        featureData = new("AnnotatedDataFrame", data = fData(HSMM_myo[, ])), 
+#                                        expressionFamily = negbinomial(), 
+#                                        lowerDetectionLimit = HSMM_myo@lowerDetectionLimit)
+#   HSMM_myo_size_norm <- estimateSizeFactors(HSMM_myo_size_norm)
+#   HSMM_myo_size_norm_count_d <- DESeq::newCountDataSet(round(exprs(HSMM_myo_size_norm)), pData(HSMM_myo_size_norm)$Time) 
+#   size_norm_HSMM_myo_DEseq_pseudotime_res <- DESeq1_pseudotime_test(HSMM_myo_size_norm_count_d[, ], scale = F, Pseudotime = pData(HSMM_myo_size_norm)$Pseudotime)
   
   muscle_std_glm_perm <- cal_glm_perm(std_HSMM[, ]) #for DESeq: the read count need to be used if we want to compare the relative expression values
   muscle_std_glm_perm <- do.call(rbind, muscle_std_glm_perm)

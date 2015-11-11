@@ -1,3 +1,11 @@
+  library(monocle)
+  library(xacHelper)
+
+  load_all_libraries()
+
+  load('analysis_other_supplementary_data.RData')
+  load('analysis_lung_data.RData')
+
   # figure b: 
   #concordance between alernative analysis improves when absolute copy numbers are used: 
   #(overlapping plot between absolute copy / read counts)
@@ -195,26 +203,26 @@ ggsave(filename = paste(elife_directory, 'Shalek_readcounts.pdf', sep = ''), wid
 
   #fit of distributions 
   #test this: 
-  abs_gd_fit_res <- mcesApply(absolute_cds[ ], 1, gd_fit_pval, cores = detectCores(), required_packages = c('VGAM', 'fitdistrplus', 'MASS', 'pscl'), exprs_thrsld = 10, pseudo_cnt = 0.01)
-  closeAllConnections()
-  std_gd_fit_res <- mcesApply(standard_cds[, ], 1, gd_fit_pval, cores = detectCores(), required_packages = c('VGAM', 'fitdistrplus', 'MASS', 'pscl'), exprs_thrsld = 10, pseudo_cnt = 0.01)
-  closeAllConnections()
-  tpm_gd_fit_res <- mcesApply(TPM_cds[, ], 1, gd_fit_pval, cores = detectCores(), required_packages = c('VGAM', 'fitdistrplus', 'MASS', 'pscl'), exprs_thrsld = 10, pseudo_cnt = 0.01)
-  closeAllConnections()
-  read_gd_fit_res <- mcesApply(count_cds[, ], 1, gd_fit_pval, cores = detectCores(), required_packages = c('VGAM', 'fitdistrplus', 'MASS', 'pscl'), exprs_thrsld = 10, pseudo_cnt = 0.01)
+  # abs_gd_fit_res <- mcesApply(absolute_cds[ ], 1, gd_fit_pval, cores = detectCores(), required_packages = c('VGAM', 'fitdistrplus', 'MASS', 'pscl'), exprs_thrsld = 10, pseudo_cnt = 0.01)
+  # closeAllConnections()
+  # std_gd_fit_res <- mcesApply(standard_cds[, ], 1, gd_fit_pval, cores = detectCores(), required_packages = c('VGAM', 'fitdistrplus', 'MASS', 'pscl'), exprs_thrsld = 10, pseudo_cnt = 0.01)
+  # closeAllConnections()
+  # tpm_gd_fit_res <- mcesApply(TPM_cds[, ], 1, gd_fit_pval, cores = detectCores(), required_packages = c('VGAM', 'fitdistrplus', 'MASS', 'pscl'), exprs_thrsld = 10, pseudo_cnt = 0.01)
+  # closeAllConnections()
+  # read_gd_fit_res <- mcesApply(count_cds[, ], 1, gd_fit_pval, cores = detectCores(), required_packages = c('VGAM', 'fitdistrplus', 'MASS', 'pscl'), exprs_thrsld = 10, pseudo_cnt = 0.01)
 
-  abs_gd_fit_res <- unlist(abs_gd_fit_res) 
-  read_gd_fit_res <- unlist(abs_gd_fit_res) 
+  # abs_gd_fit_res <- unlist(abs_gd_fit_res) 
+  # read_gd_fit_res <- unlist(abs_gd_fit_res) 
 
-  abs_gd_fit_df <- matrix(abs_gd_fit_res, nrow(absolute_cds), ncol = 11, byrow = T)
-  dimnames(abs_gd_fit_df) <- list(row.names(absolute_cds), c("ln_pvalue", "nb_pvalue", "ln_pvalue.glm.link", "ln_pvalue.glm.log", "ln_pvalue.chisq", "nb_pvalue.glm", "nb_pvalue.chisq", "zinb_pvalue.chisq", "zanb_pvalue.chisq", "zinb_pvalue", "zanb_pvalue"))
-  read_gd_fit_df <- matrix(read_gd_fit_res, nrow(absolute_cds), ncol = 11, byrow = T)
-  dimnames(read_gd_fit_df) <- list(row.names(absolute_cds), c("ln_pvalue", "nb_pvalue", "ln_pvalue.glm.link", "ln_pvalue.glm.log", "ln_pvalue.chisq", "nb_pvalue.glm", "nb_pvalue.chisq", "zinb_pvalue.chisq", "zanb_pvalue.chisq", "zinb_pvalue", "zanb_pvalue"))
+  # abs_gd_fit_df <- matrix(abs_gd_fit_res, nrow(absolute_cds), ncol = 11, byrow = T)
+  # dimnames(abs_gd_fit_df) <- list(row.names(absolute_cds), c("ln_pvalue", "nb_pvalue", "ln_pvalue.glm.link", "ln_pvalue.glm.log", "ln_pvalue.chisq", "nb_pvalue.glm", "nb_pvalue.chisq", "zinb_pvalue.chisq", "zanb_pvalue.chisq", "zinb_pvalue", "zanb_pvalue"))
+  # read_gd_fit_df <- matrix(read_gd_fit_res, nrow(absolute_cds), ncol = 11, byrow = T)
+  # dimnames(read_gd_fit_df) <- list(row.names(absolute_cds), c("ln_pvalue", "nb_pvalue", "ln_pvalue.glm.link", "ln_pvalue.glm.log", "ln_pvalue.chisq", "nb_pvalue.glm", "nb_pvalue.chisq", "zinb_pvalue.chisq", "zanb_pvalue.chisq", "zinb_pvalue", "zanb_pvalue"))
 
-  # 
+  # # 
   #select only nb and zinb and calculate the number of genes pass goodness of fit and number of genes can be fitted: 
-  abs_gd_fit_res <- cal_gd_statistics(abs_gd_fit_df[, c('nb_pvalue', 'zinb_pvalue')], percentage = F, type = 'absolute')
-  readcount_gd_fit_res <- cal_gd_statistics(read_gd_fit_df[, c('nb_pvalue', 'zinb_pvalue')], percentage = F,  type = 'readcount')
+  abs_gd_fit_res <- cal_gd_statistics(abs_gd_fit_df[, c('nb_pvalue', 'zinb_pvalue')], percentage = F, type = 'absolute', gene_list = valid_genes)
+  readcount_gd_fit_res <- cal_gd_statistics(read_gd_fit_df[, c('nb_pvalue', 'zinb_pvalue')], percentage = F,  type = 'readcount', gene_list = valid_genes)
   gd_fit_res <- rbind(abs_gd_fit_res, readcount_gd_fit_res)
   gd_fit_res <- cbind(gd_fit_res, data_type = row.names(gd_fit_res))
   row.names(gd_fit_res) <- NULL
@@ -231,8 +239,16 @@ ggsave(filename = paste(elife_directory, 'Shalek_readcounts.pdf', sep = ''), wid
     theme(legend.position = 'none') + xlab('Fit types') + ylab('number of genes') + theme(strip.background = element_blank(),
          strip.text.x = element_blank()) + theme(axis.text.x = element_text(angle = 30, hjust = .9))
   p1 + xlab('')
-  ggsave(paste(elife_directory, 'goodness_fit.pdf', sep = ''), height = 2, width = 3)
+  ggsave(paste(elife_directory, 'goodness_fit.pdf', sep = ''), height = 1.5, width = 1)
 
+  colnames(gd_fit_res_success_num)[1:2] <- c('NB', 'ZINB')
+  test <- melt(gd_fit_res_success_num[, 1:3], id.vars = 'type')
+
+  p2 <- qplot(as.factor(variable), as.numeric(value), geom = 'bar', stat = 'identity', data = test, fill = type) + facet_wrap('type') + nm_theme() + 
+     theme(legend.position = 'none') + xlab('Fit types') + ylab('number of genes') + theme(strip.background = element_blank(),
+          strip.text.x = element_blank()) + theme(axis.text.x = element_text(angle = 30, hjust = .9))
+  p2 + xlab('')
+  ggsave(paste(elife_directory, 'goodness_fit2.pdf', sep = ''), height = 1.5, width = 1)
 
    #fig 3 SI: 
   quake_all_modes <- estimate_t(exprs(isoform_count_cds), return_all = T)

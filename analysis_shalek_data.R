@@ -1,25 +1,26 @@
-################################################################################################################################################
- # The following script is based on Adnrew's work #
- ################################################################################################################################################
+# ################################################################################################################################################
+#  # The following script is based on Adnrew's work #
+#  ################################################################################################################################################
 
- #install all packages: 
- packages = c("ggplot2", "VGAM", "igraph", "pRlyr", "combinat", "fastICA", "irlba", "matrixStats", "reshape2", "R.utils", "snow", 
-            "stringr", "modeest", "Hmisc", "boot", "doMC", "data.table", "fitdistrplus", "ggdendro", "gplots", "princurve", "sp",
-            "lmtest", "MASS", "mixsmsn", "pheatmap", "plyr", "pscl", "RColorBrewer", "VennDiagram", "zoo", "raster", "colorRamps", "grid")
- install.packages(packages, repo = 'http://cran.fhcrc.org/')
+#  #install all packages: 
+#  packages = c("ggplot2", "VGAM", "igraph", "pRlyr", "combinat", "fastICA", "irlba", "matrixStats", "reshape2", "R.utils", "snow", 
+#             "stringr", "modeest", "Hmisc", "boot", "doMC", "data.table", "fitdistrplus", "ggdendro", "gplots", "princurve", "sp",
+#             "lmtest", "MASS", "mixsmsn", "pheatmap", "plyr", "pscl", "RColorBrewer", "VennDiagram", "zoo", "raster", "colorRamps", "grid")
+#  install.packages(packages, repo = 'http://cran.fhcrc.org/')
 
- bio_packages = c("Biobase", "BiocGenerics",  "limma", "edgeR", "DESeq", "DESeq2", "piano")
- source("http://bioconductor.org/biocLite.R")
- biocLite(bio_packages)
+#  bio_packages = c("Biobase", "BiocGenerics",  "limma", "edgeR", "DESeq", "DESeq2", "piano")
+#  source("http://bioconductor.org/biocLite.R")
+#  biocLite(bio_packages)
 
  # go to https://github.com/settings/tokens and generate personal tokens for install the private monocle / devtree package: 
  # install_github("cole-trapnell-lab/monocle-dev", auth_token = "2b5f9747e17c8512f1ecd2bf76f5df4730be21e2")
  # install_github("cole-trapnell-lab/branch-diff", auth_token = "2b5f9747e17c8512f1ecd2bf76f5df4730be21e2")
 
- install.packages('./xacHelper_0.0.0.9000.tar.gz', dependencies = TRUE)
- install.packages('./monocle_1.99.0.tar.gz', dependencies = TRUE)
+ # install.packages('./xacHelper_0.0.0.9000.tar.gz', dependencies = TRUE)
+ # install.packages('./monocle_1.99.0.tar.gz', dependencies = TRUE)
  library(monocle)
  library(xacHelper)
+ library(igraph)
 
  load_all_libraries()
  
@@ -114,18 +115,18 @@
  # exprs_mat <- read.delim("/Users/xqiu/Dropbox (Cole Trapnell's Lab)/Shared Data/Regev DC/gene_exprs_counts.txt")
  # pd <-  read.delim("/Users/xqiu/Dropbox (Cole Trapnell's Lab)/Shared Data/Regev DC/pData.txt")
 
- fd <- read.delim("./Aviv_data/cuffnorm_output_files/fData.txt")
- exprs_mat <- read.delim("./Aviv_data/cuffnorm_output_files/gene_exprs_counts.txt")
- pd <-  read.delim("./Aviv_data/cuffnorm_output_files/pData.txt")
+ # fd <- read.delim("./Aviv_data/cuffnorm_output_files/fData.txt")
+ # exprs_mat <- read.delim("./Aviv_data/cuffnorm_output_files/gene_exprs_counts.txt")
+ # pd <-  read.delim("./Aviv_data/cuffnorm_output_files/pData.txt")
 
 
- Shalek_abs <- newCellDataSet(exprs_mat, 
-                               phenoData = new("AnnotatedDataFrame", data = pd), 
-                               featureData = new("AnnotatedDataFrame", data = fd), 
-                               expressionFamily=negbinomial(), 
-                               lowerDetectionLimit=1)
- Shalek_abs <- estimateSizeFactors(Shalek_abs)
- Shalek_abs <- estimateDispersions(Shalek_abs)
+ # Shalek_abs <- newCellDataSet(exprs_mat, 
+ #                               phenoData = new("AnnotatedDataFrame", data = pd), 
+ #                               featureData = new("AnnotatedDataFrame", data = fd), 
+ #                               expressionFamily=negbinomial(), 
+ #                               lowerDetectionLimit=1)
+ # Shalek_abs <- estimateSizeFactors(Shalek_abs)
+ # Shalek_abs <- estimateDispersions(Shalek_abs)
 
  ###################################################################################################################################
  ### performing the DEG tests to obtain the genes used for ordering the cells #####
@@ -159,6 +160,7 @@
 
  Shalek_abs_subset_ko_LPS <- setOrderingFilter(Shalek_abs_subset_ko_LPS, order_genes)
  Shalek_abs_subset_ko_LPS <- reduceDimension(Shalek_abs_subset_ko_LPS, use_vst = T, use_irlba=F, pseudo_expr = 0, covariates = as.vector(pData(Shalek_abs_subset_ko_LPS)$num_genes_expressed) )
+ save.image('~/Projects/BEAM/Parallel_the_reproduce/tmp_analysis_shalek_data.RData')
  Shalek_abs_subset_ko_LPS <- orderCells(Shalek_abs_subset_ko_LPS, num_path = 2)
 
  # Figure 5C -- Heatmap

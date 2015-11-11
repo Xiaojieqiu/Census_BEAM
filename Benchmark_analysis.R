@@ -1,21 +1,10 @@
-  load('prepare_lung_data.RData')
+  # load('prepare_lung_data.RData')
   library(monocle)
   library(xacHelper)
 
   load_all_libraries()
 
 #########################run the following scripts in remote sever#############################
-
-  # source('DevTree_func.R') #load all functions from DevTree package: 
-#calculate size factors as well as dispersion parameters for later analysis in order to perform relative expression tests: 
-  absolute_cds <- estimateDispersions(absolute_cds, cores = 1)
-  mc_adj_cds <- estimateSizeFactors(mc_adj_cds)
-  mc_adj_cds <- estimateDispersions(mc_adj_cds, cores = 1)
-
-  abs_AT12_cds_subset_all_gene <- estimateSizeFactors(abs_AT12_cds_subset_all_gene)
-  abs_AT12_cds_subset_all_gene <- estimateDispersions(abs_AT12_cds_subset_all_gene, cores=1)
-  mc_AT12_cds_subset_all_gene <- estimateSizeFactors(mc_AT12_cds_subset_all_gene)
-  mc_AT12_cds_subset_all_gene <- estimateDispersions(mc_AT12_cds_subset_all_gene, cores=1)
   
   #generate the pvals from the statistical test (permutation based or from software: monocle/DESeq/SCDE)
   
@@ -245,7 +234,7 @@
   df3.1 <- rbind(df3.1, df3.1[c(4, 7), ])
   df3.1 <- df3.1[c(1:8, 10:14), ]
   
-  distribution of pval vs the mean expression: 
+  # distribution of pval vs the mean expression: 
   pval_mean <- data.frame(std = std_permutate_pval, abs = mode_size_norm_permutate_ratio_by_geometric_mean, 
                           mc = mc_mode_size_norm_permutate_ratio_by_geometric_mean, read = readcount_permutate_pval, 
                           fpkm_mean = apply(new_std_cds_14_18[1:transcript_num, ], 1, mean), 
@@ -256,7 +245,7 @@
   pdf('fpkm_mean.pdf')
   qplot(log10(pval_mean[, 'fpkm_mean'] + 1), pval_mean[, 'std'])
   dev.off()
-  
+
   pdf('spike_mean.pdf')
   qplot(log10(pval_mean[, 'spike_mean'] + 1), pval_mean[, 'abs'])
   dev.off()
@@ -286,7 +275,7 @@
 
   colnames(df3.1)[1:3] <- c('Precision', 'Recall', 'F1 score')
 
-  pdf('eLife_fig_SI_benchmark.pdf', width = 3, height = 2)
+  pdf('submission_fig_SI_benchmark.pdf', width = 3, height = 2)
   ggplot(aes(factor(Type), value,  fill = data_type), data = melt(df3.1)) + geom_bar(position = position_dodge(), stat = 'identity') + #facet_wrap(~variable) + 
   ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
   ggtitle('') + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + nm_theme() + xlab('')
@@ -312,7 +301,7 @@
   mc_spikein_df[, 'Type'] <- c('Monocle', 'Monocle') # geom_bar(stat = 'identity', position = 'dodge') 
   colnames(mc_spikein_df)[1:3] <- c('Precision', 'Recall', 'F1 score')
 
-  pdf('eLife_fig_4_mc_spikein_benchmark.pdf', width = 1.5, height = 1.7)
+  pdf('submission_fig_4_mc_spikein_benchmark.pdf', width = 1.5, height = 1.7)
   ggplot(aes(factor(Type), value,  fill = data_type), data = melt(mc_spikein_df)) + geom_bar(position = position_dodge(), stat = 'identity') + #facet_wrap(~variable) + 
   ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
   ggtitle('') + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + nm_theme() + xlab('') + theme(axis.text.x=element_blank(), axis.ticks.x=element_blank())
