@@ -19,4 +19,4 @@ optimization_landscape_2d <- melt(optimization_landscape_3d)
 qplot(Var1, Var2, fill=optim_res, geom="tile", data=optimization_landscape_2d) + scale_fill_gradientn(colours=rainbow(7)) #hmcols
 ggsave(filename = paste(elife_directory, 'eLife_fig4E.pdf', sep = ''), width = 1.38, height = 1.25)
 
-
+save.image()
