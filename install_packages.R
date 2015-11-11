@@ -14,3 +14,9 @@
 
  install.packages('./xacHelper_0.0.0.9000.tar.gz', dependencies = TRUE)
  install.packages('./monocle_1.99.0.tar.gz', dependencies = TRUE)
+
+ #install scde: 
+ library(devtools)
+ install_github('hms-dbmi/scde')
+
+ 

@@ -105,6 +105,7 @@
  # Filter to only expressed genes (feel free to change this as needed, I have tried several methods)
  Shalek_abs = detectGenes(Shalek_abs, min_expr = 1)
  expressed_genes = row.names(subset(fData(Shalek_abs), num_cells_expressed >= 50))
+ Shalek_abs_cp <- Shalek_abs
  Shalek_abs = Shalek_abs[expressed_genes,]
 ####################################################################################################################################
 
@@ -160,7 +161,7 @@
 
  Shalek_abs_subset_ko_LPS <- setOrderingFilter(Shalek_abs_subset_ko_LPS, order_genes)
  Shalek_abs_subset_ko_LPS <- reduceDimension(Shalek_abs_subset_ko_LPS, use_vst = T, use_irlba=F, pseudo_expr = 0, covariates = as.vector(pData(Shalek_abs_subset_ko_LPS)$num_genes_expressed) )
- save.image('~/Projects/BEAM/Parallel_the_reproduce/tmp_analysis_shalek_data.RData')
+ #save.image('~/Projects/BEAM/Parallel_the_reproduce/tmp_analysis_shalek_data.RData')
  Shalek_abs_subset_ko_LPS <- orderCells(Shalek_abs_subset_ko_LPS, num_path = 2)
 
  # Figure 5C -- Heatmap

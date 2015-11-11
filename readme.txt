@@ -17,4 +17,4 @@ For generating figures, each script will need less than 2 hrs.
 
 The instructions on how to reproduce this analysis is included in the "drive_script.sh".
  
-Note that we also provided a Jupyter R notebook html file with all the figures generated in the manuscript included. The packages version for the session we run this analysis is included in the notebook too. 
+Note that we also provided a Jupyter R notebook html file with all the figures generated in the manuscript included. The packages version for the session we run this analysis is included in the notebook too. Specially, for using the venneuler package which depends on rJava, Java SE Development Kit 7u17 is used in our case. 
