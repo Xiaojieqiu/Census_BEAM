@@ -14,10 +14,10 @@
   #test this: 
   abs_gd_fit_res <- mcesApply(absolute_cds[ ], 1, gd_fit_pval, cores = detectCores(), required_packages = c('VGAM', 'fitdistrplus', 'MASS', 'pscl'), exprs_thrsld = 10, pseudo_cnt = 0.01)
   closeAllConnections()
-  std_gd_fit_res <- mcesApply(standard_cds[, ], 1, gd_fit_pval, cores = detectCores(), required_packages = c('VGAM', 'fitdistrplus', 'MASS', 'pscl'), exprs_thrsld = 10, pseudo_cnt = 0.01)
-  closeAllConnections()
-  tpm_gd_fit_res <- mcesApply(TPM_cds[, ], 1, gd_fit_pval, cores = detectCores(), required_packages = c('VGAM', 'fitdistrplus', 'MASS', 'pscl'), exprs_thrsld = 10, pseudo_cnt = 0.01)
-  closeAllConnections()
+  # std_gd_fit_res <- mcesApply(standard_cds[, ], 1, gd_fit_pval, cores = detectCores(), required_packages = c('VGAM', 'fitdistrplus', 'MASS', 'pscl'), exprs_thrsld = 10, pseudo_cnt = 0.01)
+  # closeAllConnections()
+  # tpm_gd_fit_res <- mcesApply(TPM_cds[, ], 1, gd_fit_pval, cores = detectCores(), required_packages = c('VGAM', 'fitdistrplus', 'MASS', 'pscl'), exprs_thrsld = 10, pseudo_cnt = 0.01)
+  # closeAllConnections()
   read_gd_fit_res <- mcesApply(count_cds[, ], 1, gd_fit_pval, cores = detectCores(), required_packages = c('VGAM', 'fitdistrplus', 'MASS', 'pscl'), exprs_thrsld = 10, pseudo_cnt = 0.01)
 
   abs_gd_fit_res <- unlist(abs_gd_fit_res) 

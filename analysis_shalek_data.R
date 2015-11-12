@@ -1,154 +1,156 @@
-# ################################################################################################################################################
-#  # The following script is based on Adnrew's work #
-#  ################################################################################################################################################
+# # ################################################################################################################################################
+# #  # The following script is based on Adnrew's work #
+# #  ################################################################################################################################################
 
-#  #install all packages: 
-#  packages = c("ggplot2", "VGAM", "igraph", "pRlyr", "combinat", "fastICA", "irlba", "matrixStats", "reshape2", "R.utils", "snow", 
-#             "stringr", "modeest", "Hmisc", "boot", "doMC", "data.table", "fitdistrplus", "ggdendro", "gplots", "princurve", "sp",
-#             "lmtest", "MASS", "mixsmsn", "pheatmap", "plyr", "pscl", "RColorBrewer", "VennDiagram", "zoo", "raster", "colorRamps", "grid")
-#  install.packages(packages, repo = 'http://cran.fhcrc.org/')
+# #  #install all packages: 
+# #  packages = c("ggplot2", "VGAM", "igraph", "pRlyr", "combinat", "fastICA", "irlba", "matrixStats", "reshape2", "R.utils", "snow", 
+# #             "stringr", "modeest", "Hmisc", "boot", "doMC", "data.table", "fitdistrplus", "ggdendro", "gplots", "princurve", "sp",
+# #             "lmtest", "MASS", "mixsmsn", "pheatmap", "plyr", "pscl", "RColorBrewer", "VennDiagram", "zoo", "raster", "colorRamps", "grid")
+# #  install.packages(packages, repo = 'http://cran.fhcrc.org/')
 
-#  bio_packages = c("Biobase", "BiocGenerics",  "limma", "edgeR", "DESeq", "DESeq2", "piano")
-#  source("http://bioconductor.org/biocLite.R")
-#  biocLite(bio_packages)
+# #  bio_packages = c("Biobase", "BiocGenerics",  "limma", "edgeR", "DESeq", "DESeq2", "piano")
+# #  source("http://bioconductor.org/biocLite.R")
+# #  biocLite(bio_packages)
 
- # go to https://github.com/settings/tokens and generate personal tokens for install the private monocle / devtree package: 
- # install_github("cole-trapnell-lab/monocle-dev", auth_token = "2b5f9747e17c8512f1ecd2bf76f5df4730be21e2")
- # install_github("cole-trapnell-lab/branch-diff", auth_token = "2b5f9747e17c8512f1ecd2bf76f5df4730be21e2")
+#  # go to https://github.com/settings/tokens and generate personal tokens for install the private monocle / devtree package: 
+#  # install_github("cole-trapnell-lab/monocle-dev", auth_token = "2b5f9747e17c8512f1ecd2bf76f5df4730be21e2")
+#  # install_github("cole-trapnell-lab/branch-diff", auth_token = "2b5f9747e17c8512f1ecd2bf76f5df4730be21e2")
 
- # install.packages('./xacHelper_0.0.0.9000.tar.gz', dependencies = TRUE)
- # install.packages('./monocle_1.99.0.tar.gz', dependencies = TRUE)
+#  # install.packages('./xacHelper_0.0.0.9000.tar.gz', dependencies = TRUE)
+#  # install.packages('./monocle_1.99.0.tar.gz', dependencies = TRUE)
  library(monocle)
- library(xacHelper)
- library(igraph)
+ library(stringr)
+ library(plyr)
+ ## library(xacHelper)
+#  library(igraph)
 
- load_all_libraries()
+##  load_all_libraries()
  
- #   #load all the go/reactome/kegg datasets for the analysis: 
- root_directory <- "./Quake_data"
+#  #   #load all the go/reactome/kegg datasets for the analysis: 
+#  root_directory <- "./Quake_data"
 
- human_go_gsc <- loadGSCSafe(paste(root_directory,"/GMT/EM_pathways/Human/symbol/Human_GO_AllPathways_with_GO_iea_June_20_2014_symbol.gmt", sep=""), encoding="latin1")
- names(human_go_gsc$gsc) <- str_split_fixed(names(human_go_gsc$gsc), "%", 2)[,1]
+#  human_go_gsc <- loadGSCSafe(paste(root_directory,"/GMT/EM_pathways/Human/symbol/Human_GO_AllPathways_with_GO_iea_June_20_2014_symbol.gmt", sep=""), encoding="latin1")
+#  names(human_go_gsc$gsc) <- str_split_fixed(names(human_go_gsc$gsc), "%", 2)[,1]
 
- human_reactome_gsc <- loadGSCSafe(paste(root_directory,"/GMT/EM_pathways/Human/symbol/Pathways/Human_Reactome_June_20_2014_symbol.gmt", sep=""), encoding="latin1")
- names(human_reactome_gsc$gsc) <- str_split_fixed(names(human_reactome_gsc$gsc), "%", 2)[,1]
+#  human_reactome_gsc <- loadGSCSafe(paste(root_directory,"/GMT/EM_pathways/Human/symbol/Pathways/Human_Reactome_June_20_2014_symbol.gmt", sep=""), encoding="latin1")
+#  names(human_reactome_gsc$gsc) <- str_split_fixed(names(human_reactome_gsc$gsc), "%", 2)[,1]
 
- mouse_go_gsc <- loadGSCSafe(paste(root_directory,"/GMT/EM_pathways/Mouse/by_symbol/GO/MOUSE_GO_bp_with_GO_iea_symbol.gmt", sep=""), encoding="latin1")
- names(mouse_go_gsc$gsc) <- str_split_fixed(names(mouse_go_gsc$gsc), "%", 2)[,1]
+#  mouse_go_gsc <- loadGSCSafe(paste(root_directory,"/GMT/EM_pathways/Mouse/by_symbol/GO/MOUSE_GO_bp_with_GO_iea_symbol.gmt", sep=""), encoding="latin1")
+#  names(mouse_go_gsc$gsc) <- str_split_fixed(names(mouse_go_gsc$gsc), "%", 2)[,1]
 
- mouse_reactome_gsc <- loadGSCSafe(paste(root_directory,"/GMT/EM_pathways/Mouse/by_symbol/Pathways/Mouse_Reactome_June_20_2014_symbol.gmt", sep=""), encoding="latin1")
- names(mouse_reactome_gsc$gsc) <- str_split_fixed(names(mouse_reactome_gsc$gsc), "%", 2)[,1]
+#  mouse_reactome_gsc <- loadGSCSafe(paste(root_directory,"/GMT/EM_pathways/Mouse/by_symbol/Pathways/Mouse_Reactome_June_20_2014_symbol.gmt", sep=""), encoding="latin1")
+#  names(mouse_reactome_gsc$gsc) <- str_split_fixed(names(mouse_reactome_gsc$gsc), "%", 2)[,1]
 
- mouse_kegg_gsc <- loadGSCSafe(paste(root_directory,"/GMT/EM_pathways/Mouse/by_symbol/Pathways/Mouse_Human_KEGG_June_20_2014_symbol.gmt", sep=""), encoding="latin1")
- names(mouse_kegg_gsc$gsc) <- str_split_fixed(names(mouse_kegg_gsc$gsc), "%", 2)[,1]
+#  mouse_kegg_gsc <- loadGSCSafe(paste(root_directory,"/GMT/EM_pathways/Mouse/by_symbol/Pathways/Mouse_Human_KEGG_June_20_2014_symbol.gmt", sep=""), encoding="latin1")
+#  names(mouse_kegg_gsc$gsc) <- str_split_fixed(names(mouse_kegg_gsc$gsc), "%", 2)[,1]
 
- mouse_go_gsc_cc <- loadGSCSafe(paste(root_directory,"/GMT/EM_pathways/Mouse/by_symbol/GO/MOUSE_GO_cc_with_GO_iea_symbol.gmt", sep=""), encoding="latin1")
- names(mouse_go_gsc_cc$gsc) <- str_split_fixed(names(mouse_go_gsc_cc$gsc), "%", 2)[,1]
- mouse_go_gsc_mf <- loadGSCSafe(paste(root_directory,"/GMT/EM_pathways/Mouse/by_symbol/GO/MOUSE_GO_mf_with_GO_iea_symbol.gmt", sep=""), encoding="latin1")
- names(mouse_go_gsc_mf$gsc) <- str_split_fixed(names(mouse_go_gsc_mf$gsc), "%", 2)[,1]
+#  mouse_go_gsc_cc <- loadGSCSafe(paste(root_directory,"/GMT/EM_pathways/Mouse/by_symbol/GO/MOUSE_GO_cc_with_GO_iea_symbol.gmt", sep=""), encoding="latin1")
+#  names(mouse_go_gsc_cc$gsc) <- str_split_fixed(names(mouse_go_gsc_cc$gsc), "%", 2)[,1]
+#  mouse_go_gsc_mf <- loadGSCSafe(paste(root_directory,"/GMT/EM_pathways/Mouse/by_symbol/GO/MOUSE_GO_mf_with_GO_iea_symbol.gmt", sep=""), encoding="latin1")
+#  names(mouse_go_gsc_mf$gsc) <- str_split_fixed(names(mouse_go_gsc_mf$gsc), "%", 2)[,1]
 
- mouse_reactome_gsc <- loadGSCSafe(paste(root_directory,"/GMT/EM_pathways/Mouse/by_symbol/Pathways/Mouse_Reactome_June_20_2014_symbol.gmt", sep=""), encoding="latin1")
- names(mouse_reactome_gsc$gsc) <- str_split_fixed(names(mouse_reactome_gsc$gsc), "%", 2)[,1]
+#  mouse_reactome_gsc <- loadGSCSafe(paste(root_directory,"/GMT/EM_pathways/Mouse/by_symbol/Pathways/Mouse_Reactome_June_20_2014_symbol.gmt", sep=""), encoding="latin1")
+#  names(mouse_reactome_gsc$gsc) <- str_split_fixed(names(mouse_reactome_gsc$gsc), "%", 2)[,1]
 
- mouse_kegg_gsc <- loadGSCSafe(paste(root_directory,"/GMT/EM_pathways/Mouse/by_symbol/Pathways/Mouse_Human_KEGG_June_20_2014_symbol.gmt", sep=""), encoding="latin1")
- names(mouse_kegg_gsc$gsc) <- str_split_fixed(names(mouse_kegg_gsc$gsc), "%", 2)[,1]
+#  mouse_kegg_gsc <- loadGSCSafe(paste(root_directory,"/GMT/EM_pathways/Mouse/by_symbol/Pathways/Mouse_Human_KEGG_June_20_2014_symbol.gmt", sep=""), encoding="latin1")
+#  names(mouse_kegg_gsc$gsc) <- str_split_fixed(names(mouse_kegg_gsc$gsc), "%", 2)[,1]
 
- #set the directory: 
- prog_cell_state = "#979797"
- AT1_cell_state = "#F05662" 
- AT2_cell_state = "#7990C8" 
- AT1_Lineage = "#BD1C7C"
- AT2_Lineage = "#337DB9" 
-#  #load the data: 
-#  # load('xiaojie_test_data.gz') #make the dataset
- source('./monocle_helper_functions.R')
- Shalek_valid_genes <- read.table('./Aviv_data/valid_genes_for_analyis.txt', header = T)
- Shalek_exprs_mat <- read.table("./Aviv_data/cuffnorm_output_files/genes.fpkm_table", row.names = 1, header = T)
- Shalek_fd <- read.table("./Aviv_data/cuffnorm_output_files/genes.attr_table", row.names = 1, header = T)
- Shalek_pd <- read.table("./Aviv_data/sample_metadata_table.txt", sep = '\t', row.names = 1, header = T)
- rownames(Shalek_pd) <- paste(rownames(Shalek_pd), "_0", sep = "")
- Shalek_exprs_mat <- Shalek_exprs_mat[row.names(Shalek_fd), row.names(Shalek_pd)]
- Shalek_std <- newCellDataSet(Shalek_exprs_mat, 
-                             phenoData = new("AnnotatedDataFrame", data = Shalek_pd), 
-                             featureData = new("AnnotatedDataFrame", data = Shalek_fd), 
-                             expressionFamily=tobit(), 
-                             lowerDetectionLimit=1)
- Shalek_std <- Shalek_std[, which(pData(Shalek_std)$used_in_study == T)]
- Shalek_std <- Shalek_std[row.names(Shalek_std) %in% Shalek_valid_genes$gene_id, ] #27386 * 1787 cells
- #check the consistency with the current Shalek_abs data: 
+#  #set the directory: 
+#  prog_cell_state = "#979797"
+#  AT1_cell_state = "#F05662" 
+#  AT2_cell_state = "#7990C8" 
+#  AT1_Lineage = "#BD1C7C"
+#  AT2_Lineage = "#337DB9" 
+# #  #load the data: 
+# #  # load('xiaojie_test_data.gz') #make the dataset
+#  source('./monocle_helper_functions.R')
+#  Shalek_valid_genes <- read.table('./Aviv_data/valid_genes_for_analyis.txt', header = T)
+#  Shalek_exprs_mat <- read.table("./Aviv_data/cuffnorm_output_files/genes.fpkm_table", row.names = 1, header = T)
+#  Shalek_fd <- read.table("./Aviv_data/cuffnorm_output_files/genes.attr_table", row.names = 1, header = T)
+#  Shalek_pd <- read.table("./Aviv_data/sample_metadata_table.txt", sep = '\t', row.names = 1, header = T)
+#  rownames(Shalek_pd) <- paste(rownames(Shalek_pd), "_0", sep = "")
+#  Shalek_exprs_mat <- Shalek_exprs_mat[row.names(Shalek_fd), row.names(Shalek_pd)]
+#  Shalek_std <- newCellDataSet(Shalek_exprs_mat, 
+#                              phenoData = new("AnnotatedDataFrame", data = Shalek_pd), 
+#                              featureData = new("AnnotatedDataFrame", data = Shalek_fd), 
+#                              expressionFamily=tobit(), 
+#                              lowerDetectionLimit=1)
+#  Shalek_std <- Shalek_std[, which(pData(Shalek_std)$used_in_study == T)]
+#  Shalek_std <- Shalek_std[row.names(Shalek_std) %in% Shalek_valid_genes$gene_id, ] #27386 * 1787 cells
+#  #check the consistency with the current Shalek_abs data: 
 
- Shalek_isoform_fpkm_matrix <- read.table("./Aviv_data/cuffnorm_output_files/isoforms.fpkm_table", row.names = 1, header = T)
- # colnames(Shalek_isoform_fpkm_matrix) <- str_replace(colnames(Shalek_isoform_fpkm_matrix), "_0$", "")
- #colnames(isoform_fpkm_matrix) <- str_replace(colnames(isoform_fpkm_matrix), "GolgiPlugh", "GolgiPlug")
- # row.names(Shalek_isoform_fpkm_matrix) <- Shalek_isoform_fpkm_matrix$tracking_id
- Shalek_isoform_fpkm_matrix <- Shalek_isoform_fpkm_matrix[, colnames(Shalek_std)]
+#  Shalek_isoform_fpkm_matrix <- read.table("./Aviv_data/cuffnorm_output_files/isoforms.fpkm_table", row.names = 1, header = T)
+#  # colnames(Shalek_isoform_fpkm_matrix) <- str_replace(colnames(Shalek_isoform_fpkm_matrix), "_0$", "")
+#  #colnames(isoform_fpkm_matrix) <- str_replace(colnames(isoform_fpkm_matrix), "GolgiPlugh", "GolgiPlug")
+#  # row.names(Shalek_isoform_fpkm_matrix) <- Shalek_isoform_fpkm_matrix$tracking_id
+#  Shalek_isoform_fpkm_matrix <- Shalek_isoform_fpkm_matrix[, colnames(Shalek_std)]
 
- # save(Shalek_exprs_mat, Shalek_pd, Shalek_fd, Shalek_isoform_fpkm_matrix, Shalek_valid_genes, file = 'AvivDC_cell.RData') #data for making the help package 
- # save(Shalek_valid_genes, file = 'Shalek_valid_genes')
+#  # save(Shalek_exprs_mat, Shalek_pd, Shalek_fd, Shalek_isoform_fpkm_matrix, Shalek_valid_genes, file = 'AvivDC_cell.RData') #data for making the help package 
+#  # save(Shalek_valid_genes, file = 'Shalek_valid_genes')
  
- # Convert expression measurements from FPKM to absolute transcript counts, using the isoforms object to estimate the t parameter
- Shalek_abs= relative2abs(Shalek_std, estimate_t(Shalek_isoform_fpkm_matrix), modelFormulaStr = "~1", cores=detectCores())
+#  # Convert expression measurements from FPKM to absolute transcript counts, using the isoforms object to estimate the t parameter
+#  Shalek_abs= relative2abs(Shalek_std, estimate_t(Shalek_isoform_fpkm_matrix), modelFormulaStr = "~1", cores=detectCores())
 
- pd <- new("AnnotatedDataFrame", data = pData(Shalek_std))
- fd <- new("AnnotatedDataFrame", data = fData(Shalek_std))
- Shalek_abs <-  newCellDataSet(Shalek_abs, 
-                                 phenoData = pd, 
-                                 featureData = fd, 
-                                 expressionFamily=negbinomial(), 
-                                 lowerDetectionLimit=1)
- pData(Shalek_abs)$Total_mRNAs <- colSums(exprs(Shalek_abs))
+#  pd <- new("AnnotatedDataFrame", data = pData(Shalek_std))
+#  fd <- new("AnnotatedDataFrame", data = fData(Shalek_std))
+#  Shalek_abs <-  newCellDataSet(Shalek_abs, 
+#                                  phenoData = pd, 
+#                                  featureData = fd, 
+#                                  expressionFamily=negbinomial(), 
+#                                  lowerDetectionLimit=1)
+#  pData(Shalek_abs)$Total_mRNAs <- colSums(exprs(Shalek_abs))
  
-#Calculate size factors and dispersions
- Shalek_abs = estimateSizeFactors(Shalek_abs)
- Shalek_abs = estimateDispersions(Shalek_abs)
+# #Calculate size factors and dispersions
+#  Shalek_abs = estimateSizeFactors(Shalek_abs)
+#  Shalek_abs = estimateDispersions(Shalek_abs)
 
- # Filter to only expressed genes (feel free to change this as needed, I have tried several methods)
- Shalek_abs = detectGenes(Shalek_abs, min_expr = 1)
+#  # Filter to only expressed genes (feel free to change this as needed, I have tried several methods)
+#  Shalek_abs = detectGenes(Shalek_abs, min_expr = 1)
 
- ###################################################################################################################################
- ### performing the DEG tests to obtain the genes used for ordering the cells #####
+#  ###################################################################################################################################
+#  ### performing the DEG tests to obtain the genes used for ordering the cells #####
 
- # LPS: 
- Shalek_LPS <- Shalek_abs[, pData(Shalek_abs)$experiment_name %in% c('LPS', 'Unstimulated_Replicate')]
- pData(Shalek_LPS)[, 'stim_time'] <- as.character(pData(Shalek_LPS)$time)
+#  # LPS: 
+#  Shalek_LPS <- Shalek_abs[, pData(Shalek_abs)$experiment_name %in% c('LPS', 'Unstimulated_Replicate')]
+#  pData(Shalek_LPS)[, 'stim_time'] <- as.character(pData(Shalek_LPS)$time)
 
- pData(Shalek_LPS)$stim_time[pData(Shalek_LPS)$stim_time == ''] <- 0
- Shalek_LPS <- detectGenes(Shalek_LPS, min_expr = 0.1)
- expressed_genes <- row.names(subset(fData(Shalek_LPS), num_cells_expressed > 50))
- genes_in_range <- selectGenesInExpressionRange(Shalek_LPS[expressed_genes,], 2, Inf, 0.1, stat_fun=function(x) { median(round(x)) })
- Shalek_LPS_subset_DEG_res <- differentialGeneTest(Shalek_LPS[genes_in_range, ], fullModelFormulaStr = '~stim_time', cores = detectCores())
+#  pData(Shalek_LPS)$stim_time[pData(Shalek_LPS)$stim_time == ''] <- 0
+#  Shalek_LPS <- detectGenes(Shalek_LPS, min_expr = 0.1)
+#  expressed_genes <- row.names(subset(fData(Shalek_LPS), num_cells_expressed > 50))
+#  genes_in_range <- selectGenesInExpressionRange(Shalek_LPS[expressed_genes,], 2, Inf, 0.1, stat_fun=function(x) { median(round(x)) })
+#  Shalek_LPS_subset_DEG_res <- differentialGeneTest(Shalek_LPS[genes_in_range, ], fullModelFormulaStr = '~stim_time', cores = detectCores())
 
- #ko: include all LPS cells
- Shalek_abs_subset_ko_LPS <- Shalek_abs[, pData(Shalek_abs)$experiment_name %in% c('Ifnar1_KO_LPS', 'Stat1_KO_LPS',  "LPS", "Unstimulated_Replicate")]
- pData(Shalek_abs_subset_ko_LPS)[, 'stim_time'] <- as.character(pData(Shalek_abs_subset_ko_LPS)$time)
+#  #ko: include all LPS cells
+#  Shalek_abs_subset_ko_LPS <- Shalek_abs[, pData(Shalek_abs)$experiment_name %in% c('Ifnar1_KO_LPS', 'Stat1_KO_LPS',  "LPS", "Unstimulated_Replicate")]
+#  pData(Shalek_abs_subset_ko_LPS)[, 'stim_time'] <- as.character(pData(Shalek_abs_subset_ko_LPS)$time)
 
- pData(Shalek_abs_subset_ko_LPS)$stim_time[pData(Shalek_abs_subset_ko_LPS)$stim_time == ''] <- 0
- pData(Shalek_abs_subset_ko_LPS)$stim_time <- as.integer(revalue(pData(Shalek_abs_subset_ko_LPS)$stim_time, c("1h" = 1, "2h" = 2, "4h" = 4, "6h" = 6)))
- Shalek_abs_subset_ko_LPS <- detectGenes(Shalek_abs_subset_ko_LPS, min_expr = 0.1)
- expressed_genes <- row.names(subset(fData(Shalek_abs_subset_ko_LPS), num_cells_expressed > 50))
- genes_in_range <- selectGenesInExpressionRange(Shalek_abs_subset_ko_LPS[expressed_genes,], 2, Inf, 0.1, stat_fun=function(x) { median(round(x)) })
- Shalek_abs_subset_ko_LPS_subset_DEG_res <- differentialGeneTest(Shalek_abs_subset_ko_LPS[genes_in_range, ], fullModelFormulaStr = '~experiment_name + stim_time', cores = detectCores())
+#  pData(Shalek_abs_subset_ko_LPS)$stim_time[pData(Shalek_abs_subset_ko_LPS)$stim_time == ''] <- 0
+#  pData(Shalek_abs_subset_ko_LPS)$stim_time <- as.integer(revalue(pData(Shalek_abs_subset_ko_LPS)$stim_time, c("1h" = 1, "2h" = 2, "4h" = 4, "6h" = 6)))
+#  Shalek_abs_subset_ko_LPS <- detectGenes(Shalek_abs_subset_ko_LPS, min_expr = 0.1)
+#  expressed_genes <- row.names(subset(fData(Shalek_abs_subset_ko_LPS), num_cells_expressed > 50))
+#  genes_in_range <- selectGenesInExpressionRange(Shalek_abs_subset_ko_LPS[expressed_genes,], 2, Inf, 0.1, stat_fun=function(x) { median(round(x)) })
+ # Shalek_abs_subset_ko_LPS_subset_DEG_res <- differentialGeneTest(Shalek_abs_subset_ko_LPS[genes_in_range, ], fullModelFormulaStr = '~experiment_name + stim_time', cores = detectCores())
 
- #make spanning trees (select subset of the CDS for downstream analysis): 
- pData(Shalek_abs_subset_ko_LPS)$Total_mRNAs <- colSums(exprs(Shalek_abs_subset_ko_LPS))
- Shalek_abs_subset_ko_LPS <- Shalek_abs_subset_ko_LPS[, pData(Shalek_abs_subset_ko_LPS)$Total_mRNAs < 75000]
+ # #make spanning trees (select subset of the CDS for downstream analysis): 
+ # pData(Shalek_abs_subset_ko_LPS)$Total_mRNAs <- colSums(exprs(Shalek_abs_subset_ko_LPS))
+ # Shalek_abs_subset_ko_LPS <- Shalek_abs_subset_ko_LPS[, pData(Shalek_abs_subset_ko_LPS)$Total_mRNAs < 75000]
 
- order_genes <- c(row.names(subset(Shalek_abs_subset_ko_LPS_subset_DEG_res, qval < 1e-40)))
+ # order_genes <- c(row.names(subset(Shalek_abs_subset_ko_LPS_subset_DEG_res, qval < 1e-40)))
 
- Shalek_abs_subset_ko_LPS <- setOrderingFilter(Shalek_abs_subset_ko_LPS, order_genes)
- Shalek_abs_subset_ko_LPS <- reduceDimension(Shalek_abs_subset_ko_LPS, use_vst = T, use_irlba=F, pseudo_expr = 0, covariates = as.vector(pData(Shalek_abs_subset_ko_LPS)$num_genes_expressed) )
- save.image('~/Projects/BEAM/Parallel_the_reproduce/tmp_analysis_shalek_data.RData')
- Shalek_abs_subset_ko_LPS <- orderCells(Shalek_abs_subset_ko_LPS, num_path = 2)
+ # Shalek_abs_subset_ko_LPS <- setOrderingFilter(Shalek_abs_subset_ko_LPS, order_genes)
+ # Shalek_abs_subset_ko_LPS <- reduceDimension(Shalek_abs_subset_ko_LPS, use_vst = T, use_irlba=F, pseudo_expr = 0, covariates = as.vector(pData(Shalek_abs_subset_ko_LPS)$num_genes_expressed) )
+ # save.image('~/Projects/BEAM/Parallel_the_reproduce/tmp_analysis_shalek_data.RData')
+ # Shalek_abs_subset_ko_LPS <- orderCells(Shalek_abs_subset_ko_LPS, num_path = 2)
 
  # Figure 5C -- Heatmap
  ## Detect branching genes and calulate ABCs and ILRs
- full_model_string = '~sm.ns(Pseudotime, df = 3)*Lineage'
+ # full_model_string = '~sm.ns(Pseudotime, df = 3)*Lineage'
 
- ko_branching_genes = branchTest(Shalek_abs_subset_ko_LPS, fullModelFormulaStr = full_model_string, cores = detectCores(), relative_expr = T, weighted = T)
+ # ko_branching_genes = branchTest(Shalek_abs_subset_ko_LPS, fullModelFormulaStr = full_model_string, cores = detectCores(), relative_expr = T, weighted = T)
  # Shalek_abs_subset_ko_LPS_abcs = calABCs(Shalek_abs_subset_ko_LPS, fullModelFormulaStr=full_model_string, cores=1) 
 
  ## Generate a plot
- regev_cat <- read.table(file = './Aviv_data/cuffnorm_output_files/study_gene_categories.txt', header = T, sep = '\t') #pass this to the plot_genes_branched_heatmap function
+ ## regev_cat <- read.table(file = './Aviv_data/cuffnorm_output_files/study_gene_categories.txt', header = T, sep = '\t') #pass this to the plot_genes_branched_heatmap function
 
  # Figure 5B annotations -- Enrichment analysis on clusters
  
@@ -160,17 +162,17 @@
 
  # ##two group tests: 
  # #comparign with time 4h:
- ko_Ifnar1_wt4 <- differentialGeneTest(Shalek_abs_subset_ko_LPS[, c(pData(Shalek_abs_subset_ko_LPS)$experiment_name %in% c('LPS') & 
-                                             pData(Shalek_abs_subset_ko_LPS)$time %in% '4h') | c(pData(Shalek_abs_subset_ko_LPS)$experiment_name %in% c('Ifnar1_KO_LPS') & 
-                                             pData(Shalek_abs_subset_ko_LPS)$time %in% '4h')
-                                             ], fullModelFormulaStr="~experiment_name", reducedModelFormulaStr="~1", cores=detectCores())
- ko_stat1_wt4 <- differentialGeneTest(Shalek_abs_subset_ko_LPS[, c(pData(Shalek_abs_subset_ko_LPS)$experiment_name %in% c('LPS') & 
-                                             pData(Shalek_abs_subset_ko_LPS)$time %in% '4h') | c(pData(Shalek_abs_subset_ko_LPS)$experiment_name %in% c('Stat1_KO_LPS') & 
-                                             pData(Shalek_abs_subset_ko_LPS)$time %in% '4h')
-                                             ], fullModelFormulaStr="~experiment_name", reducedModelFormulaStr="~1", cores=detectCores())
+ # ko_Ifnar1_wt4 <- differentialGeneTest(Shalek_abs_subset_ko_LPS[, c(pData(Shalek_abs_subset_ko_LPS)$experiment_name %in% c('LPS') & 
+ #                                             pData(Shalek_abs_subset_ko_LPS)$time %in% '4h') | c(pData(Shalek_abs_subset_ko_LPS)$experiment_name %in% c('Ifnar1_KO_LPS') & 
+ #                                             pData(Shalek_abs_subset_ko_LPS)$time %in% '4h')
+ #                                             ], fullModelFormulaStr="~experiment_name", reducedModelFormulaStr="~1", cores=detectCores())
+ # ko_stat1_wt4 <- differentialGeneTest(Shalek_abs_subset_ko_LPS[, c(pData(Shalek_abs_subset_ko_LPS)$experiment_name %in% c('LPS') & 
+ #                                             pData(Shalek_abs_subset_ko_LPS)$time %in% '4h') | c(pData(Shalek_abs_subset_ko_LPS)$experiment_name %in% c('Stat1_KO_LPS') & 
+ #                                             pData(Shalek_abs_subset_ko_LPS)$time %in% '4h')
+ #                                             ], fullModelFormulaStr="~experiment_name", reducedModelFormulaStr="~1", cores=detectCores())
 
- #####################golgi: with all LPS cells: ######################
- Shalek_golgi_update <- Shalek_abs[,pData(Shalek_abs)$experiment_name %in% c("LPS_GolgiPlug", "LPS", "Unstimulated_Replicate")]
+ # #####################golgi: with all LPS cells: ######################
+ # Shalek_golgi_update <- Shalek_abs[,pData(Shalek_abs)$experiment_name %in% c("LPS_GolgiPlug", "LPS", "Unstimulated_Replicate")]
 
  #add both the golgi time and stim time: 
  split_cols <- str_split_fixed(pData(Shalek_golgi_update)$time, '_', 2)
