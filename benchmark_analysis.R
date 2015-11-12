@@ -151,7 +151,7 @@
 #   # scde
   # save.image('tmp_benchmark_analysis.RData')
   #calculate the pval with the readcount with scde: (calculate the scde associate DEG test result LOCALLY) 
-  std_scde_res_list <- scde_DEG(dir = NULL, count_cds = count_cds, DEG_attribute = 'Time', contrast = c('E14.5', 'E18.5'), n.cores = detectCores())
+  # std_scde_res_list <- scde_DEG(dir = NULL, count_cds = count_cds, DEG_attribute = 'Time', contrast = c('E14.5', 'E18.5'), n.cores = detectCores())
   
   #calculate the pval with the normalized transcripts with scde: 
   abs_scde_res_list <- scde_DEG(dir = NULL, count_cds = new_abs_cds_14_18, DEG_attribute = 'Time', contrast = c('E14.5', 'E18.5'), n.cores = detectCores(), normalize = T)
