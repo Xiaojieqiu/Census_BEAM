@@ -321,4 +321,4 @@
   ggtitle('') + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank())
   dev.off()
 
-  save.image('benchmark_analysis.RData')
+  save.image()
