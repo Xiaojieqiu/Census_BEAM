@@ -65,9 +65,11 @@
                                      featureData = fd, 
                                      expressionFamily=negbinomial(), 
                                      lowerDetectionLimit=1)
+  pdf('HSMM_fpkm_matrix_adj_select.pdf')
   qplot(esApply(HSMM, 2, sum), apply(HSMM_fpkm_matrix_adj_select$norm_cds, 2, sum), log = 'xy') + xlab('Previous recovery algorithm') +
     ylab('New recovery algorithm') + ggtitle('Compare the result from previous and current recovery algorithm (HSMM data)') + geom_smooth(method = 'rlm') + geom_abline()
-  
+  dev.off()
+
   # valid_HSMM_cell <- load('valid_HSMM_cell') #load the cells
   
   if(use_select_algorithm)
