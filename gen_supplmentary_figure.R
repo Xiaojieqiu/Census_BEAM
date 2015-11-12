@@ -3,8 +3,8 @@
 
   load_all_libraries()
 
-  load('analysis_other_supplementary_data.RData')
-  load('analysis_lung_data.RData')
+  # load('analysis_other_supplementary_data.RData')
+  # load('analysis_lung_data.RData')
   load('analysis_HSMM_data.RData')
 
   ##############################################################################################################
