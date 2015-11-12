@@ -104,9 +104,9 @@
 
  # Filter to only expressed genes (feel free to change this as needed, I have tried several methods)
  Shalek_abs = detectGenes(Shalek_abs, min_expr = 1)
- expressed_genes = row.names(subset(fData(Shalek_abs), num_cells_expressed >= 50))
- Shalek_abs_cp <- Shalek_abs
- Shalek_abs = Shalek_abs[expressed_genes,]
+ # expressed_genes = row.names(subset(fData(Shalek_abs), num_cells_expressed >= 50))
+ # Shalek_abs_cp <- Shalek_abs
+ # Shalek_abs = Shalek_abs[expressed_genes,]
 ####################################################################################################################################
 
  Shalek_abs <- estimateSizeFactors(Shalek_abs)

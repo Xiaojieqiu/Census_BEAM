@@ -396,7 +396,35 @@ pseudotime_sets_all <- c(rep(paste('Multiple timepoint test', sep = ''), length(
 pdf(file = paste(elife_directory, 'eLife_fig_SI_branchTest_cmpr2.pdf', sep = ''))
 venneuler_venn(pseudotime_element_all, pseudotime_sets_all)
 dev.off()
-    
+
+#############################################
+#pseudotime benchmark test on the HSMM data: 
+
+pdf('eLife_figSI_fpkm_HSMM_tree.pdf', width = 1.5, height = 1.2)
+plot_spanning_tree(std_HSMM, color_by="Time", show_backbone=T, backbone_color = 'black',
+    markers=markers, show_cell_names = F, show_all_lineages = F, cell_size = 1, cell_link_size = 0.2) + nm_theme() #+ scale_size(range = c(0.5, .5)) 
+dev.off()
+
+pdf('eLife_figSI_abs_HSMM_tree.pdf', width = 1.5, height = 1.2)
+plot_spanning_tree(HSMM_myo, color_by="Time", show_backbone=T, backbone_color = 'black',
+    markers=markers, show_cell_names = F, show_all_lineages = F, cell_size = 1, cell_link_size = 0.2) + nm_theme() #+ scale_size(range = c(0.5, .5)) 
+dev.off()
+
+pdf('eLife_figSI_tree_cmpr.pdf', width = 1.5, height = 1.2)
+plot_tree_pairwise_cor(std_HSMM, HSMM_myo) + nm_theme()
+dev.off()
+
+element_all <- c(row.names(HSMM_myo_size_norm_res[HSMM_myo_size_norm_res$qval <0.1, ]), 
+  row.names(std_HSMM_myo_pseudotime_res_ori[std_HSMM_myo_pseudotime_res_ori$qval <0.1, ]))
+sets_all <- c(rep(paste('Transcript counts (Size + VST)', sep = ''), nrow(HSMM_myo_size_norm_res[HSMM_myo_size_norm_res$qval <0.1, ])), 
+            rep(paste('FPKM', sep = ''), nrow(std_HSMM_myo_pseudotime_res_ori[std_HSMM_myo_pseudotime_res_ori$qval <0.1, ])))
+
+pdf('eLife_figSI_transcript_counts_HSMM_overlapping.pdf')
+venneuler_venn(element_all, sets_all)
+dev.off()
+table(sets_all) #number of genes
+
+
 # add a vertical line for the early / late lineage dependent genes to represent the bifurcation time points 
 
 # ILR heatmap: don’t use blue / red color scheme for better representation of the idea of ILRs 
