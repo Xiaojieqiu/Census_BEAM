@@ -326,9 +326,9 @@
   tpm_align <- melt(TPM)
   tpm_align <- tpm_align[tpm_align$value > 0.1, ]
   
-  pdf('tpm_align_distr.pdf')
-  qplot(value, log = 'x', geom = 'density', color = Var2, data = tpm_align) + theme_bw() + theme(legend.position = 'none') + xlab('TPM')
-  dev.off()
+  # pdf('tpm_align_distr.pdf')
+  # qplot(value, log = 'x', geom = 'density', color = Var2, data = tpm_align) + theme_bw() + theme(legend.position = 'none') + xlab('TPM')
+  # dev.off()
 
   TPM_cds <- newCellDataSet(TPM, 
                             phenoData = new("AnnotatedDataFrame", data = pData(standard_cds)),
@@ -354,16 +354,16 @@
   tpm_test_selected$z_fraction <- log10(fraction[tpm_test_selected$Cell])
   tpm_test_selected$R_plus_z <- tpm_test_selected[, 'R_rho_ij'] + tpm_test_selected[, 'z_fraction']
   
-  pdf('molModel_kb_relationship.pdf')
-  qplot(unlist(lapply(molModels_select, function(x) coef(x)[2])), unlist(lapply(molModels_select, function(x) coef(x)[1]))) + 
-    geom_abline(intercept = mean(tpm_test_selected$c_mean_y_ij), slope = -mean(tpm_test_selected$m_mean_x_ij))
-  dev.off()
+  # pdf('molModel_kb_relationship.pdf')
+  # qplot(unlist(lapply(molModels_select, function(x) coef(x)[2])), unlist(lapply(molModels_select, function(x) coef(x)[1]))) + 
+  #   geom_abline(intercept = mean(tpm_test_selected$c_mean_y_ij), slope = -mean(tpm_test_selected$m_mean_x_ij))
+  # dev.off()
 
   #plot all the parameters
-  tpm_data <- tpm_test_selected[, -which(colnames(tpm_test_selected) %in% c('Cell', 'Time'))]
-  pdf('compare_all_algorithm_param.pdf')
-  plotmatrix2(tpm_data, myLab= 'Parameters related to the recovery algorithm', read_count = NULL, useCounts = T, logMode = F, pseudocount = 0, alpha = 1)
-  dev.off()
+  # tpm_data <- tpm_test_selected[, -which(colnames(tpm_test_selected) %in% c('Cell', 'Time'))]
+  # pdf('compare_all_algorithm_param.pdf')
+  # plotmatrix2(tpm_data, myLab= 'Parameters related to the recovery algorithm', read_count = NULL, useCounts = T, logMode = F, pseudocount = 0, alpha = 1)
+  # dev.off()
 
   norm_fpkms_select <- mapply(function(cell_exprs, molModel) {
     tryCatch({
@@ -416,23 +416,23 @@
   cmpr_Quake_norm_cds_optim_weight_fix_c <- relative2abs(TPM_cds, t_estimate = estimate_t(TPM_isoform_count_cds, relative_expr_thresh = .1),                                                   
                                                                 alpha_v = 1, total_RNAs = 50000, weight = 0.01, 
                                                                 verbose = T, return_all = T, cores = 2, m =  -4.864207, c = mean(mean_m_c_select[1, ]))
-  pdf('opt_m_fix_c_algorithm.pdf')
-  qplot(esApply(absolute_cds_select[1:transcript_num, ], 2, sum)[optim_sum > 10], apply(Quake_norm_cds_optim_weight_fix_c$norm_cds[1:transcript_num, ], 2, sum)[optim_sum > 10], log = 'xy') + geom_abline() + geom_smooth(method = 'rlm') + xlab('spikein total RNA counts') + 
-    geom_smooth(method = 'rlm') + ylab('Optimized total RNA counts') + ggtitle('Quake lung data: Optimizing m with fixed c directly calculated')
-  dev.off()
+  # pdf('opt_m_fix_c_algorithm.pdf')
+  # qplot(esApply(absolute_cds_select[1:transcript_num, ], 2, sum)[optim_sum > 10], apply(Quake_norm_cds_optim_weight_fix_c$norm_cds[1:transcript_num, ], 2, sum)[optim_sum > 10], log = 'xy') + geom_abline() + geom_smooth(method = 'rlm') + xlab('spikein total RNA counts') + 
+  #   geom_smooth(method = 'rlm') + ylab('Optimized total RNA counts') + ggtitle('Quake lung data: Optimizing m with fixed c directly calculated')
+  # dev.off()
 
   Quake_norm_cds_optim_mc <- relative2abs_mc(relative_expr_matrix = exprs(TPM_cds), t_estimate = estimate_t(TPM_isoform_count_cds, relative_expr_thresh = .1),                                                   
                                              verbose = T, return_all = T, cores = 2, m =  -4.277778, c = 2.932929)
 
-  pdf('true_mc_algorithm.pdf')
-  qplot(esApply(absolute_cds_select[1:transcript_num, ], 2, sum)[optim_sum > 10], apply(Quake_norm_cds_optim_mc$norm_cds[1:transcript_num, ], 2, sum)[optim_sum > 10], log = 'xy') + geom_abline() + geom_smooth(method = 'rlm') + xlab('spikein total RNA counts') + 
-    geom_smooth(method = 'rlm') + ylab('Optimized total RNA counts') + ggtitle('Quake lung data: Use the true m/c values')
-  dev.off()
+  # pdf('true_mc_algorithm.pdf')
+  # qplot(esApply(absolute_cds_select[1:transcript_num, ], 2, sum)[optim_sum > 10], apply(Quake_norm_cds_optim_mc$norm_cds[1:transcript_num, ], 2, sum)[optim_sum > 10], log = 'xy') + geom_abline() + geom_smooth(method = 'rlm') + xlab('spikein total RNA counts') + 
+  #   geom_smooth(method = 'rlm') + ylab('Optimized total RNA counts') + ggtitle('Quake lung data: Use the true m/c values')
+  # dev.off()
 
-  pdf('lower_end_removed.pdf')
-  qplot(esApply(absolute_cds[1:transcript_num, ], 2, sum), esApply(absolute_cds_select[1:transcript_num, ], 2, sum), log = 'xy') + geom_abline() + geom_smooth(method = 'rlm') + xlab('spikein total RNA counts (all expressed spikein transcripts)') + 
-    geom_smooth(method = 'rlm') + ylab('spikein total RNA counts (lower end removed)') + ggtitle('Comparing the effect of removing lower end or not')
-  dev.off()
+  # pdf('lower_end_removed.pdf')
+  # qplot(esApply(absolute_cds[1:transcript_num, ], 2, sum), esApply(absolute_cds_select[1:transcript_num, ], 2, sum), log = 'xy') + geom_abline() + geom_smooth(method = 'rlm') + xlab('spikein total RNA counts (all expressed spikein transcripts)') + 
+  #   geom_smooth(method = 'rlm') + ylab('spikein total RNA counts (lower end removed)') + ggtitle('Comparing the effect of removing lower end or not')
+  # dev.off()
 
   ################################## this long section is used to generate all the data for making the figure 1e: ##################################
   #generate the test p-val as well as the permutation pval
@@ -512,9 +512,9 @@
   pData(absolute_cds_subset)$Cell_type <- SRR_cell_type[colnames(absolute_cds_subset), 'putative_cell_type']
   absolute_cds_subset@expressionFamily <- negbinomial()
 
-  pdf('quake_absolute_cds_subset.pdf')
-  plot_spanning_tree(absolute_cds_subset, color_by="Cell_type", show_backbone=T, show_cell_names = F)
-  dev.off()
+  # pdf('quake_absolute_cds_subset.pdf')
+  # plot_spanning_tree(absolute_cds_subset, color_by="Cell_type", show_backbone=T, show_cell_names = F)
+  # dev.off()
 
   ########test the tree constructed with either absolute transcript counts or FPKM dataset after removing the ciliated and clara cells (use either add_quake_gene_all_marker_ids or all_AT12_markers as ordering genes)
   # remove the Clara, Ciliated cells for tree construction (use cell type assignment from Quake paper): 
@@ -528,9 +528,9 @@
   # absolute_cds.quake_maker <- orderCells(absolute_cds.quake_maker, num_paths = 2, reverse = F)
   AT12_cds_subset <- orderCells(AT12_cds_subset, num_paths = 2, reverse = F) #SRR1033962_0 
   
-  pdf('quake_AT12_cds_subset.pdf')
-  plot_spanning_tree(AT12_cds_subset, color_by="Time", show_backbone=T, show_cell_names = F)
-  dev.off()
+  # pdf('quake_AT12_cds_subset.pdf')
+  # plot_spanning_tree(AT12_cds_subset, color_by="Time", show_backbone=T, show_cell_names = F)
+  # dev.off()
 
   # use all marker genes and the quake_gene_list used before for performing the tree construction used for the later analysis: 
   AT12_cds_subset_all_gene <- reduceDimension(standard_cds[add_quake_gene_all_marker_ids, !(colnames(standard_cds) %in% paste(other_cell_names, "_0", sep = ''))], use_irlba = F, use_vst = F) 
@@ -538,9 +538,9 @@
   
   pData(AT12_cds_subset_all_gene)$Cell_type <- SRR_cell_type[colnames(AT12_cds_subset_all_gene), 'putative_cell_type']
   
-  pdf('quake_AT12_cds_subset_all_gene.pdf')
-  plot_spanning_tree(AT12_cds_subset_all_gene, color_by="Time", show_backbone=T, show_cell_names = F)
-  dev.off()
+  # pdf('quake_AT12_cds_subset_all_gene.pdf')
+  # plot_spanning_tree(AT12_cds_subset_all_gene, color_by="Time", show_backbone=T, show_cell_names = F)
+  # dev.off()
 
   # use the tree construction information for the absolute_cds (we can also use use_for_ordering to generate the tree)
   #pData(absolute_cds) <- pData(AT12_cds_subset_all_gene)
@@ -549,9 +549,9 @@
   test <- setOrderingFilter(standard_cds[, !(colnames(standard_cds) %in% paste(other_cell_names, "_0", sep = ''))], add_quake_gene_all_marker_ids)
   test <- reduceDimension(test[, !(colnames(test) %in% paste(other_cell_names, "_0", sep = ''))], use_irlba = F, use_vst = F) 
   test <- orderCells(test, num_paths = 2, reverse = F) #SRR1033962_0 
-  pdf('test_tree.pdf')
-  plot_spanning_tree(test, color_by="Time", show_backbone=T, show_cell_names = F)
-  dev.off()
+  # pdf('test_tree.pdf')
+  # plot_spanning_tree(test, color_by="Time", show_backbone=T, show_cell_names = F)
+  # dev.off()
 
   # switch the state 2/3 to ensure that we get the exact plots in the paper: 
   State <- pData(AT12_cds_subset_all_gene)$State
@@ -563,9 +563,9 @@
   AT12_cds_subset_all_gene2 <- reduceDimension(absolute_cds[add_quake_gene_all_marker_ids, !(colnames(absolute_cds) %in% paste(other_cell_names, "_0", sep = ''))], max_components = 2, use_irlba=T, fun="exp", use_vst = F)  
   AT12_cds_subset_all_gene2 <- orderCells(AT12_cds_subset_all_gene2, num_paths = 2, reverse = T) #SRR1033962_0 
   
-  pdf('AT12_cds_subset_all_gene2.pdf.pdf')
-  plot_spanning_tree(AT12_cds_subset_all_gene2, color_by="Time", show_backbone=T, show_cell_names = F)
-  dev.off()
+  # pdf('AT12_cds_subset_all_gene2.pdf.pdf')
+  # plot_spanning_tree(AT12_cds_subset_all_gene2, color_by="Time", show_backbone=T, show_cell_names = F)
+  # dev.off()
 
   absolute_cds@expressionFamily <- negbinomial()
   # calculate size factors as well as dispersion parameters for later analysis: 
@@ -590,9 +590,9 @@
   quake_maker_cds <- orderCells(quake_maker_cds, num_paths = 2, reverse = F) #SRR1033962_0 
   quake_maker_cds <- orderCells(quake_maker_cds, num_paths = 2, reverse = T) #SRR1033962_0 
 
-  pdf('quake_maker_cds.pdf.pdf')
-  plot_spanning_tree(quake_maker_cds, color_by="State", show_backbone=T, show_cell_names = F)
-  dev.off()
+  # pdf('quake_maker_cds.pdf.pdf')
+  # plot_spanning_tree(quake_maker_cds, color_by="State", show_backbone=T, show_cell_names = F)
+  # dev.off()
   
   #assign pseudotime associated data calculated with FPKM values to all datasets: USE THE ORIGINAL CELL ORDERING
   abs_AT12_cds_subset_all_gene <- absolute_cds[, colnames(AT12_cds_subset_all_gene)] #AT12_cds_subset_all_gene ONLY INCLUDES CELLS OTHER THAN THE CLARA OR CILIATED CELLS

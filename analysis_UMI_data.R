@@ -22,9 +22,9 @@
   # load('/Users/xqiu/Dropbox (Personal)/Quake/scRNA-seq_confirm_algorithm/SRP030617/input.ERCC.annotation')
   umi_matrix <- read.delim('./UMI_data/GSE54695_data_transcript_counts.txt', row.names="GENENAME")
   
-  pdf('umi_sum_dist.pdf')
-  qplot(apply(umi_matrix, 2, sum), log = 'x')
-  dev.off()
+  # pdf('umi_sum_dist.pdf')
+  # qplot(apply(umi_matrix, 2, sum), log = 'x')
+  # dev.off()
 
   ERCC_ids <- (grep('^ERCC', row.names(umi_matrix)))
   input.ERCC.annotation[row.names(umi_matrix)[ERCC_ids], ]
@@ -61,22 +61,22 @@
   UMI_cds_total_mRNAs <- UMI_cds[, pData(UMI_cds)$Total_mRNAs > 4800]
   umi_spike_df <- data.frame(spikein = input.ERCC.annotation[row.names(umi_matrix)[ERCC_ids], 'numMolecules'], UMI = exprs(UMI_cds_total_mRNAs)[ERCC_ids, 1])
   
-  pdf('recovery_efficiency.pdf')
-  qplot(UMI, spikein, data = umi_spike_df, log = 'xy') #recovery efficiency is around 0.1
-  dev.off()
+  # pdf('recovery_efficiency.pdf')
+  # qplot(UMI, spikein, data = umi_spike_df, log = 'xy') #recovery efficiency is around 0.1
+  # dev.off()
 
   all_umi_spike_df <- data.frame(spikein = input.ERCC.annotation[row.names(umi_matrix)[ERCC_ids], 'numMolecules'], UMI = as.vector(exprs(UMI_cds)[ERCC_ids, ]))
   
-  pdf('recovery_efficiency_loess.pdf')
-  qplot(UMI, spikein, data = all_umi_spike_df, log = 'xy') + geom_smooth(method = 'loess') #recovery efficiency is around 0.1 (mixture 1/2?)
-  dev.off()
+  # pdf('recovery_efficiency_loess.pdf')
+  # qplot(UMI, spikein, data = all_umi_spike_df, log = 'xy') + geom_smooth(method = 'loess') #recovery efficiency is around 0.1 (mixture 1/2?)
+  # dev.off()
 
   UMI_cds <- UMI_cds[, pData(UMI_cds)$Total_mRNAs > 0]
   pData(UMI_cds)$dmode <- estimate_t(UMI_cds)
 
-  pdf('mode_cell_umi.pdf')
-  qplot(unlist(pData(UMI_cds)$dmode), log = 'x') + xlab('Mode of UMI for each cell') #confirm the first assumption
-  dev.off()
+  # pdf('mode_cell_umi.pdf')
+  # qplot(unlist(pData(UMI_cds)$dmode), log = 'x') + xlab('Mode of UMI for each cell') #confirm the first assumption
+  # dev.off()
   # 
   # fig3b <- c('Cd19', 'Cd79b', 'Cd22', 'Cd37', 'Ctsd', 'Apoe', 'C1qa', 'C1qb', 'C1qc', 'Csf1r', 'Slpi', 'Tlr2', 'Mmp13', 'Marco', 'Ifng', 'Gzmb', 'Myc', 'Xcl1', 'Ccl5', 'Gzma', 'Nkg7', 'Spic', 'Cebpb', 'Lyz2', 'Sfpi1', 'Nfkbiz', 'Bst2', 'Siglech', 'Ly6d', 'Irf8', 'Cst3', 'Naaa', 'Ccr7', 'Cxcl9', 'Traf1', 'Relb', 'Itgax', 'Tmem176b', 'Tnf', 'Tnfaip3', 'Nfkbia', 'Il15', 'Cxcl10', 'Ifit1', 'Isg15', 'Irf7')
   # fig4c <- c('Irf1', 'Ly6e', 'Ppt1', 'Stat1', 'Irf2', 'Ccl4', 'Stat2')
@@ -93,9 +93,9 @@
   UMI_cds_subset <- orderCells(UMI_cds_subset, num_paths = 2, reverse = F) #SRR1033962_0 
   UMI_cds_subset@expressionFamily <- negbinomial()
 
-  pdf('UMI_tree.pdf')
-  plot_spanning_tree(UMI_cds_subset, color_by="group", show_backbone=T, show_cell_names = F)
-  dev.off()
+  # pdf('UMI_tree.pdf')
+  # plot_spanning_tree(UMI_cds_subset, color_by="group", show_backbone=T, show_cell_names = F)
+  # dev.off()
 
   #permform the permuation test and benchmarking? 
   #use CD11c+CD8+CD86+ VS CD11c+CD8+pDC as control: 
