@@ -304,7 +304,7 @@
   pData(mc_adj_cds)$endogenous_RNA <- esApply(mc_adj_cds, 2, function(x) sum(x[1:transcript_num]))
   
   #read the read count data for the genes: 
-  dir = "/net/trapnell/vol1/home/xqiu/Projects/BEAM/Xiaojie_reproduce/quake_lung/standard_normalized_out"
+  dir = "./Quake_data/quake_lung/standard_normalized_out"
   sample_table <- read.delim(paste(dir, "/samples.table", sep = ''))
   norm_count <- read.delim(paste(dir, "/genes.count_table", sep = ''))
   row.names(norm_count) <- norm_count$tracking_id
@@ -593,7 +593,7 @@
   # pdf('quake_maker_cds.pdf.pdf')
   # plot_spanning_tree(quake_maker_cds, color_by="State", show_backbone=T, show_cell_names = F)
   # dev.off()
-  
+
   #assign pseudotime associated data calculated with FPKM values to all datasets: USE THE ORIGINAL CELL ORDERING
   abs_AT12_cds_subset_all_gene <- absolute_cds[, colnames(AT12_cds_subset_all_gene)] #AT12_cds_subset_all_gene ONLY INCLUDES CELLS OTHER THAN THE CLARA OR CILIATED CELLS
   pData(abs_AT12_cds_subset_all_gene) <- pData(AT12_cds_subset_all_gene[, colnames(AT12_cds_subset_all_gene)])

@@ -291,40 +291,40 @@
 #   read_gd_fit_df <- matrix(read_gd_fit_res, nrow(absolute_cds), ncol = 11, byrow = T)
 #   dimnames(read_gd_fit_df) <- list(row.names(absolute_cds), c("ln_pvalue", "nb_pvalue", "ln_pvalue.glm.link", "ln_pvalue.glm.log", "ln_pvalue.chisq", "nb_pvalue.glm", "nb_pvalue.chisq", "zinb_pvalue.chisq", "zanb_pvalue.chisq", "zinb_pvalue", "zanb_pvalue"))
 
-#   # # 
-#   #select only nb and zinb and calculate the number of genes pass goodness of fit and number of genes can be fitted: 
-#   valid_gene_id_20_cell <- row.names(absolute_cds[which(rowSums(exprs(standard_cds) >= 1) > 20), ])
+  # # 
+  #select only nb and zinb and calculate the number of genes pass goodness of fit and number of genes can be fitted: 
+  valid_gene_id_20_cell <- row.names(absolute_cds[which(rowSums(exprs(standard_cds) >= 1) > 20), ])
 
-#   abs_gd_fit_res <- cal_gd_statistics(abs_gd_fit_df[, c('nb_pvalue', 'zinb_pvalue')], percentage = F, type = 'absolute', gene_list = valid_gene_id_20_cell)
-#   readcount_gd_fit_res <- cal_gd_statistics(read_gd_fit_df[, c('nb_pvalue', 'zinb_pvalue')], percentage = F,  type = 'readcount', gene_list = valid_gene_id_20_cell)
-#   gd_fit_res <- rbind(abs_gd_fit_res, readcount_gd_fit_res)
-#   gd_fit_res <- cbind(gd_fit_res, data_type = row.names(gd_fit_res))
-#   row.names(gd_fit_res) <- NULL
-#   gd_fit_res <- as.data.frame(gd_fit_res)
+  abs_gd_fit_res <- cal_gd_statistics(abs_gd_fit_df[, c('nb_pvalue', 'zinb_pvalue')], percentage = F, type = 'absolute', gene_list = valid_gene_id_20_cell)
+  readcount_gd_fit_res <- cal_gd_statistics(read_gd_fit_df[, c('nb_pvalue', 'zinb_pvalue')], percentage = F,  type = 'readcount', gene_list = valid_gene_id_20_cell)
+  gd_fit_res <- rbind(abs_gd_fit_res, readcount_gd_fit_res)
+  gd_fit_res <- cbind(gd_fit_res, data_type = row.names(gd_fit_res))
+  row.names(gd_fit_res) <- NULL
+  gd_fit_res <- as.data.frame(gd_fit_res)
   
-#   gd_fit_res_num <- subset(gd_fit_res, data_type == 'gd_fit_num')
-#   gd_fit_res_success_num <- subset(gd_fit_res, data_type == 'success_fit_num')
-#   # 
+  gd_fit_res_num <- subset(gd_fit_res, data_type == 'gd_fit_num')
+  gd_fit_res_success_num <- subset(gd_fit_res, data_type == 'success_fit_num')
+  # 
   
-#     #generate the result of goodness of fit for each gene: 
-#   colnames(gd_fit_res_num)[1:2] <- c('NB', 'ZINB')
-#   test <- melt(gd_fit_res_num[, 1:3], id.vars = 'type')
-#   p1 <- qplot(as.factor(variable), as.numeric(value), geom = 'bar', stat = 'identity', data = test, fill = type) + facet_wrap('type') + nm_theme() + 
-#     theme(legend.position = 'none') + xlab('Fit types') + ylab('number of genes') + theme(strip.background = element_blank(),
-#          strip.text.x = element_blank()) + theme(axis.text.x = element_text(angle = 30, hjust = .9))
-#   p1 + xlab('')
-#   ggsave(paste(elife_directory, 'goodness_fit.pdf', sep = ''), height = 1.5, width = 1)
+    #generate the result of goodness of fit for each gene: 
+  colnames(gd_fit_res_num)[1:2] <- c('NB', 'ZINB')
+  test <- melt(gd_fit_res_num[, 1:3], id.vars = 'type')
+  p1 <- qplot(as.factor(variable), as.numeric(value), geom = 'bar', stat = 'identity', data = test, fill = type) + facet_wrap('type') + nm_theme() + 
+    theme(legend.position = 'none') + xlab('Fit types') + ylab('number of genes') + theme(strip.background = element_blank(),
+         strip.text.x = element_blank()) + theme(axis.text.x = element_text(angle = 30, hjust = .9))
+  p1 + xlab('')
+  ggsave(paste(elife_directory, 'goodness_fit.pdf', sep = ''), height = 1.5, width = 1)
 
-#   colnames(gd_fit_res_success_num)[1:2] <- c('NB', 'ZINB')
-#   test <- melt(gd_fit_res_success_num[, 1:3], id.vars = 'type')
+  colnames(gd_fit_res_success_num)[1:2] <- c('NB', 'ZINB')
+  test <- melt(gd_fit_res_success_num[, 1:3], id.vars = 'type')
 
-#   p2 <- qplot(as.factor(variable), as.numeric(value), geom = 'bar', stat = 'identity', data = test, fill = type) + facet_wrap('type') + nm_theme() + 
-#      theme(legend.position = 'none') + xlab('Fit types') + ylab('number of genes') + theme(strip.background = element_blank(),
-#           strip.text.x = element_blank()) + theme(axis.text.x = element_text(angle = 30, hjust = .9))
+  p2 <- qplot(as.factor(variable), as.numeric(value), geom = 'bar', stat = 'identity', data = test, fill = type) + facet_wrap('type') + nm_theme() + 
+     theme(legend.position = 'none') + xlab('Fit types') + ylab('number of genes') + theme(strip.background = element_blank(),
+          strip.text.x = element_blank()) + theme(axis.text.x = element_text(angle = 30, hjust = .9))
   
-#   pdf('goodness_fit2.pdf', width = 2, height = 3)
-#   p2 + xlab('')
-#   dev.off()
+  pdf('goodness_fit2.pdf', width = 2, height = 3)
+  p2 + xlab('')
+  dev.off()
 
 #    #fig 3 SI: 
 #   quake_all_modes <- estimate_t(exprs(isoform_count_cds), return_all = T)

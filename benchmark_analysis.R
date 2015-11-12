@@ -154,11 +154,11 @@
   # std_scde_res_list <- scde_DEG(dir = NULL, count_cds = count_cds, DEG_attribute = 'Time', contrast = c('E14.5', 'E18.5'), n.cores = detectCores())
   
   #calculate the pval with the normalized transcripts with scde: 
-  abs_scde_res_list <- scde_DEG(dir = NULL, count_cds = new_abs_cds_14_18, DEG_attribute = 'Time', contrast = c('E14.5', 'E18.5'), n.cores = detectCores(), normalize = T)
-  abs_scde_res_list_no_normalize <- scde_DEG(dir = NULL, count_cds = new_abs_cds_14_18, DEG_attribute = 'Time', contrast = c('E14.5', 'E18.5'), n.cores = detectCores())
+  # abs_scde_res_list <- scde_DEG(dir = NULL, count_cds = new_abs_cds_14_18, DEG_attribute = 'Time', contrast = c('E14.5', 'E18.5'), n.cores = detectCores(), normalize = T)
+  # abs_scde_res_list_no_normalize <- scde_DEG(dir = NULL, count_cds = new_abs_cds_14_18, DEG_attribute = 'Time', contrast = c('E14.5', 'E18.5'), n.cores = detectCores())
   
 
-  scde_p <- std_scde_res_list$pval
+  scde_p <- std_scde_res_list$pval 
   abs_scde_p <- abs_scde_res_list$pval #_no_normalize
   
   # generate df3.1 for making the comparision: 
@@ -173,9 +173,9 @@
   
   #prepare the data for the DESeq2 / edgeR: 
   default_edgeR_p = edgeR_res$lrt$table$PValue
-  names(default_edgeR_p) <- row.names(edgeR_res$l4t$table)
-  abs_default_edgeR_p = abs_edgeR_res$lrt$table$PValue
-  names(abs_default_edgeR_p) <- row.names(abs_edgeR_res$lrt$table)
+    names(default_edgeR_p) <- row.names(edgeR_res$lrt$table)
+    abs_default_edgeR_p = abs_edgeR_res$lrt$table$PValue
+    names(abs_default_edgeR_p) <- row.names(abs_edgeR_res$lrt$table)
 
   default_deseq2_p = results(deseq2_res)$pvalue
   names(default_deseq2_p) <- row.names(results(deseq2_res))
@@ -233,9 +233,15 @@
   # only show new size normalization: 
   df3.1 <- df3
   df3.1[, 'Type'] <- c('SCDE', 'SCDE', 'DESeq1', 'DESeq1', 'DESeq2', 'DESeq2', 'edgeR', 'edgeR', 'Monocle', 'Monocle', 'Monocle', 'Monocle') # geom_bar(stat = 'identity', position = 'dodge') 
-  df3.1 <- rbind(df3.1, df3.1[c(4, 7), ])
-  df3.1 <- df3.1[c(1:8, 10:14), ]
+  # df3.1 <- rbind(df3.1, df3.1[c(4, 7), ])
+  # df3.1 <- df3.1[c(1:8, 10:14), ]
   
+  pdf('fig_SI_benchmark_df3.1.pdf')
+  qplot(factor(Type), value, stat = "identity", geom = 'bar', position = 'dodge', fill = data_type, data = melt(df3.1)) + #facet_wrap(~variable) + 
+  ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
+  ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank())
+  dev.off()
+
   # distribution of pval vs the mean expression: 
   pval_mean <- data.frame(std = std_permutate_pval, abs = mode_size_norm_permutate_ratio_by_geometric_mean, 
                           mc = mc_mode_size_norm_permutate_ratio_by_geometric_mean, read = readcount_permutate_pval, 
