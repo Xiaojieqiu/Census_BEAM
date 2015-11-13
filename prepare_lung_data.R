@@ -407,11 +407,10 @@
                                           featureData = fd, 
                                           expressionFamily=tobit(), 
                                           lowerDetectionLimit=1)
-  
-  #recover the transcript counts with the new algorithm (lower end ladder removed): 
-  Quake_norm_cds_optim_weight_fix_c <- relative2abs_optim_fix_c(relative_expr_matrix = exprs(TPM_cds), t_estimate = estimate_t(TPM_isoform_count_cds, relative_expr_thresh = .1),                                                   
-                                                                alpha_v = 1, total_RNAs = 50000, weight = 0.01, 
-                                                                verbose = T, return_all = T, cores = 2, m =  -4.864207, c = mean(mean_m_c_select[1, ]))
+
+  #recover the relative abundance into absolute transcript counts with relative2abs function (not that the c is fixed and m will be optimized)
+  Quake_norm_cds_optim_weight_fix_c <- relative2abs(TPM_cds, t_estimate = estimate_t(TPM_isoform_count_cds), cores = 1, m =  -4.864207, c = mean(mean_m_c_select[1, ]))
+
   optim_sum <- apply(Quake_norm_cds_optim_weight_fix_c$norm_cds[1:transcript_num, ], 2, sum)
   cmpr_Quake_norm_cds_optim_weight_fix_c <- relative2abs(TPM_cds, t_estimate = estimate_t(TPM_isoform_count_cds, relative_expr_thresh = .1),                                                   
                                                                 alpha_v = 1, total_RNAs = 50000, weight = 0.01, 

@@ -295,8 +295,8 @@
   #select only nb and zinb and calculate the number of genes pass goodness of fit and number of genes can be fitted: 
   valid_gene_id_20_cell <- row.names(absolute_cds[which(rowSums(exprs(standard_cds) >= 1) > 20), ])
 
-  abs_gd_fit_res <- cal_gd_statistics(abs_gd_fit_df[, c('nb_pvalue', 'zinb_pvalue')], percentage = F, type = 'absolute', gene_list = valid_gene_id_20_cell)
-  readcount_gd_fit_res <- cal_gd_statistics(read_gd_fit_df[, c('nb_pvalue', 'zinb_pvalue')], percentage = F,  type = 'readcount', gene_list = valid_gene_id_20_cell)
+  abs_gd_fit_res <- cal_gd_statistics(abs_gd_fit_df[, c('nb_pvalue', 'zinb_pvalue')], percentage = F, type = 'absolute')#, gene_list = valid_gene_id_20_cell)
+  readcount_gd_fit_res <- cal_gd_statistics(read_gd_fit_df[, c('nb_pvalue', 'zinb_pvalue')], percentage = F,  type = 'readcount')#, gene_list = valid_gene_id_20_cell)
   gd_fit_res <- rbind(abs_gd_fit_res, readcount_gd_fit_res)
   gd_fit_res <- cbind(gd_fit_res, data_type = row.names(gd_fit_res))
   row.names(gd_fit_res) <- NULL

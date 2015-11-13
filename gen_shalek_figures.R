@@ -1,6 +1,13 @@
-load('shalek_data_analysis.RData')
-
+# load('shalek_data_analysis.RData')
+library(monocle)
+library(xacHelper)
+library(grid)
+library(colorRamps)
+library(R.utils)
+library(piano)
+library(venneuler)
 fig_root_dir = './'
+shalek_custom_color_scale_plus_states= c(shalek_custom_color_scale, c('1'='#40A43A', '2'='#CB1B1E', '3'='#3660A5', 'Unstimulated_Replicate.' = 'gray'))
 
 #########################################################################################################
 #figure 5: 
@@ -59,9 +66,9 @@ Shalek_abs_subset_ko_LPS_heatmap_annotations = plot_genes_branched_heatmap(Shale
 # cell_size = 1, ncol = 2, reducedModelFormulaStr = "~ sm.ns(Pseudotime, df=3)", add_pval = T) + 
 # ylab('Transcript counts') 
 
-# Get hyper geometric GSA test results for different enrichment sets (GO, KEGG, reactome, etc.)
-Shalek_abs_subset_ko_LPS_tree_heatmap_clusters <- as.numeric(Shalek_abs_subset_ko_LPS_heatmap_annotations$annotation_row$Cluster)
-names(Shalek_abs_subset_ko_LPS_tree_heatmap_clusters) = fData(Shalek_abs_subset_ko_LPS[row.names(Shalek_abs_subset_ko_LPS_heatmap_annotations$annotation_row), ])$gene_short_name
+# # Get hyper geometric GSA test results for different enrichment sets (GO, KEGG, reactome, etc.)
+# Shalek_abs_subset_ko_LPS_tree_heatmap_clusters <- as.numeric(Shalek_abs_subset_ko_LPS_heatmap_annotations$annotation_row$Cluster)
+# names(Shalek_abs_subset_ko_LPS_tree_heatmap_clusters) = fData(Shalek_abs_subset_ko_LPS[row.names(Shalek_abs_subset_ko_LPS_heatmap_annotations$annotation_row), ])$gene_short_name
 names(Shalek_abs_subset_ko_LPS_tree_heatmap_clusters) <- capitalize(tolower(names(Shalek_abs_subset_ko_LPS_tree_heatmap_clusters))) # normalize reactome terms names to all uppercase
 
 #Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_go <- collect_gsa_hyper_results(Shalek_abs_subset_ko_LPS, gsc = mouse_go_gsc, Shalek_abs_subset_ko_LPS_tree_heatmap_clusters)
@@ -269,23 +276,23 @@ plot_genes_branched_pseudotime2(Shalek_golgi_update[branch_motif_Tfs_id, ], cell
            ylab('Transcript counts') + nm_theme()
 dev.off()
 
-#########################################################################################################
-# #panel C: 
-# #make the venn diagram for all the above analysis (Fig 6):
-# andrew_element_all <- c(
-#             row.names(golgi_wt_0to6_pseudo[golgi_wt_0to6_pseudo$qval < .05, ]), #0to6
-#             row.names(all_golgi_plug0_wt4[all_golgi_plug0_wt4$qval < .05, ]), 
-#             row.names(all_golgi_plug0_wt0[all_golgi_plug0_wt0$qval < .05, ])
-#             )
-# andrew_sets_all <- c(
-#          rep(paste('golgi_wt_0to6_pseudo', sep = ''), length(row.names(golgi_wt_0to6_pseudo[golgi_wt_0to6_pseudo$qval < .05, ]))),
-#          rep(paste('all_golgi_plug0_wt4', sep = ''), length(row.names(all_golgi_plug0_wt4[all_golgi_plug0_wt4$qval < .05, ]))),
-#          rep(paste('all_golgi_plug_wt0', sep = ''), length(row.names(all_golgi_plug0_wt0[all_golgi_plug0_wt0$qval < .05, ])))
-#          )
+########################################################################################################
+#panel C: 
+#make the venn diagram for all the above analysis (Fig 6):
+andrew_element_all <- c(
+            row.names(golgi_wt_0to6_pseudo[golgi_wt_0to6_pseudo$qval < .05, ]), #0to6
+            row.names(all_golgi_plug0_wt4[all_golgi_plug0_wt4$qval < .05, ]), 
+            row.names(all_golgi_plug0_wt0[all_golgi_plug0_wt0$qval < .05, ])
+            )
+andrew_sets_all <- c(
+         rep(paste('golgi_wt_0to6_pseudo', sep = ''), length(row.names(golgi_wt_0to6_pseudo[golgi_wt_0to6_pseudo$qval < .05, ]))),
+         rep(paste('all_golgi_plug0_wt4', sep = ''), length(row.names(all_golgi_plug0_wt4[all_golgi_plug0_wt4$qval < .05, ]))),
+         rep(paste('all_golgi_plug_wt0', sep = ''), length(row.names(all_golgi_plug0_wt0[all_golgi_plug0_wt0$qval < .05, ])))
+         )
 
-# pdf(file = paste(fig_root_dir, 'eLife_fig6_SI_blocking.pdf', sep = ''))
-# venneuler_venn(andrew_element_all, andrew_sets_all)
-# dev.off()
+pdf(file = paste(fig_root_dir, 'eLife_fig6_SI_blocking.pdf', sep = ''))
+venneuler_venn(andrew_element_all, andrew_sets_all)
+dev.off()
 
 #this one is used in the paper: 
 andrew_element_all <- c(
@@ -303,54 +310,54 @@ pdf(file = paste(elife_directory, 'eLife_fig6_SI_blocking_4h.pdf', sep = ''))
 venneuler_venn(andrew_element_all, andrew_sets_all)
 dev.off()
 
-# # test the branch gene number to two group test DEGs:  
-# andrew_element_all <- c(
-#             row.names(golgi_branching_genes[golgi_branching_genes$qval < .01, ]), #0to6
-#             row.names(all_golgi_plug0_wt4[all_golgi_plug0_wt4$qval < .01, ]), 
-#             row.names(all_golgi_plug0_wt0[all_golgi_plug0_wt0$qval < .01, ])
-#             )
-# andrew_sets_all <- c(
-#          rep(paste('golgi_branching_genes', sep = ''), length(row.names(golgi_branching_genes[golgi_branching_genes$qval < .01, ]))),
-#          rep(paste('all_golgi_plug0_wt4', sep = ''), length(row.names(all_golgi_plug0_wt4[all_golgi_plug0_wt4$qval < .01, ]))),
-#          rep(paste('all_golgi_plug_wt0', sep = ''), length(row.names(all_golgi_plug0_wt0[all_golgi_plug0_wt0$qval < .01, ])))
-#          )
+# test the branch gene number to two group test DEGs:  
+andrew_element_all <- c(
+            row.names(golgi_branching_genes[golgi_branching_genes$qval < .01, ]), #0to6
+            row.names(all_golgi_plug0_wt4[all_golgi_plug0_wt4$qval < .01, ]), 
+            row.names(all_golgi_plug0_wt0[all_golgi_plug0_wt0$qval < .01, ])
+            )
+andrew_sets_all <- c(
+         rep(paste('golgi_branching_genes', sep = ''), length(row.names(golgi_branching_genes[golgi_branching_genes$qval < .01, ]))),
+         rep(paste('all_golgi_plug0_wt4', sep = ''), length(row.names(all_golgi_plug0_wt4[all_golgi_plug0_wt4$qval < .01, ]))),
+         rep(paste('all_golgi_plug_wt0', sep = ''), length(row.names(all_golgi_plug0_wt0[all_golgi_plug0_wt0$qval < .01, ])))
+         )
 
-# pdf(file = paste(fig_root_dir, 'eLife_fig6_golgi_branch_overlapping.pdf', sep = ''))
-# venneuler_venn(andrew_element_all, andrew_sets_all)
-# dev.off()
+pdf(file = paste(fig_root_dir, 'eLife_fig6_golgi_branch_overlapping.pdf', sep = ''))
+venneuler_venn(andrew_element_all, andrew_sets_all)
+dev.off()
 
-# # #TFs for the two group tests, jitter plots, violin plot and the corresponding kinetic plots: 
-# # DEG_tf_list <- intersect(subset(golgi_plug0_wt0, qval < 1e-1)[, 'gene_short_name'],  c(motif_TFs, motif_TFs_add))
-# # write.table(subset(golgi_plug0_wt0, qval < 1e-1)[, 'gene_short_name'], file = 'golgi_plug0_wt0_deg', quote = F, row.names= F, col.names=F)
-# # write.table(subset(golgi_plug0_wt4, qval < 1e-1)[, 'gene_short_name'], file = 'golgi_plug0_wt4_deg', quote = F, row.names= F, col.names=F)
+# #TFs for the two group tests, jitter plots, violin plot and the corresponding kinetic plots: 
+# DEG_tf_list <- intersect(subset(golgi_plug0_wt0, qval < 1e-1)[, 'gene_short_name'],  c(motif_TFs, motif_TFs_add))
+# write.table(subset(golgi_plug0_wt0, qval < 1e-1)[, 'gene_short_name'], file = 'golgi_plug0_wt0_deg', quote = F, row.names= F, col.names=F)
+# write.table(subset(golgi_plug0_wt4, qval < 1e-1)[, 'gene_short_name'], file = 'golgi_plug0_wt4_deg', quote = F, row.names= F, col.names=F)
 
-# # DEG_tf_ids <- row.names(subset(fData(Shalek_golgi_update), toupper(gene_short_name) %in% c(DEG_tf_list, 'TNF', 'IL6', 'IL-1')))
+# DEG_tf_ids <- row.names(subset(fData(Shalek_golgi_update), toupper(gene_short_name) %in% c(DEG_tf_list, 'TNF', 'IL6', 'IL-1')))
 
-# # plot_genes_violin(Shalek_golgi_update[DEG_tf_ids, pData(Shalek_golgi_update)$time %in% c('4h_0h', '4h', '1h', '2h', '')], pvalue = golgi_plug0_wt0[DEG_tf_ids, 'pval'], grouping = "time", min_expr = 0.1,
-# # cell_size = 0.75, nrow = NULL, ncol = 1, panel_order = NULL, color_by = 'time',
-# # plot_trend = FALSE, label_by_short_name = TRUE,
-# # outlier_rm_type = NULL)
-# # ggsave('time_DEG.pdf', height = 10, width = 5)
+# plot_genes_violin(Shalek_golgi_update[DEG_tf_ids, pData(Shalek_golgi_update)$time %in% c('4h_0h', '4h', '1h', '2h', '')], pvalue = golgi_plug0_wt0[DEG_tf_ids, 'pval'], grouping = "time", min_expr = 0.1,
+# cell_size = 0.75, nrow = NULL, ncol = 1, panel_order = NULL, color_by = 'time',
+# plot_trend = FALSE, label_by_short_name = TRUE,
+# outlier_rm_type = NULL)
+# ggsave('time_DEG.pdf', height = 10, width = 5)
 
-# # plot_genes_violin(Shalek_golgi_update[DEG_tf_ids, ], pvalue = golgi_plug0_wt0[DEG_tf_ids, 'pval'], grouping = "time", min_expr = 0.1,
-# # cell_size = 0.75, nrow = NULL, ncol = 1, panel_order = NULL, color_by = 'time',
-# # plot_trend = FALSE, label_by_short_name = TRUE,
-# # outlier_rm_type = NULL)
-# # ggsave('time_DEG_all_time.pdf', height = 10, width = 8)
+# plot_genes_violin(Shalek_golgi_update[DEG_tf_ids, ], pvalue = golgi_plug0_wt0[DEG_tf_ids, 'pval'], grouping = "time", min_expr = 0.1,
+# cell_size = 0.75, nrow = NULL, ncol = 1, panel_order = NULL, color_by = 'time',
+# plot_trend = FALSE, label_by_short_name = TRUE,
+# outlier_rm_type = NULL)
+# ggsave('time_DEG_all_time.pdf', height = 10, width = 8)
 
-# # plot_genes_jitter(Shalek_golgi_update[DEG_tf_ids, pData(Shalek_golgi_update)$time %in% c('4h_0h', '4h', '1h', '2h', '')], #pvalue = golgi_plug0_wt0[DEG_tf_ids, 'pval'], 
-# # grouping = "time", min_expr = 0.1,
-# # cell_size = 0.75, nrow = NULL, ncol = 1, panel_order = NULL,
-# # color_by = NULL, plot_trend = FALSE, label_by_short_name = TRUE,
-# # )
-# # # DEG_tf_ids <- row.names(subset(fData(Shalek_golgi_update), toupper(gene_short_name) %in% DEG_tf_list)) 
-# # plot_genes_branched_pseudotime2(Shalek_golgi_update[DEG_tf_ids, ], cell_color_by = "State", 
-# #            trajectory_color_by = "Lineage", fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', normalize = F, stretch = T,
-# #            lineage_labels = c('Normal cells', 'GolgiPlug'), cell_size = 1, ncol = 8, reducedModelFormulaStr = "~sm.ns(Pseudotime, df=3)", add_pval = T) + 
-# #            ylab('Transcript counts') #+ nm_theme()
-# # ggsave(paste(fig_root_dir, 'eLife_fig6_SI_DEG_genes.pdf', sep = ''), height = 4, width = 15)
+# plot_genes_jitter(Shalek_golgi_update[DEG_tf_ids, pData(Shalek_golgi_update)$time %in% c('4h_0h', '4h', '1h', '2h', '')], #pvalue = golgi_plug0_wt0[DEG_tf_ids, 'pval'], 
+# grouping = "time", min_expr = 0.1,
+# cell_size = 0.75, nrow = NULL, ncol = 1, panel_order = NULL,
+# color_by = NULL, plot_trend = FALSE, label_by_short_name = TRUE,
+# )
+# # DEG_tf_ids <- row.names(subset(fData(Shalek_golgi_update), toupper(gene_short_name) %in% DEG_tf_list)) 
+# plot_genes_branched_pseudotime2(Shalek_golgi_update[DEG_tf_ids, ], cell_color_by = "State", 
+#            trajectory_color_by = "Lineage", fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', normalize = F, stretch = T,
+#            lineage_labels = c('Normal cells', 'GolgiPlug'), cell_size = 1, ncol = 8, reducedModelFormulaStr = "~sm.ns(Pseudotime, df=3)", add_pval = T) + 
+#            ylab('Transcript counts') #+ nm_theme()
+# ggsave(paste(fig_root_dir, 'eLife_fig6_SI_DEG_genes.pdf', sep = ''), height = 4, width = 15)
 
-# #figure 6: for golgi-plug (Note that the GSC are the same): 
+#figure 6: for golgi-plug (Note that the GSC are the same): 
 # TF_enrichment_results_5k_golgi <- collect_gsa_hyper_results(Shalek_golgi_update[, ], TF_5k_enrichment_gsc, Shalek_golgi_update_heatmap_clusters)
 
 # motif_enrich_plot_golgi <- plot_gsa_hyper_heatmap(Shalek_golgi_update, TF_enrichment_results_5k_golgi, significance = 1e-1)
