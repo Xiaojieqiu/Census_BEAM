@@ -62,11 +62,13 @@
   # muscle_df <- muscle_df[1:2, ] #select only the transcript counts data: 
   muscle_df[, 'Type'] <- c('Monocle', 'DESeq', 'DESeq', 'Monocle')
   colnames(muscle_df)[1:3] <- c('Precision', 'Recall', 'F1')
+
+  pdf('muscle_cmpr_pseudotime_test.pdf')
   qplot(factor(Type), value, stat = "identity", geom = 'bar', position = 'dodge', fill = data_type, data = melt(muscle_df), log = 'y') + #facet_wrap(~variable) + 
       ggtitle(title) + scale_fill_discrete('Type') + xlab('') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
       ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + ylim(0, 1) + 
       theme(strip.background = element_blank(), strip.text.x = element_blank()) + nm_theme()
-
+  dev.off()
 
 ##############################################################################################################
 
@@ -292,7 +294,7 @@
 #   dimnames(read_gd_fit_df) <- list(row.names(absolute_cds), c("ln_pvalue", "nb_pvalue", "ln_pvalue.glm.link", "ln_pvalue.glm.log", "ln_pvalue.chisq", "nb_pvalue.glm", "nb_pvalue.chisq", "zinb_pvalue.chisq", "zanb_pvalue.chisq", "zinb_pvalue", "zanb_pvalue"))
 
   # # 
-  #select only nb and zinb and calculate the number of genes pass goodness of fit and number of genes can be fitted: 
+  # # select only nb and zinb and calculate the number of genes pass goodness of fit and number of genes can be fitted: 
   # valid_gene_id_20_cell <- row.names(absolute_cds[which(rowSums(exprs(standard_cds) >= 1) > 50), ])
 
   # abs_gd_fit_res <- cal_gd_statistics(abs_gd_fit_df[, c('nb_pvalue', 'zinb_pvalue')], percentage = F, type = 'absolute')#, gene_list = valid_gene_id_20_cell)
@@ -312,8 +314,9 @@
   # p1 <- qplot(as.factor(variable), as.numeric(value), geom = 'bar', stat = 'identity', data = test, fill = type) + facet_wrap('type') + nm_theme() + 
   #   theme(legend.position = 'none') + xlab('Fit types') + ylab('number of genes') + theme(strip.background = element_blank(),
   #        strip.text.x = element_blank()) + theme(axis.text.x = element_text(angle = 30, hjust = .9))
+  # pdf('goodness_fit.pdf', height = 1.5, width = 1)
   # p1 + xlab('')
-  # ggsave(paste(elife_directory, 'goodness_fit.pdf', sep = ''), height = 1.5, width = 1)
+  # dev.off()
 
   # colnames(gd_fit_res_success_num)[1:2] <- c('NB', 'ZINB')
   # test <- melt(gd_fit_res_success_num[, 1:3], id.vars = 'type')
