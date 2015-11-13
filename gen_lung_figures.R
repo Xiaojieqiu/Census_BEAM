@@ -4,7 +4,7 @@ library(xacHelper)
 load_all_libraries()
 
 ##load the data: 
-# load('analysis_lung_data.RData')
+load('analysis_lung_data.RData')
 # load('')
 #color scheme: 
 prog_cell_state = "#979797"
