@@ -1,4 +1,4 @@
-# load('shalek_data_analysis.RData')
+load('shalek_data_analysis.RData')
 library(monocle)
 library(xacHelper)
 library(grid)
@@ -183,7 +183,7 @@ names(Shalek_golgi_update_heatmap_clusters) <- capitalize(tolower(names(Shalek_g
 
 pdf(file = paste(fig_root_dir, 'figure_6D.pdf', sep = ''), height = 20, width = 9)
 Shalek_golgi_hyper_geometric_results = collect_gsa_hyper_results(Shalek_golgi_update, mouse_go_gsc, Shalek_golgi_update_heatmap_clusters)
-plot_gsa_hyper_heatmap(Shalek_golgi_update, Shalek_golgi_hyper_geometric_results, significance=1e-25) 
+plot_gsa_hyper_heatmap(Shalek_golgi_update, Shalek_golgi_hyper_geometric_results, significance=1e-2) 
 dev.off()
 
 ## Get hyper geometric GSA test results for different enrichment sets (GO, KEGG, reactome, etc.)
