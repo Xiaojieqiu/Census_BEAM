@@ -21,23 +21,23 @@
       markers=NULL, show_cell_names = F, show_all_lineages = F, cell_size = 1, cell_link_size = 0.2) + nm_theme() #+ scale_size(range = c(0.5, .5)) 
   dev.off()
 
-  # plot_tree_pairwise_cor2 <- function (std_tree_cds, absolute_tree_cds) 
-  # {
-  #     maturation_df <- data.frame(cell = rep(colnames(std_tree_cds), 
-  #         2), maturation_level = 100 * c(pData(std_tree_cds)$Pseudotime/max(pData(std_tree_cds)$Pseudotime), 
-  #         pData(absolute_tree_cds)$Pseudotime/max(pData(absolute_tree_cds)$Pseudotime)), 
-  #         Type = rep(c("FPKM", "Transcript counts (vst)"), each = ncol(std_tree_cds)), rownames = colnames(absolute_tree_cds))
-  #     cor.coeff <- cor(pData(absolute_tree_cds)$Pseudotime, pData(std_tree_cds)$Pseudotime, 
-  #         method = "spearman")
-  #     message(cor.coeff)
-  #     p <- ggplot(aes(x = maturation_level, y = Type, group = cell), 
-  #         data = maturation_df) + geom_point(size = 1) + geom_line(color = "blue", alpha = .3) + 
-  #         xlab("Pseudotime") + ylab("Type of tree construction") + monocle_theme_opts()
-  #     return(p)
-  # }
+  plot_tree_pairwise_cor2 <- function (std_tree_cds, absolute_tree_cds) 
+  {
+      maturation_df <- data.frame(cell = rep(colnames(std_tree_cds), 
+          2), maturation_level = 100 * c(pData(std_tree_cds)$Pseudotime/max(pData(std_tree_cds)$Pseudotime), 
+          pData(absolute_tree_cds)$Pseudotime/max(pData(absolute_tree_cds)$Pseudotime)), 
+          Type = rep(c("FPKM", "Transcript counts (vst)"), each = ncol(std_tree_cds)), rownames = colnames(absolute_tree_cds))
+      cor.coeff <- cor(pData(absolute_tree_cds)$Pseudotime, pData(std_tree_cds)$Pseudotime, 
+          method = "spearman")
+      message(cor.coeff)
+      p <- ggplot(aes(x = maturation_level, y = Type, group = cell), 
+          data = maturation_df) + geom_point(size = 1) + geom_line(color = "blue", alpha = .3) + 
+          xlab("Pseudotime") + ylab("Type of tree construction") + monocle_theme_opts()
+      return(p)
+  }
 
   pdf('eLife_figSI_cmpr_tree.pdf', width = 4, height = 2)
-  plot_tree_pairwise_cor(std_HSMM, HSMM_myo) + nm_theme()
+  plot_tree_pairwise_cor2(std_HSMM, HSMM_myo) + nm_theme()
   dev.off()
 
   element_all <- c(row.names(HSMM_myo_size_norm_res[HSMM_myo_size_norm_res$qval <0.1, ]), 
