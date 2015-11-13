@@ -511,9 +511,9 @@
   pData(absolute_cds_subset)$Cell_type <- SRR_cell_type[colnames(absolute_cds_subset), 'putative_cell_type']
   absolute_cds_subset@expressionFamily <- negbinomial()
 
-  # pdf('quake_absolute_cds_subset.pdf')
-  # plot_spanning_tree(absolute_cds_subset, color_by="Cell_type", show_backbone=T, show_cell_names = F)
-  # dev.off()
+  pdf('quake_absolute_cds_subset.pdf')
+  plot_spanning_tree(absolute_cds_subset, color_by="Cell_type", show_backbone=T, show_cell_names = F)
+  dev.off()
 
   ########test the tree constructed with either absolute transcript counts or FPKM dataset after removing the ciliated and clara cells (use either add_quake_gene_all_marker_ids or all_AT12_markers as ordering genes)
   # remove the Clara, Ciliated cells for tree construction (use cell type assignment from Quake paper): 
