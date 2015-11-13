@@ -230,7 +230,8 @@ ggsave(paste(submission_directory, "submission_fig3c_helper.pdf", sep = ''), hei
 #fig 4e: 
 
 ############################make the landscape heatmap: 
-optimization_matrix<- do.call(rbind.data.frame, optimization_landscape_3d)
+optimization_landscape_3d_trim <- lapply(optimization_landscape_3d, function(x) x[c('m', 'c', 'optim_res')])
+optimization_matrix<- do.call(rbind.data.frame, optimization_landscape_3d_trim)
 
 optimization_matrix_filt <- subset(optimization_matrix, is.nan(optim_res) == FALSE & is.finite(optim_res))
 max_optim_score <- 3

@@ -16,7 +16,19 @@
   new_std_cds_14_18 <- standard_cds[, colnames(new_abs_cds_14_18)]
   # new_std_cds_14_18 <- estimateSizeFactors(new_std_cds_14_18) #FPKM values are already on relative scale
   
-  #prepare the readcount data for DESeq / SCDE: 
+  ################################ scde run always have problems, need to run it first without loading other packages
+  # save.image('tmp_benchmark_analysis.RData')
+  # calculate the pval with the readcount with scde: (calculate the scde associate DEG test result LOCALLY) 
+  std_scde_res_list <- scde_DEG(dir = NULL, count_cds = count_cds, DEG_attribute = 'Time', contrast = c('E14.5', 'E18.5'), n.cores = detectCores())
+  
+  #calculate the pval with the normalized transcripts with scde: 
+  abs_scde_res_list <- scde_DEG(dir = NULL, count_cds = new_abs_cds_14_18, DEG_attribute = 'Time', contrast = c('E14.5', 'E18.5'), n.cores = detectCores(), normalize = T)
+  abs_scde_res_list_no_normalize <- scde_DEG(dir = NULL, count_cds = new_abs_cds_14_18, DEG_attribute = 'Time', contrast = c('E14.5', 'E18.5'), n.cores = detectCores())
+  
+  ################################ load all other packages and then run benchmark analysis: 
+  load_all_libraries()
+
+    #prepare the readcount data for DESeq / SCDE: 
   read_countdata <- read_countdata[row.names(new_abs_cds_14_18), colnames(new_abs_cds_14_18)] 
   
   #create a cds for readcount data to perform the default DEG tests for DESeq and SCDE : 
@@ -27,19 +39,7 @@
                               lowerDetectionLimit = 1)
   
   count_cds <- estimateSizeFactors(count_cds)
-
-  ################################ scde run always have problems, need to run it first without loading other packages
-  # save.image('tmp_benchmark_analysis.RData')
-  # calculate the pval with the readcount with scde: (calculate the scde associate DEG test result LOCALLY) 
-  std_scde_res_list <- scde_DEG(dir = NULL, count_cds = count_cds, DEG_attribute = 'Time', contrast = c('E14.5', 'E18.5'), n.cores = 1)
   
-  #calculate the pval with the normalized transcripts with scde: 
-  abs_scde_res_list <- scde_DEG(dir = NULL, count_cds = new_abs_cds_14_18, DEG_attribute = 'Time', contrast = c('E14.5', 'E18.5'), n.cores = 1, normalize = T)
-  abs_scde_res_list_no_normalize <- scde_DEG(dir = NULL, count_cds = new_abs_cds_14_18, DEG_attribute = 'Time', contrast = c('E14.5', 'E18.5'), n.cores = 1)
-  
-  ################################ load all other packages and then run benchmark analysis: 
-  load_all_libraries()
-
   #perform  the stastical tests on the data: 
   new_std_diff_test_res <- differentialGeneTest(new_std_cds_14_18[1:transcript_num, ], 
                                                 fullModelFormulaStr = "~Time", 

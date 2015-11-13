@@ -24,7 +24,7 @@
  library(xacHelper)
  library(igraph)
 
- load_all_libraries()
+ # load_all_libraries()
  
  #   #load all the go/reactome/kegg datasets for the analysis: 
  root_directory <- "./Quake_data"
@@ -139,7 +139,7 @@
 
  Shalek_abs_subset_ko_LPS <- setOrderingFilter(Shalek_abs_subset_ko_LPS, order_genes)
  Shalek_abs_subset_ko_LPS <- reduceDimension(Shalek_abs_subset_ko_LPS, use_vst = T, use_irlba=F, pseudo_expr = 0, covariates = as.vector(pData(Shalek_abs_subset_ko_LPS)$num_genes_expressed) )
- save.image('~/Projects/BEAM/Parallel_the_reproduce/tmp_analysis_shalek_data.RData')
+ # save.image('~/Projects/BEAM/Parallel_the_reproduce/tmp_analysis_shalek_data.RData')
  Shalek_abs_subset_ko_LPS <- orderCells(Shalek_abs_subset_ko_LPS, num_path = 2)
 
  # Figure 5C -- Heatmap
