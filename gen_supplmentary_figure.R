@@ -55,9 +55,9 @@
   muscle_df$class = '3relative'
   muscle_df.1 <- muscle_df
   muscle_df.1 <- muscle_df[1:2, ]
-  qplot(factor(Type), value, stat = "identity", geom = 'bar', position = 'dodge', fill = I("red"), data = melt(muscle_df)) + #facet_wrap(~variable) + 
-      ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
-      ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank())
+  #qplot(factor(Type), value, stat = "identity", geom = 'bar', position = 'dodge', fill = I("red"), data = melt(muscle_df)) + #facet_wrap(~variable) + 
+  #    ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
+  #    ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank())
 
   # muscle_df <- muscle_df[1:2, ] #select only the transcript counts data: 
   muscle_df[, 'Type'] <- c('Monocle', 'DESeq', 'DESeq', 'Monocle')
