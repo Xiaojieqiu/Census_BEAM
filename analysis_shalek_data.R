@@ -21,10 +21,10 @@
  library(monocle)
  library(stringr)
  library(plyr)
- # library(xacHelper)
+ library(xacHelper)
  library(igraph)
 
-#  load_all_libraries()
+ load_all_libraries()
  
  #   #load all the go/reactome/kegg datasets for the analysis: 
  root_directory <- "./Quake_data"
@@ -142,7 +142,7 @@
  save.image('~/Projects/BEAM/Parallel_the_reproduce/tmp_analysis_shalek_data.RData')
  Shalek_abs_subset_ko_LPS <- orderCells(Shalek_abs_subset_ko_LPS, num_path = 2)
 
- Figure 5C -- Heatmap
+ # Figure 5C -- Heatmap
  # Detect branching genes and calulate ABCs and ILRs
  full_model_string = '~sm.ns(Pseudotime, df = 3)*Lineage'
 
@@ -152,13 +152,13 @@
  # Generate a plot
  # regev_cat <- read.table(file = './Aviv_data/cuffnorm_output_files/study_gene_categories.txt', header = T, sep = '\t') #pass this to the plot_genes_branched_heatmap function
 
- Figure 5B annotations -- Enrichment analysis on clusters
+ # Figure 5B annotations -- Enrichment analysis on clusters
  
-save_hyper_df(Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_reactome, 'ko_hyper_df.xls') 
+ save_hyper_df(Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_reactome, 'ko_hyper_df.xls') 
 
- make venn diagram for the genes for figure 5/6:
- figure 5: 
- pseudotime test for the WT cells
+ # make venn diagram for the genes for figure 5/6:
+ # figure 5: 
+ # pseudotime test for the WT cells
 
  ##two group tests: 
  #comparign with time 4h:
