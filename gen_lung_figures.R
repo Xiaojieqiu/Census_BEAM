@@ -230,115 +230,115 @@ ggsave(paste(submission_directory, "submission_fig3c_helper.pdf", sep = ''), hei
 #fig 4e: 
 
 ############################make the landscape heatmap: 
-optimization_matrix<- do.call(rbind.data.frame, optimization_landscape_3d)
+# optimization_matrix<- do.call(rbind.data.frame, optimization_landscape_3d)
 
-optimization_matrix_filt <- subset(optimization_matrix, is.nan(optim_res) == FALSE & is.finite(optim_res))
-max_optim_score <- 3
-optimization_matrix_filt$optim_res[optimization_matrix_filt$optim_res > max_optim_score] <- max_optim_score
+# optimization_matrix_filt <- subset(optimization_matrix, is.nan(optim_res) == FALSE & is.finite(optim_res))
+# max_optim_score <- 3
+# optimization_matrix_filt$optim_res[optimization_matrix_filt$optim_res > max_optim_score] <- max_optim_score
 
-spdf <- SpatialPointsDataFrame( data.frame( x = optimization_matrix_filt$m , y = optimization_matrix_filt$c ) , data = data.frame( z = optimization_matrix_filt$optim_res ) )
+# spdf <- SpatialPointsDataFrame( data.frame( x = optimization_matrix_filt$m , y = optimization_matrix_filt$c ) , data = data.frame( z = optimization_matrix_filt$optim_res ) )
 
-# Make an evenly spaced raster, the same extent as original data
-e <- extent( spdf )
+# # Make an evenly spaced raster, the same extent as original data
+# e <- extent( spdf )
 
-# Determine ratio between x and y dimensions
-ratio <- ( e@xmax - e@xmin ) / ( e@ymax - e@ymin )
+# # Determine ratio between x and y dimensions
+# ratio <- ( e@xmax - e@xmin ) / ( e@ymax - e@ymin )
 
-# Create template raster to sample to
-r <- raster( nrows = 56 , ncols = floor( 56 * ratio ) , ext = extent(spdf) )
-rf <- rasterize( spdf , r , field = "z" , fun = mean )
+# # Create template raster to sample to
+# r <- raster( nrows = 56 , ncols = floor( 56 * ratio ) , ext = extent(spdf) )
+# rf <- rasterize( spdf , r , field = "z" , fun = mean )
 
-# We can then plot this using `geom_tile()` or `geom_raster()`
-rdf <- data.frame( rasterToPoints( rf ) )
+# # We can then plot this using `geom_tile()` or `geom_raster()`
+# rdf <- data.frame( rasterToPoints( rf ) )
 
-optimal_solution <- head(arrange(optimization_matrix_filt, optim_res), 1)
-ggplot( NULL ) + geom_raster( data = rdf , aes( x , y , fill = log10(layer) ) ) + 
-    annotate("text", x = -3.85, y = 3.1, label = "True (m,c)", color="magenta", size=2) + 
-    annotate("point", x = -4.277778, y = 2.932929, color="magenta", size = 1) + 
-    #annotate("text", x = -3.7, y = 3.2, label = "True (m,c)") + 
-    annotate("text", x = -5.1, y = 2.7, label = "Algorithm (m,c)", color="red", size=2) + 
-    annotate("point", x = optimal_solution$m, y = optimal_solution$c, color="red", size=1) + 
-    scale_fill_gradientn(guide=guide_legend(title=expression(paste(log[10](F)))), colours=brewer.pal(name="YlGnBu", n=7)) +
-    xlab("m") + ylab("c") +
-    theme(strip.background = element_rect(colour = 'white', fill = 'white')) +
-    theme(panel.border = element_blank(), axis.line = element_line()) +
-    theme(panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) +
-    theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank()) + scale_size(range = c(0.1, 2)) + 
-    theme(panel.background = element_rect(fill='white')) + nm_theme()
-ggsave(filename = paste(submission_directory, 'submission_fig4E.pdf', sep = ''), width = 1.38, height = 1.25)
+# optimal_solution <- head(arrange(optimization_matrix_filt, optim_res), 1)
+# ggplot( NULL ) + geom_raster( data = rdf , aes( x , y , fill = log10(layer) ) ) + 
+#     annotate("text", x = -3.85, y = 3.1, label = "True (m,c)", color="magenta", size=2) + 
+#     annotate("point", x = -4.277778, y = 2.932929, color="magenta", size = 1) + 
+#     #annotate("text", x = -3.7, y = 3.2, label = "True (m,c)") + 
+#     annotate("text", x = -5.1, y = 2.7, label = "Algorithm (m,c)", color="red", size=2) + 
+#     annotate("point", x = optimal_solution$m, y = optimal_solution$c, color="red", size=1) + 
+#     scale_fill_gradientn(guide=guide_legend(title=expression(paste(log[10](F)))), colours=brewer.pal(name="YlGnBu", n=7)) +
+#     xlab("m") + ylab("c") +
+#     theme(strip.background = element_rect(colour = 'white', fill = 'white')) +
+#     theme(panel.border = element_blank(), axis.line = element_line()) +
+#     theme(panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) +
+#     theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank()) + scale_size(range = c(0.1, 2)) + 
+#     theme(panel.background = element_rect(fill='white')) + nm_theme()
+# ggsave(filename = paste(submission_directory, 'submission_fig4E.pdf', sep = ''), width = 1.38, height = 1.25)
 
-#create the helper pdf file to annotate the figure: 
-ggplot( NULL ) + geom_raster( data = rdf , aes( x , y , fill = log10(layer) ) ) + 
-    annotate("text", x = -3.85, y = 3.1, label = "True (m,c)", color="magenta", size=2) + 
-    annotate("point", x = -4.277778, y = 2.932929, color="magenta", size = 1) + 
-    #annotate("text", x = -3.7, y = 3.2, label = "True (m,c)") + 
-    annotate("text", x = -5.1, y = 2.7, label = "Algorithm (m,c)", color="red", size=2) + 
-    annotate("point", x = optimal_solution$m, y = optimal_solution$c, color="red", size=1) + 
-    scale_fill_gradientn(guide=guide_legend(title=expression(paste(log[10](F)))), colours=brewer.pal(name="YlGnBu", n=7)) +
-    xlab("m") + ylab("c") +
-    theme(strip.background = element_rect(colour = 'white', fill = 'white')) +
-    theme(panel.border = element_blank(), axis.line = element_line()) +
-    theme(panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) +
-    theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank()) + scale_size(range = c(0.1, 2)) + 
-    theme(panel.background = element_rect(fill='white'))
-ggsave(filename = paste(submission_directory, 'submission_fig4d_helper.pdf', sep = ''), width = 5, height = 1.5)
+# #create the helper pdf file to annotate the figure: 
+# ggplot( NULL ) + geom_raster( data = rdf , aes( x , y , fill = log10(layer) ) ) + 
+#     annotate("text", x = -3.85, y = 3.1, label = "True (m,c)", color="magenta", size=2) + 
+#     annotate("point", x = -4.277778, y = 2.932929, color="magenta", size = 1) + 
+#     #annotate("text", x = -3.7, y = 3.2, label = "True (m,c)") + 
+#     annotate("text", x = -5.1, y = 2.7, label = "Algorithm (m,c)", color="red", size=2) + 
+#     annotate("point", x = optimal_solution$m, y = optimal_solution$c, color="red", size=1) + 
+#     scale_fill_gradientn(guide=guide_legend(title=expression(paste(log[10](F)))), colours=brewer.pal(name="YlGnBu", n=7)) +
+#     xlab("m") + ylab("c") +
+#     theme(strip.background = element_rect(colour = 'white', fill = 'white')) +
+#     theme(panel.border = element_blank(), axis.line = element_line()) +
+#     theme(panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) +
+#     theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank()) + scale_size(range = c(0.1, 2)) + 
+#     theme(panel.background = element_rect(fill='white'))
+# ggsave(filename = paste(submission_directory, 'submission_fig4d_helper.pdf', sep = ''), width = 5, height = 1.5)
 
-#fig 3f: 
-qplot(pData(absolute_cds)$endogenous_RNA[pData(absolute_cds)$endogenous_RNA > 1e3], 
-      pData(mc_adj_cds)$endogenous_RNA[pData(absolute_cds)$endogenous_RNA > 1e3], log="xy", color=pData(absolute_cds)$Time[pData(absolute_cds)$endogenous_RNA > 1e3], size = I(1)) + 
-     geom_smooth(method="lm", color="black", size = .1) + geom_abline(color="red") +  
-    xlab("Total endogenous mRNA \n (spike-in)") +
-    ylab("Total endogenous mRNA \n (spike-in free algorithm)") + #scale_size(range = c(0.25, 0.25)) + 
-    scale_color_discrete(name = "Time points") + nm_theme()
-ggsave(filename = paste(submission_directory, 'submission_fig3f.pdf', sep = ''), width = 2, height = 1.7)
+# #fig 3f: 
+# qplot(pData(absolute_cds)$endogenous_RNA[pData(absolute_cds)$endogenous_RNA > 1e3], 
+#       pData(mc_adj_cds)$endogenous_RNA[pData(absolute_cds)$endogenous_RNA > 1e3], log="xy", color=pData(absolute_cds)$Time[pData(absolute_cds)$endogenous_RNA > 1e3], size = I(1)) + 
+#      geom_smooth(method="lm", color="black", size = .1) + geom_abline(color="red") +  
+#     xlab("Total endogenous mRNA \n (spike-in)") +
+#     ylab("Total endogenous mRNA \n (spike-in free algorithm)") + #scale_size(range = c(0.25, 0.25)) + 
+#     scale_color_discrete(name = "Time points") + nm_theme()
+# ggsave(filename = paste(submission_directory, 'submission_fig3f.pdf', sep = ''), width = 2, height = 1.7)
 
-#fig 3g:
-Time <- pData(abs_AT12_cds_subset_all_gene)$Time
-E14.5_cell <- rowMeans(exprs(abs_AT12_cds_subset_all_gene[, which(Time == 'E14.5')]))
-E16.5_cell <- rowMeans(exprs(abs_AT12_cds_subset_all_gene[, which(Time == 'E16.5')]))
-E18.5_cell <- rowMeans(exprs(abs_AT12_cds_subset_all_gene[, which(Time == 'E18.5')]))
-Adult_cell <- rowMeans(exprs(abs_AT12_cds_subset_all_gene[, which(Time == 'Adult')]))
+# #fig 3g:
+# Time <- pData(abs_AT12_cds_subset_all_gene)$Time
+# E14.5_cell <- rowMeans(exprs(abs_AT12_cds_subset_all_gene[, which(Time == 'E14.5')]))
+# E16.5_cell <- rowMeans(exprs(abs_AT12_cds_subset_all_gene[, which(Time == 'E16.5')]))
+# E18.5_cell <- rowMeans(exprs(abs_AT12_cds_subset_all_gene[, which(Time == 'E18.5')]))
+# Adult_cell <- rowMeans(exprs(abs_AT12_cds_subset_all_gene[, which(Time == 'Adult')]))
 
-mc_E14.5_cell <- rowMeans(exprs(mc_adj_cds[, colnames(abs_AT12_cds_subset_all_gene)[which(Time == 'E14.5')]]))
-mc_E16.5_cell <- rowMeans(exprs(mc_adj_cds[, colnames(abs_AT12_cds_subset_all_gene)[which(Time == 'E16.5')]]))
-mc_E18.5_cell <- rowMeans(exprs(mc_adj_cds[, colnames(abs_AT12_cds_subset_all_gene)[which(Time == 'E18.5')]]))
-mc_Adult_cell <- rowMeans(exprs(mc_adj_cds[, colnames(abs_AT12_cds_subset_all_gene)[which(Time == 'Adult')]]))
+# mc_E14.5_cell <- rowMeans(exprs(mc_adj_cds[, colnames(abs_AT12_cds_subset_all_gene)[which(Time == 'E14.5')]]))
+# mc_E16.5_cell <- rowMeans(exprs(mc_adj_cds[, colnames(abs_AT12_cds_subset_all_gene)[which(Time == 'E16.5')]]))
+# mc_E18.5_cell <- rowMeans(exprs(mc_adj_cds[, colnames(abs_AT12_cds_subset_all_gene)[which(Time == 'E18.5')]]))
+# mc_Adult_cell <- rowMeans(exprs(mc_adj_cds[, colnames(abs_AT12_cds_subset_all_gene)[which(Time == 'Adult')]]))
 
-mc_abs_exprs_df <- data.frame(spikein = as.vector(c(E14.5_cell, E16.5_cell, E18.5_cell, Adult_cell)), 
-    mc_algorithm = as.vector(c(mc_E14.5_cell, mc_E16.5_cell, mc_E18.5_cell, mc_Adult_cell)),
-    cell = rep(c("E14.5_cell", "E16.5_cell", "E18.5_cell", "Adult_cell"), each = nrow(mc_adj_cds)))
+# mc_abs_exprs_df <- data.frame(spikein = as.vector(c(E14.5_cell, E16.5_cell, E18.5_cell, Adult_cell)), 
+#     mc_algorithm = as.vector(c(mc_E14.5_cell, mc_E16.5_cell, mc_E18.5_cell, mc_Adult_cell)),
+#     cell = rep(c("E14.5_cell", "E16.5_cell", "E18.5_cell", "Adult_cell"), each = nrow(mc_adj_cds)))
 
-qplot(spikein + 1, mc_algorithm + 1, log = 'xy', 
-    color = cell, alpha = 0.8, data = mc_abs_exprs_df, size  = 1.5) + facet_wrap(~cell, scales = 'free', ncol = 2) + #  geom_smooth(method = 'rlm', aes(group = 199), size = .1) + 
-    scale_size(range = c(1.5, 1)) +  geom_abline() + xlab('Transcript counts (Spike-in)') + scale_size(range = c(0.25, 0.25)) + 
-        ylab('Transcript counts (Recovery algorithm)') + nm_theme()
+# qplot(spikein + 1, mc_algorithm + 1, log = 'xy', 
+#     color = cell, alpha = 0.8, data = mc_abs_exprs_df, size  = 1.5) + facet_wrap(~cell, scales = 'free', ncol = 2) + #  geom_smooth(method = 'rlm', aes(group = 199), size = .1) + 
+#     scale_size(range = c(1.5, 1)) +  geom_abline() + xlab('Transcript counts (Spike-in)') + scale_size(range = c(0.25, 0.25)) + 
+#         ylab('Transcript counts (Recovery algorithm)') + nm_theme()
 
-ggsave(filename = paste(submission_directory, 'submission_fig3g.pdf', sep = ''), width = 5, height = 1.5)
+# ggsave(filename = paste(submission_directory, 'submission_fig3g.pdf', sep = ''), width = 5, height = 1.5)
 
-# fig 3h: 
-# show only the spike-in / mc algorithm test: 
-mc_spikein_df <- plot_pre_rec_f1(test_p_list = list(mode_size_norm_permutate_ratio_by_geometric_mean = new_abs_size_norm_monocle_p_ratio_by_geometric_mean,
-                                      mc_mode_size_norm_permutate_ratio_by_geometric_mean = new_mc_size_norm_monocle_p_ratio_by_geometric_mean),
-                   permutate_pval = list(mode_size_norm_permutate_ratio_by_geometric_mean = mode_size_norm_permutate_ratio_by_geometric_mean,
-                                         mc_mode_size_norm_permutate_ratio_by_geometric_mean = mc_mode_size_norm_permutate_ratio_by_geometric_mean),
-                   row.names(absolute_cds), #gene_list, overlap_genes, high_gene_list
-                   return_df = T, #na.rm = T, 
-                   p_thrsld = 0.01, #0.05
-                   rownames = c('monocle (New size normalization)', 'monocle (New size normalization, Estimate transcript)'))
-mc_spikein_df$data_type = c("Spikein transcripts", "estimated transcripts")
+# # fig 3h: 
+# # show only the spike-in / mc algorithm test: 
+# mc_spikein_df <- plot_pre_rec_f1(test_p_list = list(mode_size_norm_permutate_ratio_by_geometric_mean = new_abs_size_norm_monocle_p_ratio_by_geometric_mean,
+#                                       mc_mode_size_norm_permutate_ratio_by_geometric_mean = new_mc_size_norm_monocle_p_ratio_by_geometric_mean),
+#                    permutate_pval = list(mode_size_norm_permutate_ratio_by_geometric_mean = mode_size_norm_permutate_ratio_by_geometric_mean,
+#                                          mc_mode_size_norm_permutate_ratio_by_geometric_mean = mc_mode_size_norm_permutate_ratio_by_geometric_mean),
+#                    row.names(absolute_cds), #gene_list, overlap_genes, high_gene_list
+#                    return_df = T, #na.rm = T, 
+#                    p_thrsld = 0.01, #0.05
+#                    rownames = c('monocle (New size normalization)', 'monocle (New size normalization, Estimate transcript)'))
+# mc_spikein_df$data_type = c("Spikein transcripts", "estimated transcripts")
 
-mc_spikein_df[, 'Type'] <- c('Monocle', 'Monocle') # geom_bar(stat = 'identity', position = 'dodge') 
-colnames(mc_spikein_df)[1:3] <- c('Precision', 'Recall', 'F1 score')
+# mc_spikein_df[, 'Type'] <- c('Monocle', 'Monocle') # geom_bar(stat = 'identity', position = 'dodge') 
+# colnames(mc_spikein_df)[1:3] <- c('Precision', 'Recall', 'F1 score')
 
-ggplot(aes(factor(Type), value,  fill = data_type), data = melt(mc_spikein_df)) + geom_bar(position = position_dodge(), stat = 'identity') + #facet_wrap(~variable) + 
-ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
-ggtitle('') + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + nm_theme() + xlab('') + theme(axis.text.x=element_blank(), axis.ticks.x=element_blank())
-ggsave(paste(submission_directory, '/submission_fig_3h.pdf', sep = ''), width = 1.5, height = 1.7)
+# ggplot(aes(factor(Type), value,  fill = data_type), data = melt(mc_spikein_df)) + geom_bar(position = position_dodge(), stat = 'identity') + #facet_wrap(~variable) + 
+# ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
+# ggtitle('') + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + nm_theme() + xlab('') + theme(axis.text.x=element_blank(), axis.ticks.x=element_blank())
+# ggsave(paste(submission_directory, '/submission_fig_3h.pdf', sep = ''), width = 1.5, height = 1.7)
 
-ggplot(aes(factor(Type), value,  fill = data_type), data = melt(mc_spikein_df)) + geom_bar(position = position_dodge(), stat = 'identity') + #facet_wrap(~variable) + 
-ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
-ggtitle('') + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank())
-ggsave(paste(submission_directory, '/submission_fig_3h_helper.pdf', sep = ''), width = 3, height = 2)
+# ggplot(aes(factor(Type), value,  fill = data_type), data = melt(mc_spikein_df)) + geom_bar(position = position_dodge(), stat = 'identity') + #facet_wrap(~variable) + 
+# ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
+# ggtitle('') + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank())
+# ggsave(paste(submission_directory, '/submission_fig_3h_helper.pdf', sep = ''), width = 3, height = 2)
 
 ########################################################################################################
 # figure 4: 
