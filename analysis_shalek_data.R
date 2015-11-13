@@ -23,8 +23,6 @@
  library(plyr)
  library(xacHelper)
  library(igraph)
-
- load_all_libraries()
  
  #   #load all the go/reactome/kegg datasets for the analysis: 
  root_directory <- "./Quake_data"
