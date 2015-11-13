@@ -16,7 +16,7 @@
   dev.off()
 
 
-  pdf('eLife_figSI_fpkm_HSMM_tree.pdf', width = 1.5, height = 1.2)
+  pdf('eLife_figSI_abs_HSMM_tree.pdf', width = 1.5, height = 1.2)
   plot_spanning_tree(HSMM_myo, color_by="Time", show_backbone=T, backbone_color = 'black',
       markers=NULL, show_cell_names = F, show_all_lineages = F, cell_size = 1, cell_link_size = 0.2) + nm_theme() #+ scale_size(range = c(0.5, .5)) 
   dev.off()
@@ -36,7 +36,7 @@
   #     return(p)
   # }
 
-  pdf('eLife_figSI_cmpr_tree.pdf', width = 1.5, height = 1.2)
+  pdf('eLife_figSI_cmpr_tree.pdf', width = 4, height = 2)
   plot_tree_pairwise_cor(std_HSMM, HSMM_myo) + nm_theme()
   dev.off()
 
