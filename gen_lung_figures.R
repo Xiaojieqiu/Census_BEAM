@@ -359,21 +359,21 @@ dev.off()
 # figure 4: 
 # panel a: 
 
-branch_gene_ABCs <- abs_AT12_cds_subset_all_gene_ABCs[row.names(weihgted_relative_abs_AT12_cds_subset_all_gene[weihgted_relative_abs_AT12_cds_subset_all_gene[, 'qval'] <= 0.01, ]), ]
+# branch_gene_ABCs <- abs_AT12_cds_subset_all_gene_ABCs[row.names(weihgted_relative_abs_AT12_cds_subset_all_gene[weihgted_relative_abs_AT12_cds_subset_all_gene[, 'qval'] <= 0.01, ]), ]
 
-AT1_gene_num <- sum(branch_gene_ABCs[, 1] > 0, na.rm = T)
-AT2_gene_num <- sum(branch_gene_ABCs[, 1] < 0, na.rm = T)
+# AT1_gene_num <- sum(branch_gene_ABCs[, 1] > 0, na.rm = T)
+# AT2_gene_num <- sum(branch_gene_ABCs[, 1] < 0, na.rm = T)
 
-Lineage_gene_num <- c(AT1_gene_num, AT2_gene_num)
-names(Lineage_gene_num) <- c("AT1", "AT2")
-colour[names(colour) == 'AT1'] <- AT1_Lineage
-colour[names(colour) ==  'AT2'] <- AT2_Lineage
+# Lineage_gene_num <- c(AT1_gene_num, AT2_gene_num)
+# names(Lineage_gene_num) <- c("AT1", "AT2")
+# colour[names(colour) == 'AT1'] <- AT1_Lineage
+# colour[names(colour) ==  'AT2'] <- AT2_Lineage
 
-pdf('submission_fig4a.pdf', width = 1, height = 1.2)
-qplot(c('AT1', 'AT2'), Lineage_gene_num, stat = 'identity', geom = 'bar', fill = c(AT1_Lineage, AT2_Lineage)) + 
-    xlab('Lineages') + ylab('Gene number') +  scale_fill_manual(name = "", values = c(AT1_Lineage, AT2_Lineage), labels = c("AT1", "AT2")) + 
-    nm_theme()
-dev.off()
+# pdf('submission_fig4a.pdf', width = 1, height = 1.2)
+# qplot(c('AT1', 'AT2'), Lineage_gene_num, stat = 'identity', geom = 'bar', fill = c(AT1_Lineage, AT2_Lineage)) + 
+#     xlab('Lineages') + ylab('Gene number') +  scale_fill_manual(name = "", values = c(AT1_Lineage, AT2_Lineage), labels = c("AT1", "AT2")) + 
+#     nm_theme()
+# dev.off()
 
 # panel b: 
 branch_gene_str_norm_div_df <- abs_AT12_cds_subset_all_gene_ILRs_list$str_logfc_df[row.names(weihgted_relative_abs_AT12_cds_subset_all_gene[weihgted_relative_abs_AT12_cds_subset_all_gene[, 'qval'] <= 0.05, ]), ]
