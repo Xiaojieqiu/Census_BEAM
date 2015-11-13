@@ -248,33 +248,33 @@ qplot(cluster_id, gene_set, fill=sig, geom="tile", data=golgi_valid_hyper_df) + 
 coord_flip() + theme(axis.text.x = element_text(angle = 30, hjust = 1)) + xlab('') + ylab('')
 dev.off()
 
-golgi_new_cds <- buildLineageBranchCellDataSet(Shalek_golgi_update[1:10, ], lineage_labels = c('Normal cells', 'GolgiPlug'))
+# golgi_new_cds <- buildLineageBranchCellDataSet(Shalek_golgi_update[1:10, ], lineage_labels = c('Normal cells', 'GolgiPlug'))
 
-colour_cell <- rep(0, length(golgi_new_cds$Lineage))
-names(colour_cell) <- as.character(golgi_new_cds$State)
-colour_cell[names(colour_cell) == '1'] <- prog_cell_state
-colour_cell[names(colour_cell) == '2'] <- AT1_cell_state
-colour_cell[names(colour_cell) == '3'] <- AT2_cell_state
+# colour_cell <- rep(0, length(golgi_new_cds$Lineage))
+# names(colour_cell) <- as.character(golgi_new_cds$State)
+# colour_cell[names(colour_cell) == '1'] <- prog_cell_state
+# colour_cell[names(colour_cell) == '2'] <- AT1_cell_state
+# colour_cell[names(colour_cell) == '3'] <- AT2_cell_state
 
-colour <- rep(0, length(golgi_new_cds$Lineage))
-names(colour) <- as.character(pData(golgi_new_cds)$Lineage)
-colour[names(colour) == 'Normal cells'] <- AT1_Lineage
-colour[names(colour) ==  'GolgiPlug'] <- AT2_Lineage
+# colour <- rep(0, length(golgi_new_cds$Lineage))
+# names(colour) <- as.character(pData(golgi_new_cds)$Lineage)
+# colour[names(colour) == 'Normal cells'] <- AT1_Lineage
+# colour[names(colour) ==  'GolgiPlug'] <- AT2_Lineage
 
-golgi_gene_grn_list <- infer_branch_gene_grn(cds = Shalek_golgi_update, branchTest_res = golgi_branching_genes, p_thrsld = 0.05,
-TF_enrichment_gsc = TF_5k_enrichment_gsc, motif_tfs_all = c(motif_TFs, motif_TFs_add),
-file = 'golgi_gene_regulatory_net_up5k')
+# golgi_gene_grn_list <- infer_branch_gene_grn(cds = Shalek_golgi_update, branchTest_res = golgi_branching_genes, p_thrsld = 0.05,
+# TF_enrichment_gsc = TF_5k_enrichment_gsc, motif_tfs_all = c(motif_TFs, motif_TFs_add),
+# file = 'golgi_gene_regulatory_net_up5k')
 
-branch_motif_Tfs <- golgi_gene_grn_list$branch_tfs[toupper(golgi_gene_grn_list$branch_tfs) %in% toupper(golgi_valid_hyper_df$first) | 
-           toupper(golgi_gene_grn_list$branch_tfs) %in% toupper(golgi_valid_hyper_df$second)]
-branch_motif_Tfs_id <- row.names(subset(fData(Shalek_golgi_update), toupper(gene_short_name) %in% branch_motif_Tfs)) 
+# branch_motif_Tfs <- golgi_gene_grn_list$branch_tfs[toupper(golgi_gene_grn_list$branch_tfs) %in% toupper(golgi_valid_hyper_df$first) | 
+#            toupper(golgi_gene_grn_list$branch_tfs) %in% toupper(golgi_valid_hyper_df$second)]
+# branch_motif_Tfs_id <- row.names(subset(fData(Shalek_golgi_update), toupper(gene_short_name) %in% branch_motif_Tfs)) 
 
-pdf(file = paste(fig_root_dir, 'eLife_fig6_SI_branching_genes.pdf', sep = ''), height = 4, width = 15)
-plot_genes_branched_pseudotime2(Shalek_golgi_update[branch_motif_Tfs_id, ], cell_color_by = "State", 
-           trajectory_color_by = "Lineage", fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', normalize = F, stretch = T,
-           lineage_labels = c('Normal cells', 'GolgiPlug'), cell_size = 1, ncol = 8, reducedModelFormulaStr = "~sm.ns(Pseudotime, df=3)", add_pval = T) + 
-           ylab('Transcript counts') + nm_theme()
-dev.off()
+# pdf(file = paste(fig_root_dir, 'eLife_fig6_SI_branching_genes.pdf', sep = ''), height = 4, width = 15)
+# plot_genes_branched_pseudotime2(Shalek_golgi_update[branch_motif_Tfs_id, ], cell_color_by = "State", 
+#            trajectory_color_by = "Lineage", fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', normalize = F, stretch = T,
+#            lineage_labels = c('Normal cells', 'GolgiPlug'), cell_size = 1, ncol = 8, reducedModelFormulaStr = "~sm.ns(Pseudotime, df=3)", add_pval = T) + 
+#            ylab('Transcript counts') + nm_theme()
+# dev.off()
 
 ########################################################################################################
 #panel C: 

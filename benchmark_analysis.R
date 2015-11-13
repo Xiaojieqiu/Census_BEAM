@@ -2,8 +2,7 @@
   library(monocle)
   library(xacHelper)
 
-  load_all_libraries()
-
+  library(scde)
 #########################run the following scripts in remote sever#############################
   
   #generate the pvals from the statistical test (permutation based or from software: monocle/DESeq/SCDE)
@@ -29,7 +28,17 @@
                               lowerDetectionLimit = 1)
   
   count_cds <- estimateSizeFactors(count_cds)
+
+  # calculate the pval with the readcount with scde: (calculate the scde associate DEG test result LOCALLY) 
+  std_scde_res_list <- scde_DEG(dir = NULL, count_cds = count_cds, DEG_attribute = 'Time', contrast = c('E14.5', 'E18.5'), n.cores = 1)
   
+  #calculate the pval with the normalized transcripts with scde: 
+  abs_scde_res_list <- scde_DEG(dir = NULL, count_cds = new_abs_cds_14_18, DEG_attribute = 'Time', contrast = c('E14.5', 'E18.5'), n.cores = 1, normalize = T)
+  abs_scde_res_list_no_normalize <- scde_DEG(dir = NULL, count_cds = new_abs_cds_14_18, DEG_attribute = 'Time', contrast = c('E14.5', 'E18.5'), n.cores = 1)
+  
+  #load all other necessary packages: 
+  load_all_libraries()
+ 
   #perform  the stastical tests on the data: 
   new_std_diff_test_res <- differentialGeneTest(new_std_cds_14_18[1:transcript_num, ], 
                                                 fullModelFormulaStr = "~Time", 
@@ -149,14 +158,7 @@
   abs_default_deseq_p <- abs_dtable_pool_max_nbinomGLMTest$dtalbe[, 'pval'] #abs_dtable_pool_max_nbinomTest
   names(abs_default_deseq_p) <- row.names(abs_dtable_pool_max_nbinomGLMTest$dtalbe)
   # scde
-  save.image('tmp_benchmark_analysis.RData')
-  # calculate the pval with the readcount with scde: (calculate the scde associate DEG test result LOCALLY) 
-  std_scde_res_list <- scde_DEG(dir = NULL, count_cds = count_cds, DEG_attribute = 'Time', contrast = c('E14.5', 'E18.5'), n.cores = 1)
-  
-  #calculate the pval with the normalized transcripts with scde: 
-  abs_scde_res_list <- scde_DEG(dir = NULL, count_cds = new_abs_cds_14_18, DEG_attribute = 'Time', contrast = c('E14.5', 'E18.5'), n.cores = 1, normalize = T)
-  abs_scde_res_list_no_normalize <- scde_DEG(dir = NULL, count_cds = new_abs_cds_14_18, DEG_attribute = 'Time', contrast = c('E14.5', 'E18.5'), n.cores = 1)
-  
+  # save.image('tmp_benchmark_analysis.RData')
 
   scde_p <- std_scde_res_list$pval 
   abs_scde_p <- abs_scde_res_list$pval #_no_normalize
