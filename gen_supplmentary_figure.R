@@ -37,7 +37,7 @@
   # }
 
   pdf('eLife_figSI_cmpr_tree.pdf', width = 1.5, height = 1.2)
-  plot_tree_pairwise_cor2(std_HSMM, HSMM_myo) + nm_theme()
+  plot_tree_pairwise_cor(std_HSMM, HSMM_myo) + nm_theme()
   dev.off()
 
   element_all <- c(row.names(HSMM_myo_size_norm_res[HSMM_myo_size_norm_res$qval <0.1, ]), 
