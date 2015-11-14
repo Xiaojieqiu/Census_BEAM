@@ -12,7 +12,7 @@
   # #   ########################################################prepare the HSMM dataset########################################################
   # #   
   #   #load all the go/reactome/kegg datasets for the analysis: 
-  root_directory <- "./Quake_data"
+  root_directory <- "./data/Quake_data"
   
   human_go_gsc <- loadGSCSafe(paste(root_directory,"/GMT/EM_pathways/Human/symbol/Human_GO_AllPathways_with_GO_iea_June_20_2014_symbol.gmt", sep=""), encoding="latin1")
   names(human_go_gsc$gsc) <- str_split_fixed(names(human_go_gsc$gsc), "%", 2)[,1]
