@@ -238,7 +238,7 @@ qplot(k, b, data = as.data.frame(kb_df), size = t, color = Time) + scale_size(ra
 dev.off()
 
 #fig 4e: 
-
+library(sp)
 ############################make the landscape heatmap: 
 # optimization_matrix<- do.call(rbind.data.frame, optimization_landscape_3d)
 
