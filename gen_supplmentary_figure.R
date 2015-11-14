@@ -82,11 +82,11 @@
   muscle_df[, 'Type'] <- c('Monocle', 'DESeq', 'DESeq', 'Monocle')
   colnames(muscle_df)[1:3] <- c('Precision', 'Recall', 'F1')
 
-  pdf('muscle_cmpr_pseudotime_test.pdf')
+  pdf('muscle_cmpr_pseudotime_test.pdf', width = 1.8, height = 1.5)
   qplot(factor(Type), value, stat = "identity", geom = 'bar', position = 'dodge', fill = data_type, data = melt(muscle_df), log = 'y') + #facet_wrap(~variable) + 
       ggtitle(title) + scale_fill_discrete('Type') + xlab('') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
       ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + ylim(0, 1) + 
-      theme(strip.background = element_blank(), strip.text.x = element_blank()) + nm_theme()
+      theme(strip.background = element_blank(), strip.text.x = element_blank()) + nm_theme() + theme(strip.background = element_blank(), strip.text.x = element_blank())
   dev.off()
 
 ##############################################################################################################
@@ -148,36 +148,36 @@
 
 #   table(sets_all)
 
-#   #add the barplot for the overlapping genes: 
-#   element_all_list <- list(
-#                   names(default_edgeR_p[default_edgeR_p < 0.01]), 
-#                   names(default_deseq2_p[default_deseq2_p < 0.01]), 
-#                   names(readcount_permutate_pval[which(readcount_permutate_pval < .01)]), 
-#                   names(default_deseq_p[default_deseq_p < 0.01]), 
-#                   names(monocle_p_readcount[monocle_p_readcount < 0.01]))
+  #add the barplot for the overlapping genes: 
+  element_all_list <- list(
+                  names(default_edgeR_p[default_edgeR_p < 0.01]), 
+                  names(default_deseq2_p[default_deseq2_p < 0.01]), 
+                  names(readcount_permutate_pval[which(readcount_permutate_pval < .01)]), 
+                  names(default_deseq_p[default_deseq_p < 0.01]), 
+                  names(monocle_p_readcount[monocle_p_readcount < 0.01]))
 
-#   abs_element_all_list <- list(
-#                    names(abs_default_edgeR_p[abs_default_edgeR_p < 0.01]), 
-#                    names(abs_default_deseq2_p[abs_default_deseq2_p < 0.01]), 
-#                    names(new_abs_size_norm_monocle_p_ratio_by_geometric_mean[which(new_abs_size_norm_monocle_p_ratio_by_geometric_mean < .01)]), 
-#                    names(abs_default_deseq_p[abs_default_deseq_p < 0.01]), 
-#                    names(mode_size_norm_permutate_ratio_by_geometric_mean[which(mode_size_norm_permutate_ratio_by_geometric_mean < 0.01)]))
+  abs_element_all_list <- list(
+                   names(abs_default_edgeR_p[abs_default_edgeR_p < 0.01]), 
+                   names(abs_default_deseq2_p[abs_default_deseq2_p < 0.01]), 
+                   names(new_abs_size_norm_monocle_p_ratio_by_geometric_mean[which(new_abs_size_norm_monocle_p_ratio_by_geometric_mean < .01)]), 
+                   names(abs_default_deseq_p[abs_default_deseq_p < 0.01]), 
+                   names(mode_size_norm_permutate_ratio_by_geometric_mean[which(mode_size_norm_permutate_ratio_by_geometric_mean < 0.01)]))
 
-#   readcount_overlap <- Reduce(intersect, element_all_list)
-#   readcount_union <- Reduce(union, element_all_list)
-#   abs_overlap <- Reduce(intersect, abs_element_all_list)
-#   abs_union <- Reduce(union, abs_element_all_list)
+  readcount_overlap <- Reduce(intersect, element_all_list)
+  readcount_union <- Reduce(union, element_all_list)
+  abs_overlap <- Reduce(intersect, abs_element_all_list)
+  abs_union <- Reduce(union, abs_element_all_list)
   
-#   overlap_df <- data.frame(read_counts = length(readcount_overlap), transcript_counts = length(abs_overlap)) 
-#   union_df <- data.frame(read_counts = length(readcount_union), transcript_counts = length(abs_union))  
+  overlap_df <- data.frame(read_counts = length(readcount_overlap), transcript_counts = length(abs_overlap)) 
+  union_df <- data.frame(read_counts = length(readcount_union), transcript_counts = length(abs_union))  
 
-#   pdf('fig_SI_DEG_overlapping.pdf', width = 1, height = 1.1)
-#   qplot(variable, value, geom = 'bar', stat = 'identity', fill = variable, data = melt(overlap_df)) + xlab('') + ylab('number') + nm_theme() + theme(axis.text.x = element_text(angle = 30, hjust = .9))
-#   dev.off()
+  pdf('fig_SI_DEG_overlapping.pdf', width = 1, height = 1.1)
+  qplot(variable, value, geom = 'bar', stat = 'identity', fill = variable, data = melt(overlap_df)) + xlab('') + ylab('number') + nm_theme() + theme(axis.text.x = element_text(angle = 30, hjust = .9))
+  dev.off()
 
-#   pdf('fig_SI_DEG_union.pdf', width = 1, height = 1.1)
-#   qplot(variable, value, geom = 'bar', stat = 'identity', fill = variable, data = melt(union_df)) + xlab('') + ylab('number') + nm_theme() + theme(axis.text.x = element_text(angle = 30, hjust = .9))
-#   dev.off()
+  pdf('fig_SI_DEG_union.pdf', width = 1, height = 1.1)
+  qplot(variable, value, geom = 'bar', stat = 'identity', fill = variable, data = melt(union_df)) + xlab('') + ylab('number') + nm_theme() + theme(axis.text.x = element_text(angle = 30, hjust = .9))
+  dev.off()
 
 #   #
 
@@ -316,37 +316,37 @@
   # # select only nb and zinb and calculate the number of genes pass goodness of fit and number of genes can be fitted: 
   # valid_gene_id_20_cell <- row.names(absolute_cds[which(rowSums(exprs(standard_cds) >= 1) > 50), ])
 
-  # abs_gd_fit_res <- cal_gd_statistics(abs_gd_fit_df[, c('nb_pvalue', 'zinb_pvalue')], percentage = F, type = 'absolute')#, gene_list = valid_gene_id_20_cell)
-  # readcount_gd_fit_res <- cal_gd_statistics(read_gd_fit_df[, c('nb_pvalue', 'zinb_pvalue')], percentage = F,  type = 'readcount')#, gene_list = valid_gene_id_20_cell)
-  # gd_fit_res <- rbind(abs_gd_fit_res, readcount_gd_fit_res)
-  # gd_fit_res <- cbind(gd_fit_res, data_type = row.names(gd_fit_res))
-  # row.names(gd_fit_res) <- NULL
-  # gd_fit_res <- as.data.frame(gd_fit_res)
+  abs_gd_fit_res <- cal_gd_statistics(abs_gd_fit_df[, c('nb_pvalue', 'zinb_pvalue')], percentage = F, type = 'absolute')#, gene_list = valid_gene_id_20_cell)
+  readcount_gd_fit_res <- cal_gd_statistics(read_gd_fit_df[, c('nb_pvalue', 'zinb_pvalue')], percentage = F,  type = 'readcount')#, gene_list = valid_gene_id_20_cell)
+  gd_fit_res <- rbind(abs_gd_fit_res, readcount_gd_fit_res)
+  gd_fit_res <- cbind(gd_fit_res, data_type = row.names(gd_fit_res))
+  row.names(gd_fit_res) <- NULL
+  gd_fit_res <- as.data.frame(gd_fit_res)
   
-  # gd_fit_res_num <- subset(gd_fit_res, data_type == 'gd_fit_num')
-  # gd_fit_res_success_num <- subset(gd_fit_res, data_type == 'success_fit_num')
-  # # 
+  gd_fit_res_num <- subset(gd_fit_res, data_type == 'gd_fit_num')
+  gd_fit_res_success_num <- subset(gd_fit_res, data_type == 'success_fit_num')
+  # 
   
-  #   #generate the result of goodness of fit for each gene: 
-  # colnames(gd_fit_res_num)[1:2] <- c('NB', 'ZINB')
-  # test <- melt(gd_fit_res_num[, 1:3], id.vars = 'type')
-  # p1 <- qplot(as.factor(variable), as.numeric(value), geom = 'bar', stat = 'identity', data = test, fill = type) + facet_wrap('type') + nm_theme() + 
-  #   theme(legend.position = 'none') + xlab('Fit types') + ylab('number of genes') + theme(strip.background = element_blank(),
-  #        strip.text.x = element_blank()) + theme(axis.text.x = element_text(angle = 30, hjust = .9))
-  # pdf('goodness_fit.pdf', height = 1.5, width = 1)
-  # p1 + xlab('')
-  # dev.off()
+    #generate the result of goodness of fit for each gene: 
+  colnames(gd_fit_res_num)[1:2] <- c('NB', 'ZINB')
+  test <- melt(gd_fit_res_num[, 1:3], id.vars = 'type')
+  p1 <- qplot(as.factor(variable), as.numeric(value), geom = 'bar', stat = 'identity', data = test, fill = type) + facet_wrap('type') + nm_theme() + 
+    theme(legend.position = 'none') + xlab('Fit types') + ylab('number of genes') + theme(strip.background = element_blank(),
+         strip.text.x = element_blank()) + theme(axis.text.x = element_text(angle = 30, hjust = .9))
+  pdf('goodness_fit.pdf', height = 1.5, width = 1)
+  p1 + xlab('')
+  dev.off()
 
-  # colnames(gd_fit_res_success_num)[1:2] <- c('NB', 'ZINB')
-  # test <- melt(gd_fit_res_success_num[, 1:3], id.vars = 'type')
+  colnames(gd_fit_res_success_num)[1:2] <- c('NB', 'ZINB')
+  test <- melt(gd_fit_res_success_num[, 1:3], id.vars = 'type')
 
-  # p2 <- qplot(as.factor(variable), as.numeric(value), geom = 'bar', stat = 'identity', data = test, fill = type) + facet_wrap('type') + nm_theme() + 
-  #    theme(legend.position = 'none') + xlab('Fit types') + ylab('number of genes') + theme(strip.background = element_blank(),
-  #         strip.text.x = element_blank()) + theme(axis.text.x = element_text(angle = 30, hjust = .9))
+  p2 <- qplot(as.factor(variable), as.numeric(value), geom = 'bar', stat = 'identity', data = test, fill = type) + facet_wrap('type') + nm_theme() + 
+     theme(legend.position = 'none') + xlab('Fit types') + ylab('number of genes') + theme(strip.background = element_blank(),
+          strip.text.x = element_blank()) + theme(axis.text.x = element_text(angle = 30, hjust = .9))
   
-  # pdf('goodness_fit2.pdf', width = 2, height = 3)
-  # p2 + xlab('')
-  # dev.off()
+  pdf('goodness_fit2.pdf', height = 1.5, width = 1)
+  p2 + xlab('')
+  dev.off()
 
 #    #fig 3 SI: 
 #   quake_all_modes <- estimate_t(exprs(isoform_count_cds), return_all = T)
@@ -679,5 +679,144 @@
 # # valid_bifurcation_time <- valid_bifurcation_time[unique(names(valid_bifurcation_time))]
 # # bif_time_gsaRes_go <- runGSA(valid_bifurcation_time, gsc = mouse_go_gsc, ncpus = 1) 
 
+#FDR, sensitivity: 
+plot_fdr_sensitivity <- function (test_p_list = list(monocle_p = monocle_p, deseq_p = deseq_p,
+    scde_p = scde_p), permutate_pval, gene_list, na.rm = T, p_thrsld = 0.05,
+    title = "Comparison of the two-group DEG tests", rownames = NULL,
+    fill = NULL, return_df = F)
+{
+    if (is.list(permutate_pval)) {
+        if (length(permutate_pval) != length(test_p_list))
+            stop("Error: if using permuation pval for each bar, make sure the permuation list matches with the DEG pval list")
+        fdr_sensitivity_df <- NULL
+        for (ind in 1:length(permutate_pval)) {
+            gene_list_true_data_list <- gene_list_true_data(p_thrsld = p_thrsld,
+                permutate_pval = permutate_pval[[ind]][gene_list],
+                na.rm = na.rm)
+            gene_list_new <- gene_list_true_data_list$gene_list
+            true_data <- gene_list_true_data_list$true_data
+            test_p_vec <- test_p_list[[ind]][gene_list_new]
+            TF_PN <- TF_PN_vec(true_data, test_p_vec)
+            mc_abs_two_grp <- fdr_sensitivity(test_p_vec, permutate_pval[[ind]][gene_list],
+                TF_PN)
+            fdr_sensitivity_df <- rbind(mc_abs_two_grp, fdr_sensitivity_df)
+        }
+    }
+    else {
+        gene_list_true_data_list <- gene_list_true_data(p_thrsld = p_thrsld,
+            permutate_pval = permutate_pval[gene_list])
+        gene_list <- gene_list_true_data_list$gene_list
+        true_data <- gene_list_true_data_list$true_data
+        test_p_list <- lapply(test_p_list, function(x) x[gene_list])
+        pre_rec_f1_list <- lapply(test_p_list, function(x, true_data,
+            permutate_pval) {
+            TF_PN <- TF_PN_vec(true_data, x)
+            mc_abs_two_grp <- fdr_sensitivity(x, permutate_pval, TF_PN)
+        }, true_data = true_data, permutate_pval = permutate_pval[gene_list])
+        fdr_sensitivity_df <- do.call(rbind.data.frame, pre_rec_f1_list)
+    }
+    print(fdr_sensitivity_df)
+    if (!is.null(rownames)) {
+        row.names(fdr_sensitivity_df) <- rownames
+        names(test_p_list) <- rownames
+    }
+    print(row.names(fdr_sensitivity_df))
+    if (is.list(permutate_pval))
+        fdr_sensitivity_df$Type <- rev(names(test_p_list))
+    else fdr_sensitivity_df$Type <- row.names(fdr_sensitivity_df)
+    print(fdr_sensitivity_df)
+    if (return_df)
+        return(fdr_sensitivity_df)
+    if (is.null(fill))
+        p1 <- qplot(factor(Type), value, stat = "identity", geom = "bar",
+            position = "dodge", fill = Type, data = melt(fdr_sensitivity_df)) +
+            facet_wrap(~variable) + ggtitle(title) + scale_fill_discrete("Type") +
+            xlab("Type") + ylab("")
+    else p1 <- qplot(factor(Type), value, stat = "identity",
+        geom = "bar", position = "dodge", fill = fill, data = melt(fdr_sensitivity_df)) +
+        facet_wrap(~variable) + ggtitle(title) + scale_fill_discrete("Type") +
+        xlab("Type") + ylab("")
+    return(p1)
+}
 
+fdr_sensitivity_cal <- function (est_pval, true_pval, type = c("precision", "recall", "fpr", 'sensitivity'),
+    q_thrsld = 0.1)
+{
+    qval <- p.adjust(est_pval, method = "BH")
+    names(qval) <- names(est_pval)
+    true_qval <- p.adjust(true_pval, method = "BH")
+    fp <- setdiff(names(qval[qval <= q_thrsld]), names(true_pval[true_qval <=
+        q_thrsld]))
+    tp <- intersect(names(qval[qval <= q_thrsld]), names(true_qval[true_qval <=
+        q_thrsld]))
+    fn <- setdiff(names(qval[qval > q_thrsld]), names(true_qval[true_qval >
+        q_thrsld]))
+    tn <- intersect(names(qval[qval >= q_thrsld]), names(true_qval[true_qval >=
+        q_thrsld]))
+    if (type == "precision")
+        length(tp)/length(union(fp, tp))
+    else if (type == "recall")
+        length(tp)/length(union(tp, fn))
+    else if (type == 'fpr')
+        length(fp) / length(union(fp, tn))
+    else if (type == 'sensitivity')
+        length(tp) / length(union(tp, fn))
+}
+
+fdr_sensitivity <- function (est_pval, true_pval, TF_PN_vec, q_thrsld = 0.1, beta = 1) {
+    fpr <- fdr_sensitivity_cal(est_pval, true_pval, type = c("fpr"),
+        q_thrsld = 0.1)
+    sensitivity <- fdr_sensitivity_cal(est_pval, true_pval, type = c("sensitivity"),
+        q_thrsld = 0.1)
+    data.frame(fpr = fpr, sensitivity = sensitivity)
+}
+
+
+ fdr_sensitivity_df <- plot_fdr_sensitivity(test_p_list = list(monocle_p = monocle_p, 
+                                          monocle_p_readcount = monocle_p_readcount,
+                                          mode_size_norm_permutate_ratio_by_geometric_mean = new_abs_size_norm_monocle_p_ratio_by_geometric_mean,
+                                          mc_mode_size_norm_permutate_ratio_by_geometric_mean = new_mc_size_norm_monocle_p_ratio_by_geometric_mean, 
+                                          default_edgeR_p = default_edgeR_p, 
+                                          abs_default_edgeR_p = abs_default_edgeR_p,         
+                                          default_deseq2_p = default_deseq2_p, 
+                                          abs_default_deseq2_p = abs_default_deseq2_p, 
+                                          default_deseq_p = default_deseq_p, 
+                                          abs_default_deseq_p = abs_default_deseq_p, 
+                                          scde_p = scde_p, 
+                                          abs_scde_p = abs_scde_p),
+                       permutate_pval = list(monocle_p = std_permutate_pval, #readcount_permutate_pval, #std_permutate_pval, 
+                                             monocle_p_readcount = readcount_permutate_pval, 
+                                             mode_size_norm_permutate_ratio_by_geometric_mean = mode_size_norm_permutate_ratio_by_geometric_mean,
+                                             mc_mode_size_norm_permutate_ratio_by_geometric_mean = mc_mode_size_norm_permutate_ratio_by_geometric_mean,
+                                             default_edgeR_p = readcount_permutate_pval, #readcount_permutate_pval use readcount instead of std_permutate_pval
+                                             abs_default_edgeR_p = mode_size_norm_permutate_ratio_by_geometric_mean, 
+                                             default_deseq2_p = readcount_permutate_pval, #readcount_permutate_pval use readcount instead of std_permutate_pval
+                                             abs_default_deseq2_p = mode_size_norm_permutate_ratio_by_geometric_mean, 
+                                             default_deseq_p = readcount_permutate_pval, #readcount_permutate_pval use readcount instead of std_permutate_pval
+                                             abs_default_deseq_p = mode_size_norm_permutate_ratio_by_geometric_mean, 
+                                             # abs_default_deseq_p_new_norm = mode_size_norm_permutate_ratio_by_geometric_mean, 
+                                             scde_p = readcount_permutate_pval, 
+                                             abs_scde_p = mode_size_norm_permutate_ratio_by_geometric_mean),
+                       row.names(absolute_cds), #gene_list, overlap_genes, high_gene_list
+                       return_df = T, #na.rm = T, 
+                       p_thrsld = 0.01, #0.05
+                       rownames = c('monocle (FPKM)', 'monocle (readcount)', 'monocle (New size normalization)', 'monocle (New size normalization, Estimate transcript)', 
+                          'edgeR (edgeR size normalization)', 'edgeR (New Size normalization)', 'DESeq2 (DESeq2 size normalization)', 'DESeq2 (New Size normalization)',
+                          'DESeq (DESeq size normalization)', "DESeq (New Size normalization)", 'SCDE (Read Counts)', 'SCDE (New size normalization)'))
+  df3$data_type = c("Spikein transcripts", "Read counts", "Spikein transcripts", "Read counts", 
+
+  "Spikein transcripts", "Read counts", "Spikein transcripts", "Read counts", 
+
+  "MC transcripts", "Spikein transcripts", "Read counts", "FPKM")
+
+
+
+  fdr_sensitivity_df[, 'Type'] <- c('SCDE', 'SCDE', 'DESeq1', 'DESeq1', 'DESeq2', 'DESeq2', 'edgeR', 'edgeR', 'Monocle', 'Monocle', 'Monocle', 'Monocle') # geom_bar(stat = 'identity', position = 'dodge') 
+  fdr_sensitivity_df[, 'data_type'] <- df3[, 'data_type']
+
+  pdf('cmpr_fpr_sensitivity.pdf', width = 3, height = 2)
+  qplot(factor(Type), value, stat = "identity", geom = 'bar', position = 'dodge', fill = data_type, data = melt(fdr_sensitivity_df)) + #facet_wrap(~variable) + 
+  ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
+  ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + nm_theme()
+  dev.off()
 

@@ -6,6 +6,7 @@ library(colorRamps)
 library(R.utils)
 library(piano)
 library(venneuler)
+library(pheatmap)
 fig_root_dir = './main/'
 shalek_custom_color_scale_plus_states= c(shalek_custom_color_scale, c('1'='#40A43A', '2'='#CB1B1E', '3'='#3660A5', 'Unstimulated_Replicate.' = 'gray'))
 
@@ -38,7 +39,7 @@ ko_valid_expressed_genes <- row.names(subset(fData(Shalek_abs_subset_ko_LPS), nu
 Shalek_abs_subset_ko_LPS_heatmap_annotations = plot_genes_branched_heatmap(Shalek_abs_subset_ko_LPS[intersect(row.names(subset(ko_branching_genes, qval < 0.05)), ko_valid_expressed_genes) ,], num_clusters=6, norm_method = "vstExprs", file_name=paste(fig_root_dir, 'figure_5C_new.pdf', sep = ''), cores=1, ABC_df=NULL, branchTest_df=ko_branching_genes, hmcols=NULL, lineage_labels = c('Normal cells', 'Knockout cells'))
 
 # #test the NA: (branchTest and the kinetic plots)
-# ko_branching_genes[row.names(subset(Shalek_abs_subset_ko_LPS_heatmap_annotations$annotation_row,  Cluster == 6)), ]
+# ko_branching_genes[row.names(subset(Shalek_abs_subset_ko_LPS_heatmap_annotations$annotation_row,  Cluster == 5)), ]
 
 #new function: 
 # cds_exprs <- buildLineageBranchCellDataSet(Shalek_abs_subset_ko_LPS[1:10, ])

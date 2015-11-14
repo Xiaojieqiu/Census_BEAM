@@ -34,7 +34,7 @@ abs_AT12_cds_subset_all_gene@reducedDimK <- AT12_cds_subset_all_gene@reducedDimK
 abs_AT12_cds_subset_all_gene@reducedDimW <- AT12_cds_subset_all_gene@reducedDimW
 abs_AT12_cds_subset_all_gene@minSpanningTree <- AT12_cds_subset_all_gene@minSpanningTree
 
-pdf('./data/submission_fig1a.pdf', height = 2, width = 2.5)
+pdf('./main_figures/submission_fig1a.pdf', height = 2, width = 2.5)
 plot_spanning_tree(abs_AT12_cds_subset_all_gene, color_by="Time", show_backbone=T, backbone_color = 'black',
     markers=markers, show_cell_names = F, show_all_lineages = F, cell_link_size = 0.2) + 
         scale_size(range = c(0.1, 2.5)) + nm_theme()
@@ -64,7 +64,7 @@ names(colour) <- as.character(new_cds$Lineage)
 colour[names(colour) == 'AT1'] <- AT1_Lineage
 colour[names(colour) ==  'AT2'] <- AT2_Lineage
 
-pdf('./data/submission_fig1b.pdf', height = 2, width = 3)
+pdf('./main_figures/submission_fig1b.pdf', height = 2, width = 3)
 plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[example_ids, ], cell_color_by = "Time", trajectory_color_by = "Lineage", fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', normalize = F, stretch = T, lineage_labels = c('AT1', 'AT2'), cell_size = 1, ncol = 2) + nm_theme()+ ylab('Transcript counts') + xlab('Pseudotime')
 dev.off()
 
@@ -90,7 +90,7 @@ colour[names(colour) ==  'AT2'] <- AT2_Lineage
 abs_house_keeping_marker_branchTest_res <- branchTest(abs_AT12_cds_subset_all_gene[fig2_genes_ids, ], cores = 1, relative_expr = F, weighted = T)
 abs_house_keeping_marker_branchTest_res[fig2_genes_ids, 'pval']
 
-pdf('./data/submission_fig2b.pdf', height = 2.6, width = 1.75)
+pdf('./main_figures/submission_fig2b.pdf', height = 2.6, width = 1.75)
 plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[fig2_genes_ids, ], color_by = "Time", panel_order = fig2_genes, 
     trajectory_color_by = "Lineage", trend_formula = '~sm.ns(Pseudotime, df = 3)*Lineage', reducedModelFormulaStr = '~sm.ns(Pseudotime, df = 3)', 
      normalize = T, stretch = T, lineage_labels = c('AT1', 'AT2'), cell_size = 1, ncol = 2, add_pval = T) + nm_theme()+ ylab('Transcript counts') + xlab('Pseudotime')
@@ -159,7 +159,7 @@ data <- subset(abs_bif_df, abs(bifurcation_time_point) > 27)
 data <- data[as.character(fData(absolute_cds[valid_timing_id, ])$gene_short_name), ]
 data <- subset(data, !is.na(type))
 
-pdf('./data/submission_fig2c.pdf', width = 2.25, height = 1.25)
+pdf('./main_figures/submission_fig2c.pdf', width = 2.25, height = 1.25)
 qplot(type, abs(bifurcation_time_point), color = type, geom = c('jitter', 'boxplot'), data = data, alpha = I(0.7)) + 
     xlab('') + ylab('bifurcation time point') + #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
     nm_theme()
@@ -410,7 +410,7 @@ setdiff(motif_TFs, toupper(fData(absolute_cds)$gene_short_name))
 #RARA E2A - ? TRP63 TRP53 ZFP143 TFCP2L1 ?
 #update the gene names: 
 
-TF_5k_enrichment_gsc <- loadGSCSafe("./data/Lung_JASPAR_5kb_hits_olap.gmt", encoding="latin1") 
+TF_5k_enrichment_gsc <- loadGSCSafe("./main_figures/Lung_JASPAR_5kb_hits_olap.gmt", encoding="latin1") 
 
 valid_gene_id_cell_new <- row.names(absolute_cds[which(rowSums(exprs(standard_cds) >= 1) > 4), ])
 valid_cell_genes_TF_enrichment_results_5k <- collect_gsa_hyper_results(abs_AT12_cds_subset_all_gene[valid_gene_id_cell_new, ], TF_5k_enrichment_gsc, clusters)
