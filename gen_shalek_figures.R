@@ -6,6 +6,7 @@ library(colorRamps)
 library(R.utils)
 library(piano)
 library(venneuler)
+library(pheatmap)
 fig_root_dir = './'
 shalek_custom_color_scale_plus_states= c(shalek_custom_color_scale, c('1'='#40A43A', '2'='#CB1B1E', '3'='#3660A5', 'Unstimulated_Replicate.' = 'gray'))
 
