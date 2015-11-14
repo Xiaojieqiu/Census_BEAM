@@ -8,6 +8,25 @@
   load('analysis_HSMM_data.RData')
 
   ##############################################################################################################
+  #make the tree plot with quake annotation:     
+  pData(abs_AT12_cds_subset_all_gene)$Cell_typ <- as.character(pData(abs_AT12_cds_subset_all_gene)$Cell_typ)
+  pData(abs_AT12_cds_subset_all_gene)[pData(abs_AT12_cds_subset_all_gene)$Cell_type == 'NA', 'Cell_type'] <- 'no_avail'
+
+  lung_custom_color_scale_plus_states <- c('no_avail' = 'gray', 'AT1' = '#40A43A', 'AT2' = '#CB1B1E', 'BP' = '#3660A5', 'bulk' = 'gray')
+
+  pdf('SI_lung_tree_with_annotation.pdf', height = 2, width = 2.5)
+  plot_spanning_tree(abs_AT12_cds_subset_all_gene, color_by="Cell_type", show_backbone=T, backbone_color = 'black', cell_size = 4, 
+      markers=NULL, show_cell_names = F, show_all_lineages = F, cell_link_size = 0.2) + 
+      scale_color_manual(values=lung_custom_color_scale_plus_states) + coord_flip() + nm_theme()
+  dev.off()
+
+  pdf('SI_lung_tree_with_annotation_helper.pdf', height = 2, width = 2.5)
+  plot_spanning_tree(abs_AT12_cds_subset_all_gene, color_by="Cell_type", show_backbone=T, backbone_color = 'black', cell_size = 2, 
+      markers=NULL, show_cell_names = F, show_all_lineages = F, cell_link_size = 0.2) + 
+      scale_color_manual(values=lung_custom_color_scale_plus_states) + coord_flip() 
+  dev.off()
+
+  ##############################################################################################################
   ####generate the SI figures for HSMM data: 
 
   pdf('figSI_fpkm_HSMM_tree.pdf', width = 1.5, height = 1.2)
