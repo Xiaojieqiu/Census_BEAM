@@ -9,6 +9,7 @@ library(R.utils)
 library(piano)
 library(venneuler)
 library(pheatmap)
+library(plyr)
 
 fig_root_dir = './main_figures/'
 shalek_custom_color_scale_plus_states= c(shalek_custom_color_scale, c('1'='#40A43A', '2'='#CB1B1E', '3'='#3660A5', 'Unstimulated_Replicate.' = 'gray'))
@@ -71,8 +72,8 @@ Shalek_abs_subset_ko_LPS_heatmap_annotations = monocle::plot_genes_branched_heat
 # ylab('Transcript counts') 
 
 # # Get hyper geometric GSA test results for different enrichment sets (GO, KEGG, reactome, etc.)
-# Shalek_abs_subset_ko_LPS_tree_heatmap_clusters <- as.numeric(Shalek_abs_subset_ko_LPS_heatmap_annotations$annotation_row$Cluster)
-# names(Shalek_abs_subset_ko_LPS_tree_heatmap_clusters) = fData(Shalek_abs_subset_ko_LPS[row.names(Shalek_abs_subset_ko_LPS_heatmap_annotations$annotation_row), ])$gene_short_name
+Shalek_abs_subset_ko_LPS_tree_heatmap_clusters <- as.numeric(Shalek_abs_subset_ko_LPS_heatmap_annotations$annotation_row$Cluster)
+names(Shalek_abs_subset_ko_LPS_tree_heatmap_clusters) = fData(Shalek_abs_subset_ko_LPS[row.names(Shalek_abs_subset_ko_LPS_heatmap_annotations$annotation_row), ])$gene_short_name
 names(Shalek_abs_subset_ko_LPS_tree_heatmap_clusters) <- capitalize(tolower(names(Shalek_abs_subset_ko_LPS_tree_heatmap_clusters))) # normalize reactome terms names to all uppercase
 
 #Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_go <- collect_gsa_hyper_results(Shalek_abs_subset_ko_LPS, gsc = mouse_go_gsc, Shalek_abs_subset_ko_LPS_tree_heatmap_clusters)
