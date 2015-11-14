@@ -6,7 +6,7 @@ library(colorRamps)
 library(R.utils)
 library(piano)
 library(venneuler)
-fig_root_dir = './'
+fig_root_dir = './main/'
 shalek_custom_color_scale_plus_states= c(shalek_custom_color_scale, c('1'='#40A43A', '2'='#CB1B1E', '3'='#3660A5', 'Unstimulated_Replicate.' = 'gray'))
 
 #########################################################################################################
@@ -83,6 +83,8 @@ Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_reactome <- collect_gsa_hy
 pdf(file =paste(fig_root_dir, 'figure_5D_reactome.pdf', sep = ''), height = 15, width = 7)
 plot_gsa_hyper_heatmap(Shalek_abs_subset_ko_LPS, Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_reactome, significance=1e-3) + illustrator_theme() 
 dev.off()
+
+save_hyper_df(Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_reactome, './supplementary_data/ko_hyper_df.xls') 
 # plot_gsa_hyper_heatmap(Shalek_abs_subset_ko_LPS, Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_kegg, significance=1e-2) + illustrator_theme() + 
 # ggsave(filename = paste(fig_root_dir, 'figure_5D_kegg.pdf', sep = ''), height=12, width = 7)
 # plot_gsa_hyper_heatmap(Shalek_abs_subset_ko_LPS, Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_go_cc, significance=1e-10) + illustrator_theme() + 
@@ -108,8 +110,8 @@ list(A = row.names(ko_Ifnar1_wt4[ko_Ifnar1_wt4$qval < .01, ]), #0to6
      C = row.names(subset(ko_branching_genes, qval < 0.01)))
 # save(branch_pseudotime_element_all, branch_pseudotime_sets_all, file = 'branchTest_cmpr_subset')
 
-pdf(file = paste(fig_root_dir, 'eLife_fig_SI_branchTest_cmpr.pdf', sep = ''), height = 2, width = 3)
-#pdf(file = paste(fig_root_dir, 'eLife_fig6_SI_ko_overlapping.pdf', sep = ''))
+pdf(file = paste(fig_root_dir, 'fig_SI_branchTest_cmpr.pdf', sep = ''), height = 2, width = 3)
+#pdf(file = paste(fig_root_dir, 'fig6_SI_ko_overlapping.pdf', sep = ''))
 venneuler_venn(andrew_element_all, andrew_sets_all)
 dev.off()
 
@@ -118,7 +120,7 @@ dev.off()
 ##motif enrichment: 
 #comparing with lung data: 
 #run the fimo analysis on the DHS site
-TF_5k_enrichment_gsc <- loadGSCSafe("DC_JASPAR_5kb_hits_olap.gmt", encoding="latin1") 
+TF_5k_enrichment_gsc <- loadGSCSafe("./data/DC_JASPAR_5kb_hits_olap.gmt", encoding="latin1") 
 
 for(i in 1:length(TF_5k_enrichment_gsc$gsc)) {
     TF_5k_enrichment_gsc$gsc[[i]] <- toupper(TF_5k_enrichment_gsc$gsc[[i]])
@@ -203,11 +205,11 @@ dev.off()
 # plot_gsa_hyper_heatmap(Shalek_golgi_update_heatmap_annotations, Shalek_golgi_hyper_geometric_results_go_mf, significance=1e-10) + illustrator_theme() + 
 # ggsave(paste(fig_root_dir, 'figure_6D_go_mf.pdf', sep = '') , height=12, width = 7)
 
-save_hyper_df(Shalek_golgi_hyper_geometric_results_reactome, 'golgiplug_hyper_df.xls') 
+save_hyper_df(Shalek_golgi_hyper_geometric_results_reactome, './supplementary_data/golgiplug_hyper_df.xls') 
 # save(branch_pseudotime_element_all, branch_pseudotime_sets_all, file = 'branchTest_cmpr_subset')
 
-# pdf(file = paste(fig_root_dir, 'eLife_fig_SI_branchTest_cmpr.pdf', sep = ''), height = 2, width = 3)
-#pdf(file = paste(fig_root_dir, 'eLife_fig6_SI_blocking.pdf', sep = ''))
+# pdf(file = paste(fig_root_dir, 'fig_SI_branchTest_cmpr.pdf', sep = ''), height = 2, width = 3)
+#pdf(file = paste(fig_root_dir, 'fig6_SI_blocking.pdf', sep = ''))
 #venneuler_venn(andrew_element_all, andrew_sets_all)
 #dev.off()
 
@@ -217,7 +219,7 @@ save_hyper_df(Shalek_golgi_hyper_geometric_results_reactome, 'golgiplug_hyper_df
 ##motif enrichment: 
 #comparing with lung data: 
 #run the fimo analysis on the DHS site
-TF_5k_enrichment_gsc <- loadGSCSafe("DC_JASPAR_5kb_hits_olap.gmt", encoding="latin1") 
+TF_5k_enrichment_gsc <- loadGSCSafe("./data/DC_JASPAR_5kb_hits_olap.gmt", encoding="latin1") 
 
 for(i in 1:length(TF_5k_enrichment_gsc$gsc)) {
     TF_5k_enrichment_gsc$gsc[[i]] <- toupper(TF_5k_enrichment_gsc$gsc[[i]])
@@ -269,7 +271,7 @@ dev.off()
 #            toupper(golgi_gene_grn_list$branch_tfs) %in% toupper(golgi_valid_hyper_df$second)]
 # branch_motif_Tfs_id <- row.names(subset(fData(Shalek_golgi_update), toupper(gene_short_name) %in% branch_motif_Tfs)) 
 
-# pdf(file = paste(fig_root_dir, 'eLife_fig6_SI_branching_genes.pdf', sep = ''), height = 4, width = 15)
+# pdf(file = paste(fig_root_dir, 'fig6_SI_branching_genes.pdf', sep = ''), height = 4, width = 15)
 # plot_genes_branched_pseudotime2(Shalek_golgi_update[branch_motif_Tfs_id, ], cell_color_by = "State", 
 #            trajectory_color_by = "Lineage", fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', normalize = F, stretch = T,
 #            lineage_labels = c('Normal cells', 'GolgiPlug'), cell_size = 1, ncol = 8, reducedModelFormulaStr = "~sm.ns(Pseudotime, df=3)", add_pval = T) + 
@@ -290,7 +292,7 @@ andrew_sets_all <- c(
          rep(paste('all_golgi_plug_wt0', sep = ''), length(row.names(all_golgi_plug0_wt0[all_golgi_plug0_wt0$qval < .05, ])))
          )
 
-pdf(file = paste(fig_root_dir, 'eLife_fig6_SI_blocking.pdf', sep = ''))
+pdf(file = paste(fig_root_dir, 'fig6_SI_blocking.pdf', sep = ''))
 venneuler_venn(andrew_element_all, andrew_sets_all)
 dev.off()
 
@@ -306,7 +308,7 @@ andrew_sets_all <- c(
          rep(paste('all_golgi_plug_wt0', sep = ''), length(row.names(golgi_plug0_wt0[golgi_plug0_wt0$qval < .05, ])))
          )
 
-pdf(file = paste(elife_directory, 'eLife_fig6_SI_blocking_4h.pdf', sep = ''))
+pdf(file = paste(fig_root_dir, 'fig6_SI_blocking_4h.pdf', sep = ''))
 venneuler_venn(andrew_element_all, andrew_sets_all)
 dev.off()
 
@@ -322,7 +324,7 @@ andrew_sets_all <- c(
          rep(paste('all_golgi_plug_wt0', sep = ''), length(row.names(all_golgi_plug0_wt0[all_golgi_plug0_wt0$qval < .01, ])))
          )
 
-pdf(file = paste(fig_root_dir, 'eLife_fig6_golgi_branch_overlapping.pdf', sep = ''))
+pdf(file = paste(fig_root_dir, 'fig6_golgi_branch_overlapping.pdf', sep = ''))
 venneuler_venn(andrew_element_all, andrew_sets_all)
 dev.off()
 
@@ -355,7 +357,7 @@ dev.off()
 #            trajectory_color_by = "Lineage", fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', normalize = F, stretch = T,
 #            lineage_labels = c('Normal cells', 'GolgiPlug'), cell_size = 1, ncol = 8, reducedModelFormulaStr = "~sm.ns(Pseudotime, df=3)", add_pval = T) + 
 #            ylab('Transcript counts') #+ nm_theme()
-# ggsave(paste(fig_root_dir, 'eLife_fig6_SI_DEG_genes.pdf', sep = ''), height = 4, width = 15)
+# ggsave(paste(fig_root_dir, 'fig6_SI_DEG_genes.pdf', sep = ''), height = 4, width = 15)
 
 #figure 6: for golgi-plug (Note that the GSC are the same): 
 # TF_enrichment_results_5k_golgi <- collect_gsa_hyper_results(Shalek_golgi_update[, ], TF_5k_enrichment_gsc, Shalek_golgi_update_heatmap_clusters)

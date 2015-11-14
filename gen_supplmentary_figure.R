@@ -10,13 +10,13 @@
   ##############################################################################################################
   ####generate the SI figures for HSMM data: 
 
-  pdf('eLife_figSI_fpkm_HSMM_tree.pdf', width = 1.5, height = 1.2)
+  pdf('figSI_fpkm_HSMM_tree.pdf', width = 1.5, height = 1.2)
   plot_spanning_tree(std_HSMM, color_by="Time", show_backbone=T, backbone_color = 'black',
       markers=NULL, show_cell_names = F, show_all_lineages = F, cell_size = 1, cell_link_size = 0.2) + nm_theme() #+ scale_size(range = c(0.5, .5)) 
   dev.off()
 
 
-  pdf('eLife_figSI_abs_HSMM_tree.pdf', width = 1.5, height = 1.2)
+  pdf('figSI_abs_HSMM_tree.pdf', width = 1.5, height = 1.2)
   plot_spanning_tree(HSMM_myo, color_by="Time", show_backbone=T, backbone_color = 'black',
       markers=NULL, show_cell_names = F, show_all_lineages = F, cell_size = 1, cell_link_size = 0.2) + nm_theme() #+ scale_size(range = c(0.5, .5)) 
   dev.off()
@@ -36,7 +36,7 @@
       return(p)
   }
 
-  pdf('eLife_figSI_cmpr_tree.pdf', width = 4, height = 2)
+  pdf('figSI_cmpr_tree.pdf', width = 4, height = 2)
   plot_tree_pairwise_cor2(std_HSMM, HSMM_myo) + nm_theme()
   dev.off()
 
@@ -44,7 +44,7 @@
     row.names(std_HSMM_myo_pseudotime_res_ori[std_HSMM_myo_pseudotime_res_ori$qval <0.1, ]))
   sets_all <- c(rep(paste('Transcript counts (Size + VST)', sep = ''), nrow(HSMM_myo_size_norm_res[HSMM_myo_size_norm_res$qval <0.1, ])), 
               rep(paste('FPKM', sep = ''), nrow(std_HSMM_myo_pseudotime_res_ori[std_HSMM_myo_pseudotime_res_ori$qval <0.1, ])))
-  pdf('eLife_figSI_transcript_counts_HSMM_overlapping.pdf')
+  pdf('figSI_transcript_counts_HSMM_overlapping.pdf')
   venneuler_venn(element_all, sets_all)
   dev.off()
   table(sets_all) #number of genes
@@ -96,7 +96,7 @@
 #                 rep(paste('Monocle', sep = ''), length(monocle_p_readcount[monocle_p_readcount < 0.01])), 
 #                 rep(paste('SCDE', sep = ''), length(scde_p[scde_p < 0.01])))
 
-#   pdf(paste(elife_directory, 'eLife_fig2c.1.pdf', sep = ''))
+#   pdf(paste(directory, 'fig2c.1.pdf', sep = ''))
 #   venneuler_venn(element_all, sets_all)
 #   table(sets_all)
 
@@ -123,7 +123,7 @@
 #                 rep(paste('SCDE', sep = ''), length(abs_scde_p[abs_scde_p < 0.01])),
 #                 rep(paste('Permutation test', sep = ''), length(which(mode_size_norm_permutate_ratio_by_geometric_mean < 0.01))))
 
-#   pdf(paste(elife_directory, 'eLife_fig2c.2.pdf', sep = ''))
+#   pdf(paste(directory, 'fig2c.2.pdf', sep = ''))
 #   venneuler_venn(abs_element_all, abs_sets_all)
 #   dev.off()
 
@@ -152,11 +152,11 @@
 #   overlap_df <- data.frame(read_counts = length(readcount_overlap), transcript_counts = length(abs_overlap)) 
 #   union_df <- data.frame(read_counts = length(readcount_union), transcript_counts = length(abs_union))  
 
-#   pdf('eLife_fig_SI_DEG_overlapping.pdf', width = 1, height = 1.1)
+#   pdf('fig_SI_DEG_overlapping.pdf', width = 1, height = 1.1)
 #   qplot(variable, value, geom = 'bar', stat = 'identity', fill = variable, data = melt(overlap_df)) + xlab('') + ylab('number') + nm_theme() + theme(axis.text.x = element_text(angle = 30, hjust = .9))
 #   dev.off()
 
-#   pdf('eLife_fig_SI_DEG_union.pdf', width = 1, height = 1.1)
+#   pdf('fig_SI_DEG_union.pdf', width = 1, height = 1.1)
 #   qplot(variable, value, geom = 'bar', stat = 'identity', fill = variable, data = melt(union_df)) + xlab('') + ylab('number') + nm_theme() + theme(axis.text.x = element_text(angle = 30, hjust = .9))
 #   dev.off()
 
@@ -242,7 +242,7 @@
 # #number of ERCC spike-in detected in each cell
 # ercc_controls_detected_df <- data.frame(loss = esApply(ercc_controls, 2, function(x) sum(x > 0)), Time = pData(absolute_cds[, colnames(loss_ercc_spikein)])$Time)
 # qplot(loss, fill = Time, data = ercc_controls_detected_df) + facet_wrap(~Time, ncol = 1) + nm_theme()
-# ggsave(filename = paste(elife_directory, '/SI/spikein_detected.pdf', sep = ''), width = 2, height = 3)
+# ggsave(filename = paste(directory, '/SI/spikein_detected.pdf', sep = ''), width = 2, height = 3)
 
 # #readcount for the Shalek data: The Shalek data is great
 # #read the read count data for the genes: 
@@ -343,7 +343,7 @@
 #                   Cell_mode = rep(log10(quake_all_modes[which(quake_all_modes$best_cov_dmode <= 2), 1]), each = nrow(isoform_count_cds)))
 
 
-#   pdf('eLife_fig4_SI.pdf', width = 2, height = 3)
+#   pdf('fig4_SI.pdf', width = 2, height = 3)
 #   qplot(x = log10_FPKM, geom = 'histogram', data = three_cell_iso_df[, ], binwidth = .05, color = I('red'))  +
 #     geom_vline(aes(xintercept=log10(Cell_mode)), color = 'blue') + facet_wrap(~Cell_id) + xlim(-3, 5) + monocle_theme_opts() + xlab('log10 FPKM') + ylab('Isoform counts') + nm_theme()
 #   dev.off()
@@ -453,8 +453,8 @@
 
 # # save(branch_pseudotime_element_all, branch_pseudotime_sets_all, file = 'branchTest_cmpr_subset')
 
-# # pdf(file = paste(elife_directory, 'eLife_fig_SI_branchTest_cmpr.pdf', sep = ''), height = 2, width = 3)
-# pdf(file = paste(elife_directory, 'eLife_fig_SI_branchTest_cmpr1.pdf', sep = ''))
+# # pdf(file = paste(directory, 'fig_SI_branchTest_cmpr.pdf', sep = ''), height = 2, width = 3)
+# pdf(file = paste(directory, 'fig_SI_branchTest_cmpr1.pdf', sep = ''))
 # venneuler_venn(branch_pseudotime_element_all, branch_pseudotime_sets_all)
 # dev.off()
 
@@ -476,24 +476,24 @@
 #                 # rep(paste('Branch test (no weight)', sep = ''), length(which(abs_AT12_cds_subset_all_gene_res_no_weight$qval < 0.01)))
 #                 )
 
-# pdf(file = paste(elife_directory, 'eLife_fig_SI_branchTest_cmpr2.pdf', sep = ''))
+# pdf(file = paste(directory, 'fig_SI_branchTest_cmpr2.pdf', sep = ''))
 # venneuler_venn(pseudotime_element_all, pseudotime_sets_all)
 # dev.off()
 
 # #############################################
 # #pseudotime benchmark test on the HSMM data: 
 
-# pdf('eLife_figSI_fpkm_HSMM_tree.pdf', width = 1.5, height = 1.2)
+# pdf('figSI_fpkm_HSMM_tree.pdf', width = 1.5, height = 1.2)
 # plot_spanning_tree(std_HSMM, color_by="Time", show_backbone=T, backbone_color = 'black',
 #     markers=markers, show_cell_names = F, show_all_lineages = F, cell_size = 1, cell_link_size = 0.2) + nm_theme() #+ scale_size(range = c(0.5, .5)) 
 # dev.off()
 
-# pdf('eLife_figSI_abs_HSMM_tree.pdf', width = 1.5, height = 1.2)
+# pdf('figSI_abs_HSMM_tree.pdf', width = 1.5, height = 1.2)
 # plot_spanning_tree(HSMM_myo, color_by="Time", show_backbone=T, backbone_color = 'black',
 #     markers=markers, show_cell_names = F, show_all_lineages = F, cell_size = 1, cell_link_size = 0.2) + nm_theme() #+ scale_size(range = c(0.5, .5)) 
 # dev.off()
 
-# pdf('eLife_figSI_tree_cmpr.pdf', width = 1.5, height = 1.2)
+# pdf('figSI_tree_cmpr.pdf', width = 1.5, height = 1.2)
 # plot_tree_pairwise_cor(std_HSMM, HSMM_myo) + nm_theme()
 # dev.off()
 
@@ -502,7 +502,7 @@
 # sets_all <- c(rep(paste('Transcript counts (Size + VST)', sep = ''), nrow(HSMM_myo_size_norm_res[HSMM_myo_size_norm_res$qval <0.1, ])), 
 #             rep(paste('FPKM', sep = ''), nrow(std_HSMM_myo_pseudotime_res_ori[std_HSMM_myo_pseudotime_res_ori$qval <0.1, ])))
 
-# pdf('eLife_figSI_transcript_counts_HSMM_overlapping.pdf')
+# pdf('figSI_transcript_counts_HSMM_overlapping.pdf')
 # venneuler_venn(element_all, sets_all)
 # dev.off()
 # table(sets_all) #number of genes
@@ -617,7 +617,7 @@
 # # gasRes <- auto_make_enrichment(gsaRes_go, 15, F, F, F, T, T)
 
 # # gasRes + nm_theme()
-# # ggsave(paste(elife_directory, 'eLife_fig3a.pdf', sep = ''), width = 6.5, height = 2.5)
+# # ggsave(paste(directory, 'fig3a.pdf', sep = ''), width = 6.5, height = 2.5)
 
 # # enrich_data_non_direction <- make_enrichment_df(std_bif_time_gsaRes_go, extract_num = 100,
 # #     custom_p_adjust = F, add_terms = F, direction = F)
@@ -631,7 +631,7 @@
 # #             coord_flip() + scale_x_discrete(limits = 1:nrow(enrich_data_non_direction),
 # #             labels = enrich_data_non_direction$Name) +
 # #             xlab("") + ylab("Normalized Enrichment Score")  + nm_theme()
-# # ggsave(paste(elife_directory, 'eLife_fig3a.pdf', sep = ''), height = 2, width = 4)
+# # ggsave(paste(directory, 'fig3a.pdf', sep = ''), height = 2, width = 4)
 
 # # #debug buildLineageBranchCellDataSet for weight_constant: 
 # # str_logfc_df_list <- calILRs(cds = std_AT12_cds_subset_all_gene[add_quake_gene_all_marker_ids, ], lineage_states = c(2, 3), stretch = T, cores = 1, 
@@ -648,7 +648,7 @@
 # # plot_ILRs_heatmap(absolute_cds, str_logfc_df, abs_AT12_cds_subset_all_gene_ABCs, relative_abs_AT12_cds_subset_quake_gene, "ensemble_id", ABC_type = "all",
 # #     dist_method = "euclidean", hclust_method = "ward", ILRs_limit = 3,
 # #     cluster_num = 4)
-# # pdf(file = paste(elife_directory, 'eLife_fig3b.pdf', sep = ''))
+# # pdf(file = paste(directory, 'fig3b.pdf', sep = ''))
 
 # # #fig 3e: 
 # # #test the the AT1/2 early late group with the proportity score: 

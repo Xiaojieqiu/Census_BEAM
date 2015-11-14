@@ -34,7 +34,7 @@ abs_AT12_cds_subset_all_gene@reducedDimK <- AT12_cds_subset_all_gene@reducedDimK
 abs_AT12_cds_subset_all_gene@reducedDimW <- AT12_cds_subset_all_gene@reducedDimW
 abs_AT12_cds_subset_all_gene@minSpanningTree <- AT12_cds_subset_all_gene@minSpanningTree
 
-pdf('submission_fig1a.pdf', height = 2, width = 2.5)
+pdf('./data/submission_fig1a.pdf', height = 2, width = 2.5)
 plot_spanning_tree(abs_AT12_cds_subset_all_gene, color_by="Time", show_backbone=T, backbone_color = 'black',
     markers=markers, show_cell_names = F, show_all_lineages = F, cell_link_size = 0.2) + 
         scale_size(range = c(0.1, 2.5)) + nm_theme()
@@ -64,7 +64,7 @@ names(colour) <- as.character(new_cds$Lineage)
 colour[names(colour) == 'AT1'] <- AT1_Lineage
 colour[names(colour) ==  'AT2'] <- AT2_Lineage
 
-pdf('submission_fig1b.pdf', height = 2, width = 3)
+pdf('./data/submission_fig1b.pdf', height = 2, width = 3)
 plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[example_ids, ], cell_color_by = "Time", trajectory_color_by = "Lineage", fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', normalize = F, stretch = T, lineage_labels = c('AT1', 'AT2'), cell_size = 1, ncol = 2) + nm_theme()+ ylab('Transcript counts') + xlab('Pseudotime')
 dev.off()
 
@@ -90,7 +90,7 @@ colour[names(colour) ==  'AT2'] <- AT2_Lineage
 abs_house_keeping_marker_branchTest_res <- branchTest(abs_AT12_cds_subset_all_gene[fig2_genes_ids, ], cores = 1, relative_expr = F, weighted = T)
 abs_house_keeping_marker_branchTest_res[fig2_genes_ids, 'pval']
 
-pdf('submission_fig2b.pdf', height = 2.6, width = 1.75)
+pdf('./data/submission_fig2b.pdf', height = 2.6, width = 1.75)
 plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[fig2_genes_ids, ], color_by = "Time", panel_order = fig2_genes, 
     trajectory_color_by = "Lineage", trend_formula = '~sm.ns(Pseudotime, df = 3)*Lineage', reducedModelFormulaStr = '~sm.ns(Pseudotime, df = 3)', 
      normalize = T, stretch = T, lineage_labels = c('AT1', 'AT2'), cell_size = 1, ncol = 2, add_pval = T) + nm_theme()+ ylab('Transcript counts') + xlab('Pseudotime')
@@ -125,7 +125,7 @@ names(colour) <- as.character(new_cds$Lineage)
 colour[names(colour) == 'AT1'] <- AT1_Lineage
 colour[names(colour) ==  'AT2'] <- AT2_Lineage
 
-pdf('submission_fig2b_time.pdf', height = 2, width = 3)
+pdf('./submission_fig2b_time.pdf', height = 2, width = 3)
 plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[example_ids, ], color_by = "Time", panel_order = markers, trajectory_color_by = 'Lineage', 
     fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', reducedModelFormulaStr = '~sm.ns(Pseudotime, df = 3)', normalize = T, stretch = T,
     lineage_labels = c('AT1', 'AT2'), cell_size = 1, ncol = 2, bifurcation_time  = abs(bif_time)) + nm_theme()+ ylab('Transcript counts') + xlab('Pseudotime')
@@ -159,7 +159,7 @@ data <- subset(abs_bif_df, abs(bifurcation_time_point) > 27)
 data <- data[as.character(fData(absolute_cds[valid_timing_id, ])$gene_short_name), ]
 data <- subset(data, !is.na(type))
 
-pdf('submission_fig2c.pdf', width = 2.25, height = 1.25)
+pdf('./data/submission_fig2c.pdf', width = 2.25, height = 1.25)
 qplot(type, abs(bifurcation_time_point), color = type, geom = c('jitter', 'boxplot'), data = data, alpha = I(0.7)) + 
     xlab('') + ylab('bifurcation time point') + #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
     nm_theme()
@@ -174,8 +174,8 @@ bk <- seq(-3.1,3.1, by=0.1)
 hmcols <- jet.colors(length(bk) - 1)
 
 #Quake figure in the paper: 
-valid_add_quake_gene_all_marker_ids_res_no_fit_log <- plot_genes_branched_heatmap(abs_AT12_cds_subset_all_gene[add_quake_gene_all_marker_ids, ], num_clusters=4, norm_method = "log", use_fitting_curves = F, scaling = F, hmcols = hmcols, file_name = paste(submission_directory, 'submission_fig2d.pdf'))
-valid_add_quake_gene_all_marker_ids_res_FIT_log <- plot_genes_branched_heatmap(abs_AT12_cds_subset_all_gene[add_quake_gene_all_marker_ids, ], num_clusters=4, norm_method = "log", use_fitting_curves = T, scaling = F, hmcols = hmcols, file_name = paste(submission_directory, 'submission_fig2d.1.pdf'))
+valid_add_quake_gene_all_marker_ids_res_no_fit_log <- plot_genes_branched_heatmap(abs_AT12_cds_subset_all_gene[add_quake_gene_all_marker_ids, ], num_clusters=4, norm_method = "log", use_fitting_curves = F, scaling = F, hmcols = hmcols, file_name = paste(submission_directory, 'main_figure/submission_fig2d.pdf'))
+valid_add_quake_gene_all_marker_ids_res_FIT_log <- plot_genes_branched_heatmap(abs_AT12_cds_subset_all_gene[add_quake_gene_all_marker_ids, ], num_clusters=4, norm_method = "log", use_fitting_curves = T, scaling = F, hmcols = hmcols, file_name = paste(submission_directory, 'main_figure/submission_fig2d.1.pdf'))
 
 #add the AT1/2 early/late annotation: 
 #add cell cycle genes
@@ -189,7 +189,7 @@ add_annotation_row <- data.frame(significance = as.numeric(cell_cycle_timing_exa
 
 time_annotated_heatmap <- plot_genes_branched_heatmap(abs_AT12_cds_subset_all_gene[c(timing_example_ids, cell_cycle_markers_id), ], 
     num_clusters=4, norm_method = "log", use_fitting_curves = F, scaling = F, hmcols = hmcols, use_gene_short_name = T,
-    add_annotation_row = add_annotation_row, file_name = paste(submission_directory, 'submission_fig2d_annotation.pdf'), show_rownames = T)
+    add_annotation_row = add_annotation_row, file_name = paste(submission_directory, 'main_figure/submission_fig2d_annotation.pdf'), show_rownames = T)
 
 #########################################################################################################
 #figure 3: 
@@ -219,7 +219,7 @@ df$mode_transcript <- 10^test
 df$estimate_mode <- estimate_t(exprs(isoform_count_cds))
 
 #make figure 3b
-pdf('submission_fig3b.pdf', width = 2.2, height = 1.4)
+pdf('./main_figure/submission_fig3b.pdf', width = 2.2, height = 1.4)
 qplot(ceiling(mode_transcript), fill = I('red'), data = df)  + xlab('Transcript count for most frequent log10(FPKM)') + ylab('Cells') + nm_theme() #+ geom_vline(x = 1, linetype = 'longdash', color = I('blue'), size = .1)
 dev.off()
 
@@ -229,11 +229,11 @@ kb_df <- t(rbind.data.frame(lapply(molModels, function(x) c(b = coef(x)[1], k = 
 colnames(kb_df) <- c('b', 'k')
 
 t <- -kb_df[, 'b'] / kb_df[, 'k']
-pdf('submission_fig3c.pdf', width = 2, height = 2)
+pdf('./main_figure/submission_fig3c.pdf', width = 2, height = 2)
 qplot(k, b, data = as.data.frame(kb_df), color = Time) + scale_size(range = c(0.1, 2.5)) + nm_theme() 
 dev.off()
 
-pdf('submission_fig3c_helper.pdf', width = 2, height = 2)
+pdf('./main_figure/submission_fig3c_helper.pdf', width = 2, height = 2)
 qplot(k, b, data = as.data.frame(kb_df), size = t, color = Time) + scale_size(range = c(0.1, 2.5)) #+ nm_theme() 
 dev.off()
 
@@ -262,7 +262,7 @@ dev.off()
 # rdf <- data.frame( rasterToPoints( rf ) )
 
 # optimal_solution <- head(arrange(optimization_matrix_filt, optim_res), 1)
-# pdf('submission_fig4E.pdf', width = 1.38, height = 1.25)
+# pdf('./main_figure/submission_fig4E.pdf', width = 1.38, height = 1.25)
 # ggplot( NULL ) + geom_raster( data = rdf , aes( x , y , fill = log10(layer) ) ) + 
 #     annotate("text", x = -3.85, y = 3.1, label = "True (m,c)", color="magenta", size=2) + 
 #     annotate("point", x = -4.277778, y = 2.932929, color="magenta", size = 1) + 
@@ -279,7 +279,7 @@ dev.off()
 # dev.off()
 
 #create the helper pdf file to annotate the figure: 
-pdf('submission_fig4d_helper.pdf', width = 5, height = 1.5)
+pdf('./main_figure/submission_fig4d_helper.pdf', width = 5, height = 1.5)
 ggplot( NULL ) + geom_raster( data = rdf , aes( x , y , fill = log10(layer) ) ) + 
     annotate("text", x = -3.85, y = 3.1, label = "True (m,c)", color="magenta", size=2) + 
     annotate("point", x = -4.277778, y = 2.932929, color="magenta", size = 1) + 
@@ -296,7 +296,7 @@ ggplot( NULL ) + geom_raster( data = rdf , aes( x , y , fill = log10(layer) ) ) 
 dev.off()
 
 #fig 3f: 
-pdf('submission_fig3f.pdf', width = 2, height = 1.7)
+pdf('./main_figure/submission_fig3f.pdf', width = 2, height = 1.7)
 qplot(pData(absolute_cds)$endogenous_RNA[pData(absolute_cds)$endogenous_RNA > 1e3], 
       pData(mc_adj_cds)$endogenous_RNA[pData(absolute_cds)$endogenous_RNA > 1e3], log="xy", color=pData(absolute_cds)$Time[pData(absolute_cds)$endogenous_RNA > 1e3], size = I(1)) + 
      geom_smooth(method="lm", color="black", size = .1) + geom_abline(color="red") +  
@@ -321,7 +321,7 @@ mc_abs_exprs_df <- data.frame(spikein = as.vector(c(E14.5_cell, E16.5_cell, E18.
     mc_algorithm = as.vector(c(mc_E14.5_cell, mc_E16.5_cell, mc_E18.5_cell, mc_Adult_cell)),
     cell = rep(c("E14.5_cell", "E16.5_cell", "E18.5_cell", "Adult_cell"), each = nrow(mc_adj_cds)))
 
-pdf('submission_fig3g.pdf', width = 5, height = 1.5)
+pdf('./main_figure/submission_fig3g.pdf', width = 5, height = 1.5)
 qplot(spikein + 1, mc_algorithm + 1, log = 'xy', 
     color = cell, alpha = 0.8, data = mc_abs_exprs_df, size  = 1.5) + facet_wrap(~cell, scales = 'free', ncol = 2) + #  geom_smooth(method = 'rlm', aes(group = 199), size = .1) + 
     scale_size(range = c(1.5, 1)) +  geom_abline() + xlab('Transcript counts (Spike-in)') + scale_size(range = c(0.25, 0.25)) + 
@@ -343,13 +343,13 @@ dev.off()
 # mc_spikein_df[, 'Type'] <- c('Monocle', 'Monocle') # geom_bar(stat = 'identity', position = 'dodge') 
 # colnames(mc_spikein_df)[1:3] <- c('Precision', 'Recall', 'F1 score')
 
-# pdf('submission_fig_3h.pdf', width = 5, height = 1.5)
+# pdf('./main_figure/submission_fig_3h.pdf', width = 5, height = 1.5)
 # ggplot(aes(factor(Type), value,  fill = data_type), data = melt(mc_spikein_df)) + geom_bar(position = position_dodge(), stat = 'identity') + #facet_wrap(~variable) + 
 # ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
 # ggtitle('') + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + nm_theme() + xlab('') + theme(axis.text.x=element_blank(), axis.ticks.x=element_blank())
 # dev.off()
 
-# pdf('submission_fig_3h_helper.pdf', width = 3, height = 2)
+# pdf('./main_figure/submission_fig_3h_helper.pdf', width = 3, height = 2)
 # ggplot(aes(factor(Type), value,  fill = data_type), data = melt(mc_spikein_df)) + geom_bar(position = position_dodge(), stat = 'identity') + #facet_wrap(~variable) + 
 # ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
 # ggtitle('') + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank())
@@ -369,7 +369,7 @@ dev.off()
 # colour[names(colour) == 'AT1'] <- AT1_Lineage
 # colour[names(colour) ==  'AT2'] <- AT2_Lineage
 
-# pdf('submission_fig4a.pdf', width = 1, height = 1.2)
+# pdf('./main_figure/submission_fig4a.pdf', width = 1, height = 1.2)
 # qplot(c('AT1', 'AT2'), Lineage_gene_num, stat = 'identity', geom = 'bar', fill = c(AT1_Lineage, AT2_Lineage)) + 
 #     xlab('Lineages') + ylab('Gene number') +  scale_fill_manual(name = "", values = c(AT1_Lineage, AT2_Lineage), labels = c("AT1", "AT2")) + 
 #     nm_theme()
@@ -383,19 +383,19 @@ fData(abs_AT12_cds_subset_all_gene)$num_cell_expressed <- esApply(abs_AT12_cds_s
 valid_expressed_genes <- row.names(subset(fData(abs_AT12_cds_subset_all_gene), num_cell_expressed > 5))
 
 all_AT12_heatmap <- plot_genes_branched_heatmap(abs_AT12_cds_subset_all_gene[quake_branch_genes[quake_branch_genes %in% valid_expressed_genes], ], 
-    stretch = T, file_name = paste(submission_directory, "submission_fig4b.pdf", sep = ''))
+    stretch = T, file_name = paste(submission_directory, "./main_figure/submission_fig4b.pdf", sep = ''))
 
 clusters <- as.numeric(all_AT12_heatmap$annotation_row$Cluster); 
 names(clusters) <- fData(abs_AT12_cds_subset_all_gene[row.names(all_AT12_heatmap$annotation_row), ])$gene_short_name
 
 branchGenes_gsa_results_branch_genes <- collect_gsa_hyper_results(abs_AT12_cds_subset_all_gene[, ], mouse_go_gsc, clusters)
 
-pdf(paste(submission_directory, "submission_fig4b_go_enrichment.pdf", sep = ''), height=100, width=15)
+pdf(paste(submission_directory, "./main_figure/submission_fig4b_go_enrichment.pdf", sep = ''), height=100, width=15)
 plot_gsa_hyper_heatmap(abs_AT12_cds_subset_all_gene, branchGenes_gsa_results_branch_genes, significance = 1e-2)
 dev.off()
 
 #save the hyper_df into a xls table: 
-save_hyper_df(branchGenes_gsa_results_branch_genes, 'lung_hyper_df.xls') 
+save_hyper_df(branchGenes_gsa_results_branch_genes, './main_figure/lung_hyper_df.xls') 
 
 #panel c: 
 #find the mutual inhibition gene pairs: 
@@ -410,7 +410,7 @@ setdiff(motif_TFs, toupper(fData(absolute_cds)$gene_short_name))
 #RARA E2A - ? TRP63 TRP53 ZFP143 TFCP2L1 ?
 #update the gene names: 
 
-TF_5k_enrichment_gsc <- loadGSCSafe("Lung_JASPAR_5kb_hits_olap.gmt", encoding="latin1") 
+TF_5k_enrichment_gsc <- loadGSCSafe("./data/Lung_JASPAR_5kb_hits_olap.gmt", encoding="latin1") 
 
 valid_gene_id_cell_new <- row.names(absolute_cds[which(rowSums(exprs(standard_cds) >= 1) > 4), ])
 valid_cell_genes_TF_enrichment_results_5k <- collect_gsa_hyper_results(abs_AT12_cds_subset_all_gene[valid_gene_id_cell_new, ], TF_5k_enrichment_gsc, clusters)
