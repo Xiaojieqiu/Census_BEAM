@@ -151,7 +151,6 @@
 
  # Figure 5B annotations -- Enrichment analysis on clusters
  
- save_hyper_df(Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_reactome, 'ko_hyper_df.xls') 
 
  # make venn diagram for the genes for figure 5/6:
  # figure 5: 

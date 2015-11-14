@@ -1,21 +1,19 @@
   library(monocle)
   library(xacHelper)
-  elife_directory = "./"
-  use_select_algorithm <- T
 
   load_all_libraries()
 
  ###################the muscle data####################
   #Cole's code to order the muscle cells##
-  HSMM_fpkm_matrix <- read.delim("./HSMM_data/muscle/HSMM/HSMM_cuffnorm_out/genes.fpkm_table")
+  HSMM_fpkm_matrix <- read.delim("./data/HSMM_data/muscle/HSMM/HSMM_cuffnorm_out/genes.fpkm_table")
   row.names(HSMM_fpkm_matrix) <- HSMM_fpkm_matrix$tracking_id
   HSMM_fpkm_matrix <- HSMM_fpkm_matrix[,-1]
   
-  HSMM_isoform_fpkm_matrix <- read.delim("./HSMM_data/muscle/HSMM/HSMM_cuffnorm_out/isoforms.fpkm_table")
+  HSMM_isoform_fpkm_matrix <- read.delim("./data/HSMM_data/muscle/HSMM/HSMM_cuffnorm_out/isoforms.fpkm_table")
   row.names(HSMM_isoform_fpkm_matrix) <- HSMM_isoform_fpkm_matrix$tracking_id
   HSMM_isoform_fpkm_matrix <- HSMM_isoform_fpkm_matrix[,-1]
   
-  sample_sheet <- read.delim("./HSMM_data/muscle/HSMM/sample_sheet.txt")
+  sample_sheet <- read.delim("./data/HSMM_data/muscle/HSMM/sample_sheet.txt")
   sample_sheet$cell_id <- paste(sample_sheet$cell_id, "_0", sep="")
   row.names(sample_sheet) <- sample_sheet$cell_id
   sample_sheet <- sample_sheet[colnames(HSMM_fpkm_matrix),]
@@ -31,11 +29,11 @@
   
   HSMM_fpkm_matrix_adj_select <- relative2abs_optim_fix_c(HSMM_fpkm_matrix, t_estimate = estimate_t(TPM_HSMM_isoform_fpkm_matrix, relative_expr_thresh = 0.1), 
                                                           alpha_v = 1, total_RNAs = 50000, weight = 0.01, verbose = T, return_all = T, cores = 2, m =  -4.864207, c = 2.77514) # mean(mean_m_c_select[1, ])
-  gene_ann <- read.delim("./HSMM_data/muscle/HSMM/gene_annotations.txt")
+  gene_ann <- read.delim("./data/HSMM_data/muscle/HSMM/gene_annotations.txt")
   
   mito_genes <- subset(gene_ann, grepl("chrM", gene_ann$locus))$gene_short_name
   
-  gencode_biotypes <- read.delim("./HSMM_data/muscle/HSMM/gencode_biotypes.txt")
+  gencode_biotypes <- read.delim("./data/HSMM_data/muscle/HSMM/gencode_biotypes.txt")
   
   gene_ann <- merge(gene_ann, gencode_biotypes, by = "gene_id")
   row.names(gene_ann) <- gene_ann$gene_id

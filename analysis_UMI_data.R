@@ -2,11 +2,10 @@
   #from the paper GSE54695_analysis_script.R: 
   library(monocle)
   library(xacHelper)
-  elife_directory = "./"
 
   load_all_libraries()
 
-  input.ERCC.annotation<-read.delim("./Quake_data/quake_lung/ERCC_specification.txt", header=T)
+  input.ERCC.annotation<-read.delim("./data/Quake_data/quake_lung/ERCC_specification.txt", header=T)
   colnames(input.ERCC.annotation)<-c("Resort_ID",
                                      "ERCC_ID",
                                      "subgroup",
@@ -20,7 +19,7 @@
 
   ##rm(list = setdiff(ls(), lsf.str()))
   # load('/Users/xqiu/Dropbox (Personal)/Quake/scRNA-seq_confirm_algorithm/SRP030617/input.ERCC.annotation')
-  umi_matrix <- read.delim('./UMI_data/GSE54695_data_transcript_counts.txt', row.names="GENENAME")
+  umi_matrix <- read.delim('./data/UMI_data/GSE54695_data_transcript_counts.txt', row.names="GENENAME")
   
   # pdf('umi_sum_dist.pdf')
   # qplot(apply(umi_matrix, 2, sum), log = 'x')
@@ -175,7 +174,7 @@
   df3$class <- c('UMI', 'UMI', 'UMI', 'TPM')
 
 
-  pdf(file = "./figsc_UMI_GSE54695.pdf", width = 2.5, height = 2)
+  pdf(file = "./data/supplementary_figure/figsc_UMI_GSE54695.pdf", width = 2.5, height = 2)
   ggplot(aes(factor(Type), value,  fill = class), data = melt(df3)) + geom_bar(position = position_dodge(), stat = 'identity') + #facet_wrap(~variable) + 
     ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
     ggtitle('') + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + nm_theme() + xlab('') + ylim(0, 1)
