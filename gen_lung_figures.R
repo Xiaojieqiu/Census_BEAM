@@ -278,22 +278,22 @@ dev.off()
 #     theme(panel.background = element_rect(fill='white')) + nm_theme()
 # dev.off()
 
-#create the helper pdf file to annotate the figure: 
-pdf('submission_fig4d_helper.pdf', width = 5, height = 1.5)
-ggplot( NULL ) + geom_raster( data = rdf , aes( x , y , fill = log10(layer) ) ) + 
-    annotate("text", x = -3.85, y = 3.1, label = "True (m,c)", color="magenta", size=2) + 
-    annotate("point", x = -4.277778, y = 2.932929, color="magenta", size = 1) + 
-    #annotate("text", x = -3.7, y = 3.2, label = "True (m,c)") + 
-    annotate("text", x = -5.1, y = 2.7, label = "Algorithm (m,c)", color="red", size=2) + 
-    annotate("point", x = optimal_solution$m, y = optimal_solution$c, color="red", size=1) + 
-    scale_fill_gradientn(guide=guide_legend(title=expression(paste(log[10](F)))), colours=brewer.pal(name="YlGnBu", n=7)) +
-    xlab("m") + ylab("c") +
-    theme(strip.background = element_rect(colour = 'white', fill = 'white')) +
-    theme(panel.border = element_blank(), axis.line = element_line()) +
-    theme(panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) +
-    theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank()) + scale_size(range = c(0.1, 2)) + 
-    theme(panel.background = element_rect(fill='white'))
-dev.off()
+# #create the helper pdf file to annotate the figure: 
+# pdf('submission_fig4d_helper.pdf', width = 5, height = 1.5)
+# ggplot( NULL ) + geom_raster( data = rdf , aes( x , y , fill = log10(layer) ) ) + 
+#     annotate("text", x = -3.85, y = 3.1, label = "True (m,c)", color="magenta", size=2) + 
+#     annotate("point", x = -4.277778, y = 2.932929, color="magenta", size = 1) + 
+#     #annotate("text", x = -3.7, y = 3.2, label = "True (m,c)") + 
+#     annotate("text", x = -5.1, y = 2.7, label = "Algorithm (m,c)", color="red", size=2) + 
+#     annotate("point", x = optimal_solution$m, y = optimal_solution$c, color="red", size=1) + 
+#     scale_fill_gradientn(guide=guide_legend(title=expression(paste(log[10](F)))), colours=brewer.pal(name="YlGnBu", n=7)) +
+#     xlab("m") + ylab("c") +
+#     theme(strip.background = element_rect(colour = 'white', fill = 'white')) +
+#     theme(panel.border = element_blank(), axis.line = element_line()) +
+#     theme(panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) +
+#     theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank()) + scale_size(range = c(0.1, 2)) + 
+#     theme(panel.background = element_rect(fill='white'))
+# dev.off()
 
 #fig 3f: 
 pdf('submission_fig3f.pdf', width = 2, height = 1.7)
