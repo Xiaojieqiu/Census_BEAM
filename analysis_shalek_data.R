@@ -23,9 +23,11 @@
  library(plyr)
  library(xacHelper)
  library(igraph)
- 
+ library(pheatmap)
+ library(RColorBrewer)
+
  #   #load all the go/reactome/kegg datasets for the analysis: 
- root_directory <- "./Quake_data"
+ root_directory <- "./data/Quake_data"
 
  human_go_gsc <- loadGSCSafe(paste(root_directory,"/GMT/EM_pathways/Human/symbol/Human_GO_AllPathways_with_GO_iea_June_20_2014_symbol.gmt", sep=""), encoding="latin1")
  names(human_go_gsc$gsc) <- str_split_fixed(names(human_go_gsc$gsc), "%", 2)[,1]
@@ -61,11 +63,11 @@
  AT2_Lineage = "#337DB9" 
 #  #load the data: 
 #  # load('xiaojie_test_data.gz') #make the dataset
- source('./monocle_helper_functions.R')
- Shalek_valid_genes <- read.table('./Aviv_data/valid_genes_for_analyis.txt', header = T)
- Shalek_exprs_mat <- read.table("./Aviv_data/cuffnorm_output_files/genes.fpkm_table", row.names = 1, header = T)
- Shalek_fd <- read.table("./Aviv_data/cuffnorm_output_files/genes.attr_table", row.names = 1, header = T)
- Shalek_pd <- read.table("./Aviv_data/sample_metadata_table.txt", sep = '\t', row.names = 1, header = T)
+ source('./data/monocle_helper_functions.R')
+ Shalek_valid_genes <- read.table('./data/Aviv_data/valid_genes_for_analyis.txt', header = T)
+ Shalek_exprs_mat <- read.table("./data/Aviv_data/cuffnorm_output_files/genes.fpkm_table", row.names = 1, header = T)
+ Shalek_fd <- read.table("./data/Aviv_data/cuffnorm_output_files/genes.attr_table", row.names = 1, header = T)
+ Shalek_pd <- read.table("./data/Aviv_data/sample_metadata_table.txt", sep = '\t', row.names = 1, header = T)
  rownames(Shalek_pd) <- paste(rownames(Shalek_pd), "_0", sep = "")
  Shalek_exprs_mat <- Shalek_exprs_mat[row.names(Shalek_fd), row.names(Shalek_pd)]
  Shalek_std <- newCellDataSet(Shalek_exprs_mat, 
@@ -77,7 +79,7 @@
  Shalek_std <- Shalek_std[row.names(Shalek_std) %in% Shalek_valid_genes$gene_id, ] #27386 * 1787 cells
  #check the consistency with the current Shalek_abs data: 
 
- Shalek_isoform_fpkm_matrix <- read.table("./Aviv_data/cuffnorm_output_files/isoforms.fpkm_table", row.names = 1, header = T)
+ Shalek_isoform_fpkm_matrix <- read.table("./data/Aviv_data/cuffnorm_output_files/isoforms.fpkm_table", row.names = 1, header = T)
  # colnames(Shalek_isoform_fpkm_matrix) <- str_replace(colnames(Shalek_isoform_fpkm_matrix), "_0$", "")
  #colnames(isoform_fpkm_matrix) <- str_replace(colnames(isoform_fpkm_matrix), "GolgiPlugh", "GolgiPlug")
  # row.names(Shalek_isoform_fpkm_matrix) <- Shalek_isoform_fpkm_matrix$tracking_id
@@ -144,7 +146,7 @@
  full_model_string = '~sm.ns(Pseudotime, df = 3)*Lineage'
 
  ko_branching_genes = branchTest(Shalek_abs_subset_ko_LPS, fullModelFormulaStr = full_model_string, cores = detectCores(), relative_expr = T, weighted = T)
- Shalek_abs_subset_ko_LPS_abcs = calABCs(Shalek_abs_subset_ko_LPS, fullModelFormulaStr=full_model_string, cores=1) 
+ # Shalek_abs_subset_ko_LPS_abcs = calABCs(Shalek_abs_subset_ko_LPS, fullModelFormulaStr=full_model_string, cores=1) 
 
  # Generate a plot
  # regev_cat <- read.table(file = './Aviv_data/cuffnorm_output_files/study_gene_categories.txt', header = T, sep = '\t') #pass this to the plot_genes_branched_heatmap function
