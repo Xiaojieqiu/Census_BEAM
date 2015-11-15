@@ -119,6 +119,7 @@
  expressed_genes <- row.names(subset(fData(Shalek_LPS), num_cells_expressed > 50))
  genes_in_range <- selectGenesInExpressionRange(Shalek_LPS[expressed_genes,], 2, Inf, 0.1, stat_fun=function(x) { median(round(x)) })
  Shalek_LPS_subset_DEG_res <- differentialGeneTest(Shalek_LPS[genes_in_range, ], fullModelFormulaStr = '~stim_time', cores = detectCores())
+ closeAllConnections()
 
  #ko: include all LPS cells
  Shalek_abs_subset_ko_LPS <- Shalek_abs[, pData(Shalek_abs)$experiment_name %in% c('Ifnar1_KO_LPS', 'Stat1_KO_LPS',  "LPS", "Unstimulated_Replicate")]
@@ -130,6 +131,7 @@
  expressed_genes <- row.names(subset(fData(Shalek_abs_subset_ko_LPS), num_cells_expressed > 50))
  genes_in_range <- selectGenesInExpressionRange(Shalek_abs_subset_ko_LPS[expressed_genes,], 2, Inf, 0.1, stat_fun=function(x) { median(round(x)) })
  Shalek_abs_subset_ko_LPS_subset_DEG_res <- differentialGeneTest(Shalek_abs_subset_ko_LPS[genes_in_range, ], fullModelFormulaStr = '~experiment_name + stim_time', cores = detectCores())
+ closeAllConnections()
 
  #make spanning trees (select subset of the CDS for downstream analysis): 
  pData(Shalek_abs_subset_ko_LPS)$Total_mRNAs <- colSums(exprs(Shalek_abs_subset_ko_LPS))
@@ -146,6 +148,7 @@
  full_model_string = '~sm.ns(Pseudotime, df = 3)*Lineage'
 
  ko_branching_genes = branchTest(Shalek_abs_subset_ko_LPS, fullModelFormulaStr = full_model_string, cores = detectCores(), relative_expr = T, weighted = T)
+ closeAllConnections()
  # Shalek_abs_subset_ko_LPS_abcs = calABCs(Shalek_abs_subset_ko_LPS, fullModelFormulaStr=full_model_string, cores=1) 
 
  # Generate a plot
@@ -163,10 +166,12 @@
                                              pData(Shalek_abs_subset_ko_LPS)$time %in% '4h') | c(pData(Shalek_abs_subset_ko_LPS)$experiment_name %in% c('Ifnar1_KO_LPS') & 
                                              pData(Shalek_abs_subset_ko_LPS)$time %in% '4h')
                                              ], fullModelFormulaStr="~experiment_name", reducedModelFormulaStr="~1", cores=detectCores())
+ closeAllConnections()
  ko_stat1_wt4 <- differentialGeneTest(Shalek_abs_subset_ko_LPS[, c(pData(Shalek_abs_subset_ko_LPS)$experiment_name %in% c('LPS') & 
                                              pData(Shalek_abs_subset_ko_LPS)$time %in% '4h') | c(pData(Shalek_abs_subset_ko_LPS)$experiment_name %in% c('Stat1_KO_LPS') & 
                                              pData(Shalek_abs_subset_ko_LPS)$time %in% '4h')
                                              ], fullModelFormulaStr="~experiment_name", reducedModelFormulaStr="~1", cores=detectCores())
+ closeAllConnections()
 
  #####################golgi: with all LPS cells: ######################
  Shalek_golgi_update <- Shalek_abs[,pData(Shalek_abs)$experiment_name %in% c("LPS_GolgiPlug", "LPS", "Unstimulated_Replicate")]
@@ -186,7 +191,8 @@
  genes_in_range <- selectGenesInExpressionRange(Shalek_golgi_update[expressed_genes,], 2, Inf, 0.1, stat_fun=function(x) { median(round(x)) })
 
  Shalek_golgi_update_subset_DEG_res <- differentialGeneTest(Shalek_golgi_update[genes_in_range, ], fullModelFormulaStr = '~stim_time + golgi_time', cores = detectCores())
-
+ closeAllConnections()
+ 
  #make spanning trees for golgi-plug: 
  pData(Shalek_golgi_update)$Total_mRNAs <- colSums(exprs(Shalek_golgi_update))
  Shalek_golgi_update <- Shalek_golgi_update[, pData(Shalek_golgi_update)$Total_mRNAs < 75000]
@@ -204,13 +210,16 @@
  full_model_string = '~sm.ns(Pseudotime, df = 3)*Lineage'
 
  golgi_branching_genes = branchTest(Shalek_golgi_update, fullModelFormulaStr = full_model_string, cores= detectCores(), relative_expr = T, weighted = T)
+ closeAllConnections()
  # ABCs_golgi = calABCs(Shalek_golgi_update, fullModelFormulaStr=full_model_string, cores=1)  # change to calABCs once fixed
 
  #figure 6: 
  #pseudotime test for the WT cells
  golgi_wt_0to4_pseudo <- differentialGeneTest(Shalek_golgi_update[, pData(Shalek_golgi_update)$experiment_name %in% c('LPS', 'Unstimulated_Replicate') & pData(Shalek_golgi_update)$time %in% c('', '1h', '2h', '4h')], fullModelFormulaStr="~sm.ns(Pseudotime, df = 3)", reducedModelFormulaStr="~1", cores=detectCores() / 1)
+ closeAllConnections()
  golgi_wt_0to4_pseudo_gene_ids = row.names(subset(golgi_wt_0to4_pseudo, qval < 1e-2))
  golgi_wt_0to6_pseudo <- differentialGeneTest(Shalek_golgi_update[, pData(Shalek_golgi_update)$experiment_name %in% c('LPS', 'Unstimulated_Replicate')], fullModelFormulaStr="~sm.ns(Pseudotime, df = 3)", reducedModelFormulaStr="~1", cores=detectCores() )
+ closeAllConnections()
  golgi_wt_0to6_pseudo_gene_ids = row.names(subset(golgi_wt_0to6_pseudo, qval < 1e-2))
 
  ##two group tests: 
@@ -218,10 +227,12 @@
  all_golgi_plug0_wt4 <- differentialGeneTest(Shalek_golgi_update[, c(pData(Shalek_golgi_update)$experiment_name %in% c('LPS') & 
                                              pData(Shalek_golgi_update)$time %in% '4h') | c(pData(Shalek_golgi_update)$experiment_name %in% c('LPS_GolgiPlug'))
                                              ], fullModelFormulaStr="~time", reducedModelFormulaStr="~1", cores=detectCores())
+ closeAllConnections()
  all_golgi_plug0_wt4_gene_ids = row.names(subset(all_golgi_plug0_wt4, qval < 1e-2))
 
  all_golgi_plug0_wt0 <- differentialGeneTest(Shalek_golgi_update[, c(pData(Shalek_golgi_update)$experiment_name %in% c('Unstimulated_Replicate')) | c(pData(Shalek_golgi_update)$experiment_name %in% c('LPS_GolgiPlug'))
                                              ], fullModelFormulaStr="~time", reducedModelFormulaStr="~1", cores=detectCores())
+ closeAllConnections()
  all_golgi_plug0_wt0_gene_ids = row.names(subset(all_golgi_plug0_wt0, qval < 1e-2))
 
  #different time comparing to WT 4h
@@ -229,12 +240,14 @@
                                              pData(Shalek_golgi_update)$time %in% '4h') | c(pData(Shalek_golgi_update)$experiment_name %in% c('LPS_GolgiPlug') & 
                                              pData(Shalek_golgi_update)$time %in% '4h_0h')
                                              ], fullModelFormulaStr="~time", reducedModelFormulaStr="~1", cores=detectCores())
+ closeAllConnections()
  golgi_plug0_wt4_gene_ids = row.names(subset(golgi_plug0_wt4, qval < 1e-2))
 
  # #different time comparing to WT 0h
  golgi_plug0_wt0 <- differentialGeneTest(Shalek_golgi_update[, c(pData(Shalek_golgi_update)$experiment_name %in% c('Unstimulated_Replicate')) | c(pData(Shalek_golgi_update)$experiment_name %in% c('LPS_GolgiPlug') & 
                                              pData(Shalek_golgi_update)$time %in% '4h_0h')
                                              ], fullModelFormulaStr="~time", reducedModelFormulaStr="~1", cores=detectCores())
+ closeAllConnections()
  golgi_plug0_wt0_gene_ids = row.names(subset(golgi_plug0_wt0, qval < 1e-2))
 
 save.image('shalek_data_analysis.RData')

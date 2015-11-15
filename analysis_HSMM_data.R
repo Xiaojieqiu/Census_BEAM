@@ -69,9 +69,8 @@
   dev.off()
 
   # valid_HSMM_cell <- load('valid_HSMM_cell') #load the cells
-  
-  if(use_select_algorithm)
-    exprs(HSMM) <- HSMM_fpkm_matrix_adj_select$norm_cds
+  # if(use_select_algorithm)
+  exprs(HSMM) <- HSMM_fpkm_matrix_adj_select$norm_cds
   
     ######################################analysis code for the HSMM dataset######################################
   pData(HSMM)$Total_mRNAs <- colSums(exprs(HSMM))
