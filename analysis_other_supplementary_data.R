@@ -4,6 +4,7 @@
   library(xacHelper)
 
   load_all_libraries()
+load("prepare_lung_data.RData")
 
 #all functions for the supplementary files: 
 
