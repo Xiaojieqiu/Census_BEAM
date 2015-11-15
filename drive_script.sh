@@ -12,6 +12,7 @@ wget -r http://www.gs.washington.edu/~xqiu/proj/BEAM_analysis_data.tar.gz
 #untar the file and then a directory named data which included all data necessary for reproducing 
 #the BEAM analysis will be provided: 
 tar -zxvf BEAM_analysis_data.tar.gz 
+rm BEAM_analysis_data.tar.gz
 
 #make the directories to store the figures generatated in the script 
 mkdir main_figures supplementary_figures supplementary_data tmp 
