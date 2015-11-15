@@ -434,7 +434,7 @@ valid_hyper_df$sig <- T
 cluster_color <- c('#E52027' = '#E52027', '#357EB9' = '#357EB9', '#4BAE49' = '#4BAE49', '#974F9F' = '#974F9F', '#F47D20' = '#F47D20', '#F6EE38' = '#F6EE38')
 valid_hyper_df$cluster_color <- cluster_color[as.numeric(valid_hyper_df$cluster_id)]
 
-pdf('./main_figures/fig4c.pdf', width = 6, height = 2)
+pdf('./main_figures/fig4c.pdf', width = 2, height = 6)
 qplot(cluster_id, gene_set, fill=cluster_color, geom="tile", data=valid_hyper_df) + nm_theme() + scale_fill_manual(values=cluster_color)  + 
     theme(axis.text.x = element_text(angle = 0, hjust = 1)) + xlab('') + ylab('')
 dev.off()
