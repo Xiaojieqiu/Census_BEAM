@@ -3,33 +3,41 @@
 
   load_all_libraries()
 
-  # load('analysis_other_supplementary_data.RData')
-  # load('analysis_lung_data.RData')
+  load('analysis_lung_data.RData')
   load('analysis_HSMM_data.RData')
 
-
 ##################################################fig1_si############################################################
-  quake_all_modes <- estimate_t(exprs(isoform_count_cds), return_all = T)
+  # quake_all_modes <- estimate_t(exprs(isoform_count_cds), return_all = T)
 
-  cell_nanmes <- c("SRR1033974_0", "SRR1033922_0", "SRR1033866_0")
-  cell_id <- which(colnames(isoform_count_cds) %in% cell_nanmes)
-  three_cell_iso_df <- data.frame(Cell_id = rep(row.names(quake_all_modes)[cell_id], each = nrow(isoform_count_cds)), 
-                  log10_FPKM = log10(c(exprs(isoform_count_cds)[, cell_id[1]], exprs(isoform_count_cds)[, cell_id[2]], exprs(isoform_count_cds)[, cell_id[3]])), 
-                  Cell_mode = rep(log10(quake_all_modes[cell_id, 1]), each = nrow(isoform_count_cds)))
+  # cell_nanmes <- c("SRR1033974_0", "SRR1033922_0", "SRR1033866_0")
+  # cell_id <- which(colnames(isoform_count_cds) %in% cell_nanmes)
+  # three_cell_iso_df <- data.frame(Cell_id = rep(row.names(quake_all_modes)[cell_id], each = nrow(isoform_count_cds)), 
+  #                 log10_FPKM = log10(c(exprs(isoform_count_cds)[, cell_id[1]], exprs(isoform_count_cds)[, cell_id[2]], exprs(isoform_count_cds)[, cell_id[3]])), 
+  #                 Cell_mode = rep(log10(quake_all_modes[cell_id, 1]), each = nrow(isoform_count_cds)))
 
-  three_cell_iso_df <- data.frame(Cell_id = rep(row.names(quake_all_modes)[which(quake_all_modes$best_cov_dmode <= 2)], each = nrow(isoform_count_cds)), 
-                  log10_FPKM = log10(c(exprs(isoform_count_cds)[, which(quake_all_modes$best_cov_dmode <= 2)])), 
-                  Cell_mode = rep(log10(quake_all_modes[which(quake_all_modes$best_cov_dmode <= 2), 1]), each = nrow(isoform_count_cds)))
+  # three_cell_iso_df <- data.frame(Cell_id = rep(row.names(quake_all_modes)[which(quake_all_modes$best_cov_dmode <= 2)], each = nrow(isoform_count_cds)), 
+  #                 log10_FPKM = log10(c(exprs(isoform_count_cds)[, which(quake_all_modes$best_cov_dmode <= 2)])), 
+  #                 Cell_mode = rep(log10(quake_all_modes[which(quake_all_modes$best_cov_dmode <= 2), 1]), each = nrow(isoform_count_cds)))
 
+
+  # pdf('./supplementary_figures/fig1a_si.pdf', width = 2, height = 3)
+  # qplot(x = log10_FPKM, geom = 'histogram', data = three_cell_iso_df[, ], binwidth = .05, color = I('red'))  +
+  #   geom_vline(aes(xintercept=log10(Cell_mode)), color = 'blue') + facet_wrap(~Cell_id) + xlim(-3, 5) + monocle_theme_opts() + xlab('log10 FPKM') + ylab('Isoform counts') + nm_theme()
+  # dev.off()
+
+  three_cells_cds <- data.frame(transcript = round(as.vector(exprs(absolute_cds)[1:38919, c("SRR1033854_0", "SRR1033855_0", "SRR1033856_0")])), 
+  read_counts = as.vector(exprs(quake_read_cds)[1:38919, c("SRR1033854_0", "SRR1033855_0", "SRR1033856_0")]), 
+  cell = rep(c("SRR1033854_0", "SRR1033855_0", "SRR1033856_0"), each = 38919)
+  )
 
   pdf('./supplementary_figures/fig1a_si.pdf', width = 2, height = 3)
-  qplot(x = log10_FPKM, geom = 'histogram', data = three_cell_iso_df[, ], binwidth = .05, color = I('red'))  +
-    geom_vline(aes(xintercept=log10(Cell_mode)), color = 'blue') + facet_wrap(~Cell_id) + xlim(-3, 5) + monocle_theme_opts() + xlab('log10 FPKM') + ylab('Isoform counts') + nm_theme()
+  qplot(value, data = melt(three_cells_cds), log = 'x') + geom_histogram(aes(fill = variable)) + facet_wrap(~cell+variable, nrow = 3, scale = 'free') + xlab('') + ylab('Gene number') +  
+        theme(strip.background = element_blank(), strip.text.x = element_blank())+ nm_theme()
   dev.off()
 
-  10^mapply(function(cell_dmode, model) {
-      predict(model, newdata = data.frame(log_fpkm = cell_dmode), type = 'response')
-  }, as.list(unique(three_cell_iso_df$Cell_mode)), molModels_select[c(1,9,14)])
+  # 10^mapply(function(cell_dmode, model) {
+  #     predict(model, newdata = data.frame(log_fpkm = cell_dmode), type = 'response')
+  # }, as.list(unique(three_cell_iso_df$Cell_mode)), molModels_select[c(1,9,14)])
 
   abs_gd_fit_res <- cal_gd_statistics(abs_gd_fit_df[, c('nb_pvalue', 'zinb_pvalue')], percentage = F, type = 'absolute', gene_list = valid_gene_id_20_cell)
   readcount_gd_fit_res <- cal_gd_statistics(read_gd_fit_df[, c('nb_pvalue', 'zinb_pvalue')], percentage = F,  type = 'readcount', gene_list = valid_gene_id_20_cell)
@@ -104,6 +112,18 @@
 ##################################################fig3_si############################################################
 ##code needed to be integrated from Cole 
 
+
+
+
+
+
+
+
+
+
+
+
+
 ##################################################fig4_si############################################################
   #read the read count data for the genes: 
   df <- data.frame(Time = pData(read_countdata_cds)$Time, sum_readcounts = esApply(read_countdata_cds[fData(read_countdata_cds)$biotype == 'spike', ], 2, sum))
@@ -147,25 +167,6 @@
 
   pdf('fig_4c_si.pdf', height = 3, width = 2)
   qplot(sum_readcounts, fill = experiment_name, log = 'x', data = Shalek_gene_df) + facet_wrap(~~experiment_name, ncol = 1, scales = 'free_y') + nm_theme()
-  dev.off()
-
-  ##############################################################################################################
-  #make the tree plot with quake annotation:     
-  pData(abs_AT12_cds_subset_all_gene)$Cell_typ <- as.character(pData(abs_AT12_cds_subset_all_gene)$Cell_typ)
-  pData(abs_AT12_cds_subset_all_gene)[pData(abs_AT12_cds_subset_all_gene)$Cell_type == 'NA', 'Cell_type'] <- 'no_avail'
-
-  lung_custom_color_scale_plus_states <- c('no_avail' = 'gray', 'AT1' = '#40A43A', 'AT2' = '#CB1B1E', 'BP' = '#3660A5', 'bulk' = 'gray')
-
-  pdf('SI_lung_tree_with_annotation.pdf', height = 2, width = 2.5)
-  plot_spanning_tree(abs_AT12_cds_subset_all_gene, color_by="Cell_type", show_backbone=T, backbone_color = 'black', cell_size = 4, 
-      markers=NULL, show_cell_names = F, show_all_lineages = F, cell_link_size = 0.2) + 
-      scale_color_manual(values=lung_custom_color_scale_plus_states) + coord_flip() + nm_theme()
-  dev.off()
-
-  pdf('SI_lung_tree_with_annotation_helper.pdf', height = 2, width = 2.5)
-  plot_spanning_tree(abs_AT12_cds_subset_all_gene, color_by="Cell_type", show_backbone=T, backbone_color = 'black', cell_size = 2, 
-      markers=NULL, show_cell_names = F, show_all_lineages = F, cell_link_size = 0.2) + 
-      scale_color_manual(values=lung_custom_color_scale_plus_states) + coord_flip() 
   dev.off()
 
   ################################################fig5_si##############################################################
@@ -231,6 +232,54 @@
       theme(strip.background = element_blank(), strip.text.x = element_blank()) + nm_theme() + theme(strip.background = element_blank(), strip.text.x = element_blank())
   dev.off()
 #   #
+
+  ##############################################################################################################
+  #make the tree plot with quake annotation:     
+  pData(AT12_cds_subset_all_gene)$Cell_type <- as.character(pData(AT12_cds_subset_all_gene)$Cell_type)
+  pData(AT12_cds_subset_all_gene)$Cell_type[69:185] <- 'no_avail'
+
+  lung_custom_color_scale_plus_states <- c('no_avail' = 'gray', 'AT1' = '#40A43A', 'AT2' = '#CB1B1E', 'BP' = '#3660A5', 'bulk' = 'gray')
+
+  pdf('./supplementary_figures/fig6a.pdf', height = 2, width = 2.5)
+    pdf('./fig6a.pdf', height = 2, width = 2.5)
+
+  plot_spanning_tree(AT12_cds_subset_all_gene, color_by="Cell_type", show_backbone=T, backbone_color = 'black', 
+      markers=NULL, show_cell_names = F, show_all_lineages = F, cell_link_size = 0.2) + scale_size(range = c(0.1, 2.5)) + 
+      scale_color_manual(values=lung_custom_color_scale_plus_states) + coord_flip() + nm_theme()
+  dev.off()
+
+  pdf('tmp/fig6a_helper.pdf', height = 2, width = 2.5)
+
+    pdf('./fig6a_helper.pdf', height = 2, width = 5)
+  plot_spanning_tree(AT12_cds_subset_all_gene, color_by="Cell_type", show_backbone=T, backbone_color = 'black', 
+      markers=NULL, show_cell_names = F, show_all_lineages = F, cell_link_size = 0.2) + scale_size(range = c(0.1, 2.5)) + 
+      scale_color_manual(values=lung_custom_color_scale_plus_states) + coord_flip()
+  dev.off()
+
+  #make kinetic plots: 
+  # Nkx2-1, Hopx, Sox9, Foxa2,  and Gata6
+  important_tf_ids <- row.names(subset(fData(abs_AT12_cds_subset_all_gene), gene_short_name %in% c('Hopx', 'Sox9', 'Foxa2', 'Gata6', 'Nkx2-1')))
+
+  new_cds <- buildLineageBranchCellDataSet(abs_AT12_cds_subset_all_gene[1:10, ], lineage_labels = c('AT1', 'AT2'))
+
+  colour_cell <- rep(0, length(new_cds$Lineage))
+  names(colour_cell) <- as.character(new_cds$Time)
+  colour_cell[names(colour_cell) == 'E14.5'] <- "#7CAF42"
+  colour_cell[names(colour_cell) == 'E16.5'] <- "#00BCC3"
+  colour_cell[names(colour_cell) == 'E18.5'] <- "#A680B9"
+  colour_cell[names(colour_cell) == 'Adult'] <- "#F3756C"
+
+  colour <- rep(0, length(new_cds$Lineage))
+  names(colour) <- as.character(new_cds$Lineage)
+  colour[names(colour) == 'AT1'] <- AT1_Lineage
+  colour[names(colour) == 'AT2'] <- AT2_Lineage
+
+  pdf('./supplementary_figures/fig6b.pdf', height = 1.5, width = 5)
+  plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[important_tf_ids, ], cell_color_by = "Time", lineage_labels = c('AT1', 'AT2'), 
+      trajectory_color_by = "Lineage", trend_formula = '~sm.ns(Pseudotime, df = 3)*Lineage', normalize = F, stretch = T,
+      cell_size = 1, ncol = 3, reducedModelFormulaStr = "~ sm.ns(Pseudotime, df=3)", add_pval = T) + 
+      ylab('Transcript counts') + nm_theme()
+  dev.off()
 
 #   #test the cell cycle: 
 #   #cyclin E, CDK2, Cyclin A, CDK1, CDK2, Cyclin B, CDK1

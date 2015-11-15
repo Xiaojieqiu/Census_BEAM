@@ -14,11 +14,11 @@ x_list <- split(expand.grid(c(seq(-6, -1, length.out = 2), -4.403166,  as.numeri
 # test the function: whether or not it will run fine
 optim_mc_func_fix_c_test_optim(x_list[[1]])
 # mclapply cannot deal with situations when NAs are returned 
-# optimization_landscape_3d <- mclapply(X = split(expand.grid(c(seq(-6, -1, length.out = 100), -4.403166,  as.numeric(mc_select[2])), 
-#                    c(seq(0, 4, length.out = 100), 2.77514, as.numeric(mc_select[1]))), 1:102^2), optim_mc_func_fix_c_test_optim, mc.cores = detectCores())
+optimization_landscape_3d <- mclapply(X = split(expand.grid(c(seq(-6, -1, length.out = 100), -4.403166,  as.numeric(mc_select[2])), 
+                   c(seq(0, 4, length.out = 100), 2.77514, as.numeric(mc_select[1]))), 1:102^2), optim_mc_func_fix_c_test_optim, mc.cores = detectCores())
 
-optimization_landscape_3d <- lapply(X = split(expand.grid(c(seq(-6, -1, length.out = 100), -4.403166,  as.numeric(mc_select[2])), 
-                   c(seq(0, 4, length.out = 100), 2.77514, as.numeric(mc_select[1]))), 1:102^2), optim_mc_func_fix_c_test_optim)
+# optimization_landscape_3d <- lapply(X = split(expand.grid(c(seq(-6, -1, length.out = 100), -4.403166,  as.numeric(mc_select[2])), 
+#                    c(seq(0, 4, length.out = 100), 2.77514, as.numeric(mc_select[1]))), 1:102^2), optim_mc_func_fix_c_test_optim)
 
 # #this doesn't work, need to use roster and sp: 
 # optimization_landscape_2d <- melt(optimization_landscape_3d)

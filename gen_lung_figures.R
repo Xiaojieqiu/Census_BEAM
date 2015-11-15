@@ -8,7 +8,7 @@ library(grid)
 
 ##load the data: 
 load('analysis_lung_data.RData')
-load('spikein_free_algorithm_benchmark')
+load('spikein_free_algorithm_benchmark.RData')
 #color scheme: 
 prog_cell_state = "#979797"
 AT1_cell_state = "#F05662" 
@@ -243,7 +243,8 @@ dev.off()
 #fig 4e: 
 
 ############################make the landscape heatmap: 
-optimization_matrix<- do.call(rbind.data.frame, optimization_landscape_3d)
+optimization_landscape_3d_trim <- lapply(optimization_landscape_3d, function(x) x[c('m', 'c', 'optim_res')])
+optimization_matrix<- do.call(rbind.data.frame, optimization_landscape_3d_trim)
 
 optimization_matrix_filt <- subset(optimization_matrix, is.nan(optim_res) == FALSE & is.finite(optim_res))
 max_optim_score <- 3
@@ -282,7 +283,7 @@ ggplot( NULL ) + geom_raster( data = rdf , aes( x , y , fill = log10(layer) ) ) 
 dev.off()
 
 #create the helper pdf file to annotate the figure: 
-pdf('./main_figures/fig3e_helper.pdf', width = 5, height = 1.5)
+pdf('./tmp/fig3e_helper.pdf', width = 5, height = 1.5)
 ggplot( NULL ) + geom_raster( data = rdf , aes( x , y , fill = log10(layer) ) ) + 
     annotate("text", x = -3.85, y = 3.1, label = "True (m,c)", color="magenta", size=2) + 
     annotate("point", x = -4.277778, y = 2.932929, color="magenta", size = 1) + 
@@ -352,7 +353,7 @@ ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_w
 ggtitle('') + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + nm_theme() + xlab('') + theme(axis.text.x=element_blank(), axis.ticks.x=element_blank())
 dev.off()
 
-pdf('./main_figures/fig_3h_helper.pdf', width = 3, height = 2)
+pdf('./tmp/fig_3h_helper.pdf', width = 3, height = 2)
 ggplot(aes(factor(Type), value,  fill = data_type), data = melt(mc_spikein_df)) + geom_bar(position = position_dodge(), stat = 'identity') + #facet_wrap(~variable) + 
 ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
 ggtitle('') + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank())
@@ -451,7 +452,8 @@ colour[names(colour) == 'AT1'] <- AT1_Lineage
 colour[names(colour) ==  'AT2'] <- AT2_Lineage
 
 
-pdf('./main_figures/fig4d.pdf', width = 3, height = 5)
+pdf('./main_figures/fig4d.pdf', width = 5, height = 3)
+# pdf('fig4d.pdf', width = 5, height = 3)
 plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[branch_motif_Tfs_id, ], cell_color_by = "State", 
                 trajectory_color_by = "Lineage", fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', normalize = F, stretch = T,
                 lineage_labels = c('AT1', 'AT2'), cell_size = 1, ncol = 4, reducedModelFormulaStr = "~sm.ns(Pseudotime, df=3)", add_pval = T) + 
