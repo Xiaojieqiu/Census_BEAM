@@ -180,4 +180,4 @@
     ggtitle('') + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + nm_theme() + xlab('') + ylim(0, 1)
   dev.off()
 
-
+save.image('analysis_UMI_data.RData')
