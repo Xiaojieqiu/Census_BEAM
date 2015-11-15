@@ -26,12 +26,12 @@ scale_color_manual(values=shalek_custom_color_scale_plus_states) + illustrator_t
 dev.off()
 
 #for making the legends: 
-pdf(file =paste('./tmp', 'fig5b_helpA.pdf', sep = ''), height = 3, width = 3)
+pdf(file =paste('./tmp/', 'fig5b_helpA.pdf', sep = ''), height = 3, width = 3)
 monocle::plot_spanning_tree(Shalek_abs_subset_ko_LPS, color_by="interaction(experiment_name, time)", cell_size=1) + 
 scale_color_manual(values=shalek_custom_color_scale_plus_states) + illustrator_theme() 
 dev.off()
 
-pdf(file =paste('./tmp', 'fig5b_helpB.pdf', sep = ''), height = 3, width = 3)
+pdf(file =paste('./tmp/', 'fig5b_helpB.pdf', sep = ''), height = 3, width = 3)
 monocle::plot_spanning_tree(Shalek_abs_subset_ko_LPS, color_by="State", cell_size=1) + 
 scale_color_manual(values=shalek_custom_color_scale_plus_states) + illustrator_theme() 
 dev.off()
@@ -116,7 +116,7 @@ list(A = row.names(ko_Ifnar1_wt4[ko_Ifnar1_wt4$qval < .01, ]), #0to6
      C = row.names(subset(ko_branching_genes, qval < 0.01)))
 # save(branch_pseudotime_element_all, branch_pseudotime_sets_all, file = 'branchTest_cmpr_subset')
 
-pdf(file = paste('./tmp', 'fig_SI_branchTest_cmpr.pdf', sep = ''), height = 2, width = 3)
+pdf(file = paste('./tmp/', 'fig_SI_branchTest_cmpr.pdf', sep = ''), height = 2, width = 3)
 #pdf(file = paste(fig_root_dir, 'fig6_SI_ko_overlapping.pdf', sep = ''))
 venneuler_venn(andrew_element_all, andrew_sets_all)
 dev.off()
@@ -235,7 +235,7 @@ names(Shalek_golgi_update_heatmap_clusters) <- toupper(names(Shalek_golgi_update
 
 golgi_TF_enrichment_results_5k <- collect_gsa_hyper_results(Shalek_golgi_update[, ], TF_5k_enrichment_gsc, Shalek_golgi_update_heatmap_clusters)
 
-pdf(file = paste('./tmp', 'figure_6d_motif_enrichment.pdf', sep = ''), height = 30, width = 7)
+pdf(file = paste('./tmp/', 'figure_6d_motif_enrichment.pdf', sep = ''), height = 30, width = 7)
 golgi_motif_enrich_plot <- plot_gsa_hyper_heatmap(Shalek_golgi_update, golgi_TF_enrichment_results_5k, significance = 1e-1)
 dev.off()
 
@@ -251,7 +251,7 @@ golgi_valid_hyper_df <- subset(hyper_df, (toupper(first) %in% toupper(fData(Shal
 ) 
 
 golgi_valid_hyper_df$sig <- T
-pdf(file = paste('./tmp', 'fig6_SI_enrichment.pdf', sep = ''), height = 1.2, width = 8)
+pdf(file = paste('./tmp/', 'fig6_SI_enrichment.pdf', sep = ''), height = 1.2, width = 8)
 qplot(cluster_id, gene_set, fill=sig, geom="tile", data=golgi_valid_hyper_df) + scale_fill_manual(values='black') + nm_theme() +
 coord_flip() + theme(axis.text.x = element_text(angle = 30, hjust = 1)) + xlab('') + ylab('')
 dev.off()
@@ -330,7 +330,7 @@ andrew_sets_all <- c(
          rep(paste('all_golgi_plug_wt0', sep = ''), length(row.names(all_golgi_plug0_wt0[all_golgi_plug0_wt0$qval < .01, ])))
          )
 
-pdf(file = paste('./tmp', 'fig6_golgi_branch_overlapping.pdf', sep = ''))
+pdf(file = paste('./tmp/', 'fig6_golgi_branch_overlapping.pdf', sep = ''))
 venneuler_venn(andrew_element_all, andrew_sets_all)
 dev.off()
 

@@ -248,7 +248,7 @@
       scale_color_manual(values=lung_custom_color_scale_plus_states) + coord_flip() + nm_theme()
   dev.off()
 
-  pdf('tmp/fig6a_helper.pdf', height = 2, width = 2.5)
+  pdf('./tmp/fig6a_helper.pdf', height = 2, width = 2.5)
 
     pdf('./fig6a_helper.pdf', height = 2, width = 5)
   plot_spanning_tree(AT12_cds_subset_all_gene, color_by="Cell_type", show_backbone=T, backbone_color = 'black', 
