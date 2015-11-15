@@ -8,7 +8,7 @@ Rscript install_packages.R ##can this be done well automatically?
 
 ################################################################################################
 #download the data necessary for the analysis: 
-wget -r http://www.gs.washington.edu/~xqiu/proj/BEAM_analysis_data.tar.gz
+wget http://www.gs.washington.edu/~xqiu/proj/BEAM_analysis_data.tar.gz
 #untar the file and then a directory named data which included all data necessary for reproducing 
 #the BEAM analysis will be provided: 
 tar -zxvf BEAM_analysis_data.tar.gz 
