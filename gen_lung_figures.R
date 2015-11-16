@@ -451,6 +451,10 @@ names(colour) <- as.character(pData(new_cds)$Lineage)
 colour[names(colour) == 'AT1'] <- AT1_Lineage
 colour[names(colour) ==  'AT2'] <- AT2_Lineage
 
+gene_grn_list <- infer_branch_gene_grn(TF_enrichment_gsc = TF_5k_enrichment_gsc, file = 'gene_regulatory_net_up5k', p_thrsld = 0.01)
+branch_motif_Tfs <- gene_grn_list$branch_tfs[toupper(gene_grn_list$branch_tfs) %in% toupper(valid_hyper_df$first) | 
+              toupper(gene_grn_list$branch_tfs) %in% toupper(valid_hyper_df$second)]
+branch_motif_Tfs_id <- row.names(subset(fData(abs_AT12_cds_subset_all_gene), toupper(gene_short_name) %in% branch_motif_Tfs)) 
 
 pdf('./main_figures/fig4d.pdf', width = 5, height = 3)
 # pdf('fig4d.pdf', width = 5, height = 3)

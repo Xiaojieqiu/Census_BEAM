@@ -372,4 +372,4 @@ dev.off()
 
 # motif_enrich_plot_golgi + illustrator_theme() + ggsave(paste(fig_root_dir, "/figure_6_enrichment_heatmap.pdf", sep = ''), height = 2, width = 3)
 
-save.image('shalek_data_analysis_figs.Rdata')
+save.image('gen_shalek_figures.RData')

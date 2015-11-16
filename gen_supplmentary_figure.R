@@ -238,22 +238,19 @@
   pData(AT12_cds_subset_all_gene)$Cell_type <- as.character(pData(AT12_cds_subset_all_gene)$Cell_type)
   pData(AT12_cds_subset_all_gene)$Cell_type[69:185] <- 'no_avail'
 
-  lung_custom_color_scale_plus_states <- c('no_avail' = 'gray', 'AT1' = '#40A43A', 'AT2' = '#CB1B1E', 'BP' = '#3660A5', 'bulk' = 'gray')
+  lung_custom_color_scale_plus_states <- c('no_avail' = 'gray', 'AT1' = '#40A43A', 'AT2' = '#CB1B1E', 'BP' = '#3660A5', 'bulk' = 'black')
 
-  pdf('./supplementary_figures/fig6a.pdf', height = 2, width = 2.5)
-    pdf('./fig6a.pdf', height = 2, width = 2.5)
-
+  pdf('./supplementary_figures/fig6_si.pdf', height = 2, width = 2.5)
   plot_spanning_tree(AT12_cds_subset_all_gene, color_by="Cell_type", show_backbone=T, backbone_color = 'black', 
       markers=NULL, show_cell_names = F, show_all_lineages = F, cell_link_size = 0.2) + scale_size(range = c(0.1, 2.5)) + 
       scale_color_manual(values=lung_custom_color_scale_plus_states) + coord_flip() + nm_theme()
   dev.off()
 
-  pdf('./tmp/fig6a_helper.pdf', height = 2, width = 2.5)
 
-    pdf('./fig6a_helper.pdf', height = 2, width = 5)
+  pdf('./tmp/fig6_helper.pdf', height = 2, width = 2.5)
   plot_spanning_tree(AT12_cds_subset_all_gene, color_by="Cell_type", show_backbone=T, backbone_color = 'black', 
       markers=NULL, show_cell_names = F, show_all_lineages = F, cell_link_size = 0.2) + scale_size(range = c(0.1, 2.5)) + 
-      scale_color_manual(values=lung_custom_color_scale_plus_states) + coord_flip()
+      scale_color_manual(values=lung_custom_color_scale_plus_states) 
   dev.off()
 
   #make kinetic plots: 
