@@ -199,7 +199,7 @@
   muscle_size_normalized_mc_glm_perm <- cal_glm_perm(HSMM_myo_size_norm)
   muscle_size_normalized_mc_glm_perm <- do.call(rbind, muscle_size_normalized_mc_glm_perm)
   muscle_size_normalized_mc_glm_perm_pval <- muscle_size_normalized_mc_glm_perm[, 1]
-  save.image()
+  #save.image()
   
   #then generate the data for the plot: 
   monocle_p <- std_HSMM_myo_pseudotime_res_ori[, 'pval']
