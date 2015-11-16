@@ -177,8 +177,8 @@ bk <- seq(-3.1,3.1, by=0.1)
 hmcols <- jet.colors(length(bk) - 1)
 
 #Quake figure in the paper: 
-valid_add_quake_gene_all_marker_ids_res_no_fit_log <- plot_genes_branched_heatmap(abs_AT12_cds_subset_all_gene[add_quake_gene_all_marker_ids, ], num_clusters=4, norm_method = "log", use_fitting_curves = F, scaling = F, hmcols = hmcols, file_name = paste(submission_directory, 'tmp/submission_fig2d.pdf'))
-valid_add_quake_gene_all_marker_ids_res_FIT_log <- plot_genes_branched_heatmap(abs_AT12_cds_subset_all_gene[add_quake_gene_all_marker_ids, ], num_clusters=4, norm_method = "log", use_fitting_curves = T, scaling = F, hmcols = hmcols, file_name = paste(submission_directory, 'tmp/submission_fig2d.1.pdf'))
+valid_add_quake_gene_all_marker_ids_res_no_fit_log <- plot_genes_branched_heatmap(abs_AT12_cds_subset_all_gene[add_quake_gene_all_marker_ids, ], num_clusters=4, norm_method = "log", use_fitting_curves = F, scaling = F, hmcols = hmcols, file_name = paste(submission_directory, 'tmp/submission_fig2d.pdf', sep = ''))
+valid_add_quake_gene_all_marker_ids_res_FIT_log <- plot_genes_branched_heatmap(abs_AT12_cds_subset_all_gene[add_quake_gene_all_marker_ids, ], num_clusters=4, norm_method = "log", use_fitting_curves = T, scaling = F, hmcols = hmcols, file_name = paste(submission_directory, 'tmp/submission_fig2d.1.pdf', sep = ''))
 
 #add the AT1/2 early/late annotation: 
 #add cell cycle genes
