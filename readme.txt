@@ -17,4 +17,10 @@ For generating figures, each script will need less than 2 hrs.
 
 The instructions on how to reproduce this analysis is included in the "drive_script.sh".
  
-Note that we also provided a Jupyter R notebook html file with all the figures generated in the manuscript included. The packages version for the session we run this analysis is included in the notebook too. Specially, for using the venneuler package which depends on rJava, Java SE Development Kit 7u17 is used in our case. 
+Note that we also provided a Jupyter R notebook html file with all the figures generated in the manuscript included. This html file can be viewed from: 
+http://www.gs.washington.edu/~xqiu/proj/BEAM/BEAM_jupyter_notebook/main_figures_notebook.html 
+http://www.gs.washington.edu/~xqiu/proj/BEAM/BEAM_jupyter_notebook/supplementary_figures_notebook.html
+In order to view those pages properly, be sure to use a computer with enough memory because it includes a lot figures. 
+
+The packages version for the session we run this analysis is included in the notebook too. Specially, for using the venneuler package which depends on rJava, Java SE Development Kit 7u17 is used in our case. 
+

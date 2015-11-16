@@ -471,3 +471,5 @@ dev.off()
 #   nm_theme()+ ylab('Transcript counts') + nm_theme() + xlab('Pseudotime')
 
 #########################################################################################################
+
+save.image('gen_lung_figures.RData')
