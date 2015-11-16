@@ -97,7 +97,7 @@ colour[names(colour) ==  'AT2'] <- AT2_Lineage
 abs_house_keeping_marker_branchTest_res <- branchTest(abs_AT12_cds_subset_all_gene[fig2_genes_ids, ], cores = 1, relative_expr = F, weighted = T)
 abs_house_keeping_marker_branchTest_res[fig2_genes_ids, 'pval']
 
-pdf('./main_figures/fig2b.pdf', height = 2.6, width = 1.75)
+pdf('./main_figures/fig2b.pdf', width = 2.6, height = 1.75)
 plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[fig2_genes_ids, ], color_by = "Time", panel_order = fig2_genes, 
     trajectory_color_by = "Lineage", trend_formula = '~sm.ns(Pseudotime, df = 3)*Lineage', reducedModelFormulaStr = '~sm.ns(Pseudotime, df = 3)', 
      normalize = T, stretch = T, lineage_labels = c('AT1', 'AT2'), cell_size = 1, ncol = 2, add_pval = T) + nm_theme()+ ylab('Transcript counts') + xlab('Pseudotime')
@@ -196,7 +196,7 @@ add_annotation_row <- data.frame(significance = as.numeric(cell_cycle_timing_exa
 
 time_annotated_heatmap <- plot_genes_branched_heatmap(abs_AT12_cds_subset_all_gene[c(timing_example_ids, cell_cycle_markers_id), ], 
     num_clusters=4, norm_method = "log", use_fitting_curves = F, scaling = F, hmcols = hmcols, use_gene_short_name = T,
-    add_annotation_row = add_annotation_row, file_name = paste(submission_directory, 'main_figures/fig2d.pdf'), show_rownames = T)
+    add_annotation_row = add_annotation_row, file_name = paste(submission_directory, 'main_figures/fig2d.pdf', sep = ''), show_rownames = T)
 
 #########################################################################################################
 #figure 3: 
@@ -329,13 +329,22 @@ mc_abs_exprs_df <- data.frame(spikein = as.vector(c(E14.5_cell, E16.5_cell, E18.
     mc_algorithm = as.vector(c(mc_E14.5_cell, mc_E16.5_cell, mc_E18.5_cell, mc_Adult_cell)),
     cell = rep(c("E14.5_cell", "E16.5_cell", "E18.5_cell", "Adult_cell"), each = nrow(mc_adj_cds)))
 
-pdf('./main_figures/fig3g.pdf', width = 5, height = 1.5)
-qplot(spikein + 1, mc_algorithm + 1, log = 'xy', 
-    color = cell, alpha = 0.8, data = mc_abs_exprs_df, size  = 1.5) + facet_wrap(~cell, scales = 'free', ncol = 2) + #  geom_smooth(method = 'rlm', aes(group = 199), size = .1) + 
-    scale_size(range = c(1.5, 1)) +  geom_abline() + xlab('Transcript counts (Spike-in)') + scale_size(range = c(0.25, 0.25)) + 
-        ylab('Transcript counts (Recovery algorithm)') + nm_theme()
-dev.off()
+# pdf('./main_figures/fig3g2.pdf', width = 3, height = 2)
+# qplot(spikein + 1, mc_algorithm + 1, log = 'xy', 
+#     color = cell, data = mc_abs_exprs_df, size  = 1.5) + facet_wrap(~cell, scales = 'free', ncol = 2) + #  geom_smooth(method = 'rlm', aes(group = 199), size = .1) + 
+#     scale_size(range = c(1.5, 1)) +  geom_abline() + xlab('Transcript counts (Spike-in)') + scale_size(range = c(0.25, 0.25)) + 
+#         ylab('Transcript counts (Recovery algorithm)') + nm_theme()
+# dev.off()
 
+pdf('./main_figures/fig3g.pdf', width = 3, height = 2)
+ggplot(mc_abs_exprs_df) + aes(x=spikein + 1, y= mc_algorithm + 1) + scale_x_log10() + scale_y_log10() + facet_wrap(~cell, scales = 'free', ncol = 2) + 
+xlab('Transcript counts (Spike-in)') + #scale_size(range = c(0.25, 0.25)) + 
+        ylab('Transcript counts (Recovery algorithm)')  + 
+  #stat_density2d(geom="tile", aes(fill=..density..^1, alpha=1), contour=FALSE) + 
+  geom_point(size=0.5, aes(color = cell)) + geom_abline() + nm_theme()
+  # stat_density2d(geom="tile", aes(fill=..density..^1, alpha=ifelse(..density..^1<0.4,0,1)), contour=FALSE) 
+dev.off()
+  
 # # fig 3h: 
 # # show only the spike-in / mc algorithm test: 
 mc_spikein_df <- plot_pre_rec_f1(test_p_list = list(mode_size_norm_permutate_ratio_by_geometric_mean = new_abs_size_norm_monocle_p_ratio_by_geometric_mean,
@@ -455,7 +464,7 @@ names(colour) <- as.character(pData(new_cds)$Lineage)
 colour[names(colour) == 'AT1'] <- AT1_Lineage
 colour[names(colour) ==  'AT2'] <- AT2_Lineage
 
-gene_grn_list <- infer_branch_gene_grn(TF_enrichment_gsc = TF_5k_enrichment_gsc, file = 'gene_regulatory_net_up5k', p_thrsld = 0.01)
+gene_grn_list <- infer_branch_gene_grn(TF_enrichment_gsc = TF_5k_enrichment_gsc, file = 'gene_regulatory_net_up5k', p_thrsld = 0.01, branchTest_res = weihgted_relative_abs_AT12_cds_subset_all_gene)
 branch_motif_Tfs <- gene_grn_list$branch_tfs[toupper(gene_grn_list$branch_tfs) %in% toupper(valid_hyper_df$first) | 
               toupper(gene_grn_list$branch_tfs) %in% toupper(valid_hyper_df$second)]
 branch_motif_Tfs_id <- row.names(subset(fData(abs_AT12_cds_subset_all_gene), toupper(gene_short_name) %in% branch_motif_Tfs)) 
