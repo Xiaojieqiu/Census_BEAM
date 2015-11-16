@@ -1,4 +1,3 @@
-load('analysis_shalek_data.RData')
 library(monocle)
 library(xacHelper)
 library(grid)
@@ -12,6 +11,7 @@ library(pheatmap)
 library(plyr)
 library(stringr)
 
+load('analysis_shalek_data.RData')
 fig_root_dir = './main_figures/'
 shalek_custom_color_scale_plus_states= c(shalek_custom_color_scale, c('1'='#40A43A', '2'='#CB1B1E', '3'='#3660A5', 'Unstimulated_Replicate.' = 'gray'))
 
