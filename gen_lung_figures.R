@@ -43,6 +43,10 @@ plot_spanning_tree(abs_AT12_cds_subset_all_gene, color_by="Time", show_backbone=
         scale_size(range = c(0.1, 2.5)) + nm_theme()
 dev.off()
 
+plot_spanning_tree(abs_AT12_cds_subset_all_gene, color_by="State", show_backbone=T, backbone_color = 'black',
+    markers=NULL, show_cell_names = F, show_all_lineages = F, cell_link_size = 0.2) + 
+        scale_size(range = c(0.1, 2.5)) + nm_theme()
+
 #figure 1b: 
 # markers <- c('Soat1', 'S100g', 'Clic5', 'Muc1')
 example_ids <- row.names(subset(fData(absolute_cds), gene_short_name %in% 
@@ -74,7 +78,7 @@ dev.off()
 #########################################################################################################
 #figure 2: 
 #fig 2b: 
-fig2_genes <- c("Ager", "Sftpb", 'Hprt', 'Pgk1')#, 'Ubc', 'Rpl5', 'Puf60', 'Nucb2') #Qiange housekeeping genes: Hprt, Pgk1
+fig2_genes <- c("Pdpn", "Sftpb", 'Hprt', 'Pgk1')#, 'Ubc', 'Rpl5', 'Puf60', 'Nucb2') #Qiange housekeeping genes: Hprt, Pgk1
 
 fig2_genes_ids <- row.names(subset(fData(absolute_cds), gene_short_name %in% 
                               fig2_genes))
