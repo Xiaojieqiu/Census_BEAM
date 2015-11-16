@@ -250,4 +250,4 @@
  closeAllConnections()
  golgi_plug0_wt0_gene_ids = row.names(subset(golgi_plug0_wt0, qval < 1e-2))
 
-save.image('shalek_data_analysis.RData')
+save.image('analyis_shalek_data.RData')
