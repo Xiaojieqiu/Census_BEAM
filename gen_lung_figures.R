@@ -98,7 +98,7 @@ abs_house_keeping_marker_branchTest_res <- branchTest(abs_AT12_cds_subset_all_ge
 abs_house_keeping_marker_branchTest_res[fig2_genes_ids, 'pval']
 
 pdf('./main_figures/fig2b.pdf', width = 2.6, height = 1.75)
-plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[fig2_genes_ids, ], color_by = "Time", panel_order = fig2_genes, 
+plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[fig2_genes_ids, ], color_by = "State", panel_order = fig2_genes, 
     trajectory_color_by = "Lineage", trend_formula = '~sm.ns(Pseudotime, df = 3)*Lineage', reducedModelFormulaStr = '~sm.ns(Pseudotime, df = 3)', 
      normalize = T, stretch = T, lineage_labels = c('AT1', 'AT2'), cell_size = 1, ncol = 2, add_pval = T) + nm_theme()+ ylab('Transcript counts') + xlab('Pseudotime')
 dev.off()
@@ -133,7 +133,7 @@ colour[names(colour) == 'AT1'] <- AT1_Lineage
 colour[names(colour) ==  'AT2'] <- AT2_Lineage
 
 pdf('./tmp/submission_fig2b_time.pdf', height = 2, width = 3)
-plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[example_ids, ], color_by = "Time", panel_order = markers, trajectory_color_by = 'Lineage', 
+plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[example_ids, ], color_by = "State", panel_order = markers, trajectory_color_by = 'Lineage', 
     fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', reducedModelFormulaStr = '~sm.ns(Pseudotime, df = 3)', normalize = T, stretch = T,
     lineage_labels = c('AT1', 'AT2'), cell_size = 1, ncol = 2, bifurcation_time  = abs(bif_time)) + nm_theme()+ ylab('Transcript counts') + xlab('Pseudotime')
 dev.off()
