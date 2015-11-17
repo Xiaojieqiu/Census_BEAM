@@ -1,7 +1,7 @@
 #Analysis for "Branched single-cell trajectories reveal regulators of cell fate decisions"
 
 ## Introduction
-This distribution automates generation of all analysis and figure generation performed for our manuscript, "Branched single-cell trajectories reveal regulators of cell fate decisions". In addition to the scripts that recreate the analysis, this distribution additionally includes:
+This distribution automates all analysis and figure generation performed for our manuscript, "Branched single-cell trajectories reveal regulators of cell fate decisions". In addition to the scripts that recreate the analysis, this distribution also includes:
 
 1. An alpha version of Monocle 2.0 (file: "monocle_1.99.0.tar.gz"), which will be released publicly as the next major release of Monocle through both GitHub and Bioconductor as an R package.
 
@@ -18,16 +18,16 @@ Since this is an extensive analysis across several different single-cell RNA-seq
 - Internet connection: Used to download packages for installation and a tarball with data required for the analysis (too large to provide with this distribution)
 
 ##Recreating the analysis
-The entire analysis can be run in a series simply by running:
+The entire analysis can be run simply by running the command:
 bash run_all_analyses.sh
 
 Note that this script will first install all necessary R packages. Once the analysis has run the following folders and files will be populated:
 - data: Data to recreate the analysis (too large to provide with this distribution) are downloaded to this folder
-- RData: RData files saving all objects generated in each particular script, will be used across different scripts. File names are equal to the corresponding script names.
+- RData: RData files saved for each script so data can be loaded by other scripts in the analysis.
 - main_figures: PDFs of panels from all figures in the main text that contain analysis (does not include cartoon diagrams) are saved here
 - supplementary_figures: PDFs of panels from all supplementary figures that contain analysis (does not include cartoon diagrams) are saved here
 - supplementary_data: XLS files of supplementary data submitted with the manuscript are saved here
-- temp: Temporary helper pdf files used in figure annontation during the manuscript preparation 
+- tmp: Temporary helper pdf files used in figure annontation during the manuscript preparation 
 
 ###Running portions of the analysis
 While running the provided script (run_all_analyses.sh) is the simplest option, in some cases, it may be desirable to run parts of the analysis in isolation. While we have tried to minimize dependencies between analyses, some dependencies must be considered if choosing this route.
