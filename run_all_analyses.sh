@@ -25,6 +25,8 @@ rm BEAM_analysis_data.tar.gz
 ## Make required directories to store figures and data that will be generated
 mkdir main_figures supplementary_figures supplementary_data tmp RData
 
+## Download the HSMMSingleCell package to local directory
+wget http://bioconductor.org/packages/release/data/experiment/src/contrib/HSMMSingleCell_0.104.0.tar.gz
 
 #########################################################
 # Analysis (WARNING: see README.md for dependency
