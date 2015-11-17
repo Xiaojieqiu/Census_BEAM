@@ -68,15 +68,8 @@ Other:
 - analysis_other_supplementary_data.R (depends on prepare_lung_data.R)  
 - gen_supplementary_figure.R (depends on results from analysis_lung_data.R, spikein_free_algorithm_sampling.R, deg_benchmark_analysis.R, analysis_distribution_fitting.R, and analysis_HSMM_data.R)
 
-##Additional Information 
-We have also provided a Jupyter R notebook HTML file with all the figures generated in the manuscript included. This html file can be viewed for the main text and supplementary figures respectively at: 
-- Main Text Figures: http://www.gs.washington.edu/~xqiu/proj/BEAM/BEAM_jupyter_notebook/main_figures_notebook.html 
-- Supplementary Figures: http://www.gs.washington.edu/~xqiu/proj/BEAM/BEAM_jupyter_notebook/supplementary_figures_notebook.html
-
-For an example on how to run all the scripts in parallel using SGE, please refer to **run_all_analyses_parallel.R**. To enable to run in parallel on cluster, you may need to adapt this script to the configuration of your cluster.
-
 ##DHS analysis: 
-**Quake_intersect_dhs.sh** and **Shalek_intersect_dhs.sh** are the shell scripts used to perform the DHS analysis disussed in the supplementary file. For simplicity, we only provided the output gmt files in the data folder for the current reproduce.  
+Quake_intersect_dhs.sh and Shalek_intersect_dhs.sh are the shell scripts used to perform the DHS analysis disussed in the supplementary file. For simplicity, we only provided the output gmt files in the data folder for the current distribution.  
 
 
 
