@@ -3,11 +3,11 @@
 
   load_all_libraries()
 
- load('./RData/benchmark_analysis.RData')
+ load('./RData/deg_benchmark_analysis.RData')
  load('./RData/analysis_lung_data.RData')
  load('./RData/analysis_HSMM_data.RData')
- load('./RData/analysis_other_supplementary_data.RData')
- load('./RData/shalek_data_analysis.RData')
+ load('./RData/analysis_distribution_fitting.RData')
+ load('./RData/analysis_shalek_data.RData')
 
 ##################################################fig1_si############################################################
   # quake_all_modes <- estimate_t(exprs(isoform_count_cds), return_all = T)

@@ -8,7 +8,7 @@ library(grid)
 
 ##load the data: 
 load('./RData/analysis_lung_data.RData')
-load('./RData/spikein_free_algorithm_benchmark.RData')
+load('./RData/spikein_free_algorithm_sampling.RData')
 #color scheme: 
 prog_cell_state = "#979797"
 AT1_cell_state = "#F05662" 
