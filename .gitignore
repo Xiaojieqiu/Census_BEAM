@@ -1,1 +1,5 @@
 data/
+*.RData
+*.Rdata
+*.xls
+*.pdf
