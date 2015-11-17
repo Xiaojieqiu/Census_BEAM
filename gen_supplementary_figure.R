@@ -177,7 +177,7 @@
   ################################################fig5_si##############################################################
   ####generate the SI figures for HSMM data: 
 
-  pdf('fig5a_si.pdf', width = 1.5, height = 1.2)
+  pdf('./supplementary_figures/fig5a_si.pdf', width = 1.5, height = 1.2)
   plot_spanning_tree(std_HSMM, color_by="Time", show_backbone=T, backbone_color = 'black',
       markers=NULL, show_cell_names = F, show_all_lineages = F, cell_size = 1, cell_link_size = 0.2) + nm_theme() #+ scale_size(range = c(0.5, .5)) 
   dev.off()
@@ -211,7 +211,7 @@
     row.names(std_HSMM_myo_pseudotime_res_ori[std_HSMM_myo_pseudotime_res_ori$qval <0.1, ]))
   sets_all <- c(rep(paste('Transcript counts (Size + VST)', sep = ''), nrow(HSMM_myo_size_norm_res[HSMM_myo_size_norm_res$qval <0.1, ])), 
               rep(paste('FPKM', sep = ''), nrow(std_HSMM_myo_pseudotime_res_ori[std_HSMM_myo_pseudotime_res_ori$qval <0.1, ])))
-  pdf('fig5d_si.pdf')
+  pdf('./supplementary_figures/fig5d_si.pdf')
   venneuler_venn(element_all, sets_all)
   dev.off()
   table(sets_all) #number of genes
