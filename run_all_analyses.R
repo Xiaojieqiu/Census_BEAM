@@ -43,7 +43,7 @@ Rscript analysis_lung_data.R
 ## Perform benchmark analysis for the spike-in free recovery algorithm
 Rscript spikein_free_algorithm_benchmark.R
 
-## Perform additional benchmark analysis
+## Perform additional benchmark analysis on DEG performance
 Rscript benchmark_analysis.R 
 
 ## Perform all analysis for the HSMM dataset

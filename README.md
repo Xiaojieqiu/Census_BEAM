@@ -51,7 +51,7 @@ Lung Data Analysis
 - analysis_lung_data.R (depends on results from prepare_lung_data.R)
 - gen_lung_figures.R (depends on results from analysis_lung_data.R, spikein_free_algorithm_benchmark.R, and benchmark_analysis.R)
 
-Benchmarking Analysis
+Benchmarking Analysis (spike-in free recovery algorithm and DEG benchmarking respectively)
 - spikein_free_algorithm_benchmark.R (depends on results from prepare_lung_data.R)
 - benchmark_analysis.R (depends on results from prepare_lung_data.R)
 
