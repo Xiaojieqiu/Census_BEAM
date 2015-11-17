@@ -3,7 +3,7 @@
 # submitted with manuscript, "Branched single-cell trajectories reveal regulators of cell fate decisions"
 #
 # Autmates all analysis and figure panel generation for the manuscript. Please see README.md for information
-# about dependencies and platform requirements, paticularly if you only plan to run particular analyses.
+# about dependencies and platform requirements, paticularly if you only plan to run certain analyses.
 #
 # No arguments required, simply run:
 # bash run_all_analyses.sh
@@ -23,7 +23,7 @@ tar -zxvf BEAM_analysis_data.tar.gz
 rm BEAM_analysis_data.tar.gz
 
 ## Make required directories to store figures and data that will be generated
-mkdir main_figures supplementary_figures supplementary_data tmp 
+mkdir main_figures supplementary_figures supplementary_data tmp RData
 
 
 #########################################################
@@ -40,11 +40,11 @@ Rscript prepare_lung_data.R
 ## Perform BEAM analysis for the lung dataset
 Rscript analysis_lung_data.R 
 
-## Perform benchmark analysis for the spike-in free recovery algorithm
-Rscript spikein_free_algorithm_benchmark.R
+## Sample m,c space to calculate the value for the optimization function used in the spike-in free recovery algorithm
+Rscript spikein_free_algorithm_sampling.R
 
-## Perform additional benchmark analysis on DEG performance
-Rscript benchmark_analysis.R 
+## Perform DEG analysis on DESeq, DESeq2, edgeR, SCDE and monocle to benchmark the DEG test performance
+Rscript deg_benchmark_analysis.R 
 
 ## Perform all analysis for the HSMM dataset
 Rscript analysis_HSMM_data.R 
@@ -55,8 +55,8 @@ Rscript analysis_UMI_data.R
 ## Perform analysis for the Shalek dataset
 Rscript analysis_shalek_data.R 
 
-# Perform analysis for making supplementary figures 
-Rscript analysis_other_supplementary_data.R 
+# Perform goodness of fit analysis on read counts or transcript counts data 
+Rscript analysis_distribution_fitting.R
 
 #########################################################
 # Figure Generation (WARNING: see README.md for dependency

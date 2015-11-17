@@ -23,10 +23,11 @@ bash run_all_analyses.sh
 
 Note that this script will first install all necessary R packages. Once the analysis has run the following folders and files will be populated:
 - data: Data to recreate the analysis (too large to provide with this distribution) are downloaded to this folder
-- main_figures: PDFs of panels from all figures in the main text that contain analysis (does not include diagrams) are saved here
-- supplementary_figures: PDFs of panels from all supplementary figures that contain analysis (does not include diagrams) are saved here
+- RData: RData files saving all objects generated in each particular script, will be used across different scripts. File names are equal to the corresponding script names.
+- main_figures: PDFs of panels from all figures in the main text that contain analysis (does not include cartoon diagrams) are saved here
+- supplementary_figures: PDFs of panels from all supplementary figures that contain analysis (does not include cartoon diagrams) are saved here
 - supplementary_data: XLS files of supplementary data submitted with the manuscript are saved here
-- temp: Temporary files (mostly RData files) for use across different scripts are saved here
+- temp: Temporary helper pdf files used in figure annontation during the manuscript preparation 
 
 ###Running portions of the analysis
 While running the provided script (run_all_analyses.sh) is the simplest option, in some cases, it may be desirable to run parts of the analysis in isolation. While we have tried to minimize dependencies between analyses, some dependencies must be considered if choosing this route.
@@ -49,11 +50,11 @@ Once this is complete, individual analyses may be run. The following is a list o
 Lung Data Analysis
 - prepare_lung_data.R (no dependencies)
 - analysis_lung_data.R (depends on results from prepare_lung_data.R)
-- gen_lung_figures.R (depends on results from analysis_lung_data.R, spikein_free_algorithm_benchmark.R, and benchmark_analysis.R)
+- gen_lung_figures.R (depends on results from analysis_lung_data.R, spikein_free_algorithm_sampling.R, and deg_benchmark_analysis.R)
 
 Benchmarking Analysis (spike-in free recovery algorithm and DEG benchmarking respectively)
-- spikein_free_algorithm_benchmark.R (depends on results from prepare_lung_data.R)
-- benchmark_analysis.R (depends on results from prepare_lung_data.R)
+- spikein_free_algorithm_sampling.R (depends on results from prepare_lung_data.R)
+- deg_benchmark_analysis.R (depends on results from prepare_lung_data.R)
 
 HSMM Data
 - analysis_HSMM_data.R (no dependencies)
@@ -65,9 +66,11 @@ gen_shalek_figures.R (depdends on results from analysis_shalek_data.R)
 Other:
 - analysis_UMI_data.R (no dependencies)
 - analysis_other_supplementary_data.R (depends on prepare_lung_data.R)  
-- gen_supplementary_figure.R (depends on results from analysis_lung_data.R, spikein_free_algorithm_benchmark>R, benchmark_analysis.R, analysis_other_supplementary_data.R, and analysis_HSMM_data.R)
+- gen_supplementary_figure.R (depends on results from analysis_lung_data.R, spikein_free_algorithm_sampling.R, deg_benchmark_analysis.R, analysis_distribution_fitting.R, and analysis_HSMM_data.R)
 
 ##Additional Information 
 We have also provided a Jupyter R notebook HTML file with all the figures generated in the manuscript included. This html file can be viewed for the main text and supplementary figures respectively at: 
 - Main Text Figures: http://www.gs.washington.edu/~xqiu/proj/BEAM/BEAM_jupyter_notebook/main_figures_notebook.html 
 - Supplementary Figures: http://www.gs.washington.edu/~xqiu/proj/BEAM/BEAM_jupyter_notebook/supplementary_figures_notebook.html
+
+For an example on how to run all the scripts in parallel using SGE, please refer to **run_all_analyses_parallel.R**. To enable to run in parallel on cluster, you may need to adapt this script to the configuration of your cluster.
