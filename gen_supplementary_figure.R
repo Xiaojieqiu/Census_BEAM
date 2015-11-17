@@ -131,7 +131,7 @@
   #read the read count data for the genes: 
   df <- data.frame(Time = pData(read_countdata_cds)$Time, sum_readcounts = esApply(read_countdata_cds[fData(read_countdata_cds)$biotype == 'spike', ], 2, sum))
   # qplot(sum_readcounts, fill = Time, log = 'x') + facet_wrap(~Time)
-  pdf('fig_4a_si.pdf', height = 3, width = 2)
+  pdf('./supplementary_figures/fig_4a_si.pdf', height = 3, width = 2)
   qplot(sum_readcounts, fill = Time, log = 'x', data = df) + facet_wrap(~Time, ncol = 1, scales = 'free_y') + nm_theme() 
   dev.off()
 
@@ -140,7 +140,7 @@
 
   ercc_controls_detected_df <- data.frame(loss = esApply(ercc_controls, 2, function(x) sum(x > 0)), Time = pData(absolute_cds[, colnames(loss_ercc_spikein)])$Time)
 
-  pdf('fig_4b_si.pdf', height = 3, width = 2)
+  pdf('./supplementary_figures/fig_4b_si.pdf', height = 3, width = 2)
   qplot(loss, fill = Time, data = ercc_controls_detected_df) + facet_wrap(~Time, ncol = 1) + nm_theme()
   dev.off()
   
@@ -170,7 +170,7 @@
   Shalek_gene_df <- data.frame(experiment_name = pData(Shalek_read_countdata_cds[, c(colnames(Shalek_abs_subset_ko_LPS), colnames(Shalek_golgi_update))])$experiment_name, 
                            sum_readcounts = esApply(Shalek_read_countdata_cds[, c(colnames(Shalek_abs_subset_ko_LPS), colnames(Shalek_golgi_update))], 2, sum))
 
-  pdf('fig_4c_si.pdf', height = 3, width = 2)
+  pdf('./supplementary_figures/fig_4c_si.pdf', height = 3, width = 2)
   qplot(sum_readcounts, fill = experiment_name, log = 'x', data = Shalek_gene_df) + facet_wrap(~~experiment_name, ncol = 1, scales = 'free_y') + nm_theme()
   dev.off()
 
@@ -183,7 +183,7 @@
   dev.off()
 
 
-  pdf('fig5b_si.pdf', width = 1.5, height = 1.2)
+  pdf('./supplementary_figures/fig5b_si.pdf', width = 1.5, height = 1.2)
   plot_spanning_tree(HSMM_myo, color_by="Time", show_backbone=T, backbone_color = 'black',
       markers=NULL, show_cell_names = F, show_all_lineages = F, cell_size = 1, cell_link_size = 0.2) + nm_theme() #+ scale_size(range = c(0.5, .5)) 
   dev.off()
@@ -203,7 +203,7 @@
       return(p)
   }
 
-  pdf('fig5c_si.pdf', width = 4, height = 2)
+  pdf('./supplementary_figures/fig5c_si.pdf', width = 4, height = 2)
   plot_tree_pairwise_cor2(std_HSMM, HSMM_myo) + nm_theme()
   dev.off()
 
@@ -230,7 +230,7 @@
   muscle_df[, 'Type'] <- c('Monocle', 'DESeq', 'DESeq', 'Monocle')
   colnames(muscle_df)[1:3] <- c('Precision', 'Recall', 'F1')
 
-  pdf('fig5e_si.pdf', width = 1.8, height = 1.5)
+  pdf('./supplementary_figures/fig5e_si.pdf', width = 1.8, height = 1.5)
   qplot(factor(Type), value, stat = "identity", geom = 'bar', position = 'dodge', fill = data_type, data = melt(muscle_df), log = 'y') + #facet_wrap(~variable) + 
       ggtitle(title) + scale_fill_discrete('Type') + xlab('') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
       ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + ylim(0, 1) + 
