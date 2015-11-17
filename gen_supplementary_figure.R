@@ -7,7 +7,7 @@
  load('analysis_lung_data.RData')
  load('analysis_HSMM_data.RData')
  load('analysis_other_supplementary_data.RData')
- load('halek_data_analysis.RData')
+ load('shalek_data_analysis.RData')
 
 ##################################################fig1_si############################################################
   # quake_all_modes <- estimate_t(exprs(isoform_count_cds), return_all = T)
