@@ -276,8 +276,8 @@
   colour[names(colour) == 'AT1'] <- AT1_Lineage
   colour[names(colour) == 'AT2'] <- AT2_Lineage
 
-  pdf('./supplementary_figures/fig6b.pdf', height = 1.5, width = 5)
-  plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[important_tf_ids, ], cell_color_by = "Time", lineage_labels = c('AT1', 'AT2'), 
+  pdf('./supplementary_figures/fig6b_si_kinetic_plots.pdf', height = 1.5, width = 5)
+  plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[important_tf_ids, ], cell_color_by = "State", lineage_labels = c('AT1', 'AT2'), 
       trajectory_color_by = "Lineage", trend_formula = '~sm.ns(Pseudotime, df = 3)*Lineage', normalize = F, stretch = T,
       cell_size = 1, ncol = 3, reducedModelFormulaStr = "~ sm.ns(Pseudotime, df=3)", add_pval = T) + 
       ylab('Transcript counts') + nm_theme()
