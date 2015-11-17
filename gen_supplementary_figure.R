@@ -3,9 +3,10 @@
 
   load_all_libraries()
 
-  load('benchmark_analysis.RData')
-  load('analysis_lung_data.RData')
-  load('analysis_HSMM_data.RData')
+ load('benchmark_analysis.RData')
+ load('analysis_lung_data.RData')
+ load('analysis_HSMM_data.RData')
+ load('analysis_other_supplementary_data.RData')
 
 ##################################################fig1_si############################################################
   # quake_all_modes <- estimate_t(exprs(isoform_count_cds), return_all = T)
@@ -21,13 +22,13 @@
   #                 Cell_mode = rep(log10(quake_all_modes[which(quake_all_modes$best_cov_dmode <= 2), 1]), each = nrow(isoform_count_cds)))
 
 
-  # pdf('./supplementary_figures/fig1a_si.pdf', width = 2, height = 3)
+  # pdf('./supplementary_figures/fig1a_si.pdf', width = 2.5, height = 2)
   # qplot(x = log10_FPKM, geom = 'histogram', data = three_cell_iso_df[, ], binwidth = .05, color = I('red'))  +
   #   geom_vline(aes(xintercept=log10(Cell_mode)), color = 'blue') + facet_wrap(~Cell_id) + xlim(-3, 5) + monocle_theme_opts() + xlab('log10 FPKM') + ylab('Isoform counts') + nm_theme()
   # dev.off()
 
   three_cells_cds <- data.frame(transcript = round(as.vector(exprs(absolute_cds)[1:38919, c("SRR1033854_0", "SRR1033855_0", "SRR1033856_0")])), 
-  read_counts = as.vector(exprs(quake_read_cds)[1:38919, c("SRR1033854_0", "SRR1033855_0", "SRR1033856_0")]), 
+  read_counts = as.vector(exprs(read_countdata_cds)[1:38919, c("SRR1033854_0", "SRR1033855_0", "SRR1033856_0")]), 
   cell = rep(c("SRR1033854_0", "SRR1033855_0", "SRR1033856_0"), each = 38919)
   )
 
@@ -40,8 +41,8 @@
   #     predict(model, newdata = data.frame(log_fpkm = cell_dmode), type = 'response')
   # }, as.list(unique(three_cell_iso_df$Cell_mode)), molModels_select[c(1,9,14)])
 
-  abs_gd_fit_res <- cal_gd_statistics(abs_gd_fit_df[, c('nb_pvalue', 'zinb_pvalue')], percentage = F, type = 'absolute', gene_list = valid_gene_id_20_cell)
-  readcount_gd_fit_res <- cal_gd_statistics(read_gd_fit_df[, c('nb_pvalue', 'zinb_pvalue')], percentage = F,  type = 'readcount', gene_list = valid_gene_id_20_cell)
+  abs_gd_fit_res <- cal_gd_statistics(abs_gd_fit_df[, c('nb_pvalue', 'zinb_pvalue')], percentage = F, type = 'absolute', gene_list = valid_genes)
+  readcount_gd_fit_res <- cal_gd_statistics(read_gd_fit_df[, c('nb_pvalue', 'zinb_pvalue')], percentage = F,  type = 'readcount', gene_list = valid_genes)
   gd_fit_res <- rbind(abs_gd_fit_res, readcount_gd_fit_res)
   gd_fit_res <- cbind(gd_fit_res, data_type = row.names(gd_fit_res))
   row.names(gd_fit_res) <- NULL
@@ -134,6 +135,8 @@
   dev.off()
 
   #number of ERCC spike-in detected in each cell
+  loss_ercc_spikein <- esApply(ercc_controls, 2, function(x) as.numeric(x < 10e-4))
+
   ercc_controls_detected_df <- data.frame(loss = esApply(ercc_controls, 2, function(x) sum(x > 0)), Time = pData(absolute_cds[, colnames(loss_ercc_spikein)])$Time)
 
   pdf('fig_4b_si.pdf', height = 3, width = 2)
@@ -147,7 +150,7 @@
   Shalek_norm_count <- Shalek_norm_count[, -1]
 
   Shalek_read_countdata <- round(t(t(Shalek_norm_count) * Shalek_sample_table$internal_scale)) #convert back to the raw counts 
-  Shalek_read_countdata <- Shalek_read_countdata[row.names(Shalek_abs), paste(colnames(Shalek_abs), '_0', sep = '')]
+  Shalek_read_countdata <- Shalek_read_countdata[row.names(Shalek_abs), colnames(Shalek_abs)]
   colnames(Shalek_read_countdata) <- colnames(Shalek_abs)
 
   Shalek_read_countdata_cds <- newCellDataSet(as.matrix(Shalek_read_countdata),
@@ -844,3 +847,4 @@ fdr_sensitivity <- function (est_pval, true_pval, TF_PN_vec, q_thrsld = 0.1, bet
   ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + nm_theme()
   dev.off()
 
+save.image('gen_supplementary_figure.RData')
