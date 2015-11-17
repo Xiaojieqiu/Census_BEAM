@@ -238,10 +238,10 @@
   # df3.1 <- rbind(df3.1, df3.1[c(4, 7), ])
   # df3.1 <- df3.1[c(1:8, 10:14), ]
   
-  pdf('./supplemental_figures/fig2a_si.pdf', width = 3, height = 2)
+  pdf('./supplementary_figures/fig2a_si.pdf', width = 3, height = 2)
   qplot(factor(Type), value, stat = "identity", geom = 'bar', position = 'dodge', fill = data_type, data = melt(df3.1)) + #facet_wrap(~variable) + 
   ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
-  ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank())
+  ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + nm_theme()
   dev.off()
 
   # distribution of pval vs the mean expression: 

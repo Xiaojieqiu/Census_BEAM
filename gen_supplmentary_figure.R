@@ -3,6 +3,7 @@
 
   load_all_libraries()
 
+  load('benchmark_analysis.RData')
   load('analysis_lung_data.RData')
   load('analysis_HSMM_data.RData')
 
@@ -837,7 +838,7 @@ fdr_sensitivity <- function (est_pval, true_pval, TF_PN_vec, q_thrsld = 0.1, bet
   fdr_sensitivity_df[, 'Type'] <- c('SCDE', 'SCDE', 'DESeq1', 'DESeq1', 'DESeq2', 'DESeq2', 'edgeR', 'edgeR', 'Monocle', 'Monocle', 'Monocle', 'Monocle') # geom_bar(stat = 'identity', position = 'dodge') 
   fdr_sensitivity_df[, 'data_type'] <- df3[, 'data_type']
 
-  pdf('cmpr_fpr_sensitivity.pdf', width = 3, height = 2)
+  pdf('./tmp/cmpr_fpr_sensitivity.pdf', width = 3, height = 2)
   qplot(factor(Type), value, stat = "identity", geom = 'bar', position = 'dodge', fill = data_type, data = melt(fdr_sensitivity_df)) + #facet_wrap(~variable) + 
   ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
   ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + nm_theme()
