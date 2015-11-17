@@ -94,18 +94,109 @@ dev.off()
 
 ##################################################fig3_si############################################################
 ##code needed to be integrated from Cole 
-
-
-
-
-
-
-
-
-
-
-
-
+library(cummeRbund)
+theme_set(theme_bw())
+theme_update(strip.text.x = element_text(colour="black", size=6),
+       strip.text.y = element_text(colour="black", size=6),
+       legend.title = element_text(colour="black", size = 6),
+       legend.text = element_text(colour="black", size = 6),
+             axis.text.x = element_text(colour="black", size = 6),
+             axis.title.x = element_text(colour="black", size = 6),
+             axis.text.y = element_text(colour="black", size = 6),
+             axis.title.y = element_text(colour="black", size = 6, angle=90)) 
+generate_multinomial_profiles <- function(expr_profile, mRNA_range=c(10000, 25000, 50000, 100000, 250000, 500000, 750000, 1000000)){
+  names(mRNA_range) <- mRNA_range
+  
+  res <- ldply(mRNA_range, function(mRNA_yield) {
+    
+      T <- rmultinom(1, mRNA_yield, expr_profile)
+      #trial_modes <- colHistMode(T)
+      data.frame(mRNA_yield=mRNA_yield, expression=T)
+    })
+  #res <- cbind(res)
+  #colnames(res) <- "mRNA_yield"
+  # res$mRNA_yield <- as.numeric(res$mRNA_yield)
+  res
+}
+#original_fpkm_dist <- IFM[,1]
+#write.table(IFM[,1], "hypothetical_rna_seq_profile.txt", sep="\t", row.names=F, col.names=F, quote=F)
+original_fpkm_dist <- as.vector(read.delim("./hypothetical_rna_seq_profile.txt", header=F)[,1])
+original_fpkm_dist <- original_fpkm_dist[original_fpkm_dist > 0.01]
+original_fpkm_dist <- original_fpkm_dist / sum(original_fpkm_dist)
+# Pick around 5,000 transcripts to "express" from this hypothetical cell, consistent
+# with what we typically see with current gen SC-RNA-Seq
+reduced_fpkm_dist <- original_fpkm_dist[sample(length(original_fpkm_dist), 5000)]
+reduced_fpkm_dist <- reduced_fpkm_dist / sum(reduced_fpkm_dist)
+profiles <- generate_multinomial_profiles(reduced_fpkm_dist)
+pdf("./supplementary_figures/RPC_dist_by_yield.pdf", width=5, height=2)
+qplot(expression, geom="histogram", data=profiles, log="x") + 
+  facet_wrap(~mRNA_yield, ncol=4) + 
+  scale_x_log10(breaks=c(1, 10, 100, 1000)) +
+   theme(axis.text.y=element_text(size=6)) +
+   theme(axis.text.x=element_text(size=6)) +
+   theme(axis.title.y=element_text(size=6)) +
+   theme(axis.title.x=element_text(size=6)) +
+   xlab("Expression (RPC)") +
+   ylab("Transcript isoforms") +
+   theme(panel.border = element_blank(), axis.line = element_line()) +
+   theme(panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) +
+   theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank()) +
+   theme(panel.background=element_blank()) +
+   theme(legend.position = "none") +
+   theme(strip.background = element_rect(colour = 'white', fill = 'white')) +
+   theme(strip.text = element_text(size=6))
+dev.off()
+pdf("./supplementary_figures/RPC_dist_sampled.pdf", width=2, height=2)
+qplot(reduced_fpkm_dist, geom="histogram", log="x") +
+theme(axis.text.y=element_text(size=6)) +
+   theme(axis.text.x=element_text(size=6)) +
+   theme(axis.title.y=element_text(size=6)) +
+   theme(axis.title.x=element_text(size=6)) +
+   xlab("Relative abundance") +
+   ylab("Genes") +
+   theme(panel.border = element_blank(), axis.line = element_line()) +
+   theme(panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) +
+   theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank()) +
+   theme(panel.background=element_blank()) +
+   theme(legend.position = "none") +
+   theme(strip.background = element_rect(colour = 'white', fill = 'white')) +
+   theme(strip.text = element_text(size=6))
+dev.off()
+pdf("./supplementary_figures/RPC_dist_orig.pdf", width=2, height=2)
+qplot(original_fpkm_dist, geom="histogram", log="x") +
+theme(axis.text.y=element_text(size=6)) +
+   theme(axis.text.x=element_text(size=6)) +
+   theme(axis.title.y=element_text(size=6)) +
+   theme(axis.title.x=element_text(size=6)) +
+   xlab("Relative abundance") +
+   ylab("Genes") +
+   theme(panel.border = element_blank(), axis.line = element_line()) +
+   theme(panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) +
+   theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank()) +
+   theme(panel.background=element_blank()) +
+   theme(legend.position = "none") +
+   theme(strip.background = element_rect(colour = 'white', fill = 'white')) +
+   theme(strip.text = element_text(size=6))
+dev.off()
+fpkm_dist_df <- rbind(data.frame(type="Bulk cell population", expression=original_fpkm_dist),
+            data.frame(type="Hypothetical single cell", expression=reduced_fpkm_dist))
+pdf("./supplementary_figures/RPC_dist_combined.pdf", width=2, height=2)
+qplot(expression, fill=type, data=fpkm_dist_df, geom="histogram", log="x") +
+facet_wrap(~type, ncol=1, scales="free_y")+
+theme(axis.text.y=element_text(size=6)) +
+   theme(axis.text.x=element_text(size=6)) +
+   theme(axis.title.y=element_text(size=6)) +
+   theme(axis.title.x=element_text(size=6)) +
+   xlab("Relative abundance") +
+   ylab("Transcript isoforms") +
+   theme(panel.border = element_blank(), axis.line = element_line()) +
+   theme(panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) +
+   theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank()) +
+   theme(panel.background=element_blank()) +
+   theme(legend.position = "none") +
+   theme(strip.background = element_rect(colour = 'white', fill = 'white')) +
+   theme(strip.text = element_text(size=6)) + scale_fill_brewer(palette="Set1")
+dev.off()
 
 ##################################################fig4_si############################################################
 #read the read count data for the genes: 

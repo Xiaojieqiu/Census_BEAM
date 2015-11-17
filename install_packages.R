@@ -4,7 +4,7 @@
             "lmtest", "MASS", "mixsmsn", "pheatmap", "plyr", "pscl", "RColorBrewer", "VennDiagram", "zoo", "raster", "colorRamps", "grid")
  install.packages(packages, repo = 'http://cran.fhcrc.org/')
 
- bio_packages = c("Biobase", "BiocGenerics",  "limma", "edgeR", "DESeq", "DESeq2", "piano")
+ bio_packages = c("Biobase", "BiocGenerics", "cummeRbund", "limma", "edgeR", "DESeq", "DESeq2", "piano")
  source("http://bioconductor.org/biocLite.R")
  biocLite(bio_packages)
 
