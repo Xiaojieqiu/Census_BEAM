@@ -3,11 +3,11 @@
 
   load_all_libraries()
 
- load('benchmark_analysis.RData')
- load('analysis_lung_data.RData')
- load('analysis_HSMM_data.RData')
- load('analysis_other_supplementary_data.RData')
- load('shalek_data_analysis.RData')
+ load('./RData/benchmark_analysis.RData')
+ load('./RData/analysis_lung_data.RData')
+ load('./RData/analysis_HSMM_data.RData')
+ load('./RData/analysis_other_supplementary_data.RData')
+ load('./RData/shalek_data_analysis.RData')
 
 ##################################################fig1_si############################################################
   # quake_all_modes <- estimate_t(exprs(isoform_count_cds), return_all = T)
@@ -848,4 +848,4 @@ fdr_sensitivity <- function (est_pval, true_pval, TF_PN_vec, q_thrsld = 0.1, bet
   ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + nm_theme()
   dev.off()
 
-save.image('gen_supplementary_figure.RData')
+save.image('./RData/gen_supplementary_figure.RData')

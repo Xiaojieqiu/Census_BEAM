@@ -1,4 +1,4 @@
-load('prepare_lung_data.RData')
+load('./RData/prepare_lung_data.RData')
   library(monocle)
   library(xacHelper)
 
@@ -28,4 +28,4 @@ optimization_landscape_3d <- mclapply(X = split(expand.grid(c(seq(-6, -1, length
 # # ggsave(filename = paste(elife_directory, 'eLife_fig4E.pdf', sep = ''), width = 1.38, height = 1.25)
 # dev.off()
 
-save.image('spikein_free_algorithm_benchmark.RData')
+save.image('./RData/spikein_free_algorithm_benchmark.RData')

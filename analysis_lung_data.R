@@ -3,7 +3,7 @@
 
   load_all_libraries()
 
-  load('prepare_lung_data.RData')
+  load('./RData/prepare_lung_data.RData')
   
   # specify states used for branchTest and calABCs
   progenitor_state <- 1
@@ -143,5 +143,5 @@
   #                                             integer_expression = FALSE,
   #                                             num = 5000)
   
-  save.image('analysis_lung_data.RData')
+  save.image('./RData/analysis_lung_data.RData')
 

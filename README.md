@@ -74,3 +74,9 @@ We have also provided a Jupyter R notebook HTML file with all the figures genera
 - Supplementary Figures: http://www.gs.washington.edu/~xqiu/proj/BEAM/BEAM_jupyter_notebook/supplementary_figures_notebook.html
 
 For an example on how to run all the scripts in parallel using SGE, please refer to **run_all_analyses_parallel.R**. To enable to run in parallel on cluster, you may need to adapt this script to the configuration of your cluster.
+
+##DHS analysis: 
+**Quake_intersect_dhs.sh** and **Shalek_intersect_dhs.sh** are the shell scripts used to perform the DHS analysis disussed in the supplementary file. For simplicity, we only provided the output gmt files in the data folder for the current reproduce.  
+
+
+

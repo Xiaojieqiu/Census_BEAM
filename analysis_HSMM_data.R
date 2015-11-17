@@ -229,4 +229,4 @@
   
   muscle_df$class = '3relative'
 
-  save.image('analysis_HSMM_data.RData')
+  save.image('./RData/analysis_HSMM_data.RData')

@@ -11,7 +11,7 @@ library(pheatmap)
 library(plyr)
 library(stringr)
 
-load('analysis_shalek_data.RData')
+load('./RData/analysis_shalek_data.RData')
 fig_root_dir = './main_figures/'
 shalek_custom_color_scale_plus_states= c(shalek_custom_color_scale, c('1'='#40A43A', '2'='#CB1B1E', '3'='#3660A5', 'Unstimulated_Replicate.' = 'gray'))
 
@@ -372,4 +372,4 @@ dev.off()
 
 # motif_enrich_plot_golgi + illustrator_theme() + ggsave(paste(fig_root_dir, "/figure_6_enrichment_heatmap.pdf", sep = ''), height = 2, width = 3)
 
-save.image('gen_shalek_figures.RData')
+save.image('./RData/gen_shalek_figures.RData')

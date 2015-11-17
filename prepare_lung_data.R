@@ -612,5 +612,5 @@
   mc_AT12_cds_subset_all_gene <- estimateDispersions(mc_AT12_cds_subset_all_gene)
 
   #save to the folder: 
- save.image('prepare_lung_data.RData')
+ save.image('./RData/prepare_lung_data.RData')
 

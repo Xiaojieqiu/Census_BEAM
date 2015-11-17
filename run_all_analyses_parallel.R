@@ -16,7 +16,7 @@
 #rm BEAM_analysis_data.tar.gz
 
 #make the directories to store the figures generatated in the script 
-mkdir main_figures supplementary_figures supplementary_data tmp 
+mkdir main_figures supplementary_figures supplementary_data tmp RData
 
 ################################################################################################
 #each of the following analysis can be run in parallel or separately: 
@@ -31,9 +31,9 @@ qsub -N prepare_lung_data -l mfree=100G Rscript prepare_lung_data.R
 #perform the BEAM analysis for the lung dataset
 qsub -N analysis_lung_data -hold_jid prepare_lung_data -l mfree=100G Rscript analysis_lung_data.R 
 #perform the analysis for the spike-in free algorithm
-qsub -N spikein_free_algorithm_benchmark -hold_jid prepare_lung_data -l mfree=100G Rscript spikein_free_algorithm_benchmark.R  ###test whether or not we can parallelize this? and make sure it will be avoided when testing on cluster
+qsub -N spikein_free_algorithm_sampling -hold_jid prepare_lung_data -l mfree=100G Rscript spikein_free_algorithm_sampling.R  ###test whether or not we can parallelize this? and make sure it will be avoided when testing on cluster
 #perform benchmark analysis
-qsub -N benchmark_analysis -hold_jid prepare_lung_data -l mfree=100G Rscript benchmark_analysis.R
+qsub -N deg_benchmark_analysis -hold_jid prepare_lung_data -l mfree=100G Rscript deg_benchmark_analysis.R
 ################################################################
 
 ################################################################
@@ -53,7 +53,7 @@ qsub -N analysis_shalek_data -l mfree=100G Rscript analysis_shalek_data.R
 
 ################################################################
 #perform the analysis for making supplementary figures 
-qsub -N analysis_other_supplementary_data -hold_jid prepare_lung_data -l mfree=100G Rscript analysis_other_supplementary_data.R 
+qsub -N analysis_distribution_fitting -hold_jid prepare_lung_data -l mfree=100G Rscript analysis_distribution_fitting.R 
 ################################################################
 
 
@@ -65,9 +65,9 @@ qsub -N analysis_other_supplementary_data -hold_jid prepare_lung_data -l mfree=1
 ################################################################################################
 #the following script can be run in parallel or separately: 
 #generate the figures: 
-qsub -N gen_lung_figures  -hold_jid analysis_lung_data,spikein_free_algorithm_benchmark,benchmark_analysis -l mfree=100G Rscript gen_lung_figures.R
+qsub -N gen_lung_figures  -hold_jid analysis_lung_data,spikein_free_algorithm_sampling,deg_benchmark_analysis -l mfree=100G Rscript gen_lung_figures.R
 qsub -N gen_shalek_figures -hold_jid analysis_shalek_data -l mfree=100G Rscript gen_shalek_figures.R
-qsub -N gen_supplementary_figure -hold_jid analysis_lung_data,spikein_free_algorithm_benchmark,benchmark_analysis,analysis_other_supplementary_data,analysis_HSMM_data -l mfree=100G Rscript gen_supplementary_figure.R 
+qsub -N gen_supplementary_figure -hold_jid analysis_lung_data,spikein_free_algorithm_sampling,deg_benchmark_analysis,analysis_distribution_fitting,analysis_HSMM_data -l mfree=100G Rscript gen_supplementary_figure.R 
 
 ################################################################################################
 #done 

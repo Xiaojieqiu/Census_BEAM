@@ -1,4 +1,4 @@
-  load('prepare_lung_data.RData')
+  load('./RData/prepare_lung_data.RData')
   library(monocle)
   library(xacHelper)
 
@@ -324,4 +324,4 @@
   # ggtitle('') + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank())
   # dev.off()
 
-  save.image('benchmark_analysis.RData')
+  save.image('./RData/benchmark_analysis.RData')

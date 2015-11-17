@@ -7,8 +7,8 @@ library(igraph)
 library(grid)
 
 ##load the data: 
-load('analysis_lung_data.RData')
-load('spikein_free_algorithm_benchmark.RData')
+load('./RData/analysis_lung_data.RData')
+load('./RData/spikein_free_algorithm_benchmark.RData')
 #color scheme: 
 prog_cell_state = "#979797"
 AT1_cell_state = "#F05662" 
@@ -485,4 +485,4 @@ dev.off()
 
 #########################################################################################################
 
-save.image('gen_lung_figures.RData')
+save.image('./RData/gen_lung_figures.RData')
