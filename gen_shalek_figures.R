@@ -43,60 +43,18 @@ ko_valid_expressed_genes <- row.names(subset(fData(Shalek_abs_subset_ko_LPS), nu
 
 Shalek_abs_subset_ko_LPS_heatmap_annotations = monocle::plot_genes_branched_heatmap(Shalek_abs_subset_ko_LPS[intersect(row.names(subset(ko_branching_genes, qval < 0.05)), ko_valid_expressed_genes) ,], num_clusters=6, norm_method = "vstExprs", file_name=paste(fig_root_dir, 'fig5c.pdf', sep = ''), cores=1, ABC_df=NULL, branchTest_df=ko_branching_genes, hmcols=NULL, lineage_labels = c('Normal cells', 'Knockout cells'))
 
-# #test the NA: (branchTest and the kinetic plots)
-# ko_branching_genes[row.names(subset(Shalek_abs_subset_ko_LPS_heatmap_annotations$annotation_row,  Cluster == 5)), ]
-
-#new function: 
-# cds_exprs <- buildLineageBranchCellDataSet(Shalek_abs_subset_ko_LPS[1:10, ])
-# colour_cell <- rep(0, length(cds_exprs$experiment_name))
-# names(colour_cell) <- as.character(cds_exprs$experiment_name)
-
-# color_scheme <- brewer.pal(4, "Set2")
-
-# colour_cell[names(colour_cell) == 'Ifnar1_KO_LPS'] <- color_scheme[1]
-# colour_cell[names(colour_cell) ==  'Stat1_KO_LPS'] <- color_scheme[2]
-# colour_cell[names(colour_cell) == 'LPS'] <- color_scheme[3]
-# colour_cell[names(colour_cell) ==  'On_Chip_Unstim'] <- color_scheme[4]
-
-# AT1_Lineage = "#BD1C7C"
-# AT2_Lineage = "#337DB9" 
-
-# colour <- rep(0, length(pData(cds_exprs)$Lineage))
-# names(colour) <- as.character(pData(cds_exprs)$Lineage)
-# names(colour)[pData(cds_exprs)$Lineage == '1'] <- 'Progenitor'
-# names(colour)[pData(cds_exprs)$Lineage == '2'] <- 'Normal'
-# names(colour)[pData(cds_exprs)$Lineage == '3'] <- 'Knockout'
-
-# plot_genes_branched_pseudotime2(Shalek_abs_subset_ko_LPS[row.names(subset(Shalek_abs_subset_ko_LPS_heatmap_annotations$annotation_row,  Cluster == 6)), ], cell_color_by = "experiment_name", lineage_labels = c('Normal', 'Knockout'), 
-# trajectory_color_by = "Lineage", fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', normalize = F, stretch = T,
-# cell_size = 1, ncol = 2, reducedModelFormulaStr = "~ sm.ns(Pseudotime, df=3)", add_pval = T) + 
-# ylab('Transcript counts') 
-
 # # Get hyper geometric GSA test results for different enrichment sets (GO, KEGG, reactome, etc.)
 Shalek_abs_subset_ko_LPS_tree_heatmap_clusters <- as.numeric(Shalek_abs_subset_ko_LPS_heatmap_annotations$annotation_row$Cluster)
 names(Shalek_abs_subset_ko_LPS_tree_heatmap_clusters) = fData(Shalek_abs_subset_ko_LPS[row.names(Shalek_abs_subset_ko_LPS_heatmap_annotations$annotation_row), ])$gene_short_name
 names(Shalek_abs_subset_ko_LPS_tree_heatmap_clusters) <- capitalize(tolower(names(Shalek_abs_subset_ko_LPS_tree_heatmap_clusters))) # normalize reactome terms names to all uppercase
 
-#Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_go <- collect_gsa_hyper_results(Shalek_abs_subset_ko_LPS, gsc = mouse_go_gsc, Shalek_abs_subset_ko_LPS_tree_heatmap_clusters)
 Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_reactome <- collect_gsa_hyper_results(Shalek_abs_subset_ko_LPS, gsc = mouse_reactome_gsc, Shalek_abs_subset_ko_LPS_tree_heatmap_clusters)
-# Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_kegg <- collect_gsa_hyper_results(Shalek_abs_subset_ko_LPS, gsc = mouse_kegg_gsc, Shalek_abs_subset_ko_LPS_tree_heatmap_clusters)
-# Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_go_cc <- collect_gsa_hyper_results(Shalek_abs_subset_ko_LPS, gsc = mouse_go_gsc_cc, Shalek_abs_subset_ko_LPS_tree_heatmap_clusters)
-# Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_go_mf <- collect_gsa_hyper_results(Shalek_abs_subset_ko_LPS, gsc = mouse_go_gsc_mf, Shalek_abs_subset_ko_LPS_tree_heatmap_clusters)
 
-## Plot each of the enrichment heatmaps (Reactome terms are the best)
-# plot_gsa_hyper_heatmap(Shalek_abs_subset_ko_LPS, Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_go, significance=1e-25) + illustrator_theme() + 
-# ggsave(filename = paste(fig_root_dir, 'figure_5D_go.pdf', sep = ''), height=15, width = 7)
 pdf(file =paste(fig_root_dir, 'fig5c_reactome.pdf', sep = ''), height = 15, width = 7)
 plot_gsa_hyper_heatmap(Shalek_abs_subset_ko_LPS, Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_reactome, significance=1e-3) + illustrator_theme() 
 dev.off()
 
 save_hyper_df(Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_reactome, './supplementary_data/ko_hyper_df.xls') 
-# plot_gsa_hyper_heatmap(Shalek_abs_subset_ko_LPS, Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_kegg, significance=1e-2) + illustrator_theme() + 
-# ggsave(filename = paste(fig_root_dir, 'figure_5D_kegg.pdf', sep = ''), height=12, width = 7)
-# plot_gsa_hyper_heatmap(Shalek_abs_subset_ko_LPS, Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_go_cc, significance=1e-10) + illustrator_theme() + 
-# ggsave(filename =paste(fig_root_dir, 'figure_5D_go_cc.pdf', sep = ''), height=12, width = 7)
-# plot_gsa_hyper_heatmap(Shalek_abs_subset_ko_LPS, Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_go_mf, significance=1e-10) + illustrator_theme() + 
-# ggsave(filename =paste(fig_root_dir, 'figure_5D_go_mf.pdf', sep = ''), height=12, width = 7)
 
 #overlap between branching genes: 
 #make the venn diagram for all the above analysis (Fig 6):
@@ -114,10 +72,8 @@ andrew_sets_all <- c(
 list(A = row.names(ko_Ifnar1_wt4[ko_Ifnar1_wt4$qval < .01, ]), #0to6
      B = row.names(ko_stat1_wt4[ko_stat1_wt4$qval < .01, ]), 
      C = row.names(subset(ko_branching_genes, qval < 0.01)))
-# save(branch_pseudotime_element_all, branch_pseudotime_sets_all, file = 'branchTest_cmpr_subset')
 
 pdf(file = paste('./tmp/', 'fig_SI_branchTest_cmpr.pdf', sep = ''), height = 2, width = 3)
-#pdf(file = paste(fig_root_dir, 'fig6_SI_ko_overlapping.pdf', sep = ''))
 venneuler_venn(andrew_element_all, andrew_sets_all)
 dev.off()
 
@@ -189,35 +145,15 @@ Shalek_golgi_update_heatmap_clusters = as.numeric(Shalek_golgi_update_heatmap_an
 names(Shalek_golgi_update_heatmap_clusters) = fData(Shalek_golgi_update[row.names(Shalek_golgi_update_heatmap_annotations$annotation_row), ])$gene_short_name
 names(Shalek_golgi_update_heatmap_clusters) <- capitalize(tolower(names(Shalek_golgi_update_heatmap_clusters))) # normalize reactome terms names to all uppercase
 
-# pdf(file = paste(fig_root_dir, 'fig6c_go.pdf', sep = ''), height = 20, width = 9)
-# Shalek_golgi_hyper_geometric_results = collect_gsa_hyper_results(Shalek_golgi_update, mouse_go_gsc, Shalek_golgi_update_heatmap_clusters)
-# plot_gsa_hyper_heatmap(Shalek_golgi_update, Shalek_golgi_hyper_geometric_results, significance=1e-2) 
-# dev.off()
-
 ## Get hyper geometric GSA test results for different enrichment sets (GO, KEGG, reactome, etc.)
 Shalek_golgi_hyper_geometric_results_reactome <- collect_gsa_hyper_results(Shalek_golgi_update, gsc = mouse_reactome_gsc, Shalek_golgi_update_heatmap_clusters)
-# Shalek_golgi_hyper_geometric_results_kegg <- collect_gsa_hyper_results(Shalek_golgi_update, gsc = mouse_kegg_gsc, Shalek_golgi_update_heatmap_clusters)
-# Shalek_golgi_hyper_geometric_results_go_cc <- collect_gsa_hyper_results(Shalek_golgi_update, gsc = mouse_go_gsc_cc, Shalek_golgi_update_heatmap_clusters)
-# Shalek_golgi_hyper_geometric_results_go_mf <- collect_gsa_hyper_results(Shalek_golgi_update, gsc = mouse_go_gsc_mf, Shalek_golgi_update_heatmap_clusters)
 
 ## Generate the heatmaps
 pdf(file = paste(fig_root_dir, 'fig6c_reactome.pdf', sep = ''), height = 30, width = 7)
 plot_gsa_hyper_heatmap(Shalek_golgi_update_heatmap_annotations, Shalek_golgi_hyper_geometric_results_reactome, significance=1e-4) + illustrator_theme() 
 dev.off()
-# plot_gsa_hyper_heatmap(Shalek_golgi_update_heatmap_annotations, Shalek_golgi_hyper_geometric_results_kegg, significance=1e-2) + illustrator_theme() + 
-# ggsave(paste(fig_root_dir, 'figure_6D_kegg.pdf', sep = ''), height=12, width = 7)
-# plot_gsa_hyper_heatmap(Shalek_golgi_update_heatmap_annotations, Shalek_golgi_hyper_geometric_results_go_cc, significance=1e-10) + illustrator_theme() + 
-# ggsave(paste(fig_root_dir, 'figure_6D_go_cc.pdf', sep = '') , height=12, width = 7)
-# plot_gsa_hyper_heatmap(Shalek_golgi_update_heatmap_annotations, Shalek_golgi_hyper_geometric_results_go_mf, significance=1e-10) + illustrator_theme() + 
-# ggsave(paste(fig_root_dir, 'figure_6D_go_mf.pdf', sep = '') , height=12, width = 7)
 
 save_hyper_df(Shalek_golgi_hyper_geometric_results_reactome, './supplementary_data/golgiplug_hyper_df.xls') 
-# save(branch_pseudotime_element_all, branch_pseudotime_sets_all, file = 'branchTest_cmpr_subset')
-
-# pdf(file = paste(fig_root_dir, 'fig_SI_branchTest_cmpr.pdf', sep = ''), height = 2, width = 3)
-#pdf(file = paste(fig_root_dir, 'fig6_SI_blocking.pdf', sep = ''))
-#venneuler_venn(andrew_element_all, andrew_sets_all)
-#dev.off()
 
 #########################################################################################################
 #panel d
@@ -255,34 +191,6 @@ pdf(file = paste('./tmp/', 'fig6_SI_enrichment.pdf', sep = ''), height = 1.2, wi
 qplot(cluster_id, gene_set, fill=sig, geom="tile", data=golgi_valid_hyper_df) + scale_fill_manual(values='black') + nm_theme() +
 coord_flip() + theme(axis.text.x = element_text(angle = 30, hjust = 1)) + xlab('') + ylab('')
 dev.off()
-
-# golgi_new_cds <- buildLineageBranchCellDataSet(Shalek_golgi_update[1:10, ], lineage_labels = c('Normal cells', 'GolgiPlug'))
-
-# colour_cell <- rep(0, length(golgi_new_cds$Lineage))
-# names(colour_cell) <- as.character(golgi_new_cds$State)
-# colour_cell[names(colour_cell) == '1'] <- prog_cell_state
-# colour_cell[names(colour_cell) == '2'] <- AT1_cell_state
-# colour_cell[names(colour_cell) == '3'] <- AT2_cell_state
-
-# colour <- rep(0, length(golgi_new_cds$Lineage))
-# names(colour) <- as.character(pData(golgi_new_cds)$Lineage)
-# colour[names(colour) == 'Normal cells'] <- AT1_Lineage
-# colour[names(colour) ==  'GolgiPlug'] <- AT2_Lineage
-
-# golgi_gene_grn_list <- infer_branch_gene_grn(cds = Shalek_golgi_update, branchTest_res = golgi_branching_genes, p_thrsld = 0.05,
-# TF_enrichment_gsc = TF_5k_enrichment_gsc, motif_tfs_all = c(motif_TFs, motif_TFs_add),
-# file = 'golgi_gene_regulatory_net_up5k')
-
-# branch_motif_Tfs <- golgi_gene_grn_list$branch_tfs[toupper(golgi_gene_grn_list$branch_tfs) %in% toupper(golgi_valid_hyper_df$first) | 
-#            toupper(golgi_gene_grn_list$branch_tfs) %in% toupper(golgi_valid_hyper_df$second)]
-# branch_motif_Tfs_id <- row.names(subset(fData(Shalek_golgi_update), toupper(gene_short_name) %in% branch_motif_Tfs)) 
-
-# pdf(file = paste(fig_root_dir, 'fig6_SI_branching_genes.pdf', sep = ''), height = 4, width = 15)
-# plot_genes_branched_pseudotime2(Shalek_golgi_update[branch_motif_Tfs_id, ], cell_color_by = "State", 
-#            trajectory_color_by = "Lineage", fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', normalize = F, stretch = T,
-#            lineage_labels = c('Normal cells', 'GolgiPlug'), cell_size = 1, ncol = 8, reducedModelFormulaStr = "~sm.ns(Pseudotime, df=3)", add_pval = T) + 
-#            ylab('Transcript counts') + nm_theme()
-# dev.off()
 
 ########################################################################################################
 #panel C: 
@@ -333,43 +241,5 @@ andrew_sets_all <- c(
 pdf(file = paste('./tmp/', 'fig6_golgi_branch_overlapping.pdf', sep = ''))
 venneuler_venn(andrew_element_all, andrew_sets_all)
 dev.off()
-
-# #TFs for the two group tests, jitter plots, violin plot and the corresponding kinetic plots: 
-# DEG_tf_list <- intersect(subset(golgi_plug0_wt0, qval < 1e-1)[, 'gene_short_name'],  c(motif_TFs, motif_TFs_add))
-# write.table(subset(golgi_plug0_wt0, qval < 1e-1)[, 'gene_short_name'], file = 'golgi_plug0_wt0_deg', quote = F, row.names= F, col.names=F)
-# write.table(subset(golgi_plug0_wt4, qval < 1e-1)[, 'gene_short_name'], file = 'golgi_plug0_wt4_deg', quote = F, row.names= F, col.names=F)
-
-# DEG_tf_ids <- row.names(subset(fData(Shalek_golgi_update), toupper(gene_short_name) %in% c(DEG_tf_list, 'TNF', 'IL6', 'IL-1')))
-
-# plot_genes_violin(Shalek_golgi_update[DEG_tf_ids, pData(Shalek_golgi_update)$time %in% c('4h_0h', '4h', '1h', '2h', '')], pvalue = golgi_plug0_wt0[DEG_tf_ids, 'pval'], grouping = "time", min_expr = 0.1,
-# cell_size = 0.75, nrow = NULL, ncol = 1, panel_order = NULL, color_by = 'time',
-# plot_trend = FALSE, label_by_short_name = TRUE,
-# outlier_rm_type = NULL)
-# ggsave('time_DEG.pdf', height = 10, width = 5)
-
-# plot_genes_violin(Shalek_golgi_update[DEG_tf_ids, ], pvalue = golgi_plug0_wt0[DEG_tf_ids, 'pval'], grouping = "time", min_expr = 0.1,
-# cell_size = 0.75, nrow = NULL, ncol = 1, panel_order = NULL, color_by = 'time',
-# plot_trend = FALSE, label_by_short_name = TRUE,
-# outlier_rm_type = NULL)
-# ggsave('time_DEG_all_time.pdf', height = 10, width = 8)
-
-# plot_genes_jitter(Shalek_golgi_update[DEG_tf_ids, pData(Shalek_golgi_update)$time %in% c('4h_0h', '4h', '1h', '2h', '')], #pvalue = golgi_plug0_wt0[DEG_tf_ids, 'pval'], 
-# grouping = "time", min_expr = 0.1,
-# cell_size = 0.75, nrow = NULL, ncol = 1, panel_order = NULL,
-# color_by = NULL, plot_trend = FALSE, label_by_short_name = TRUE,
-# )
-# # DEG_tf_ids <- row.names(subset(fData(Shalek_golgi_update), toupper(gene_short_name) %in% DEG_tf_list)) 
-# plot_genes_branched_pseudotime2(Shalek_golgi_update[DEG_tf_ids, ], cell_color_by = "State", 
-#            trajectory_color_by = "Lineage", fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', normalize = F, stretch = T,
-#            lineage_labels = c('Normal cells', 'GolgiPlug'), cell_size = 1, ncol = 8, reducedModelFormulaStr = "~sm.ns(Pseudotime, df=3)", add_pval = T) + 
-#            ylab('Transcript counts') #+ nm_theme()
-# ggsave(paste(fig_root_dir, 'fig6_SI_DEG_genes.pdf', sep = ''), height = 4, width = 15)
-
-#figure 6: for golgi-plug (Note that the GSC are the same): 
-# TF_enrichment_results_5k_golgi <- collect_gsa_hyper_results(Shalek_golgi_update[, ], TF_5k_enrichment_gsc, Shalek_golgi_update_heatmap_clusters)
-
-# motif_enrich_plot_golgi <- plot_gsa_hyper_heatmap(Shalek_golgi_update, TF_enrichment_results_5k_golgi, significance = 1e-1)
-
-# motif_enrich_plot_golgi + illustrator_theme() + ggsave(paste(fig_root_dir, "/figure_6_enrichment_heatmap.pdf", sep = ''), height = 2, width = 3)
 
 save.image('./RData/gen_shalek_figures.RData')

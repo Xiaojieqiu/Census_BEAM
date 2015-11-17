@@ -1,7 +1,3 @@
-# library(grid)
-# # library(DevTree)
-# library(monocle)
-
 shalek_custom_color_scale = c("Unstimulated."="#eff3ff", "On_Chip_Unstim."="#eff3ff", "LPS.1h"="#bdd7e7", "LPS.2h"="#6baed6", "LPS.4h"="#3182bd", "LPS.6h"="#08519c", "PIC.1h"="#bae4b3", "PIC.2h"="#74c476", "PIC.4h"="#31a354", "PIC.6h"="#006d2c", "PAM.1h"="#fdbe85", "PAM.2h"="#fd8d3c", "PAM.4h"="#e6550d", "PAM.6h"="#a63603", "LPS_GolgiPlug.4h_0h"="#fcae91", "LPS_GolgiPlug.4h_1h"="#fb6a4a", "LPS_GolgiPlug.4h_2h"="#cb181d", "Ifnar1_KO_LPS.2h"="#df65b0", "Ifnar1_KO_LPS.4h"="#dd1c77", "Stat1_KO_LPS.2h"="#969696", "Stat1_KO_LPS.4h"="#252525")
 
 get_monocle_hsmm <- function(fpkm_matrix_file, sample_sheet_file, gene_annotation_file) {
