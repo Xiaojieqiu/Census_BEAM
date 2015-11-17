@@ -244,4 +244,4 @@ pval_mean <- data.frame(std = std_permutate_pval, abs = mode_size_norm_permutate
                         mc_mean = apply(new_mc_cds_14_18[1:transcript_num, ], 1, mean), 
                         read_mean = apply(count_cds[1:transcript_num, ], 1, mean) )
 
-save.image('./RData/benchmark_analysis.RData')
+save.image('./RData/deg_benchmark_analysis.RData')
