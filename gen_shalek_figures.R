@@ -235,7 +235,7 @@ names(Shalek_golgi_update_heatmap_clusters) <- toupper(names(Shalek_golgi_update
 
 golgi_TF_enrichment_results_5k <- collect_gsa_hyper_results(Shalek_golgi_update[, ], TF_5k_enrichment_gsc, Shalek_golgi_update_heatmap_clusters)
 
-pdf(file = paste('./tmp/', 'figure_6d_motif_enrichment.pdf', sep = ''), height = 30, width = 7)
+pdf(file = paste('./tmp/', 'fig6d_motif_enrichment.pdf', sep = ''), height = 30, width = 7)
 golgi_motif_enrich_plot <- plot_gsa_hyper_heatmap(Shalek_golgi_update, golgi_TF_enrichment_results_5k, significance = 1e-1)
 dev.off()
 
