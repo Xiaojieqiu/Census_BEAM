@@ -353,13 +353,13 @@ mc_spikein_df$data_type = c("Spikein transcripts", "estimated transcripts")
 mc_spikein_df[, 'Type'] <- c('Monocle', 'Monocle') # geom_bar(stat = 'identity', position = 'dodge') 
 colnames(mc_spikein_df)[1:3] <- c('Precision', 'Recall', 'F1 score')
 
-pdf('./main_figures/fig_3h.pdf', width = 5, height = 1.5)
+pdf('./main_figures/fig3h.pdf', width = 1.7, height = 1.9)
 ggplot(aes(factor(Type), value,  fill = data_type), data = melt(mc_spikein_df)) + geom_bar(position = position_dodge(), stat = 'identity') + #facet_wrap(~variable) + 
 ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
 ggtitle('') + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + nm_theme() + xlab('') + theme(axis.text.x=element_blank(), axis.ticks.x=element_blank())
 dev.off()
 
-pdf('./tmp/fig_3h_helper.pdf', width = 3, height = 2)
+pdf('./tmp/fig3h_helper.pdf', width = 3, height = 2)
 ggplot(aes(factor(Type), value,  fill = data_type), data = melt(mc_spikein_df)) + geom_bar(position = position_dodge(), stat = 'identity') + #facet_wrap(~variable) + 
 ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
 ggtitle('') + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank())
