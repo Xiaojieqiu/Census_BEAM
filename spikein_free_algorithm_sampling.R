@@ -21,4 +21,4 @@ optimization_landscape_3d <- mclapply(X = split(expand.grid(c(seq(-6, -1, length
 # optimization_landscape_3d <- lapply(X = split(expand.grid(c(seq(-6, -1, length.out = 100), -4.403166,  as.numeric(mc_select[2])), 
 #                    c(seq(0, 4, length.out = 100), 2.77514, as.numeric(mc_select[1]))), 1:102^2), optim_mc_func_fix_c_test_optim)
 
-save.image('./RData/spikein_free_algorithm_benchmark.RData')
+save.image('./RData/spikein_free_algorithm_sampling.RData')
