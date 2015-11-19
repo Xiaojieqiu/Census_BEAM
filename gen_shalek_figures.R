@@ -121,12 +121,12 @@ scale_color_manual(values=shalek_custom_color_scale_plus_states) + illustrator_t
 dev.off()
 
 #help figures for adding the legend: 
-pdf(file = paste('./', 'fig6b_heplerA.pdf', sep = ''), height = 12, width = 12)
+pdf(file = paste('./supplementary_figures/', 'fig6b_heplerA.pdf', sep = ''), height = 12, width = 12)
 monocle::plot_spanning_tree(Shalek_golgi_update, color_by="interaction(experiment_name, time)", cell_size=1) + 
 scale_color_manual(values=shalek_custom_color_scale_plus_states) 
 dev.off()
 
-pdf(file = paste('./', 'fig6b_heplerB.pdf', sep = ''), height = 12, width = 12)
+pdf(file = paste('./supplementary_figures/', 'fig6b_heplerB.pdf', sep = ''), height = 12, width = 12)
 monocle::plot_spanning_tree(Shalek_golgi_update, color_by="State", cell_size=1) + 
 scale_color_manual(values=shalek_custom_color_scale_plus_states)
 dev.off()
