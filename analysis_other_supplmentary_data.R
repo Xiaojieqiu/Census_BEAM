@@ -1,4 +1,4 @@
-  # load('prepare_lung_data.RData')
+  load('./RData/prepare_lung_data.RData')
 
   library(monocle)
   library(xacHelper)
