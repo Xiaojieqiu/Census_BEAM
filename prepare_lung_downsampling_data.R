@@ -165,12 +165,12 @@ sample_sheet$Time[sample_sheet$age == "post natal day 107"] <- "Adult"
 ####################################################
 # Define files to read in and reorder according to depth
 ####################################################
-original_expression_matrix = "data/Quake_data/quake_lung/downsampled_normalized_out/7645000_cuffnorm_output/genes.fpkm_table"
-original_isoform_matrix = "data/Quake_data/quake_lung/downsampled_normalized_out/7645000_cuffnorm_output/isoforms.fpkm_table"
-gene_annotation = "data/Quake_data/quake_lung/downsampled_normalized_out/7645000_cuffnorm_output/genes.attr_table"
+original_expression_matrix = "data/Quake_data/downsampled_normalized_out/7645000_cuffnorm_output/genes.fpkm_table"
+original_isoform_matrix = "data/Quake_data/downsampled_normalized_out/7645000_cuffnorm_output/isoforms.fpkm_table"
+gene_annotation = "data/Quake_data/downsampled_normalized_out/7645000_cuffnorm_output/genes.attr_table"
 
-expression_matrices_to_compare = Sys.glob("data/Quake_data/quake_lung/downsampled_normalized_out/*_cuffnorm_output/genes.fpkm_table")
-isoform_matrices_to_compare = Sys.glob("data/Quake_data/quake_lung/downsampled_normalized_out/*_cuffnorm_output/isoforms.fpkm_table")
+expression_matrices_to_compare = Sys.glob("data/Quake_data/downsampled_normalized_out/*_cuffnorm_output/genes.fpkm_table")
+isoform_matrices_to_compare = Sys.glob("data/Quake_data/downsampled_normalized_out/*_cuffnorm_output/isoforms.fpkm_table")
 downsampled_depths = stringr::str_match(expression_matrices_to_compare, "([0-9]+)_cuffnorm_output")[,2]
 
 order_by_depth = order(as.numeric(as.character(downsampled_depths)))
