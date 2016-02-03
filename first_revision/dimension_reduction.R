@@ -1,6 +1,6 @@
 # Test different dimension reduction approaches
-load('./RData/prepare_lung_data.RData')
-load('./RData/analysis_shalek_data.RData')
+# load('./RData/prepare_lung_data.RData')
+# load('./RData/analysis_shalek_data.RData')
 
 library(lle)
 library(tsne)
@@ -91,8 +91,6 @@ reduceDimension_custom <- function (cds, max_components = 2, method = c("ICA", "
     }
 }
 
-```
-
 #test the LLE/tSNE function: 
 # LLE_dm <- LLE(log2(exprs(AT12_cds_subset) + 1 ))
 
@@ -118,25 +116,28 @@ reduceDimension_custom <- function (cds, max_components = 2, method = c("ICA", "
 
 lung_LLE_res <- reduceDimension_custom(AT12_cds_subset, method = LLE)
 pdf('./nbt_2nd_sub_reviewers/lung_LLE_dim_reduction.pdf', width = 3, height = 2)
-qplot(lung_LLE_res[1, ], lung_LLE_res[2, ], color = pData(AT12_cds_subset)$Time)
+qplot(lung_LLE_res[1, ], lung_LLE_res[2, ], color = pData(AT12_cds_subset)$Time) + 
+    xlab('LLE Reduce Dimension 1') + ylab('LLE Reduce Dimension 2') + nm_theme() 
 dev.off()
 
-lung_tsne_res <- reduceDimension(AT12_cds_subset, method = tSNE)
-pdf('./nbt_2nd_sub_reviewers/lung_LLE_dim_reduction.pdf', width = 3, height = 2)
-qplot(lung_tsne_res[1, ], lung_tsne_res[2, ], color = pData(AT12_cds_subset)$Time)
+lung_tsne_res <- reduceDimension_custom(AT12_cds_subset, method = tSNE)
+pdf('./nbt_2nd_sub_reviewers/lung_tsne_dim_reduction.pdf', width = 3, height = 2)
+qplot(lung_tsne_res[1, ], lung_tsne_res[2, ], color = pData(AT12_cds_subset)$Time) + 
+    xlab('tSNE Reduce Dimension 1') + ylab('tSNE Reduce Dimension 2') + nm_theme() 
 dev.off()
 
 # diffusion_maps_dm <- diffusion_maps(log2(exprs(AT12_cds_subset) + 1 ))
 # qplot(diffusion_maps_dm[1, ], diffusion_maps_dm[2, ], color = pData(AT12_cds_subset)$Time)
 
 
-#test on passing diffusion map to reduceDimension function: 
+#test on passing diffusion map to reduceDimension_custom function: 
 #note that diffusion map function is implemented in xacHelper helper package 
 #which is based on code from Fabian J. Theis1, etc. group. Destiny package can be also used 
 
-lung_diffusion_maps <- reduceDimension(AT12_cds_subset, method = diffusion_maps)
-pdf('./nbt_2nd_sub_reviewers/Shalek_dm_dim_reduction.pdf', width = 3, height = 2)
-qplot(lung_diffusion_maps[1, ], lung_diffusion_maps[2, ], color = pData(AT12_cds_subset)$Time)
+lung_diffusion_maps <- reduceDimension_custom(AT12_cds_subset, method = diffusion_maps)
+pdf('./nbt_2nd_sub_reviewers/lung_dm_dim_reduction.pdf', width = 3, height = 2)
+qplot(lung_diffusion_maps[1, ], lung_diffusion_maps[2, ], color = pData(AT12_cds_subset)$Time) + 
+    xlab('LLE Reduce Dimension 1') + ylab('LLE Reduce Dimension 2') + nm_theme() 
 dev.off()
 
 #################################### Shalek data ####################################
@@ -149,36 +150,42 @@ dev.off()
 #                                    lowerDetectionLimit=1)
 
 ko_LLE_res <- reduceDimension_custom(Shalek_abs_subset_ko_LPS, method = LLE)
-pdf('./nbt_2nd_sub_reviewers/Shalek_LLE_dim_reduction.pdf', width = 3, height = 2)
-qplot(ko_LLE_res[1, ], ko_LLE_res[2, ], color = pData(Shalek_abs_subset_ko_LPS)$Time) ##check
+pdf('./nbt_2nd_sub_reviewers/Shalek_ko_LLE_dim_reduction.pdf', width = 3, height = 2)
+qplot(ko_LLE_res[1, ], ko_LLE_res[2, ], color = pData(Shalek_abs_subset_ko_LPS)$stim_time) + ##check
+    xlab('LLE Reduce Dimension 1') + ylab('LLE Reduce Dimension 2') + nm_theme() 
 dev.off()
 
-ko_tsne_res <- reduceDimension(Shalek_abs_subset_ko_LPS, method = tSNE)
-pdf('./nbt_2nd_sub_reviewers/Shalek_LLE_dim_reduction.pdf', width = 3, height = 2)
-qplot(ko_tsne_res[1, ], ko_tsne_res[2, ], color = pData(Shalek_abs_subset_ko_LPS)$Time)
+ko_tsne_res <- reduceDimension_custom(Shalek_abs_subset_ko_LPS, method = tSNE)
+pdf('./nbt_2nd_sub_reviewers/Shalek_ko_tsne_dim_reduction.pdf', width = 3, height = 2)
+qplot(ko_tsne_res[1, ], ko_tsne_res[2, ], color = pData(Shalek_abs_subset_ko_LPS)$stim_time) + 
+    xlab('tSNE Reduce Dimension 1') + ylab('tSNE Reduce Dimension 2') + nm_theme() 
 dev.off()
 
-ko_diffusion_maps <- reduceDimension(Shalek_abs_subset_ko_LPS, method = diffusion_maps)
-pdf('./nbt_2nd_sub_reviewers/Shalek_dm_dim_reduction.pdf', width = 3, height = 2)
-qplot(ko_diffusion_maps[1, ], ko_diffusion_maps[2, ], color = pData(Shalek_abs_subset_ko_LPS)$Time)
+ko_diffusion_maps <- reduceDimension_custom(Shalek_abs_subset_ko_LPS, method = diffusion_maps)
+pdf('./nbt_2nd_sub_reviewers/Shalek_ko_dm_dim_reduction.pdf', width = 3, height = 2)
+qplot(ko_diffusion_maps[1, ], ko_diffusion_maps[2, ], color = pData(Shalek_abs_subset_ko_LPS)$stim_time) + 
+    xlab('DM Reduce Dimension 1') + ylab('DM Reduce Dimension 2') + nm_theme() 
 dev.off()
 
 Golgi_LLE_res <- reduceDimension_custom(Shalek_golgi_update, method = LLE)
-pdf('./nbt_2nd_sub_reviewers/Shalek_LLE_dim_reduction.pdf', width = 3, height = 2)
-qplot(Golgi_LLE_res[1, ], Golgi_LLE_res[2, ], color = pData(Shalek_golgi_update)$Time)
+pdf('./nbt_2nd_sub_reviewers/Shalek_golgi_LLE_dim_reduction.pdf', width = 3, height = 2)
+qplot(Golgi_LLE_res[1, ], Golgi_LLE_res[2, ], color = pData(Shalek_golgi_update)$stim_time) + 
+    xlab('LLE Reduce Dimension 1') + ylab('LLE Reduce Dimension 2') + nm_theme() 
 dev.off()
 
-Golgi_tsne_res <- reduceDimension(Shalek_golgi_update, method = tSNE)
-pdf('./nbt_2nd_sub_reviewers/Shalek_LLE_dim_reduction.pdf', width = 3, height = 2)
-qplot(Golgi_tsne_res[1, ], Golgi_tsne_res[2, ], color = pData(Shalek_golgi_update)$Time)
+Golgi_tsne_res <- reduceDimension_custom(Shalek_golgi_update, method = tSNE)
+pdf('./nbt_2nd_sub_reviewers/Shalek_golgi_tsne_dim_reduction.pdf', width = 3, height = 2)
+qplot(Golgi_tsne_res[1, ], Golgi_tsne_res[2, ], color = pData(Shalek_golgi_update)$stim_time) + 
+    xlab('tSNE Reduce Dimension 1') + ylab('tSNE Reduce Dimension 2') + nm_theme() 
 dev.off()
 
-Golgi_diffusion_maps <- reduceDimension(Shalek_golgi_update, method = diffusion_maps)
-pdf('./nbt_2nd_sub_reviewers/Shalek_dm_dim_reduction.pdf', width = 3, height = 2)
-qplot(Golgi_diffusion_maps[1, ], Golgi_diffusion_maps[2, ], color = pData(Shalek_golgi_update)$Time)
+Golgi_diffusion_maps <- reduceDimension_custom(Shalek_golgi_update, method = diffusion_maps)
+pdf('./nbt_2nd_sub_reviewers/Shalek_golgi_dm_dim_reduction.pdf', width = 3, height = 2)
+qplot(Golgi_diffusion_maps[1, ], Golgi_diffusion_maps[2, ], color = pData(Shalek_golgi_update)$stim_time) + 
+    xlab('DM Reduce Dimension 1') + ylab('DM Reduce Dimension 2') + nm_theme() 
 dev.off()
 
-save('./RData/dimension_reduction.RData')
+save.image('./RData/dimension_reduction.RData')
 
 
 

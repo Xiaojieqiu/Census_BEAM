@@ -41,7 +41,10 @@ dev.off()
 fData(Shalek_abs_subset_ko_LPS)$num_cell_expressed <- esApply(Shalek_abs_subset_ko_LPS[, ], 1, function(x) sum(round(x) > 0))
 ko_valid_expressed_genes <- row.names(subset(fData(Shalek_abs_subset_ko_LPS), num_cell_expressed > 5))
 
-Shalek_abs_subset_ko_LPS_heatmap_annotations = monocle::plot_genes_branched_heatmap(Shalek_abs_subset_ko_LPS[intersect(row.names(subset(ko_branching_genes, qval < 0.05)), ko_valid_expressed_genes) ,], num_clusters=6, norm_method = "vstExprs", file_name=paste(fig_root_dir, 'fig5c.pdf', sep = ''), cores=1, ABC_df=NULL, branchTest_df=ko_branching_genes, hmcols=NULL, lineage_labels = c('Normal cells', 'Knockout cells'))
+pdf(paste(fig_root_dir, 'fig5c.pdf', sep = ''))
+Shalek_abs_subset_ko_LPS_heatmap_annotations = monocle::plot_genes_branched_heatmap(Shalek_abs_subset_ko_LPS[intersect(row.names(subset(ko_branching_genes, qval < 0.05)), ko_valid_expressed_genes) ,], num_clusters=6, norm_method = "vstExprs", 
+    cores=detectCores(), ABC_df=NULL, branchTest_df=ko_branching_genes, hmcols=NULL, lineage_labels = c('Normal cells', 'Knockout cells'), return_all = T)
+dev.off()
 
 # # Get hyper geometric GSA test results for different enrichment sets (GO, KEGG, reactome, etc.)
 Shalek_abs_subset_ko_LPS_tree_heatmap_clusters <- as.numeric(Shalek_abs_subset_ko_LPS_heatmap_annotations$annotation_row$Cluster)
@@ -137,8 +140,10 @@ dev.off()
 fData(Shalek_golgi_update)$num_cell_expressed <- esApply(Shalek_golgi_update[, ], 1, function(x) sum(round(x) > 0))
 golgi_valid_expressed_genes <- row.names(subset(fData(Shalek_golgi_update), num_cell_expressed > 5))
 
+pdf(paste(fig_root_dir, 'fig6c.pdf', sep = ''))
 Shalek_golgi_update_heatmap_annotations = monocle::plot_genes_branched_heatmap(Shalek_golgi_update[intersect(row.names(subset(golgi_branching_genes, qval < 0.05)), golgi_valid_expressed_genes),], num_clusters=6, norm_method = "vstExprs", lineage_labels = c('Normal', 'Golgi Plug'), 
-file_name=paste(fig_root_dir, 'fig6c.pdf', sep = ''), cores=1, ABC_df=NULL, branchTest_df=golgi_branching_genes, hmcols=NULL)
+cores=detectCores(), ABC_df=NULL, branchTest_df=golgi_branching_genes, hmcols=NULL, return_all = T)
+dev.off()
 
 # Figure 6B annotations -- Enrichment analysis on clusters
 Shalek_golgi_update_heatmap_clusters = as.numeric(Shalek_golgi_update_heatmap_annotations$annotation_row$Cluster)
