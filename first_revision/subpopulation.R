@@ -1,0 +1,47 @@
+load('./RData/gen_shalek_figures.RData')
+
+library(monocle)
+library(xacHelper) #plot_clustering_heatmap
+library(pheatmap)
+library(colorRamps)
+
+#select unstimulated cells: 
+shalek_unstimulated_cells <- row.names(subset(pData(Shalek_golgi_update), experiment_name == 'Unstimulated_Replicate'))
+shalek_unstimulated_cells_cds <- Shalek_golgi_update[, shalek_unstimulated_cells]
+dim(shalek_unstimulated_cells_cds) #only 49 cells left
+
+#compare with the results from the immunity paper: 
+shalek_unstimulated_cells_cds <- reduceDimension(shalek_unstimulated_cells_cds, method = 'DDRTree')
+plot_spanning_tree(shalek_unstimulated_cells_cds) #
+
+#use the cluster cells function: 
+
+#use the list of genes from the paper: 
+fig6a_mac <- c('Ptplad2', '1810011H11Rik', 'Tlr4', 'Fgd4', 'Sqrdl', 
+	'Csf3r', 'Plod1', 'Tom1', 'Pld3', 'Tpp1', 'Ctsd', 'Lamp2', 'Pla2g4a', 
+	'Fcgr1', 'Mr1', 'Mertk', 'Cd14', 'Tbxas1', 'Fcgr1', 'Sepp1', 'Cd164', 'Tcn2',
+	'Dok3', 'Ctsl', 'Tspan14')
+
+fig6a_dc <- c('Adam19', 'Ccr7', 'Flt3', 'Gpr132', 'H2-Eb2', 'Hmgn3', 'Kit', 'Klri1', 
+	'Kmo', 'P2ry10', 'Pvrl1', 'Rab30', 'Slamf7', 'Traf1', 'Zbtb46', 'Dpp4', 'Runx3')
+
+fig6c_lps_response <- c('Ccl4', 'Ccl3', 'Cxcl2', 'Ccrl2', 'Tank', 'Cflar')
+
+fig6g <- c('Ifit2', 'Oasl2', 'Ifi204', 'Ddx58', 'Clec4e', 'Ifit3', 'iNos', 'Il19', 'Il12a', 'Ccl7', 'Ifnb1', 'Il33')
+
+marker_genes_paper <- c(fig6a_mac, fig6a_dc) #, fig6c_lps_response, fig6g
+
+#plot_clustering_heatmap from xacHelper package
+clustering_results <- plot_clustering_heatmap(shalek_unstimulated_cells_cds[fData(Shalek_golgi_update)$gene_short_name %in% marker_genes_paper, ])
+as.numeric(clustering_results$annotation_col$Cluster)
+
+Cluster_df <- data.frame(Cluster = factor(cutree(clustering_results$tree_col, 3)))
+pData(Shalek_golgi_update)$Clusters <- 0
+pData(Shalek_golgi_update)[row.names(Cluster_df), 'Clusters'] <- as.vector(Cluster_df$Cluster)
+
+#color the cells by the clusters from the heatmap: 
+pdf('./tmp/cluster_unstimulted_cells.pdf', height = 2, width = 3)
+plot_spanning_tree(Shalek_golgi_update, color = 'Clusters') + nm_theme()
+dev.off()
+
+save.image('./RData/subpopulation.RData')
