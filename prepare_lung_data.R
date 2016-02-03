@@ -151,7 +151,7 @@ row.names(fpkm_matrix_abs) <- row.names(fpkm_matrix)
 pd <- new("AnnotatedDataFrame", data = valid_cell_sample_sheet[colnames(fpkm_matrix_abs),])
 fd <- new("AnnotatedDataFrame", data = gene_ann[rownames(fpkm_matrix_abs),])
 
-absolute_cds <- newCellDataSet(fpkm_matrix_abs, 
+absolute_cds <- newCellDataSet(as.matrix(fpkm_matrix_abs), 
                                phenoData = pd, 
                                featureData = fd, 
                                expressionFamily=negbinomial(), 
@@ -246,7 +246,7 @@ count_matrix <- as.matrix(count_matrix)
 count_matrix <- count_matrix[row.names(isoform_ann),]
 count_matrix <- count_matrix[,row.names(valid_cell_sample_sheet)]
 
-isoform_count_cds <- newCellDataSet(count_matrix, 
+isoform_count_cds <- newCellDataSet(as.matrix(count_matrix), 
                                     phenoData = pd, 
                                     featureData = fd, 
                                     expressionFamily=negbinomial(), 
@@ -273,7 +273,7 @@ colnames(iso_norm_fpkms) <- colnames(exprs(isoform_count_cds))
 pd <- new("AnnotatedDataFrame", data = pData(isoform_count_cds))
 fd <- new("AnnotatedDataFrame", data = fData(isoform_count_cds))
 
-iso_absolute_cds <- newCellDataSet(iso_norm_fpkms, 
+iso_absolute_cds <- newCellDataSet(as.matrix(iso_norm_fpkms), 
                                phenoData = pd, 
                                featureData = fd, 
                                expressionFamily=negbinomial(), 
@@ -316,7 +316,7 @@ tpm_align <- tpm_align[tpm_align$value > 0.1, ]
 # qplot(value, log = 'x', geom = 'density', color = Var2, data = tpm_align) + theme_bw() + theme(legend.position = 'none') + xlab('TPM')
 # dev.off()
 
-TPM_cds <- newCellDataSet(TPM, 
+TPM_cds <- newCellDataSet(as.matrix(TPM), 
                           phenoData = new("AnnotatedDataFrame", data = pData(standard_cds)),
                           featureData = new("AnnotatedDataFrame", data = fData(standard_cds)),
                           expressionFamily=tobit(), 
@@ -324,7 +324,7 @@ TPM_cds <- newCellDataSet(TPM,
 pData(TPM_cds)$Total_mRNAs <- esApply(TPM_cds, 2, sum)
 pData(TPM_cds)$endogenous_RNA <- esApply(TPM_cds[1:transcript_num, ], 2, sum)
 
-TPM_ercc_controls <- newCellDataSet(TPM[row.names(ercc_controls), colnames(ercc_controls)], 
+TPM_ercc_controls <- newCellDataSet(as.matrix(TPM[row.names(ercc_controls), colnames(ercc_controls)]), 
                                     phenoData = new("AnnotatedDataFrame", data = pData(ercc_controls)),
                                     featureData = new("AnnotatedDataFrame", data = fData(ercc_controls)), 
                                     expressionFamily=tobit(), 
@@ -369,7 +369,7 @@ row.names(fpkm_matrix_abs_select) <- row.names(fpkm_matrix)
 pd <- new("AnnotatedDataFrame", data = pData(absolute_cds)[colnames(fpkm_matrix_abs),])
 fd <- new("AnnotatedDataFrame", data = fData(absolute_cds)[rownames(fpkm_matrix_abs),])
 
-absolute_cds_select <- newCellDataSet(fpkm_matrix_abs_select, 
+absolute_cds_select <- newCellDataSet(as.matrix(fpkm_matrix_abs_select), 
                                       phenoData = pd, 
                                       featureData = fd, 
                                       expressionFamily=negbinomial(), 
@@ -377,7 +377,7 @@ absolute_cds_select <- newCellDataSet(fpkm_matrix_abs_select,
 pd <- new("AnnotatedDataFrame", data = pData(isoform_count_cds)[colnames(isoform_count_cds),])
 fd <- new("AnnotatedDataFrame", data = fData(isoform_count_cds)[rownames(isoform_count_cds),])
 
-TPM_isoform_count_cds <- newCellDataSet(esApply(isoform_count_cds, 2, function(x) x / sum(x) * 10^6), 
+TPM_isoform_count_cds <- newCellDataSet(as.matrix(esApply(isoform_count_cds, 2, function(x) x / sum(x) * 10^6)), 
                                         phenoData = pd, 
                                         featureData = fd, 
                                         expressionFamily=tobit(), 
