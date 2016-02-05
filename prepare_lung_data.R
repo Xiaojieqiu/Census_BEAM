@@ -496,18 +496,13 @@ pData(AT12_cds_subset_all_gene)$Cell_type <- SRR_cell_type[colnames(AT12_cds_sub
 # use the tree construction information for the absolute_cds (we can also use use_for_ordering to generate the tree)
 #pData(absolute_cds) <- pData(AT12_cds_subset_all_gene)
 
-# the above tree construction approach can be better done with the use_for_ordering function: 
-test <- setOrderingFilter(standard_cds[, !(colnames(standard_cds) %in% paste(other_cell_names, "_0", sep = ''))], add_quake_gene_all_marker_ids)
-test <- reduceDimension(test[, !(colnames(test) %in% paste(other_cell_names, "_0", sep = ''))], use_irlba = F, use_vst = F, scaling = F, method = "ICA") 
-test <- orderCells(test, num_paths = 2, reverse = F) #SRR1033962_0 
-
 #lung data: update the cell states: 
 state_1_cell <- 'SRR1033942_0'
 State_3_cell <- 'SRR1034010_0'
 # State_3_cell <- 'Stat1_KO_LPS_4h_S22_0'
 root_state <- pData(AT12_cds_subset_all_gene[, state_1_cell])$State
 AT12_cds_subset_all_gene <- orderCells(Shalek_golgi_update, num_path = 2)
-if (pData(AT12_cds_subset_all_gene)['State_2_cell', 'State'] != 2) {
+if (pData(AT12_cds_subset_all_gene)[State_2_cell, 'State'] != 2) {
   State <- pData(AT12_cds_subset_all_gene)$State 
   pData(AT12_cds_subset_all_gene)$State[State == 3] <- 2
   pData(AT12_cds_subset_all_gene)$State[State == 2] <- 3
@@ -550,6 +545,15 @@ mc_AT12_cds_subset_all_gene <- mc_adj_cds[, colnames(AT12_cds_subset_all_gene)] 
 pData(mc_AT12_cds_subset_all_gene) <- pData(AT12_cds_subset_all_gene[, colnames(AT12_cds_subset_all_gene)])
 std_AT12_cds_subset_all_gene <- standard_cds[, colnames(AT12_cds_subset_all_gene)]
 pData(std_AT12_cds_subset_all_gene) <- pData(AT12_cds_subset_all_gene[, colnames(std_AT12_cds_subset_all_gene)])
+
+#pass cell ordering information as well: 
+abs_AT12_cds_subset_all_gene@auxOrderingData <- AT12_cds_subset_all_gene@auxOrderingData
+mc_AT12_cds_subset_all_gene@auxOrderingData <- AT12_cds_subset_all_gene@auxOrderingData
+std_AT12_cds_subset_all_gene@auxOrderingData <- AT12_cds_subset_all_gene@auxOrderingData
+
+abs_AT12_cds_subset_all_gene@dim_reduce_type <- 'ICA'
+mc_AT12_cds_subset_all_gene@dim_reduce_type <- 'ICA'
+std_AT12_cds_subset_all_gene@dim_reduce_type <- 'ICA'
 
 #estimate size and dispersion parameters
 absolute_cds <- estimateDispersions(absolute_cds)

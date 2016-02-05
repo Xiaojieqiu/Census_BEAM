@@ -129,8 +129,8 @@ State_3_cell <- 'Stat1_KO_LPS_4h_S22_0'
 
 #ko data: 
 root_state <- pData(Shalek_abs_subset_ko_LPS[, state_1_cell])$State
-Shalek_abs_subset_ko_LPS <- orderCells(Shalek_abs_subset_ko_LPS, num_path = 2)
-if (pData(Shalek_abs_subset_ko_LPS)['Stat1_KO_LPS_4h_S22_0', 'State'] != 3) {
+Shalek_abs_subset_ko_LPS <- orderCells(Shalek_abs_subset_ko_LPS, root_state = root_state, num_path = 2)
+if (pData(Shalek_abs_subset_ko_LPS)[State_3_cell, 'State'] != 3) {
   State <- pData(Shalek_abs_subset_ko_LPS)$State 
   pData(Shalek_abs_subset_ko_LPS)$State[State == 3] <- 2
   pData(Shalek_abs_subset_ko_LPS)$State[State == 2] <- 3
@@ -198,8 +198,8 @@ state_1_cell <- 'Unstimulated_Replicate_S75_0'
 State_2_cell <- 'LPS_6h_S48_0'
 # State_3_cell <- 'Stat1_KO_LPS_4h_S22_0'
 root_state <- pData(Shalek_golgi_update[, state_1_cell])$State
-Shalek_golgi_update <- orderCells(Shalek_golgi_update, num_path = 2)
-if (pData(Shalek_golgi_update)['State_2_cell', 'State'] != 2) {
+Shalek_golgi_update <- orderCells(Shalek_golgi_update, root_state = root_state, num_path = 2)
+if (pData(Shalek_golgi_update)[State_2_cell, 'State'] != 2) {
   State <- pData(Shalek_golgi_update)$State 
   pData(Shalek_golgi_update)$State[State == 3] <- 2
   pData(Shalek_golgi_update)$State[State == 2] <- 3

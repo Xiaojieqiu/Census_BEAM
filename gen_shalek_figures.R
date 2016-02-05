@@ -1,52 +1,52 @@
-# library(monocle)
-# library(xacHelper)
-# library(grid)
-# library(igraph)
-# library(RColorBrewer)
-# library(colorRamps)
-# library(R.utils)
-# library(piano)
-# library(venneuler)
-# library(pheatmap)
-# library(plyr)
-# library(stringr)
+library(monocle)
+library(xacHelper)
+library(grid)
+library(igraph)
+library(RColorBrewer)
+library(colorRamps)
+library(R.utils)
+library(piano)
+library(venneuler)
+library(pheatmap)
+library(plyr)
+library(stringr)
 
-# load('./RData/analysis_shalek_data.RData')
-# fig_root_dir = './main_figures/'
-# shalek_custom_color_scale_plus_states= c(shalek_custom_color_scale, c('1'='#40A43A', '2'='#CB1B1E', '3'='#3660A5', 'Unstimulated_Replicate.' = 'gray'))
+load('./RData/analysis_shalek_data.RData')
+fig_root_dir = './main_figures/'
+shalek_custom_color_scale_plus_states= c(shalek_custom_color_scale, c('1'='#40A43A', '2'='#CB1B1E', '3'='#3660A5', 'Unstimulated_Replicate.' = 'gray'))
 
-# #########################################################################################################
-# #figure 5: 
+#########################################################################################################
+#figure 5: 
 
-# #########################################################################################################
-# #panel b: 
-# pdf(file =paste(fig_root_dir, 'fig5b.pdf', sep = ''), height = 3, width = 3)
-# monocle::plot_spanning_tree(Shalek_abs_subset_ko_LPS, color_by="interaction(experiment_name, time)", cell_size=1) + 
-# scale_color_manual(values=shalek_custom_color_scale_plus_states) + illustrator_theme() 
-# dev.off()
+#########################################################################################################
+#panel b: 
+pdf(file =paste(fig_root_dir, 'fig5b.pdf', sep = ''), height = 3, width = 3)
+monocle::plot_spanning_tree(Shalek_abs_subset_ko_LPS, color_by="interaction(experiment_name, time)", cell_size=1) + 
+scale_color_manual(values=shalek_custom_color_scale_plus_states) + illustrator_theme() 
+dev.off()
 
-# #for making the legends: 
-# pdf(file =paste('./tmp/', 'fig5b_helpA.pdf', sep = ''), height = 3, width = 3)
-# monocle::plot_spanning_tree(Shalek_abs_subset_ko_LPS, color_by="interaction(experiment_name, time)", cell_size=1) + 
-# scale_color_manual(values=shalek_custom_color_scale_plus_states) + illustrator_theme() 
-# dev.off()
+#for making the legends: 
+pdf(file =paste('./tmp/', 'fig5b_helpA.pdf', sep = ''), height = 3, width = 3)
+monocle::plot_spanning_tree(Shalek_abs_subset_ko_LPS, color_by="interaction(experiment_name, time)", cell_size=1) + 
+scale_color_manual(values=shalek_custom_color_scale_plus_states) + illustrator_theme() 
+dev.off()
 
-# pdf(file =paste('./tmp/', 'fig5b_helpB.pdf', sep = ''), height = 3, width = 3)
-# monocle::plot_spanning_tree(Shalek_abs_subset_ko_LPS, color_by="State", cell_size=1) + 
-# scale_color_manual(values=shalek_custom_color_scale_plus_states) + illustrator_theme() 
-# dev.off()
+pdf(file =paste('./tmp/', 'fig5b_helpB.pdf', sep = ''), height = 3, width = 3)
+monocle::plot_spanning_tree(Shalek_abs_subset_ko_LPS, color_by="State", cell_size=1) + 
+scale_color_manual(values=shalek_custom_color_scale_plus_states) + illustrator_theme() 
+dev.off()
 
-# #########################################################################################################
-# #panel c: 
-# fData(Shalek_abs_subset_ko_LPS)$num_cell_expressed <- esApply(Shalek_abs_subset_ko_LPS[, ], 1, function(x) sum(round(x) > 0))
-# ko_valid_expressed_genes <- row.names(subset(fData(Shalek_abs_subset_ko_LPS), num_cell_expressed > 5))
+#########################################################################################################
+#panel c: 
+fData(Shalek_abs_subset_ko_LPS)$num_cell_expressed <- esApply(Shalek_abs_subset_ko_LPS[, ], 1, function(x) sum(round(x) > 0))
+ko_valid_expressed_genes <- row.names(subset(fData(Shalek_abs_subset_ko_LPS), num_cell_expressed > 5))
 
-# pdf(paste(fig_root_dir, 'fig5c.pdf', sep = ''))
-# Shalek_abs_subset_ko_LPS_heatmap_annotations = monocle::plot_genes_branched_heatmap(Shalek_abs_subset_ko_LPS[intersect(row.names(subset(ko_branching_genes, qval < 0.05)), ko_valid_expressed_genes) ,], num_clusters=6, norm_method = "vstExprs", 
-#     cores=detectCores(), ABC_df=NULL, branchTest_df=ko_branching_genes, hmcols=NULL, lineage_labels = c('Normal cells', 'Knockout cells'), return_all = T)
-# dev.off()
+pdf(paste(fig_root_dir, 'fig5c.pdf', sep = ''))
+Shalek_abs_subset_ko_LPS_heatmap_annotations = monocle::plot_genes_branched_heatmap(Shalek_abs_subset_ko_LPS[intersect(row.names(subset(ko_branching_genes, qval < 0.05)), ko_valid_expressed_genes) ,], num_clusters=6, norm_method = "vstExprs", 
+    cores=detectCores(), ABC_df=NULL, branchTest_df=ko_branching_genes, hmcols=NULL, lineage_labels = c('Normal cells', 'Knockout cells'), return_all = T)
+dev.off()
 
-# # Get hyper geometric GSA test results for different enrichment sets (GO, KEGG, reactome, etc.)
+# Get hyper geometric GSA test results for different enrichment sets (GO, KEGG, reactome, etc.)
 Shalek_abs_subset_ko_LPS_tree_heatmap_clusters <- as.numeric(Shalek_abs_subset_ko_LPS_heatmap_annotations$annotation_row$Cluster)
 names(Shalek_abs_subset_ko_LPS_tree_heatmap_clusters) = fData(Shalek_abs_subset_ko_LPS[row.names(Shalek_abs_subset_ko_LPS_heatmap_annotations$annotation_row), ])$gene_short_name
 names(Shalek_abs_subset_ko_LPS_tree_heatmap_clusters) <- capitalize(tolower(names(Shalek_abs_subset_ko_LPS_tree_heatmap_clusters))) # normalize reactome terms names to all uppercase
