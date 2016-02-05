@@ -123,6 +123,19 @@ Shalek_abs_subset_ko_LPS <- setOrderingFilter(Shalek_abs_subset_ko_LPS, order_ge
 Shalek_abs_subset_ko_LPS <- reduceDimension(Shalek_abs_subset_ko_LPS, use_vst = T, use_irlba=F, pseudo_expr = 0, residualModelFormulaStr = "~num_genes_expressed", scaling = F, method = "ICA")
 Shalek_abs_subset_ko_LPS <- orderCells(Shalek_abs_subset_ko_LPS, num_path = 2)
 
+state_1_cell <- 'Unstimulated_Replicate_S47_0'
+# State_2_cell <- 'LPS_4h_S59_0'
+State_3_cell <- 'Stat1_KO_LPS_4h_S22_0'
+
+#ko data: 
+root_state <- pData(Shalek_abs_subset_ko_LPS[, state_1_cell])$State
+Shalek_abs_subset_ko_LPS <- orderCells(Shalek_abs_subset_ko_LPS, num_path = 2)
+if (pData(Shalek_abs_subset_ko_LPS)['Stat1_KO_LPS_4h_S22_0', 'State'] != 3) {
+  State <- pData(Shalek_abs_subset_ko_LPS)$State 
+  pData(Shalek_abs_subset_ko_LPS)$State[State == 3] <- 2
+  pData(Shalek_abs_subset_ko_LPS)$State[State == 2] <- 3
+}
+
 # Figure 5C -- Heatmap
 # Detect branching genes and calulate ABCs and ILRs
 full_model_string = '~sm.ns(Pseudotime, df = 3)*Lineage'
@@ -180,6 +193,19 @@ golgi_order_genes <- c(row.names(subset(Shalek_golgi_update_subset_DEG_res, qval
 Shalek_golgi_update <- reduceDimension(Shalek_golgi_update, use_vst = T, use_irlba=F, pseudo_expr = 0, residualModelFormulaStr = "~num_genes_expressed", scaling = F, method = "ICA")
 Shalek_golgi_update <- orderCells(Shalek_golgi_update, num_path = 2)
 
+#gologi data: 
+state_1_cell <- 'Unstimulated_Replicate_S75_0'
+State_2_cell <- 'LPS_6h_S48_0'
+# State_3_cell <- 'Stat1_KO_LPS_4h_S22_0'
+root_state <- pData(Shalek_golgi_update[, state_1_cell])$State
+Shalek_golgi_update <- orderCells(Shalek_golgi_update, num_path = 2)
+if (pData(Shalek_golgi_update)['State_2_cell', 'State'] != 2) {
+  State <- pData(Shalek_golgi_update)$State 
+  pData(Shalek_golgi_update)$State[State == 3] <- 2
+  pData(Shalek_golgi_update)$State[State == 2] <- 3
+}
+
+lapply(cds_downsampled_cells_ordered, function(x) buildLineageBranchCellDataSet(x))
 # Figure 6C -- Heatmap of trajectory from 6A
 
 ## Perform branch test and calculate ABCs

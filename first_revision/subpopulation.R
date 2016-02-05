@@ -1,4 +1,4 @@
-load('./RData/gen_shalek_figures.RData')
+# load('./RData/analysis_shalek_data.RData')
 
 library(monocle)
 library(xacHelper) #plot_clustering_heatmap
@@ -9,10 +9,6 @@ library(colorRamps)
 shalek_unstimulated_cells <- row.names(subset(pData(Shalek_golgi_update), experiment_name == 'Unstimulated_Replicate'))
 shalek_unstimulated_cells_cds <- Shalek_golgi_update[, shalek_unstimulated_cells]
 dim(shalek_unstimulated_cells_cds) #only 49 cells left
-
-#compare with the results from the immunity paper: 
-shalek_unstimulated_cells_cds <- reduceDimension(shalek_unstimulated_cells_cds, method = 'DDRTree')
-plot_spanning_tree(shalek_unstimulated_cells_cds) #
 
 #use the cluster cells function: 
 
@@ -43,5 +39,13 @@ pData(Shalek_golgi_update)[row.names(Cluster_df), 'Clusters'] <- as.vector(Clust
 pdf('./tmp/cluster_unstimulted_cells.pdf', height = 2, width = 3)
 plot_spanning_tree(Shalek_golgi_update, color = 'Clusters') + nm_theme()
 dev.off()
+
+#compare with the results from the immunity paper: 
+# shalek_unstimulated_cells_cds <- reduceDimension(shalek_unstimulated_cells_cds, method = 'DDRTree', ncenter = 2)
+# pData(shalek_unstimulated_cells_cds)$Clusters <- 0
+# pData(shalek_unstimulated_cells_cds)[row.names(Cluster_df), 'Clusters'] <- as.vector(Cluster_df$Cluster)
+# pdf('./tmp/unstimulated_DDRTree.pdf', height = 2, width = 3)
+# plot_spanning_tree(shalek_unstimulated_cells_cds, color = 'Clusters') #
+# dev.off()
 
 save.image('./RData/subpopulation.RData')

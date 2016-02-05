@@ -185,9 +185,32 @@ qplot(Golgi_diffusion_maps[1, ], Golgi_diffusion_maps[2, ], color = pData(Shalek
     xlab('DM Reduce Dimension 1') + ylab('DM Reduce Dimension 2') + nm_theme() 
 dev.off()
 
+lung_pca <- reduceDimension_custom(AT12_cds_subset, method = PCA)
+pdf('./nbt_2nd_sub_reviewers/lung_pca_dim_reduction.pdf', width = 3, height = 2)
+qplot(lung_pca[1, ], lung_pca[2, ], color = pData(AT12_cds_subset)$Time) + 
+    xlab('PCA Reduce Dimension 1') + ylab('PCA Reduce Dimension 2') + nm_theme() 
+dev.off()
+
+ko_pca <- reduceDimension_custom(Shalek_abs_subset_ko_LPS, method = PCA)
+pdf('./nbt_2nd_sub_reviewers/Shalek_ko_pca_dim_reduction.pdf', width = 3, height = 2)
+qplot(ko_pca[1, ], ko_pca[2, ], color = pData(Shalek_abs_subset_ko_LPS)$stim_time) + 
+    xlab('PCA Reduce Dimension 1') + ylab('PCA Reduce Dimension 2') + nm_theme() 
+dev.off()
+
+Golgi_pca <- reduceDimension_custom(Shalek_golgi_update, method = PCA)
+pdf('./nbt_2nd_sub_reviewers/Shalek_golgi_pca_dim_reduction.pdf', width = 3, height = 2)
+qplot(Golgi_pca[1, ], Golgi_pca[2, ], color = pData(Shalek_golgi_update)$stim_time) + 
+    xlab('PCA Reduce Dimension 1') + ylab('PCA Reduce Dimension 2') + nm_theme() 
+dev.off()
+
+#pca analysis too: 
+PCA <- function(data, ...) {
+    res <- prcomp(data, center = F, scale = F)
+    t(res$rotation[, 1:2])
+}
+
+
 save.image('./RData/dimension_reduction.RData')
-
-
 
 
 

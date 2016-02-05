@@ -501,10 +501,17 @@ test <- setOrderingFilter(standard_cds[, !(colnames(standard_cds) %in% paste(oth
 test <- reduceDimension(test[, !(colnames(test) %in% paste(other_cell_names, "_0", sep = ''))], use_irlba = F, use_vst = F, scaling = F, method = "ICA") 
 test <- orderCells(test, num_paths = 2, reverse = F) #SRR1033962_0 
 
-# switch the state 2/3 to ensure that we get the exact plots in the paper: 
-State <- pData(AT12_cds_subset_all_gene)$State
-pData(AT12_cds_subset_all_gene)$State[State == 2] <- 3
-pData(AT12_cds_subset_all_gene)$State[State == 3] <- 2
+#lung data: update the cell states: 
+state_1_cell <- 'SRR1033942_0'
+State_3_cell <- 'SRR1034010_0'
+# State_3_cell <- 'Stat1_KO_LPS_4h_S22_0'
+root_state <- pData(AT12_cds_subset_all_gene[, state_1_cell])$State
+AT12_cds_subset_all_gene <- orderCells(Shalek_golgi_update, num_path = 2)
+if (pData(AT12_cds_subset_all_gene)['State_2_cell', 'State'] != 2) {
+  State <- pData(AT12_cds_subset_all_gene)$State 
+  pData(AT12_cds_subset_all_gene)$State[State == 3] <- 2
+  pData(AT12_cds_subset_all_gene)$State[State == 2] <- 3
+}
 
 # do the same thing with transcript counts data: 
 absolute_cds@expressionFamily <- tobit()
