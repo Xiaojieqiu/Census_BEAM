@@ -178,7 +178,7 @@ names(readcount_permutate_pval) <- names(readcount_split_cds)
 # two-group permutation tests (the same as above)
 readcount_permutate_pval <- permu_two_group_gen(count_cds[, Time_order], alpha = 43, beta = 60, grp0 = 'E14.5', grp1 = 'E18.5', group = pData(count_cds)$Time)
 
-permutation results for two group test on the normalized absolute value (gold standard for DESEeq / SCDE on readcount data): 
+# permutation results for two group test on the normalized absolute value (gold standard for DESEeq / SCDE on readcount data): 
 mode_size_norm_permutate_ratio_by_geometric_mean <- cal_perm_pval_size_norm(new_abs_cds_14_18[1:transcript_num, Time_order], alpha = 43, beta = 60)
 mc_mode_size_norm_permutate_ratio_by_geometric_mean <- cal_perm_pval_size_norm(new_mc_cds_14_18[1:transcript_num, Time_order], alpha = 43, beta = 60)
 

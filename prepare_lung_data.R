@@ -501,8 +501,8 @@ state_1_cell <- 'SRR1033942_0'
 State_3_cell <- 'SRR1034010_0'
 # State_3_cell <- 'Stat1_KO_LPS_4h_S22_0'
 root_state <- pData(AT12_cds_subset_all_gene[, state_1_cell])$State
-AT12_cds_subset_all_gene <- orderCells(Shalek_golgi_update, num_path = 2)
-if (pData(AT12_cds_subset_all_gene)[State_2_cell, 'State'] != 2) {
+AT12_cds_subset_all_gene <- orderCells(AT12_cds_subset_all_gene, root_state = root_state, num_path = 2)
+if (pData(AT12_cds_subset_all_gene)[State_3_cell, 'State'] != 3) {
   State <- pData(AT12_cds_subset_all_gene)$State 
   pData(AT12_cds_subset_all_gene)$State[State == 3] <- 2
   pData(AT12_cds_subset_all_gene)$State[State == 2] <- 3
