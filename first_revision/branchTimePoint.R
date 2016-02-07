@@ -1,4 +1,4 @@
-load('./RData/gen_shalek_figures.RData')
+load('./RData/analysis_shalek_data.RData')
 load('./RData/gen_lung_figures.RData')
 library(monocle)
 library(xacHelper)
@@ -11,28 +11,31 @@ library(grid)
 bifurcation_time  = abs(all_abs_bifurcation_time[branch_motif_Tfs_id])
 
 names(bifurcation_time) <- fData(abs_AT12_cds_subset_all_gene[branch_motif_Tfs_id, ])$gene_short_name
-pdf('./main_figures/fig4d_branch_time.pdf', height = 4, width = 6)
-plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[branch_motif_Tfs_id, ], color_by = "State", trajectory_color_by = 'Lineage', #panel_order = names(bifurcation_time),
-  fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', reducedModelFormulaStr = '~sm.ns(Pseudotime, df = 3)', normalize = T, stretch = T,
-  lineage_labels = c('AT1', 'AT2'), cell_size = 1, ncol = 2, bifurcation_time  = abs(bifurcation_time)) + nm_theme()+ ylab('Transcript counts') + xlab('Pseudotime')
-dev.off()
+# pdf('./main_figures/fig4d_branch_time.pdf', height = 4, width = 6)
+# plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[branch_motif_Tfs_id, ], color_by = "State", trajectory_color_by = 'Lineage', #panel_order = names(bifurcation_time),
+#   fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', reducedModelFormulaStr = '~sm.ns(Pseudotime, df = 3)', normalize = T, stretch = T,
+#   lineage_labels = c('AT1', 'AT2'), cell_size = 1, ncol = 2, bifurcation_time  = abs(bifurcation_time)) + nm_theme()+ ylab('Transcript counts') + xlab('Pseudotime')
+# dev.off()
 
 #Shalek data: 
 #
-weighted_abs_Shalek_KO_subset_all_gene_ILRs_list <- calILRs(cds = Shalek_abs_subset_ko_LPS[, ], lineage_states = c(2, 3), stretch = T, cores = 1, 
+weighted_abs_Shalek_KO_subset_all_gene_ILRs_list <- calILRs(cds = Shalek_abs_subset_ko_LPS[, ], lineage_states = c(2, 3), stretch = T, cores = detectCores(), 
     trend_formula = "~sm.ns(Pseudotime, df = 3) * Lineage", ILRs_limit = 3, 
     relative_expr = T, weighted = T, label_by_short_name = F, 
     useVST = T, round_exprs = FALSE, pseudocount = 0, output_type = "all", file = "weighted_abs_Shalek_KO_subset_all_gene_ILRs_list", return_all = T)
 
-duplicate_progenitors_weighted_abs_Shalek_KO_subset_all_gene_ILRs_list <- calILRs(cds = Shalek_abs_subset_ko_LPS[, ], lineage_states = c(2, 3), stretch = T, cores = 1, 
+duplicate_progenitors_weighted_abs_Shalek_KO_subset_all_gene_ILRs_list <- calILRs(cds = Shalek_abs_subset_ko_LPS[, ], lineage_states = c(2, 3), stretch = T, cores = detectCores(), 
     trend_formula = "~sm.ns(Pseudotime, df = 3) * Lineage", ILRs_limit = 3, progenitor_method = 'duplicate', 
     relative_expr = T, weighted = T, label_by_short_name = F, 
     useVST = T, round_exprs = FALSE, pseudocount = 0, output_type = "all", file = "duplicate_progenitors_weighted_abs_Shalek_KO_subset_all_gene_ILRs_list", return_all = T)
 
 #find the MST branching point: 
-test <- buildLineageBranchCellDataSet(Shalek_abs_subset_ko_LPS, stretch=T)
+new_cds <- buildLineageBranchCellDataSet(Shalek_abs_subset_ko_LPS, stretch=T)
 
-MST_branch_time <- range(pData(Shalek_abs_subset_ko_LPS[, pData(Shalek_abs_subset_ko_LPS)$State == 2])[, 'Pseudotime'])
+MST_branch_range <- range(pData(Shalek_abs_subset_ko_LPS[, pData(Shalek_abs_subset_ko_LPS)$State == 1])[, 'Pseudotime'])
+test <- (pData(Shalek_abs_subset_ko_LPS)$Pseudotime - MST_branch_range[2])
+first_branching_cell <- colnames(Shalek_abs_subset_ko_LPS)[which(abs(test) == min(abs(test)))]
+MST_branch_time <- round(pData(new_cds)[first_branching_cell, 'Pseudotime'])
 subset_MST_branch_abs_ko_bifurcation_time <- detectBifurcationPoint(duplicate_progenitors_weighted_abs_Shalek_KO_subset_all_gene_ILRs_list$norm_str_logfc_df[, ]) #weighted_abs_Shalek_KO_subset_all_gene_ILRs_list
 all_abs_ko_bifurcation_time <- detectBifurcationPoint(duplicate_progenitors_weighted_abs_Shalek_KO_subset_all_gene_ILRs_list$norm_str_logfc_df[, MST_branch_time:100]) #weighted_abs_Shalek_KO_subset_all_gene_ILRs_list
 
@@ -135,26 +138,114 @@ valid_ko_branch_gene_names <- as.character(fData(Shalek_abs_subset_ko_LPS[valid_
 branching_TF_TF_5k_enrichment_gsc <- lapply(enrich_branching_TF_gsc_names, function(x) intersect(toupper(TF_5k_enrichment_gsc$gsc[[x]]), toupper(valid_ko_branch_gene_names)))
 
 #targets of genes for each enriched branching TF at the CORRESPONDING enriched clusters 
-#calculate the 
-names(all_abs_bifurcation_time_gene_names) <- toupper(names(all_abs_bifurcation_time_gene_names))
-significant_branching_TF_TF_5k_enrichment_gsc <- lapply(enrich_branching_TF_gsc_names, function(x) {
-	res <- intersect(toupper(TF_5k_enrichment_gsc$gsc[[x]]), 
-		toupper(names(Shalek_abs_subset_ko_LPS_tree_heatmap_clusters[Shalek_abs_subset_ko_LPS_tree_heatmap_clusters %in% c(5)])))
-	print(res)
-	data.frame(regulators = x, targets = res, branching_time = all_abs_bifurcation_time_gene_names[res], regulators_time = all_abs_bifurcation_time_gene_names[toupper(x)])
-})
+#function to create a data frame storing all the branching time for the regulators and their targets:  
+gen_branchTime_df <- function(cds = Shalek_golgi_update, branch_time = all_abs_ko_bifurcation_time, gene_clusters  = Shalek_abs_subset_ko_LPS_tree_heatmap_clusters, clusters_id = 5, 
+	enrich_branching_TF_gsc_names) {
+	all_abs_bifurcation_time_gene_names <- branch_time
+	names(all_abs_bifurcation_time_gene_names) <- toupper(fData(cds[names(branch_time), ])$gene_short_name)
+	significant_branching_TF_TF_5k_enrichment_gsc <- lapply(enrich_branching_TF_gsc_names, function(x) {
+		res <- intersect(toupper(TF_5k_enrichment_gsc$gsc[[x]]), 
+			toupper(names(gene_clusters[gene_clusters %in% clusters_id])))
+		message('res is', res)
+		regulator_time <- NA
+		if(length(res) <= 1)
+			return(data.frame(regulators = x, targets = NA, branching_time = NA, regulators_time = regulator_time))
 
-df <- do.call(rbind.data.frame, significant_branching_TF_TF_5k_enrichment_gsc)
-branching_tf_df <- data.frame(regulators = enrich_branching_TF_gsc_names, 
-								all_abs_bifurcation_time_gene_names[enrich_branching_TF_gsc_names]))
+		res <- intersect(res, names(all_abs_bifurcation_time_gene_names))
 
-pdf('tmp/ko_regulation_hierarchy.pdf', width = 3, height = 3)
-qplot(regulators, abs(branching_time), color = regulators, geom = c('boxplot'), 
-	data = subset(df, abs(branching_time) > 10), alpha = I(0.5), log = 'y') + 
+		regulator_time <- all_abs_bifurcation_time_gene_names[toupper(x)]
+		if(length(regulator_time) != 1)
+			regulator_time <- NA
+		message('regulator_time is', res)
+		
+		data.frame(regulators = x, targets = res, branching_time = all_abs_bifurcation_time_gene_names[res], regulators_time = regulator_time)
+	})
+
+	df <- do.call(rbind.data.frame, significant_branching_TF_TF_5k_enrichment_gsc)
+	# branching_tf_df <- data.frame(regulators = enrich_branching_TF_gsc_names, 
+	# 								all_abs_bifurcation_time_gene_names[c(enrich_branching_TF_gsc_names[1:4], 'STAT1')])
+	
+	return(df)
+}
+
+test <- gen_branchTime_df(enrich_branching_TF_gsc_names = enrich_branching_TF_gsc_names)
+df[df$regulators == 'STAT2::STAT1', 'regulators_time'] <- unique(df[df$regulators == 'STAT1', 'regulators_time']) 
+pdf('tmp/ko_regulation_hierarchy.pdf', width = 1.5, height = 1.5)
+qplot(regulators, abs(branching_time), color = regulators, geom = c('jitter', 'boxplot'), 
+	data = df, alpha = I(0.5), log = 'y') +  
     ylab('bifurcation time point') + 
     geom_point(aes(regulators, abs(regulators_time)), color = 'black', data = df) + 
-    #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
+    coord_flip() + scale_y_continuous(breaks = round(seq(abs(min(df$regulators_time, na.rm = T)), max(df$branching_time, na.rm = T), by = 12),1)) + #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
+    nm_theme()
+dev.off()
+
+#all the TFs enriched from the barplot: 
+all_enriched_genes <- hyper_df_cluster2_order$gene_set
+all_enriched_TF_branching_time_df1 <- gen_branchTime_df(enrich_branching_TF_gsc_names = all_enriched_genes, clusters_id = 1)
+all_enriched_TF_branching_time_df2 <- gen_branchTime_df(enrich_branching_TF_gsc_names = all_enriched_genes, clusters_id = 2)
+all_enriched_TF_branching_time_df3 <- gen_branchTime_df(enrich_branching_TF_gsc_names = all_enriched_genes, clusters_id = 3)
+all_enriched_TF_branching_time_df4 <- gen_branchTime_df(enrich_branching_TF_gsc_names = all_enriched_genes, clusters_id = 4)
+all_enriched_TF_branching_time_df5 <- gen_branchTime_df(enrich_branching_TF_gsc_names = all_enriched_genes, clusters_id = 5)
+all_enriched_TF_branching_time_df6 <- gen_branchTime_df(enrich_branching_TF_gsc_names = all_enriched_genes, clusters_id = 6)
+
+df[df$regulators == 'STAT2::STAT1', 'regulators_time'] <- unique(df[df$regulators == 'STAT1', 'regulators_time']) 
+pdf('tmp/ko_regulation_hierarchy_cluster_1.pdf', width = 5, height = 5)
+qplot(regulators, abs(branching_time), color = regulators, geom = c('jitter', 'boxplot'), 
+	data = all_enriched_TF_branching_time_df1, alpha = I(0.5), log = 'y') +  
+    ylab('bifurcation time point') + 
+    geom_point(aes(regulators, abs(regulators_time)), color = 'black', data = all_enriched_TF_branching_time_df1) + 
+    coord_flip() + scale_y_continuous(breaks = round(seq(abs(min(df$regulators_time, na.rm = T)), max(df$branching_time, na.rm = T), by = 12),1)) + #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
+    nm_theme()
+dev.off()
+
+pdf('tmp/ko_regulation_hierarchy_cluster_2.pdf', width = 5, height = 5)
+qplot(regulators, abs(branching_time), color = regulators, geom = c('jitter', 'boxplot'), 
+	data = all_enriched_TF_branching_time_df2, alpha = I(0.5), log = 'y') +  
+    ylab('bifurcation time point') + 
+    geom_point(aes(regulators, abs(regulators_time)), color = 'black', data = all_enriched_TF_branching_time_df2) + 
+    coord_flip() + scale_y_continuous(breaks = round(seq(abs(min(df$regulators_time, na.rm = T)), max(df$branching_time, na.rm = T), by = 12),1)) + #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
+    nm_theme()
+dev.off()
+
+pdf('tmp/ko_regulation_hierarchy_cluster_3.pdf', width = 5, height = 5)
+qplot(regulators, abs(branching_time), color = regulators, geom = c('jitter', 'boxplot'), 
+	data = all_enriched_TF_branching_time_df3, alpha = I(0.5), log = 'y') +  
+    ylab('bifurcation time point') + 
+    geom_point(aes(regulators, abs(regulators_time)), color = 'black', data = all_enriched_TF_branching_time_df3) + 
+    coord_flip() + scale_y_continuous(breaks = round(seq(abs(min(df$regulators_time, na.rm = T)), max(df$branching_time, na.rm = T), by = 12),1)) + #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
+    nm_theme()
+dev.off()
+
+pdf('tmp/ko_regulation_hierarchy_cluster_4.pdf', width = 5, height = 5)
+qplot(regulators, abs(branching_time), color = regulators, geom = c('jitter', 'boxplot'), 
+	data = all_enriched_TF_branching_time_df4, alpha = I(0.5), log = 'y') +  
+    ylab('bifurcation time point') + 
+    geom_point(aes(regulators, abs(regulators_time)), color = 'black', data = all_enriched_TF_branching_time_df4) + 
+    coord_flip() + scale_y_continuous(breaks = round(seq(abs(min(df$regulators_time, na.rm = T)), max(df$branching_time, na.rm = T), by = 12),1)) + #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
+    nm_theme()
+dev.off()
+
+pdf('tmp/ko_regulation_hierarchy_cluster_5.pdf', width = 5, height = 5)
+qplot(regulators, abs(branching_time), color = regulators, geom = c('jitter', 'boxplot'), 
+	data = all_enriched_TF_branching_time_df5, alpha = I(0.5), log = 'y') +  
+    ylab('bifurcation time point') + 
+    geom_point(aes(regulators, abs(regulators_time)), color = 'black', data = all_enriched_TF_branching_time_df5) + 
+    coord_flip() + scale_y_continuous(breaks = round(seq(abs(min(df$regulators_time, na.rm = T)), max(df$branching_time, na.rm = T), by = 12),1)) + #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
+    nm_theme()
+dev.off()
+
+pdf('tmp/ko_regulation_hierarchy_cluster_6.pdf', width = 5, height = 8)
+qplot(regulators, abs(branching_time), color = regulators, geom = c('jitter', 'boxplot'), 
+	data = all_enriched_TF_branching_time_df6, alpha = I(0.5), log = 'y') +  
+    ylab('bifurcation time point') + 
+    geom_point(aes(regulators, abs(regulators_time)), color = 'black', data = all_enriched_TF_branching_time_df6) + 
+    coord_flip() + scale_y_continuous(breaks = round(seq(abs(min(df$regulators_time, na.rm = T)), max(df$branching_time, na.rm = T), by = 12),1)) + #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
     nm_theme()
 dev.off()
 
 save.image('./RData/branchTimePoint.RData')
+
+
+
+
+

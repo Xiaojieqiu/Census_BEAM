@@ -205,7 +205,6 @@ if (pData(Shalek_golgi_update)[State_2_cell, 'State'] != 2) {
   pData(Shalek_golgi_update)$State[State == 2] <- 3
 }
 
-lapply(cds_downsampled_cells_ordered, function(x) buildLineageBranchCellDataSet(x))
 # Figure 6C -- Heatmap of trajectory from 6A
 
 ## Perform branch test and calculate ABCs

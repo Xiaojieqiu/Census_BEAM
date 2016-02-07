@@ -4,7 +4,7 @@ library(MAST)
 
 #load the data: 
 load('./RData/analysis_HSMM_data.RData')
-HSMM_bulk <- read.table("./data/HSMM_data/bulk_cuffdiff/gene_exp.diff", header = T)
+HSMM_bulk <- read.table("./data/HSMM_data/bulk_cuffdiff/gene_exp.diff", header = T, row.names = NULL)
 
 HSMM_bulk_T0_T72 <-  subset(HSMM_bulk, sample_1 == "T0" & sample_2 == "T24")
 order_stats_HSMM_bulk_T0_T72 <-  HSMM_bulk_T0_T72[order(abs(HSMM_bulk_T0_T72$test_stat), decreasing=T), ]

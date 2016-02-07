@@ -6,7 +6,7 @@ load_all_libraries()
 
 ############################make the landscape heatmap: 
 mc_select <- coef(rlm(unlist(lapply(molModels_select, function(x) coef(x)[1])) ~ unlist(lapply(molModels_select, function(x) coef(x)[2]))))
-mc_select <- coef(rlm(unlist(lapply(molModels_select, function(x) coef(x)[1])) ~ unlist(lapply(molModels_select, function(x) coef(x)[2]))))
+mc <- coef(rlm(unlist(lapply(molModels, function(x) coef(x)[1])) ~ unlist(lapply(molModels, function(x) coef(x)[2]))))
 
 optim_mc_func_fix_c_test_optim(c(as.numeric(mc_select[2]), as.numeric(mc_select[1])))
 x_list <- split(expand.grid(c(seq(-6, -1, length.out = 2), -4.403166,  as.numeric(mc_select[2])), 

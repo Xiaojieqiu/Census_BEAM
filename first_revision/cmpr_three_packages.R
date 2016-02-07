@@ -1,8 +1,8 @@
 #function to compare the performance of the three packages
 
 #1. MAST 
-library(devtools)
-install_github('RGLab/MAST')
+# library(devtools)
+# install_github('RGLab/MAST')
 
 library(MAST)
 
@@ -76,7 +76,7 @@ ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_w
 ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + nm_theme()
 dev.off()
 
-
+save.image('./RData/cmpr_three_packages.RData')
 #use LRT test
 # mast_abs_cds_14_18.split<-split(mast_abs_cds_14_18,"Cell")
 
@@ -87,7 +87,7 @@ dev.off()
 
 
 #3. BASiCs (probably not necessary) 
-install_github('catavallejos/BASiCS')
+# install_github('catavallejos/BASiCS')
 
 
 

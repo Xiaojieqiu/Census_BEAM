@@ -41,8 +41,9 @@ dev.off()
 fData(Shalek_abs_subset_ko_LPS)$num_cell_expressed <- esApply(Shalek_abs_subset_ko_LPS[, ], 1, function(x) sum(round(x) > 0))
 ko_valid_expressed_genes <- row.names(subset(fData(Shalek_abs_subset_ko_LPS), num_cell_expressed > 5))
 
+rm(plot_genes_branched_heatmap)
 pdf(paste(fig_root_dir, 'fig5c.pdf', sep = ''))
-Shalek_abs_subset_ko_LPS_heatmap_annotations = monocle::plot_genes_branched_heatmap(Shalek_abs_subset_ko_LPS[intersect(row.names(subset(ko_branching_genes, qval < 0.05)), ko_valid_expressed_genes) ,], num_clusters=6, norm_method = "vstExprs", 
+Shalek_abs_subset_ko_LPS_heatmap_annotations = plot_genes_branched_heatmap(Shalek_abs_subset_ko_LPS[intersect(row.names(subset(ko_branching_genes, qval < 0.05)), ko_valid_expressed_genes) ,], num_clusters=6, norm_method = "vstExprs", 
     cores=detectCores(), ABC_df=NULL, branchTest_df=ko_branching_genes, hmcols=NULL, lineage_labels = c('Normal cells', 'Knockout cells'), return_all = T)
 dev.off()
 
@@ -58,6 +59,14 @@ plot_gsa_hyper_heatmap(Shalek_abs_subset_ko_LPS, Shalek_abs_subset_ko_LPS_tree_h
 dev.off()
 
 save_hyper_df(Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_reactome, './supplementary_data/ko_hyper_df.xls') 
+
+Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_go <- collect_gsa_hyper_results(Shalek_abs_subset_ko_LPS, gsc = mouse_go_gsc, Shalek_abs_subset_ko_LPS_tree_heatmap_clusters)
+
+pdf(file =paste(fig_root_dir, 'fig5c_reactome.pdf', sep = ''), height = 15, width = 7)
+plot_gsa_hyper_heatmap(Shalek_abs_subset_ko_LPS, Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_go, significance=1e-3) + illustrator_theme() 
+dev.off()
+
+save_hyper_df(Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_go, './supplementary_data/go_ko_hyper_df.xls') 
 
 #overlap between branching genes: 
 #make the venn diagram for all the above analysis (Fig 6):
@@ -141,7 +150,7 @@ fData(Shalek_golgi_update)$num_cell_expressed <- esApply(Shalek_golgi_update[, ]
 golgi_valid_expressed_genes <- row.names(subset(fData(Shalek_golgi_update), num_cell_expressed > 5))
 
 pdf(paste(fig_root_dir, 'fig6c.pdf', sep = ''))
-Shalek_golgi_update_heatmap_annotations = monocle::plot_genes_branched_heatmap(Shalek_golgi_update[intersect(row.names(subset(golgi_branching_genes, qval < 0.05)), golgi_valid_expressed_genes),], num_clusters=6, norm_method = "vstExprs", lineage_labels = c('Normal', 'Golgi Plug'), 
+Shalek_golgi_update_heatmap_annotations = plot_genes_branched_heatmap(Shalek_golgi_update[intersect(row.names(subset(golgi_branching_genes, qval < 0.05)), golgi_valid_expressed_genes),], num_clusters=6, norm_method = "vstExprs", lineage_labels = c('Normal', 'Golgi Plug'), 
 cores=detectCores(), ABC_df=NULL, branchTest_df=golgi_branching_genes, hmcols=NULL, return_all = T)
 dev.off()
 

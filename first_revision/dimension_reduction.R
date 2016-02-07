@@ -8,6 +8,12 @@ library(monocle)
 library(xacHelper) #diffusion_maps, diffusion_maps_bw, tSNE, LLE
 load_all_libraries()
 
+#pca analysis too: 
+PCA <- function(data, ...) {
+    res <- prcomp(data, center = F, scale = F)
+    t(res$rotation[, 1:2])
+}
+
 reduceDimension_custom <- function (cds, max_components = 2, method = c("ICA", "DDRTree"),
     pseudo_expr = NULL, residualModelFormulaStr = NULL, use_vst = NULL,
     verbose = FALSE, use_irlba = NULL, ...)
@@ -202,13 +208,6 @@ pdf('./nbt_2nd_sub_reviewers/Shalek_golgi_pca_dim_reduction.pdf', width = 3, hei
 qplot(Golgi_pca[1, ], Golgi_pca[2, ], color = pData(Shalek_golgi_update)$stim_time) + 
     xlab('PCA Reduce Dimension 1') + ylab('PCA Reduce Dimension 2') + nm_theme() 
 dev.off()
-
-#pca analysis too: 
-PCA <- function(data, ...) {
-    res <- prcomp(data, center = F, scale = F)
-    t(res$rotation[, 1:2])
-}
-
 
 save.image('./RData/dimension_reduction.RData')
 
