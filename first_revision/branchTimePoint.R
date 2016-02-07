@@ -19,12 +19,12 @@ names(bifurcation_time) <- fData(abs_AT12_cds_subset_all_gene[branch_motif_Tfs_i
 
 #Shalek data: 
 #
-weighted_abs_Shalek_KO_subset_all_gene_ILRs_list <- calILRs(cds = Shalek_abs_subset_ko_LPS[, ], lineage_states = c(2, 3), stretch = T, cores = detectCores(), 
+weighted_abs_Shalek_KO_subset_all_gene_ILRs_list <- calILRs(cds = Shalek_abs_subset_ko_LPS[, ], lineage_states = c(2, 3), stretch = T, cores = 1, 
     trend_formula = "~sm.ns(Pseudotime, df = 3) * Lineage", ILRs_limit = 3, 
     relative_expr = T, weighted = T, label_by_short_name = F, 
     useVST = T, round_exprs = FALSE, pseudocount = 0, output_type = "all", file = "weighted_abs_Shalek_KO_subset_all_gene_ILRs_list", return_all = T)
 
-duplicate_progenitors_weighted_abs_Shalek_KO_subset_all_gene_ILRs_list <- calILRs(cds = Shalek_abs_subset_ko_LPS[, ], lineage_states = c(2, 3), stretch = T, cores = detectCores(), 
+duplicate_progenitors_weighted_abs_Shalek_KO_subset_all_gene_ILRs_list <- calILRs(cds = Shalek_abs_subset_ko_LPS[, ], lineage_states = c(2, 3), stretch = T, cores = 1, 
     trend_formula = "~sm.ns(Pseudotime, df = 3) * Lineage", ILRs_limit = 3, progenitor_method = 'duplicate', 
     relative_expr = T, weighted = T, label_by_short_name = F, 
     useVST = T, round_exprs = FALSE, pseudocount = 0, output_type = "all", file = "duplicate_progenitors_weighted_abs_Shalek_KO_subset_all_gene_ILRs_list", return_all = T)

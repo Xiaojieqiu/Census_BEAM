@@ -255,12 +255,10 @@ HSMM_bulk_pval_df <- data.frame(monocle_p = monocle_p_HSMM_bulk,
                                         mast_count_pval_no_norm = mast_count_pval_no_norm_HSMM_bulk)
 
 
-top_1k_genes <- order_stats_HSMM_bulk_T0_T72[order_stats_HSMM_bulk_T0_T72$significant == 'yes', ][1:1000, 'test_id']
+top_1k_genes <- order_stats_HSMM_bulk_T0_T72[order_stats_HSMM_bulk_T0_T72$significant == 'yes', ][1:1000, 'gene_id']
 
 reverse_order_stats_HSMM_bulk_T0_T72 <-  HSMM_bulk_T0_T72[order(abs(HSMM_bulk_T0_T72$q_value), decreasing=T), ]
-bottom_1k_genes <- reverse_order_stats_HSMM_bulk_T0_T72[reverse_order_stats_HSMM_bulk_T0_T72$significant == 'no', ][1:1000, 'test_id']
-
-names(top_bottom_1k_genes) <- order_stats_HSMM_bulk_T0_T72$gene_id 
+bottom_1k_genes <- reverse_order_stats_HSMM_bulk_T0_T72[reverse_order_stats_HSMM_bulk_T0_T72$significant == 'no', ][1:1000, 'gene_id']
 
 #top/bottom 1k genes: 
 select_genes <- c(as.character(top_1k_genes), as.character(bottom_1k_genes))
@@ -268,23 +266,25 @@ true_data <- rep(0, length(select_genes))
 true_data[1:length(top_1k_genes)] <- 1
 true_data[(length(top_1k_genes) + 1):(length(select_genes))] <- 0
 
-true_df <- data.frame(Type = true_data, pval = top_1k_HSMM_bulk_T0_T72_pval)
+true_df <- data.frame(Type = true_data, pval = top_1k_HSMM_bulk_T0_T72_pval[select_genes])
 
-ggplot(true_df, aes(x = factor(1), fill = factor(Type))) + geom_bar(width = 1) + coord_polar(theta = "y") + ggplot('./tmp/tp_fp_pie.pdf')
+library(ROCR)
 
-# HSMM_ROC_res_top_1k <- compare_DEG_test(HSMM_bulk_pval_df[select_genes, ], true_data, return_plot = T, step_size = 0.05)
-# mlt_roc_df <- HSMM_ROC_res_top_1k$mlt_roc_df
-# auc <- HSMM_ROC_res_top_1k$AUC
+generate_roc_df <-function(p_value, classification, type = 'fpr') {
+	pred_p_value <- prediction(p_value, classification)
+	perf_tpr_fpr <- performance(pred_p_value, "tpr", "fpr")
+	
+    fpr = perf_tpr_fpr@x.values
 
-# pdf('./tmp/roc2.pdf', height = 15, width = 15)
-# ggplot(data = mlt_roc_df) + geom_line(aes(x = FPR, y = TPR, color = Test_type), alpha = .7) + 
-#   ggtitle("ROC curve for different gene expression test") + 
-#   geom_abline(color = "red") + scale_color_discrete(name = "Test", 
-#   label = c(paste(sort(colnames(HSMM_bulk_pval_df)), ':', " AUC = ", auc[order(colnames(HSMM_bulk_pval_df))]))) + 
-#   xlab("FPR") + ylab("TPR") +  scale_color_manual(values = hmcols)
-# dev.off()
+    tpr = perf_tpr_fpr@y.values
+    
+	perf_auc <- performance(pred_p_value, "auc")
+	auc <- perf_auc@y.values
 
-roc_df_list <- apply(HSMM_bulk_pval_df[select_genes, ], 2, function(x) generate_roc_df(x, true_data == 1))
+    data.frame(tpr = tpr, fpr = fpr, auc = auc)
+}
+
+roc_df_list <- apply(HSMM_bulk_pval_df[select_genes, ], 2, function(x) generate_roc_df(x, true_data != 1))
 
 roc_df_list <- lapply(roc_df_list, function(x) {colnames(x) <- c('tpr', 'fpr', 'auc'); x} )
 roc_df <- do.call(rbind, roc_df_list)
@@ -294,16 +294,15 @@ auc <- unique(roc_df[, c('method', 'auc')])
 row.names(auc) <- auc$method
 hmcols <- blue2green2red(nrow(auc))
 
-roc_plot <- qplot(fpr, tpr, data=roc_df, color=method, geom="line") + 
-    xlab("False positive rate") +
-    ylab("True positive rate") +
-  scale_color_discrete(name = "Test", label = c(paste(sort(colnames(HSMM_bulk_pval_df)), ':', " AUC = ", auc[order(colnames(HSMM_bulk_pval_df)), 2])))  + 
-      ylim(c(0, 1.0)) + 
-  xlim(c(0, 1.0)) + monocle_theme_opts()
-roc_plot <- roc_plot + scale_color_manual(values = hmcols)
+test <- c(paste(sort(colnames(HSMM_bulk_pval_df)), ':', " AUC = ", auc[order(colnames(HSMM_bulk_pval_df)), 2]))
 
 pdf('./supplementary_figures/roc.pdf', height = 15, width = 15)
-print(roc_plot) + nm_theme()
+qplot(fpr, tpr, data=roc_df, color=method, geom="line") + 
+    xlab("False positive rate") +
+    ylab("True positive rate") +
+      ylim(c(0, 1.0)) + 
+  xlim(c(0, 1.0)) + monocle_theme_opts() +
+   scale_color_manual(values = hmcols, name = "Test", label = test) 
 dev.off()
 
 save.image('./RData/deg_benchmark_analysis_HSMM_bulk.RData')
