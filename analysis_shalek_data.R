@@ -189,7 +189,7 @@ Shalek_golgi_update <- Shalek_golgi_update[, pData(Shalek_golgi_update)$Total_mR
 #select genes for ordering cells: 
 golgi_order_genes <- c(row.names(subset(Shalek_golgi_update_subset_DEG_res, qval < 1e-40)))
 
-# Shalek_golgi_update <- setOrderingFilter(Shalek_golgi_update, golgi_order_genes)
+Shalek_golgi_update <- setOrderingFilter(Shalek_golgi_update, golgi_order_genes)
 Shalek_golgi_update <- reduceDimension(Shalek_golgi_update, use_vst = T, use_irlba=F, pseudo_expr = 0, residualModelFormulaStr = "~num_genes_expressed", scaling = F, method = "ICA")
 Shalek_golgi_update <- orderCells(Shalek_golgi_update, num_path = 2)
 

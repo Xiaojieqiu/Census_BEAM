@@ -268,8 +268,6 @@ true_data[(length(top_1k_genes) + 1):(length(select_genes))] <- 0
 
 true_df <- data.frame(Type = true_data, pval = top_1k_HSMM_bulk_T0_T72_pval[select_genes])
 
-library(ROCR)
-
 generate_roc_df <-function(p_value, classification, type = 'fpr') {
 	pred_p_value <- prediction(p_value, classification)
 	perf_tpr_fpr <- performance(pred_p_value, "tpr", "fpr")

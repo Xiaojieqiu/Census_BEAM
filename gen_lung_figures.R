@@ -6,10 +6,10 @@ library(sp)
 library(igraph)
 library(grid)
 
-##load the data: 
-# load('./RData/analysis_lung_data.RData')
-# load('./RData/deg_benchmark_analysis.RData')
-# load('./RData/spikein_free_algorithm_sampling.RData')
+#load the data: 
+load('./RData/analysis_lung_data.RData')
+load('./RData/deg_benchmark_analysis.RData')
+load('./RData/spikein_free_algorithm_sampling.RData')
 #color scheme: 
 prog_cell_state = "#979797"
 AT1_cell_state = "#F05662" 
@@ -71,9 +71,9 @@ names(colour) <- as.character(new_cds$Lineage)
 colour[names(colour) == 'AT1'] <- AT1_Lineage
 colour[names(colour) ==  'AT2'] <- AT2_Lineage
 
-# pdf('./main_figures/fig1b.pdf', height = 2, width = 3)
-# plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[example_ids, ], cell_color_by = "Time", trajectory_color_by = "Lineage", fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', normalize = F, stretch = T, lineage_labels = c('AT1', 'AT2'), cell_size = 1, ncol = 2) + nm_theme()+ ylab('Transcript counts') + xlab('Pseudotime')
-# dev.off()
+pdf('./main_figures/fig1b.pdf', height = 2, width = 3)
+plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[example_ids, ], cell_color_by = "Time", trajectory_color_by = "Lineage", fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', normalize = F, stretch = T, lineage_labels = c('AT1', 'AT2'), cell_size = 1, ncol = 2) + nm_theme()+ ylab('Transcript counts') + xlab('Pseudotime')
+dev.off()
 
 #########################################################################################################
 #figure 2: 
@@ -97,11 +97,11 @@ colour[names(colour) ==  'AT2'] <- AT2_Lineage
 abs_house_keeping_marker_branchTest_res <- branchTest(abs_AT12_cds_subset_all_gene[fig2_genes_ids, ], cores = 1, relative_expr = F, weighted = T)
 abs_house_keeping_marker_branchTest_res[fig2_genes_ids, 'pval']
 
-# pdf('./main_figures/fig2b.pdf', width = 2.6, height = 1.75)
-# plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[fig2_genes_ids, ], color_by = "State", panel_order = fig2_genes, 
-#   trajectory_color_by = "Lineage", trend_formula = '~sm.ns(Pseudotime, df = 3)*Lineage', reducedModelFormulaStr = '~sm.ns(Pseudotime, df = 3)', 
-#    normalize = T, stretch = T, lineage_labels = c('AT1', 'AT2'), cell_size = 1, ncol = 2, add_pval = T) + nm_theme()+ ylab('Transcript counts') + xlab('Pseudotime')
-# dev.off()
+pdf('./main_figures/fig2b.pdf', width = 2.6, height = 1.75)
+plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[fig2_genes_ids, ], color_by = "State", panel_order = fig2_genes, 
+  trajectory_color_by = "Lineage", trend_formula = '~sm.ns(Pseudotime, df = 3)*Lineage', reducedModelFormulaStr = '~sm.ns(Pseudotime, df = 3)', 
+   normalize = T, stretch = T, lineage_labels = c('AT1', 'AT2'), cell_size = 1, ncol = 2, add_pval = T) + nm_theme()+ ylab('Transcript counts') + xlab('Pseudotime')
+dev.off()
 
 #fig 2c: 
 markers <- c('Rtkn2', 'Sdpr', 'Egfl6', 'Hc') #Rtkn2: AT1 early; Sdpr: AT1 late; Egfl6: AT2 early; Hc: AT2 late
@@ -138,11 +138,11 @@ names(colour) <- as.character(new_cds$Lineage)
 colour[names(colour) == 'AT1'] <- AT1_Lineage
 colour[names(colour) ==  'AT2'] <- AT2_Lineage
 
-# pdf('./tmp/submission_fig2b_time.pdf', height = 2, width = 3)
-# plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[example_ids, ], color_by = "State", panel_order = markers, trajectory_color_by = 'Lineage', 
-#   fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', reducedModelFormulaStr = '~sm.ns(Pseudotime, df = 3)', normalize = T, stretch = T,
-#   lineage_labels = c('AT1', 'AT2'), cell_size = 1, ncol = 2, bifurcation_time  = abs(bif_time)) + nm_theme()+ ylab('Transcript counts') + xlab('Pseudotime')
-# dev.off()
+pdf('./tmp/submission_fig2b_time.pdf', height = 2, width = 3)
+plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[example_ids, ], color_by = "State", panel_order = markers, trajectory_color_by = 'Lineage', 
+  fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', reducedModelFormulaStr = '~sm.ns(Pseudotime, df = 3)', normalize = T, stretch = T,
+  lineage_labels = c('AT1', 'AT2'), cell_size = 1, ncol = 2, bifurcation_time  = abs(bif_time)) + nm_theme()+ ylab('Transcript counts') + xlab('Pseudotime')
+dev.off()
 
 abs_str_logfc_df_list <- calILRs(cds = abs_AT12_cds_subset_all_gene[add_quake_gene_all_marker_ids, ], lineage_states = c(2, 3), stretch = T,cores = 1, 
   trend_formula = "~sm.ns(Pseudotime, df = 3) * Lineage", ILRs_limit = 3, 
@@ -420,10 +420,10 @@ setdiff(motif_TFs, toupper(fData(absolute_cds)$gene_short_name))
 #RARA E2A - ? TRP63 TRP53 ZFP143 TFCP2L1 ?
 #update the gene names: 
 
-TF_5k_enrichment_gsc <- loadGSCSafe("./data/Lung_JASPAR_5kb_hits_olap.gmt", encoding="latin1") 
+lung_TF_5k_enrichment_gsc <- loadGSCSafe("./data/Lung_JASPAR_5kb_hits_olap.gmt", encoding="latin1") 
 
 valid_gene_id_cell_new <- row.names(absolute_cds[which(rowSums(exprs(standard_cds) >= 1) > 4), ])
-valid_cell_genes_TF_enrichment_results_5k <- collect_gsa_hyper_results(abs_AT12_cds_subset_all_gene[valid_gene_id_cell_new, ], TF_5k_enrichment_gsc, clusters)
+valid_cell_genes_TF_enrichment_results_5k <- collect_gsa_hyper_results(abs_AT12_cds_subset_all_gene[valid_gene_id_cell_new, ], lung_TF_5k_enrichment_gsc, clusters)
 hyper_df <- plot_gsa_hyper_heatmap(abs_AT12_cds_subset_all_gene[valid_gene_id_cell_new, ], valid_cell_genes_TF_enrichment_results_5k, significance = 1e-2)
 
 load('hyper_df')
@@ -457,7 +457,7 @@ names(colour) <- as.character(pData(new_cds)$Lineage)
 colour[names(colour) == 'AT1'] <- AT1_Lineage
 colour[names(colour) ==  'AT2'] <- AT2_Lineage
 
-gene_grn_list <- infer_branch_gene_grn(TF_enrichment_gsc = TF_5k_enrichment_gsc, file = 'gene_regulatory_net_up5k', p_thrsld = 0.01, branchTest_res = weihgted_relative_abs_AT12_cds_subset_all_gene)
+gene_grn_list <- infer_branch_gene_grn(TF_enrichment_gsc = lung_TF_5k_enrichment_gsc, file = 'gene_regulatory_net_up5k', p_thrsld = 0.01, branchTest_res = weihgted_relative_abs_AT12_cds_subset_all_gene)
 branch_motif_Tfs <- gene_grn_list$branch_tfs[toupper(gene_grn_list$branch_tfs) %in% toupper(valid_hyper_df$first) | 
             toupper(gene_grn_list$branch_tfs) %in% toupper(valid_hyper_df$second)]
 branch_motif_Tfs_id <- row.names(subset(fData(abs_AT12_cds_subset_all_gene), toupper(gene_short_name) %in% branch_motif_Tfs)) 

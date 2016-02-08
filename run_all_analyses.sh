@@ -27,6 +27,7 @@ mkdir main_figures supplementary_figures supplementary_data tmp RData nbt_2nd_su
 
 ## Download the HSMMSingleCell package to local directory
 wget http://bioconductor.org/packages/release/data/experiment/src/contrib/HSMMSingleCell_0.104.0.tar.gz
+wget https://cran.r-project.org/src/contrib/Archive/ggplot2/ggplot2_1.0.1.tar.gz 
 
 #########################################################
 # Analysis (WARNING: see README.md for dependency

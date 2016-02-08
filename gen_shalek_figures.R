@@ -94,16 +94,16 @@ dev.off()
 ##motif enrichment: 
 #comparing with lung data: 
 #run the fimo analysis on the DHS site
-TF_5k_enrichment_gsc <- loadGSCSafe("./data/DC_JASPAR_5kb_hits_olap.gmt", encoding="latin1") 
+shalek_TF_5k_enrichment_gsc <- loadGSCSafe("./data/DC_JASPAR_5kb_hits_olap.gmt", encoding="latin1") 
 
-for(i in 1:length(TF_5k_enrichment_gsc$gsc)) {
-    TF_5k_enrichment_gsc$gsc[[i]] <- toupper(TF_5k_enrichment_gsc$gsc[[i]])
+for(i in 1:length(shalek_TF_5k_enrichment_gsc$gsc)) {
+    shalek_TF_5k_enrichment_gsc$gsc[[i]] <- toupper(shalek_TF_5k_enrichment_gsc$gsc[[i]])
 }
 
 names(Shalek_abs_subset_ko_LPS_tree_heatmap_clusters) <- toupper(names(Shalek_abs_subset_ko_LPS_tree_heatmap_clusters))
 subset(ko_branching_genes, toupper(gene_short_name) %in% names(Shalek_abs_subset_ko_LPS_tree_heatmap_clusters[Shalek_abs_subset_ko_LPS_tree_heatmap_clusters == 6]))
 
-TF_enrichment_results_5k <- collect_gsa_hyper_results(Shalek_abs_subset_ko_LPS[, ], TF_5k_enrichment_gsc, Shalek_abs_subset_ko_LPS_tree_heatmap_clusters)
+TF_enrichment_results_5k <- collect_gsa_hyper_results(Shalek_abs_subset_ko_LPS[, ], shalek_TF_5k_enrichment_gsc, Shalek_abs_subset_ko_LPS_tree_heatmap_clusters)
 
 motif_enrich_plot <- plot_gsa_hyper_heatmap(Shalek_abs_subset_ko_LPS, TF_enrichment_results_5k, significance = 1e-1)
 
@@ -175,15 +175,14 @@ save_hyper_df(Shalek_golgi_hyper_geometric_results_reactome, './supplementary_da
 ##motif enrichment: 
 #comparing with lung data: 
 #run the fimo analysis on the DHS site
-TF_5k_enrichment_gsc <- loadGSCSafe("./data/DC_JASPAR_5kb_hits_olap.gmt", encoding="latin1") 
+shalek_TF_5k_enrichment_gsc <- loadGSCSafe("./data/DC_JASPAR_5kb_hits_olap.gmt", encoding="latin1") 
 
-for(i in 1:length(TF_5k_enrichment_gsc$gsc)) {
-    TF_5k_enrichment_gsc$gsc[[i]] <- toupper(TF_5k_enrichment_gsc$gsc[[i]])
+for(i in 1:length(shalek_TF_5k_enrichment_gsc$gsc)) {
+    shalek_TF_5k_enrichment_gsc$gsc[[i]] <- toupper(shalek_TF_5k_enrichment_gsc$gsc[[i]])
 }
-
 names(Shalek_golgi_update_heatmap_clusters) <- toupper(names(Shalek_golgi_update_heatmap_clusters))
 
-golgi_TF_enrichment_results_5k <- collect_gsa_hyper_results(Shalek_golgi_update[, ], TF_5k_enrichment_gsc, Shalek_golgi_update_heatmap_clusters)
+golgi_TF_enrichment_results_5k <- collect_gsa_hyper_results(Shalek_golgi_update[, ], shalek_TF_5k_enrichment_gsc, Shalek_golgi_update_heatmap_clusters)
 
 pdf(file = paste('./tmp/', 'fig6d_motif_enrichment.pdf', sep = ''), height = 30, width = 7)
 golgi_motif_enrich_plot <- plot_gsa_hyper_heatmap(Shalek_golgi_update, golgi_TF_enrichment_results_5k, significance = 1e-1)
