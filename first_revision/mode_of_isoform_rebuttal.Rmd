@@ -1,0 +1,184 @@
+---
+title: "Correlation between relative abundance and mode across cells"
+author: "Xiaojie Qiu"
+date: "February 18, 2016"
+output: html_document
+---
+
+prepare the data ready for the analysis and reproduce the reviwer's analysis
+```{r, warning=FALSE, message=FALSE, cache=FALSE}
+library(monocle)
+load('./RData/prepare_lung_data.RData')
+
+#detailed rebuttal back to the reviewer 3: 
+count_matrix <- read.delim("./data/Quake_data/quake_lung/standard_normalized_out/isoforms.fpkm_table", row.names="tracking_id")
+
+pd <- new("AnnotatedDataFrame", data = sample_sheet)
+fd <- new("AnnotatedDataFrame", data = isoform_ann)
+
+count_matrix <- as.matrix(count_matrix)
+count_matrix <- count_matrix[row.names(fd), row.names(pd)]
+#note that for our analysis, we only include 183 cells (clara/cicilated/bulk samples are removed)
+isoform_count_cds_full <- newCellDataSet(as.matrix(count_matrix), 
+                                    phenoData = pd, 
+                                    featureData = fd, 
+                                    expressionFamily=negbinomial(), 
+                                    lowerDetectionLimit=1)
+# convert into TPM
+TPM_full <- esApply(isoform_count_cds_full, 2, function(x) x / sum(x) * 10^6)
+
+TPM_full_cds <- newCellDataSet(as.matrix(TPM_full), 
+                                    phenoData = pd, 
+                                    featureData = fd, 
+                                    expressionFamily=tobit(), 
+                                    lowerDetectionLimit=1)
+
+#Plots mode of TPM against 1e6/number of isoforms and colors by the sample category (whatever those are in this case).
+sample_info <- data.frame(n_g = esApply(TPM_full_cds, 2, function(x) sum(x > 0.1)), 
+			log_tpm_mode = log10(estimate_t(TPM_full_cds)), #use integer? 
+			Time = pData(TPM_full_cds)$Time
+			)
+
+qplot(10^log_tpm_mode, 10e6 / n_g, color = Time, data = sample_info, log = 'xy') + xlab('Mode of TPM') + ylab('1e6 / num_isoforms') + 
+  scale_color_discrete(guide_legend(title = 'Time'))
+
+cor(10^sample_info$log_tpm_mode, 10e6  /  sample_info$n_g, method = 'spearman')
+cor(10^sample_info$log_tpm_mode, 10e6  /  sample_info$n_g, method = 'spearman')
+
+#correlation of ERCC tpm with mode of log10(TPM): 
+ercc_mode_cor <- esApply(TPM_full_cds[row.names(TPM_ercc_controls), ], 1, function(x) cor(log10(x + 0.1), sample_info$log_tpm_mode))
+qplot(ercc_mode_cor) + xlab('distribution of correlation between \n relative abundance and the mode (no pseudocount)')
+
+#Log TMP mode against log10 of the tpm values for a particular spike-in (the one with highest negative correlation), again colored by time
+qplot(sample_info$log_tpm_mode, log10(exprs(TPM_full_cds)['ERCC-00113', ]), color = sample_info$Time) + xlab('') + ylab('') +  
+  scale_color_discrete(guide_legend(title = 'Time'))
+
+#Plot of the number of ERCC molecules that were in spike-in against calculated correlation. Shows negative correlation between correlation and the abundances of the spike-ins.
+#note that numMolecules is calculate based on 10 nl (as mentioned in the paper)
+qplot(spike_df$numMolecules, ercc_mode_cor,  log = 'x', color = 'blue') + xlab('Spiked molecules') + ylab('Spearman correlation with Mode, across cells') + 
+  ggtitle('Lung data (TPM)') +  scale_color_manual(values = 'blue', labels = 'ERCC spike-in',  guide_legend(title = ''))
+
+#do the samething as above but add 1 to the data 
+sample_info$log_tpm_mode_p1 <- esApply(TPM_full_cds, 2, function(relative_expr) dmode(log10(relative_expr[relative_expr > 0.1] + 1)))
+			
+qplot(10 ^ log_tpm_mode_p1, 10e6 / n_g, color = Time, data = sample_info, log = 'xy') + xlab('Mode of TPM') + ylab('1e6 / num_isoforms') +
+  scale_color_discrete(guide_legend(title = 'Time'))
+
+cor(10 ^ sample_info$log_tpm_mode_p1, 10e6  /  sample_info$n_g, method = 'spearman')
+
+#correlation of ERCC tpm with mode of log10(TPM):
+ercc_mode_cor <-  esApply(TPM_full_cds[row.names(TPM_ercc_controls),], 1, function(x)    cor(x, sample_info$log_tpm_mode_p1))
+qplot(ercc_mode_cor) + xlab('distribution of correlation between \n relative abundance and the mode (pseudocount 1)')
+
+#Log TMP mode against log10 of the tpm values for a particular spike-in (the one with highest negative correlation), again colored by whatever conditions they have.
+qplot(sample_info$log_tpm_mode_p1, log10(exprs(TPM_full_cds)['ERCC-00113',]), color = sample_info$Time) + xlab('estimated mode of log10 (TPM)') + ylab('log10 relative abundance') +
+  scale_color_discrete(guide_legend(title = 'Time'))
+
+#Plot of the number of ERCC molecules that were in spike-in against calculated correlation. Shows negative correlation between correlation and the abundances of the spike-ins.
+#note that numMolecules is calculate based on 10 nl (as mentioned in the paper)
+qplot(spike_df$numMolecules, ercc_mode_cor,  log = 'x', color = 'blue') + xlab('Spiked molecules') + ylab('Spearman correlation with Mode, across cells') +
+  ggtitle('Lung data (TPM + 1)') +  scale_color_manual(values = 'blue', labels = 'ERCC spike-in',  guide_legend(title = ''))
+
+#note that the mode after adding pseudocount 1 make most of the mode more close to 0: 
+qplot(log_tpm_mode, log_tpm_mode_p1, data = sample_info) + xlab('mode (no pseudocount)') + ylab('mode (use pseudocount 1)')
+```
+
+1. Positive `correlation` between x_ij and y_ij in a single-cell 
+a. make the regression line between x_ij and y_ij for all ERCC spike-in transcripts across cells: 
+```{r, warning=FALSE,message=FALSE, cache=FALSE}
+ercc_controls_melted <- melt(exprs(ercc_controls[]))
+colnames(ercc_controls_melted) <- c('ERCC_id', 'Cell_id', 'FPKM')
+ercc_controls_melted$numMolecules <- spike_df[ercc_controls_melted$ERCC_id, "numMolecules"]
+qplot(log(FPKM), log(numMolecules), data = ercc_controls_melted[ercc_controls_melted$FPKM > 0, ]) + geom_smooth(method = 'rlm', color = 'red') + facet_wrap(~Cell_id)
+```
+
+b. calculate the correlation of relative abundance and transcript counts in each cell: 
+```{r, warning=FALSE,message=FALSE, cache=FALSE}
+Time <- pData(absolute_cds)$Time
+kb_df <- as.data.frame(t(rbind.data.frame(lapply(molModels, function(x) c(b = coef(x)[1], k = coef(x)[2])))))
+colnames(kb_df) <- c('b', 'k')
+kb_df$t <- -kb_df[, 'b'] / kb_df[, 'k'] #perfect t estimate from the regression
+
+spike_df_subset <- subset(spike_df, conc_attomoles_ul_Mix1 > 800) #we removed the lower end of the ERCC ladder as mentioned in the supplementary method 
+cor_Y_ij_X_ij <- esApply(ercc_controls[row.names(spike_df_subset), ], 2, function(x) cor(spike_df_subset[, 'numMolecules'], x)) 
+cor_y_ij_x_ij <- esApply(ercc_controls[row.names(spike_df_subset), ], 2, function(x) cor(log(spike_df_subset[, 'numMolecules']), log(x))) 
+```
+
+c. Higher correlation on the log-scale than on the original scale 
+```{r, warning=FALSE,message=FALSE, cache=FALSE}
+qplot(cor_Y_ij_X_ij) + xlab('correlation between transcripts and relative abundance') 
+qplot(cor_y_ij_x_ij) + xlab('correlation between transcripts and relative abundance (both on the log-scale)') 
+```
+
+b. relative abundance for just the ERCC spike-in correlate with the ratio of concentration ladder
+```{r, warning=FALSE,message=FALSE, cache=FALSE}
+ercc_controls_TPM <- esApply(ercc_controls , 2, function(x) x / sum(x) * 10^6) #this convert the original TPM of ERCC to the relative ratio of ERCC transcript to the sum of the total ERCC
+
+ercc_controls_TPM_cds <- newCellDataSet(as.matrix(ercc_controls_TPM), 
+                          phenoData = new("AnnotatedDataFrame", data = pData(ercc_controls)),
+                          featureData = new("AnnotatedDataFrame", data = fData(ercc_controls)),
+                          expressionFamily=tobit(), 
+                          lowerDetectionLimit=1)
+
+cor_ercc_conc <- esApply(ercc_controls_TPM_cds, 2, function(x) cor(spike_df[, 'conc_attomoles_ul_Mix1'], x + 0.01)) 
+relative_abundance_ratio <- esApply(ercc_controls_TPM_cds[row.names(spike_df_subset), ], 2, function(x) x/min(x)) #ratio of relative abundance to the lowest value 
+concentration_ratio <- spike_df_subset$conc_attomoles_ul_Mix1 / min(spike_df_subset$conc_attomoles_ul_Mix1 ) #ratio of concentration of the ERCC spike-in to the lowest value 
+head(relative_abundance_ratio[, 1:5])
+concentration_ratio
+
+qplot(cor_ercc_conc) + xlab('correlation between transcripts and relative abundance ') 
+```
+
+2. the correlation of `y_i` with the perfect `t` estimator across cell is under determination because we have two unknown parameters: 
+a. Calculate the correlation of `y_i` with the perfect `t` estimator
+```{r, warning=FALSE,message=FALSE, cache=FALSE}
+#for cells with very similar `k_i/b_i`
+example_df <- subset(kb_df, k %in% sort(kb_df$k)[73:75])
+similar_kb_cor <- apply(exprs(ercc_controls[, row.names(example_df)]), 1, function(x) cor(log(x + 0.1), example_df$t))
+
+#for cells with very different `k_i/b_i`
+lowest_k_cell <- subset(kb_df,  k == sort(kb_df$k)[1])
+highest_k_cell <- subset(kb_df, k == sort(kb_df$k)[183])
+middle_k_cell <- subset(kb_df, k == sort(kb_df$k)[73])
+example_df <- rbind(lowest_k_cell, highest_k_cell, middle_k_cell)
+different_kb_cor <- apply(exprs(ercc_controls[, row.names(example_df)]), 1, function(x) cor(log(x + 0.1), example_df$t))
+```
+
+b. Plot the results
+```{r, warning=FALSE,message=FALSE, cache=FALSE}
+qplot(similar_kb_cor) + xlab('Correlation between `y_i` and the perfect `t` estimator across 3 example cells with similar k/b')
+qplot(different_kb_cor) + xlab('Correlation between `y_i` and the perfect `t` estimator across 3 example cells with distinct k/b')
+```
+
+4. Comparing the result using perfect mode and the estimated mode 
+```{r, warning=FALSE,message=FALSE, cache=FALSE}
+x_ij_y_ij_perfect_t_estimate <- apply(exprs(ercc_controls[, ]), 1, function(x) cor(log10(x + 0.1), kb_df[, 't']))
+x_ij_y_ij_estimate_t <- apply(exprs(ercc_controls[, ]), 1, function(x) cor(log10(x + 0.1), sample_info[colnames(ercc_controls), 'log_tpm_mode']) + 0.1)
+```
+
+```{r, warning=FALSE,message=FALSE, cache=FALSE}
+qplot(x_ij_y_ij_perfect_t_estimate)  
+qplot(x_ij_y_ij_estimate_t) 
+```
+
+#calculate the correlation between TPM and the true t estimate calculated from the regression
+```{r, warning=FALSE,message=FALSE, cache=FALSE}
+ercc_mode_cor_perfect_t <- esApply(TPM_full_cds[row.names(TPM_ercc_controls), colnames(abs_AT12_cds_subset_all_gene)], 1, function(x) cor(log10(x + 0.1), kb_df[, 't']))
+qplot(ercc_mode_cor_perfect_t) + xlab('distribution of correlation between \n relative abundance and the mode (perfect t-estimate)')
+```
+
+#save the figure for rebuttal: 
+```{r, warning=FALSE,message=FALSE, cache=FALSE}
+ercc_mode_cor <- esApply(TPM_full_cds[row.names(TPM_ercc_controls), ], 1, function(x) cor(log10(x + 0.1), sample_info$log_tpm_mode))
+qplot(ercc_mode_cor) + xlab('correlation between relative  abundance  \n and the ESTIMATE mode') + nm_theme() + ggsave('estimate_mode_correlation.pdf', width = 2, height = 1.5)
+
+qplot(ercc_mode_cor_perfect_t) + xlab('correlation between relative  abundance \n and  the mode (perfect t-estimate -b/k)') + nm_theme() + ggsave('perfect_t_mode_cor.pdf', width = 2, height = 1.5)
+```
+
+
+
+
+
+
+
+
