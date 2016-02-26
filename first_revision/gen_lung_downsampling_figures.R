@@ -1,4 +1,3 @@
-library(argparse)
 library(tidyr)
 library(grid)
 library(gridExtra)
@@ -34,8 +33,9 @@ calculate_fraction_of_genes_detected_within_error = function(expression_matrix, 
 
     get_performance = function(expression_matrix, reference_matrix) {
         error = abs(expression_matrix - reference_matrix) / (reference_matrix)
+
         proportion_detected = colSums(error < error_threshold, na.rm=T) / colSums(reference_matrix > 0)
-        return ( list(mean_value=median(proportion_detected, na.rm=T), lower_bound=quantile(proportion_detected, na.rm=T)[[2]], upper_bound=quantile(proportion_detected, na.rm=T)[[4]]))
+        return ( list(mean_value=mean(proportion_detected, na.rm=T), lower_bound=quantile(proportion_detected, na.rm=T)[[2]], upper_bound=quantile(proportion_detected, na.rm=T)[[4]]))
     }
 
     performance_by_quartile = as.data.frame(t(mapply(get_performance, expression_matrix_by_quartile, reference_matrix_by_quartile)))
@@ -54,7 +54,6 @@ process_performance_dataframe = function(performance_results, quantification_typ
     return(performance_results)
 }
 
-
 ####################################################
 # Calculate CDF curves of proportions of genes quantified within
 # threshold of error of original measurement for quantiles of gene 
@@ -63,8 +62,8 @@ process_performance_dataframe = function(performance_results, quantification_typ
 
 # Define quantiles of gene expression based on full depth FPKM data
 valid_genes = row.names(original_depth_cds[rowSums(exprs(original_depth_cds)) > 0, ])
-total_expression = apply(exprs(original_depth_cds)[valid_genes, ], 1, max)
-quartiles = cut(total_expression, breaks=quantile(total_expression, probs=seq(0,1, by=0.2)), include.lowest=TRUE)
+total_expression = apply(exprs(original_depth_cds)[valid_genes, ], 1, mean)
+quartiles = cut(total_expression, breaks=quantile(total_expression, probs=seq(0,1, by=0.25)), include.lowest=TRUE)
 names(quartiles) = names(total_expression)
 
 # Calculate performance per quartile
@@ -82,24 +81,24 @@ performance_transcript_counts_regression = process_performance_dataframe(perform
 performance = rbind(performance_transcript_counts_regression, performance_transcript_counts, performance_fpkm)
 
 # Reorder by quartile magnitude
-performance$quartile_start = stringr::str_match(performance$quartile, "([0-9e\\-]+),")[, 2]
+performance$quartile_start = stringr::str_match(performance$quartile, "([0-9e\\-\\.]+),")[, 2]
 performance = performance %>% dplyr::arrange(as.numeric(quartile_start))
 performance$quartile = factor(performance$quartile, levels=unique(performance$quartile))
 
 # Make plot
-pdf("figure1_genes_quantified_close_to_original_value_over_depth.pdf", height=8, width=2)
+pdf("fig7c_si.pdf", height=3, width=3)
 
 ggplot(performance, aes(as.numeric(depth), as.numeric(mean_value), color=quantification_type)) +
-    geom_errorbar(aes(ymin=as.numeric(lower_bound), ymax=as.numeric(upper_bound))) +  
+    geom_point() +
     geom_line() +
-    geom_point() + 
-    facet_grid(quartile ~ .) +
+    geom_hline(y=1, linetype="longdash", color="black", alpha=0.75) + 
+    ylim(c(0, 1)) +
+    facet_wrap(~ quartile, nrow=2) +
     illustrator_theme() +
     xlab("max depth per cell (read pairs)") +
     ylab("median proportion of genes quantified within 20% of original per cell") +
     scale_color_brewer(palette="Set1") +
     scale_fill_brewer(palette="Set1")
-    
 dev.off()
     
 
@@ -109,17 +108,17 @@ dev.off()
 ####################################################
 
 # Get median transcript count value across all cells for both regression and recovery algorithm
-regression = melt(do.call(rbind, lapply(cds_to_compare_transcript_counts_regression, function(x) { rowMedians(exprs(x)) })))
+regression = melt(do.call(rbind, lapply(cds_to_compare_transcript_counts_regression, function(x) { rowMedians(exprs(x)[valid_genes, ]) })))
 colnames(regression) = c("depth", "gene", "transcript_counts_regression")
 
-recovery = melt(do.call(rbind, lapply(cds_to_compare_transcript_counts, function(x) { rowMedians(exprs(x)) })))
+recovery = melt(do.call(rbind, lapply(cds_to_compare_transcript_counts, function(x) { rowMedians(exprs(x)[valid_genes, ]) })))
 colnames(recovery) = c("depth", "gene", "transcript_counts_recovery")
 
 # Combine results into a single dataframe for plotting
 combined_recovery_and_regression_by_depth = regression %>% left_join(recovery, by=c("depth", "gene"))
 
 # Generate scatterplots at different depths to show how recovery algorithm performance changes with depth 
-pdf("figure2_normalization_vs_spike_regression_by_depth.pdf", width=3, height=3)
+pdf("fig7a_si.pdf", width=3, height=3)
 
 ggplot(combined_recovery_and_regression_by_depth, aes(log10(transcript_counts_regression + 0.1), log10(transcript_counts_recovery + 0.1))) +
     geom_point(size=0.3) + 
@@ -140,8 +139,7 @@ combined_recovery_and_regression_by_depth = subset(combined_recovery_and_regress
 
 median_proportion_of_error_per_depth = combined_recovery_and_regression_by_depth %>% group_by(depth) %>% summarize(median=median((transcript_counts_recovery - transcript_counts_regression) / sum(transcript_counts_regression)), quartile_2=quantile((transcript_counts_recovery - transcript_counts_regression) / sum(transcript_counts_regression))[[2]], quartile_3=quantile((transcript_counts_recovery - transcript_counts_regression) / sum(transcript_counts_regression))[[4]])
 
-pdf("figure3_median_error_between_recovery_methods_by_depth.pdf", width=1.75, height=1.75)
-
+pdf("fig7b_si.pdf", width=3, height=3)
 ggplot(median_proportion_of_error_per_depth, aes(depth, median)) +
     geom_hline(y=0, linetype="longdash", color="red", alpha=0.75) + 
     geom_errorbar(aes(ymax=quartile_3, ymin=quartile_2), color="#d3d3d3") +
@@ -150,7 +148,6 @@ ggplot(median_proportion_of_error_per_depth, aes(depth, median)) +
     xlab("max depth per cell (read pairs)") +
     ylab("median normalized difference between recovery methods") + 
     illustrator_theme()
-
 dev.off()
 
 
@@ -165,7 +162,7 @@ recovery_algorithm_stability_df = reshape2::melt(recovery_algorithm_stability_df
 # Temporary hack to fix depth of original dataset (not 10,000,000)
 recovery_algorithm_stability_df$depth[recovery_algorithm_stability_df$depth == 10000000] = 5000000
 
-pdf("figure4_stability_of_m_and_c_with_depth.pdf", width=2.5, height=2.5)
+pdf("fig7d_si.pdf", width=2.5, height=2.5)
 
 ggplot(recovery_algorithm_stability_df, aes(depth, value, color=variable)) +
     geom_point() +
@@ -176,81 +173,52 @@ ggplot(recovery_algorithm_stability_df, aes(depth, value, color=variable)) +
     scale_color_brewer(palette="Set1") + 
     illustrator_theme()
 
-dev.off()    
+dev.off()
 
 
-#########################################
-# Make plots of constructed trees
-#########################################
-plot_monocle_spanning_tree_vectorized = function(cds) {
-    monocle::plot_spanning_tree(cds, cell_size=1, color_by="Time")
-        #scale_fill_manual(values=shalek_custom_color_scale)
+####################################################
+# Examine the mode of the transcript counts and log10(FPKM) distribution
+# over the dowsampled datasets  
+####################################################
+get_proportion_modes_correct_per_depth = function(cds_list, original_depth_cds, error_threshold = 0.2) {
+    # Calculate modes for each depth and join with metadata
+    modes = as.data.frame(do.call(rbind, lapply(cds_list, function(x) estimate_t(x))))
+    modes$depth = as.numeric(row.names(modes))
+    modes_melted = melt(modes, id="depth")
+    modes_melted = merge(modes_melted, pData(original_depth_cds), by.x="variable", by.y="row.names")
+
+    # Calculate proportion of cells with mode within 20% of original at each depth
+    proportion_correct = modes_melted %>%
+        group_by(variable) %>%
+            mutate(percent_error=(value - value[depth == max(depth)]) / value[depth == max(depth)]) %>%
+            ungroup() %>%
+        group_by(depth) %>%
+            summarize(proportion_correct = sum(percent_error <= error_threshold) / n())
+
+    return(proportion_correct)
 }
 
-# Figure 8: Pairwise correlation between the original trajectory and each downsampled one
-plot_pseudotime_correlations <- function (original, downsampled)
-{
-    # Extract a dataframe with cell maturation times
-    maturation_df <- data.frame(cell = c(colnames(original), colnames(downsampled)), 
-        maturation_level = 100 * c(pData(original)$Pseudotime/max(pData(original)$Pseudotime),
-                                   pData(downsampled)$Pseudotime/max(pData(downsampled)$Pseudotime)),
-        Type = c(rep("Original", dim(original)[2]), rep("Sampled", dim(downsampled)[2])), rownames = colnames(downsampled))
+names(input_data$isoform_matrices_to_compare) = downsampled_depths
 
-    # Calculate a correlation coefficient between the two CDS maturation times
-    cor.coeff <- cor(pData(downsampled)$Pseudotime, pData(original)$Pseudotime, method = "spearman")
+# Calculate proportion of cells with mode within 20% of the original value
+proportion_correct_fpkm = get_proportion_modes_correct_per_depth(input_data$isoform_matrices_to_compare, original_depth_cds)
+proportion_correct_fpkm$method = "fpkm"
 
-    # Calculate rank differences of cells between methods
-    maturation_df = maturation_df %>% group_by(Type) %>% mutate(rank=rank(maturation_level))
-    maturation_df = maturation_df %>% group_by(cell) %>% mutate(rank_diff=abs(mean(rank) - rank) * 2)
+proportion_correct_transcript_counts_regression = get_proportion_modes_correct_per_depth(cds_to_compare_transcript_counts_regression, original_depth_cds)
+proportion_correct_transcript_counts_regression$method = "spike-in regression"
 
-    # Define custom color scheme
-    highlighting = c('TRUE'='black', 'FALSE'="#f6f6f6")
+proportion_correct_transcript_counts = get_proportion_modes_correct_per_depth(cds_to_compare_transcript_counts, original_depth_cds)
+proportion_correct_transcript_counts$method = "spike-in free"
 
-    # Generate plot
-    p <- ggplot(aes(x = maturation_level, y = Type, group = cell), data = maturation_df) + 
-            geom_line(aes(color = rank_diff > 20), alpha=0.5, size=0.25) +
-            geom_point(size = 1) + 
-            scale_color_manual(values=c(highlighting)) + 
-            xlab("Pseudotime") + 
-            annotate("text", x = 80, y = 2.2, label = paste("corr:", round(cor.coeff, 3)), size=3) +
-            illustrator_theme()
+# Combine all results and generate plot
+proportion_correct = rbind(proportion_correct_fpkm, proportion_correct_transcript_counts_regression, proportion_correct_transcript_counts)
 
-    return(p)
-}
-
-## Generate plot objects for transcript counts from normalization and regression
-original_depth_cds_transcript_counts_trajectory = plot_monocle_spanning_tree_vectorized(original_depth_cds_transcript_counts_ordered)
-cds_to_compare_transcript_counts_trajectories = lapply(cds_to_compare_transcript_counts_ordered, plot_monocle_spanning_tree_vectorized)
-
-original_depth_cds_transcript_counts_regression_trajectory = plot_monocle_spanning_tree_vectorized(original_depth_cds_transcript_counts_regression_ordered)
-cds_to_compare_transcript_counts_regression_trajectories = lapply(cds_to_compare_transcript_counts_regression_ordered, plot_monocle_spanning_tree_vectorized)
-
-
-## Layout plots of trees obtained at each depth for each method
-pdf("figure5_normalized_transcript_counts_tree_with_depth.pdf", width=6, height=5)
-grob_args <- c(cds_to_compare_transcript_counts_trajectories, 2)
-names(grob_args) <- c(names(cds_to_compare_transcript_counts_trajectories), "nrow")
-plot_grob = do.call(grid.arrange, grob_args)
-dev.off()
-
-pdf("figure6_regression_transcript_counts_tree_with_depth.pdf", width=6, height=5)
-grob_args <- c(cds_to_compare_transcript_counts_regression_trajectories, 2)
-names(grob_args) <- c(names(cds_to_compare_transcript_counts_regression_trajectories), "nrow")
-plot_grob = do.call(grid.arrange, grob_args)
-dev.off()
-
-# Now plot correlations between original pseudotime and downsampled Pseudotime and plot for each method
-normalization_pairwise_correlation_plots = lapply(cds_to_compare_transcript_counts_ordered, function(cds) { plot_pseudotime_correlations(original_depth_cds_transcript_counts_ordered, cds) + illustrator_theme() })
-regression_pairwise_correlation_plots = lapply(cds_to_compare_transcript_counts_regression_ordered, function(cds) { plot_pseudotime_correlations(original_depth_cds_transcript_counts_regression_ordered, cds) + illustrator_theme() })
-
-pdf("figure7_normalized_transcript_counts_pseudotime_correlation.pdf", width=8, height=3)
-grob_args <- c(normalization_pairwise_correlation_plots, 2)
-names(grob_args) <- c(names(normalization_pairwise_correlation_plots), "nrow")
-plot_grob = do.call(grid.arrange, grob_args)
-dev.off()
-
-pdf("figure8_regression_transcript_counts_pseudotime_correlation.pdf", width=8, height=3)
-grob_args <- c(regression_pairwise_correlation_plots, 2)
-names(grob_args) <- c(names(regression_pairwise_correlation_plots), "nrow")
-plot_grob = do.call(grid.arrange, grob_args)
-dev.off()
+ggplot(proportion_correct, aes(depth, proportion_correct, color=method)) +
+    geom_point() +
+    geom_line() +
+    ylim(c(0, 1)) + 
+    scale_color_brewer(palette="Set1") +
+    ylab("proportion of cells within 20% of original value") +
+    xlab("max depth per cell (total aligned PE reads)") +
+    theme_bw() +
+    ggsave("temp.png", height=7.5, width=7.5)

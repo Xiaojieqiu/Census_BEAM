@@ -137,7 +137,7 @@ names(bottom_group_branch_time) <- fData(Shalek_abs_subset_ko_LPS)[valid_bottom_
 sort(abs(bottom_group_branch_time), index.return = T)
 
 df <- data.frame(bifurcation_time = c(top_group_branch_time, bottom_group_branch_time), 
-		type = c(rep("Antiviral regulators", length(top_group_branch_time)), rep("Targets", length(bottom_group_branch_time))))
+		type = c(rep("Regulators", length(top_group_branch_time)), rep("Targets", length(bottom_group_branch_time))))
 
 pdf('tmp/DC_regulation_hierarchy.pdf', width = 1.5, height = 1)
 qplot(type, abs(bifurcation_time), color = type, geom = c('jitter'), data = df, alpha = I(0.7), log = 'y', size = 1) +  #, 'boxplot'
