@@ -1,6 +1,7 @@
 library(monocle)
 library(xacHelper)
 library(MAST)
+library(ROCR)
 
 #load the data: 
 load('./RData/analysis_HSMM_data.RData')
@@ -8,19 +9,6 @@ HSMM_bulk <- read.table("./data/HSMM_data/bulk_cuffdiff/gene_exp.diff", header =
 
 HSMM_bulk_T0_T72 <-  subset(HSMM_bulk, sample_1 == "T0" & sample_2 == "T24")
 order_stats_HSMM_bulk_T0_T72 <-  HSMM_bulk_T0_T72[order(abs(HSMM_bulk_T0_T72$test_stat), decreasing=T), ]
-
-#perform the benchmark test: 
-# top_num <- 1000
-# top_1k_HSMM_bulk_T0_T72 <- order_stats_HSMM_bulk_T0_T72[1:top_num, "test_stat"]
-
-# top_1k_HSMM_bulk_T0_T72 <- as.character(order_stats_HSMM_bulk_T0_T72[order_stats_HSMM_bulk_T0_T72$significant %in% c('yes', 'no'), 'test_id'])
-
-# top_1k_HSMM_bulk_T0_T72_pval <- rep(0, length(top_1k_HSMM_bulk_T0_T72))
-# top_1k_HSMM_bulk_T0_T72_pval <- order_stats_HSMM_bulk_T0_T72[order_stats_HSMM_bulk_T0_T72$significant %in% c('yes', 'no'), 'p_value']
-# names(top_1k_HSMM_bulk_T0_T72_pval) <- as.character(order_stats_HSMM_bulk_T0_T72[order_stats_HSMM_bulk_T0_T72$significant %in% c('yes', 'no'), 'p_value'])
-
-top_1k_HSMM_bulk_T0_T72_pval <- order_stats_HSMM_bulk_T0_T72$p_value
-names(top_1k_HSMM_bulk_T0_T72_pval) <- order_stats_HSMM_bulk_T0_T72$gene_id #[1:top_num]
 
 #add read counts: 
 HSMM_readcounts_matrix <- read.delim("./data/HSMM_data/muscle/HSMM/HSMM_cuffnorm_out/genes.count_table")
@@ -232,7 +220,7 @@ ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_w
 ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + nm_theme()
 dev.off()
 
-pdf('./supplementary_figures/fig2a_si_HSMM_bulk.pdf', width = 6, height = 2)
+pdf('./supplementary_figures/fig2a_si_HSMM_bulk_helper.pdf', width = 6, height = 2)
 qplot(factor(Type), value, stat = "identity", geom = 'bar', position = 'dodge', fill = data_type, data = melt(df3.1_HSMM_bulk)) + #facet_wrap(~variable) + 
 ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
 ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) 
@@ -241,19 +229,18 @@ dev.off()
 HSMM_bulk_pval_df <- data.frame(monocle_p = monocle_p_HSMM_bulk, 
                                         monocle_p_readcount = monocle_p_readcount_HSMM_bulk,
                                         mc_mode_size_norm_permutate_ratio_by_geometric_mean = new_mc_size_norm_monocle_p_ratio_by_geometric_mean_HSMM_bulk, 
-                                        default_edgeR_p = default_edgeR_p_HSMM_bulk, 
-                                        mc_default_edgeR_p = mc_default_edgeR_p,         
-                                        default_deseq2_p = default_deseq2_p_HSMM_bulk, 
-                                        mc_default_deseq2_p = mc_default_deseq2_p_HSMM_bulk, 
-                                        default_deseq_p = default_deseq_p_HSMM_bulk, 
-                                        mc_default_deseq_p = mc_default_deseq_p_HSMM_bulk, 
-                                        scde_p = scde_p_HSMM_bulk, 
-                                        mc_scde_p = mc_scde_p_HSMM_bulk, 
+                                        default_edgeR_p = default_edgeR_p_HSMM_bulk[names(monocle_p_HSMM_bulk)], 
+                                        mc_default_edgeR_p = mc_default_edgeR_p[names(monocle_p_HSMM_bulk)],         
+                                        default_deseq2_p = default_deseq2_p_HSMM_bulk[names(monocle_p_HSMM_bulk)], 
+                                        mc_default_deseq2_p = mc_default_deseq2_p_HSMM_bulk[names(monocle_p_HSMM_bulk)], 
+                                        default_deseq_p = default_deseq_p_HSMM_bulk[names(monocle_p_HSMM_bulk)], 
+                                        mc_default_deseq_p = mc_default_deseq_p_HSMM_bulk[names(monocle_p_HSMM_bulk)], 
+                                        scde_p = scde_p_HSMM_bulk[names(monocle_p_HSMM_bulk)], 
+                                        mc_scde_p = mc_scde_p_HSMM_bulk[names(monocle_p_HSMM_bulk)], 
                                         # mast_abs_pval_no_norm = mast_abs_pval_no_norm_HSMM_bulk, 
                                         mast_mc_pval_no_norm = mast_mc_pval_no_norm_HSMM_bulk, 
                                         mast_std_pval_no_norm = mast_std_pval_no_norm_HSMM_bulk, 
                                         mast_count_pval_no_norm = mast_count_pval_no_norm_HSMM_bulk)
-
 
 top_1k_genes <- order_stats_HSMM_bulk_T0_T72[order_stats_HSMM_bulk_T0_T72$significant == 'yes', ][1:1000, 'gene_id']
 
@@ -269,6 +256,7 @@ true_data[(length(top_1k_genes) + 1):(length(select_genes))] <- 0
 true_df <- data.frame(Type = true_data, pval = top_1k_HSMM_bulk_T0_T72_pval[select_genes])
 
 generate_roc_df <-function(p_value, classification, type = 'fpr') {
+	p_value[is.na(p_value)] <- 1
 	pred_p_value <- prediction(p_value, classification)
 	perf_tpr_fpr <- performance(pred_p_value, "tpr", "fpr")
 	
@@ -294,13 +282,58 @@ hmcols <- blue2green2red(nrow(auc))
 
 test <- c(paste(sort(colnames(HSMM_bulk_pval_df)), ':', " AUC = ", auc[order(colnames(HSMM_bulk_pval_df)), 2]))
 
-pdf('./supplementary_figures/roc.pdf', height = 15, width = 15)
+roc_df$software <- revalue(roc_df$method, c("monocle_p" = 'Monocle', "monocle_p_readcount" = 'Monocle', "mc_mode_size_norm_permutate_ratio_by_geometric_mean" = 'Monocle', 
+                                            "default_edgeR_p" = 'edgeR', "mc_default_edgeR_p" = 'edgeR',
+                                            "default_deseq2_p" = 'DESeq2', "mc_default_deseq2_p" = 'DESeq2',
+                                            "default_deseq_p" = 'DESeq', "mc_default_deseq_p" = 'DESeq',
+                                            "scde_p" = 'SCDE', "mc_scde_p" = 'SCDE',
+                                            "mast_mc_pval_no_norm" = 'MAST', 
+                                            "mast_std_pval_no_norm" = "MAST", 
+                                            "mast_count_pval_no_norm" = "MAST"))
+
+roc_df$Type <- revalue(roc_df$method, c("monocle_p" = 'FPKM', "monocle_p_readcount" = 'read counts', "mc_mode_size_norm_permutate_ratio_by_geometric_mean" = 'estimated transcript counts', 
+                                            "default_edgeR_p" = 'read counts', "mc_default_edgeR_p" = 'estimated transcript counts',
+                                            "default_deseq2_p" = 'read counts', "mc_default_deseq2_p" = 'estimated transcript counts',
+                                            "default_deseq_p" = 'FPKM', "mc_default_deseq_p" = 'estimated transcript counts',
+                                            "scde_p" = 'read counts', "mc_scde_p" = 'estimated transcript counts',
+                                            "mast_mc_pval_no_norm" = 'estimated transcript counts', 
+                                            "mast_std_pval_no_norm" = "FPKM", 
+                                            "mast_count_pval_no_norm" = "estimated transcript counts"))
+
+pdf('./supplementary_figures/roc.pdf', height = 3, width = 4)
+qplot(fpr, tpr, data=roc_df, geom="line", linetype = Type) + 
+    xlab("False positive rate") +
+    ylab("True positive rate") +
+      ylim(c(0, 1.0)) + facet_wrap(~software) + 
+  xlim(c(0, 1.0)) + monocle_theme_opts() +
+   scale_color_manual(values = hmcols, name = "Test", label = test)  + nm_theme()
+dev.off()
+
+pdf('./supplementary_figures/roc_helper.pdf', height = 3, width = 4)
+qplot(fpr, tpr, data=roc_df, geom="line", linetype = Type) + 
+    xlab("False positive rate") +
+    ylab("True positive rate") +
+      ylim(c(0, 1.0)) + facet_wrap(~software) + 
+  xlim(c(0, 1.0)) + monocle_theme_opts() +
+   scale_color_manual(values = hmcols, name = "Test", label = test) 
+dev.off()
+
+
+pdf('./supplementary_figures/roc_auc_bar.pdf', height = 3, width = 4)
+qplot(method, auc, stat = 'identity', data=roc_df, fill=method, geom="bar") + 
+    xlab("") +
+    ylim(c(0, 1.0)) + 
+    monocle_theme_opts() +  theme(axis.text.x=element_text(angle=30, hjust=1)) + 
+    scale_fill_manual(values = hmcols, name = "Software", label = test)  + nm_theme()
+dev.off()
+
+pdf('./supplementary_figures/roc_helper.pdf', height = 3, width = 14)
 qplot(fpr, tpr, data=roc_df, color=method, geom="line") + 
     xlab("False positive rate") +
     ylab("True positive rate") +
       ylim(c(0, 1.0)) + 
   xlim(c(0, 1.0)) + monocle_theme_opts() +
-   scale_color_manual(values = hmcols, name = "Test", label = test) 
+   scale_color_manual(values = hmcols, name = "Test", label = test)  # + nm_theme()
 dev.off()
 
 save.image('./RData/deg_benchmark_analysis_HSMM_bulk.RData')

@@ -8,6 +8,7 @@ load('./RData/analysis_lung_data.RData')
 load('./RData/analysis_HSMM_data.RData')
 load('./RData/analysis_distribution_fitting.RData')
 load('./RData/analysis_shalek_data.RData')
+load('./RData/cmpr_three_packages.RData')
 
 ##################################################fig1_si############################################################
 
@@ -64,14 +65,16 @@ element_all_list <- list(
                 names(default_deseq2_p[default_deseq2_p < 0.01]), 
                 names(readcount_permutate_pval[which(readcount_permutate_pval < .01)]), 
                 names(default_deseq_p[default_deseq_p < 0.01]), 
-                names(monocle_p_readcount[monocle_p_readcount < 0.01]))
+                names(monocle_p_readcount[monocle_p_readcount < 0.01]), 
+                names(mast_count_pval_no_norm[mast_count_pval_no_norm < 0.01]))
 
 abs_element_all_list <- list(
                  names(abs_default_edgeR_p[abs_default_edgeR_p < 0.01]), 
                  names(abs_default_deseq2_p[abs_default_deseq2_p < 0.01]), 
                  names(new_abs_size_norm_monocle_p_ratio_by_geometric_mean[which(new_abs_size_norm_monocle_p_ratio_by_geometric_mean < .01)]), 
                  names(abs_default_deseq_p[abs_default_deseq_p < 0.01]), 
-                 names(mode_size_norm_permutate_ratio_by_geometric_mean[which(mode_size_norm_permutate_ratio_by_geometric_mean < 0.01)]))
+                 names(mode_size_norm_permutate_ratio_by_geometric_mean[which(mode_size_norm_permutate_ratio_by_geometric_mean < 0.01)]), 
+                 names(mode_size_norm_permutate_ratio_by_geometric_mean[mode_size_norm_permutate_ratio_by_geometric_mean < 0.01]))
 
 readcount_overlap <- Reduce(intersect, element_all_list)
 readcount_union <- Reduce(union, element_all_list)
@@ -274,19 +277,39 @@ plot_tree_pairwise_cor2 <- function (std_tree_cds, absolute_tree_cds)
     return(p)
 }
 
+std_HSMM <- orderCells(std_HSMM, reverse = T) #reverse the tree
 pdf('./supplementary_figures/fig5c_si.pdf', width = 4, height = 2)
 plot_tree_pairwise_cor2(std_HSMM, HSMM_myo) + nm_theme()
 dev.off()
 
-element_all <- c(row.names(HSMM_myo_size_norm_res[HSMM_myo_size_norm_res$qval <0.1, ]), 
-  row.names(std_HSMM_myo_pseudotime_res_ori[std_HSMM_myo_pseudotime_res_ori$qval <0.1, ]))
-sets_all <- c(rep(paste('Transcript counts (Size + VST)', sep = ''), nrow(HSMM_myo_size_norm_res[HSMM_myo_size_norm_res$qval <0.1, ])), 
-            rep(paste('FPKM', sep = ''), nrow(std_HSMM_myo_pseudotime_res_ori[std_HSMM_myo_pseudotime_res_ori$qval <0.1, ])))
+#muscle_std_glm_perm_pval, muscle_size_normalized_mc_glm_perm_pval
+HSMM_muscle_abs_pseudotime_deg <- intersect(row.names(HSMM_myo_size_norm_res[HSMM_myo_size_norm_res$pval <0.05, ]), names(muscle_size_normalized_mc_glm_perm_pval[!is.na(muscle_size_normalized_mc_glm_perm_pval)]))
+HSMM_muscle_fpkm_pseudotime_deg <- intersect(row.names(std_HSMM_myo_pseudotime_res_ori[std_HSMM_myo_pseudotime_res_ori$pval <0.05, ]), names(muscle_std_glm_perm_pval[!is.na(muscle_std_glm_perm_pval)]))
+element_all <- c(HSMM_muscle_abs_pseudotime_deg, 
+   HSMM_muscle_fpkm_pseudotime_deg)
+sets_all <- c(rep(paste('Transcript counts (Size + VST)', sep = ''), length(HSMM_muscle_abs_pseudotime_deg)), 
+            rep(paste('FPKM', sep = ''), length(HSMM_muscle_fpkm_pseudotime_deg)))
+table(sets_all) #number of genes
+
 pdf('./supplementary_figures/fig5d_si.pdf')
 venneuler_venn(element_all, sets_all)
 dev.off()
 table(sets_all) #number of genes
 
+# #precision: 
+# length(intersect(row.names(subset(HSMM_myo_size_norm_res, pval <= 0.05)), names(muscle_size_normalized_mc_glm_perm_pval[which(muscle_size_normalized_mc_glm_perm_pval < 0.05)]))) / 
+#       length(row.names(subset(HSMM_myo_size_norm_res, pval <= 0.05)))
+# length(intersect(row.names(subset(HSMM_myo_size_norm_res, pval <= 0.05)), names(muscle_std_glm_perm_pval[which(muscle_std_glm_perm_pval < 0.05)]))) / 
+#       length(row.names(subset(HSMM_myo_size_norm_res, pval <= 0.05)))
+# #recall: 
+# length(intersect(row.names(subset(HSMM_myo_size_norm_res, pval <= 0.05)), names(muscle_size_normalized_mc_glm_perm_pval[which(muscle_size_normalized_mc_glm_perm_pval < 0.05)]))) / 
+#       length(names(muscle_size_normalized_mc_glm_perm_pval[which(muscle_size_normalized_mc_glm_perm_pval < 0.05)]))
+# length(intersect(row.names(subset(HSMM_myo_size_norm_res, pval <= 0.05)), names(muscle_std_glm_perm_pval[which(muscle_std_glm_perm_pval < 0.05)]))) / 
+#       length(names(muscle_std_glm_perm_pval[which(muscle_std_glm_perm_pval < 0.05)]))
+
+# #F1 score: 
+
+names(muscle_size_normalized_mc_glm_perm_pval < 0.05)
 
 muscle_df$data_type = c("Transcript (size normalization)", "Transcript (size normalization)", "FPKM", "FPKM")
 
@@ -297,7 +320,7 @@ muscle_df.1 <- muscle_df[1:2, ]
 muscle_df[, 'Type'] <- c('Monocle', 'DESeq', 'DESeq', 'Monocle')
 colnames(muscle_df)[1:3] <- c('Precision', 'Recall', 'F1')
 
-pdf('./supplementary_figures/fig5e_si.pdf', width = 1.8, height = 1.5)
+pdf('./supplementary_figures/fig5e_si_ori.pdf', width = 1.8, height = 1.5)
 qplot(factor(Type), value, stat = "identity", geom = 'bar', position = 'dodge', fill = data_type, data = melt(muscle_df), log = 'y') + #facet_wrap(~variable) + 
     ggtitle(title) + scale_fill_discrete('Type') + xlab('') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
     ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + ylim(0, 1) + 
@@ -308,14 +331,14 @@ dev.off()
 ##############################################################################################################
 #make the tree plot with quake annotation:     
 pData(AT12_cds_subset_all_gene)$Cell_type <- as.character(pData(AT12_cds_subset_all_gene)$Cell_type)
-pData(AT12_cds_subset_all_gene)$Cell_type[67:183] <- 'no_avail'
+pData(AT12_cds_subset_all_gene)$Cell_type[c(14, 67:183)] <- 'no_avail'
 
 lung_custom_color_scale_plus_states <- c('no_avail' = 'gray', 'AT1' = '#40A43A', 'AT2' = '#CB1B1E', 'BP' = '#3660A5', 'bulk' = 'black')
 
 pdf('./supplementary_figures/fig6_si.pdf', height = 2, width = 2.5)
 plot_spanning_tree(AT12_cds_subset_all_gene, color_by="Cell_type", show_backbone=T, backbone_color = 'black', 
     markers=NULL, show_cell_names = F, cell_link_size = 0.2) + scale_size(range = c(0.1, 2.5)) + 
-    scale_color_manual(values=lung_custom_color_scale_plus_states) + coord_flip() + nm_theme()
+    scale_color_manual(values=lung_custom_color_scale_plus_states) + nm_theme() #+ coord_flip()
 dev.off()
 
 
@@ -345,12 +368,11 @@ colour[names(colour) == 'AT1'] <- AT1_Lineage
 colour[names(colour) == 'AT2'] <- AT2_Lineage
 
 pdf('./supplementary_figures/fig6b_si_kinetic_plots.pdf', height = 1.5, width = 5)
-plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[important_tf_ids, ], cell_color_by = "State", lineage_labels = c('AT1', 'AT2'), 
+plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[important_tf_ids, ], cell_color_by = "Time", lineage_labels = c('AT1', 'AT2'), 
     trajectory_color_by = "Lineage", trend_formula = '~sm.ns(Pseudotime, df = 3)*Lineage', normalize = F, stretch = T,
-    cell_size = 1, ncol = 3, reducedModelFormulaStr = "~ sm.ns(Pseudotime, df=3)", add_pval = T) + 
+    cell_size = 1, ncol = 3, reducedModelFormulaStr = "~ sm.ns(Pseudotime, df=3)", add_pval = T) + xlab('Pseudotime') + 
     ylab('Transcript counts') + nm_theme()
 dev.off()
-
 
 ##############################################################################################################
 
@@ -446,7 +468,6 @@ fdr_sensitivity <- function (est_pval, true_pval, TF_PN_vec, q_thrsld = 0.1, bet
   data.frame(fpr = fpr, sensitivity = sensitivity)
 }
 
-
 fdr_sensitivity_df <- plot_fdr_sensitivity(test_p_list = list(monocle_p = monocle_p, 
                                         monocle_p_readcount = monocle_p_readcount,
                                         mode_size_norm_permutate_ratio_by_geometric_mean = new_abs_size_norm_monocle_p_ratio_by_geometric_mean,
@@ -458,7 +479,11 @@ fdr_sensitivity_df <- plot_fdr_sensitivity(test_p_list = list(monocle_p = monocl
                                         default_deseq_p = default_deseq_p, 
                                         abs_default_deseq_p = abs_default_deseq_p, 
                                         scde_p = scde_p, 
-                                        abs_scde_p = abs_scde_p),
+                                        abs_scde_p = abs_scde_p, 
+                                        mast_abs_pval_no_norm = mast_abs_pval_no_norm, 
+                                        mast_mc_pval_no_norm = mast_mc_pval_no_norm, 
+                                        mast_std_pval_no_norm = mast_std_pval_no_norm, 
+                                        mast_count_pval_no_norm = mast_count_pval_no_norm),
                      permutate_pval = list(monocle_p = std_permutate_pval, #readcount_permutate_pval, #std_permutate_pval, 
                                            monocle_p_readcount = readcount_permutate_pval, 
                                            mode_size_norm_permutate_ratio_by_geometric_mean = mode_size_norm_permutate_ratio_by_geometric_mean,
@@ -471,28 +496,39 @@ fdr_sensitivity_df <- plot_fdr_sensitivity(test_p_list = list(monocle_p = monocl
                                            abs_default_deseq_p = mode_size_norm_permutate_ratio_by_geometric_mean, 
                                            # abs_default_deseq_p_new_norm = mode_size_norm_permutate_ratio_by_geometric_mean, 
                                            scde_p = readcount_permutate_pval, 
-                                           abs_scde_p = mode_size_norm_permutate_ratio_by_geometric_mean),
+                                           abs_scde_p = mode_size_norm_permutate_ratio_by_geometric_mean, 
+                                           mast_abs_pval_no_norm = mode_size_norm_permutate_ratio_by_geometric_mean, 
+                                           mast_mc_pval_no_norm = mc_mode_size_norm_permutate_ratio_by_geometric_mean, 
+                                           mast_std_pval_no_norm = std_permutate_pval, 
+                                           mast_count_pval_no_norm = readcount_permutate_pval),
                      row.names(absolute_cds), #gene_list, overlap_genes, high_gene_list
                      return_df = T, #na.rm = T, 
                      p_thrsld = 0.01, #0.05
                      rownames = c('monocle (FPKM)', 'monocle (readcount)', 'monocle (New size normalization)', 'monocle (New size normalization, Estimate transcript)', 
                         'edgeR (edgeR size normalization)', 'edgeR (New Size normalization)', 'DESeq2 (DESeq2 size normalization)', 'DESeq2 (New Size normalization)',
-                        'DESeq (DESeq size normalization)', "DESeq (New Size normalization)", 'SCDE (Read Counts)', 'SCDE (New size normalization)'))
-df3$data_type = c("Spikein transcripts", "Read counts", "Spikein transcripts", "Read counts", 
+                        'DESeq (DESeq size normalization)', "DESeq (New Size normalization)", 'SCDE (Read Counts)', 'SCDE (New size normalization)', 
+                        'MAST (absolute no normalization)', 'MAST (mc no normalization)', 'MAST (FPKM no normalization)', 'MAST (readcount no normalization)'))
+fdr_sensitivity_df$data_type = c("Read counts", "FPKM", "MC transcripts", "Spikein transcripts", "Spikein transcripts", "Read counts", "Spikein transcripts", "Read counts", 
 
 "Spikein transcripts", "Read counts", "Spikein transcripts", "Read counts", 
 
 "MC transcripts", "Spikein transcripts", "Read counts", "FPKM")
 
+fdr_sensitivity_df$class = '3relative'
 
-
-fdr_sensitivity_df[, 'Type'] <- c('SCDE', 'SCDE', 'DESeq1', 'DESeq1', 'DESeq2', 'DESeq2', 'edgeR', 'edgeR', 'Monocle', 'Monocle', 'Monocle', 'Monocle') # geom_bar(stat = 'identity', position = 'dodge') 
-fdr_sensitivity_df[, 'data_type'] <- df3[, 'data_type']
+fdr_sensitivity_df[, 'Type'] <- c('MAST', 'MAST', 'MAST', 'MAST', 'SCDE', 'SCDE', 'DESeq1', 'DESeq1', 'DESeq2', 'DESeq2', 'edgeR', 'edgeR', 'Monocle', 'Monocle', 'Monocle', 'Monocle') # geom_bar(stat = 'identity', position = 'dodge') 
 
 pdf('./tmp/cmpr_fpr_sensitivity.pdf', width = 3, height = 2)
 qplot(factor(Type), value, stat = "identity", geom = 'bar', position = 'dodge', fill = data_type, data = melt(fdr_sensitivity_df)) + #facet_wrap(~variable) + 
 ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
 ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + nm_theme()
 dev.off()
+
+pdf('./tmp/cmpr_fpr_sensitivity_helper.pdf', width = 3, height = 2)
+qplot(factor(Type), value, stat = "identity", geom = 'bar', position = 'dodge', fill = data_type, data = melt(fdr_sensitivity_df)) + #facet_wrap(~variable) + 
+ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
+ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) #+ nm_theme()
+dev.off()
+
 
 save.image('./RData/gen_supplementary_figure.RData')

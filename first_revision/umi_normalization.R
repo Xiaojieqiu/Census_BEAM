@@ -94,7 +94,7 @@ error = function(e) {
 split(as.vector(t_estimate), names(t_estimate)), 
 UMI_molModels) 
 
-pdf('./supplementary_figures/UMI_mode_dist.pdf')
+pdf('./supplementary_figures/UMI_mode_dist.pdf', width = 2, height = 2)
 qplot(UMI_mode_absolute_counts) + xlab('Transcript count for most frequent log10(TPM)') + nm_theme()
 dev.off()
 
@@ -103,7 +103,7 @@ UMI_models_kd_df <- do.call(rbind.data.frame, lapply(UMI_molModels, function(x) 
 
 pdf('./supplementary_figures/UMI_kb_line.pdf', width = 2, height = 2)
 qplot(k, b, data = UMI_models_kd_df) + geom_smooth(method = 'rlm') + 
-    xlab('Slope from FPKM vs. \n ERCC transcript counts') + ylab('Intercept from FPKM vs. \n ERCC transcript counts') +  nm_theme()
+    xlab('Slope from TPM vs. Median UMI counts \n for ERCC spike-in transcripts') + ylab('Intercept from TPM vs. Median UMI counts \n for ERCC spike-in transcripts') +  nm_theme()
 dev.off()
 
 rlm(b ~ k, data = UMI_models_kd_df)
@@ -128,9 +128,9 @@ qplot(apply(UMI_norm_recovery_all_correct_mc$norm_cds[-ERCC_ids, ], 2, sum), pDa
     nm_theme()
 dev.off()
 
-pdf('./supplementary_figures/UMI_algorithm_mean.pdf', width = 2, height = 2)
+pdf('./supplementary_figures/UMI_algorithm_mean.pdf', width = 2, height = 2.5)
 qplot(apply(UMI_norm_recovery_all_correct_mc$norm_cds[-ERCC_ids, ], 1, mean), esApply(UMI_cds[-ERCC_ids,  colnames(UMI_TPM_cds)], 1, mean), log = 'xy') + 
-    geom_smooth(method = 'rlm') + xlab('Mean endogenous mRNA count \n (algorithm)') + ylab('Mean endogenous mRNA count \n (spike-in regression)') + 
+    geom_smooth(method = 'rlm') + xlab('Mean endogenous mRNA count \n (algorithm)') + ylab('Mean endogenous mRNA count (regression: TPM vs.\n  Median UMI counts for ERCC spike-in transcripts)') + 
     nm_theme()
 dev.off()
 

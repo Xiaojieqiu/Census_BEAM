@@ -64,12 +64,13 @@ golgi_abs_grp_test_lineage23_res <- differentialGeneTest(Shalek_golgi_update[, p
 #make venn diagram: 
 abs_pseudotime_test_lineage23_res_gene_names <- intersect(row.names(abs_pseudotime_test_lineage2_res[abs_pseudotime_test_lineage2_res$qval < 0.05, ]),
 									 row.names(abs_pseudotime_test_lineage3_res[abs_pseudotime_test_lineage3_res$qval < 0.05, ]))
-beam_element_all <- c(abs_pseudotime_test_lineage23_res_gene_names, 
+beam_element_all <- c(
+   # abs_pseudotime_test_lineage23_res_gene_names, 
             row.names(abs_grp_test_lineage23_res[abs_grp_test_lineage23_res$qval < .05, ]), 
             quake_branch_genes #  %in% valid_expressed_genes
             )
 beam_sets_all <- c(
-         rep(paste('intersection of pseudotime test', sep = ''), length(abs_pseudotime_test_lineage23_res_gene_names)),
+         # rep(paste('intersection of pseudotime test', sep = ''), length(abs_pseudotime_test_lineage23_res_gene_names)),
          rep(paste('two group test', sep = ''), sum(abs_grp_test_lineage23_res$qval < .05)),
          rep(paste('BEAM test', sep = ''), length(quake_branch_genes))
          )
@@ -78,17 +79,20 @@ pdf(file = paste(fig_root_dir, 'lung_beam_test_benchmark.pdf', sep = ''))
 venneuler_venn(beam_element_all, beam_sets_all)
 dev.off()
 
+intersect(row.names(abs_grp_test_lineage23_res[abs_grp_test_lineage23_res$qval < .05, ]), 
+            quake_branch_genes )
+table(andrew_sets_all)
 #make venn diagram: 
 ko_abs_pseudotime_test_lineage23_res <- intersect(row.names(ko_abs_pseudotime_test_lineage2_res[ko_abs_pseudotime_test_lineage2_res$qval < 0.05, ]),
 									 row.names(ko_abs_pseudotime_test_lineage3_res[ko_abs_pseudotime_test_lineage3_res$qval < 0.05, ]))
 ko_beam_element_all <- c(
             row.names(ko_abs_grp_test_lineage23_res[ko_abs_grp_test_lineage23_res$qval < .05, ]), #0to6
-            ko_abs_pseudotime_test_lineage23_res, 
+            # ko_abs_pseudotime_test_lineage23_res, 
             row.names(ko_branching_genes[ko_branching_genes$qval < .05, ]) 
             )
 ko_beam_sets_all <- c(
          rep(paste('two group test', sep = ''), length(row.names(ko_abs_grp_test_lineage23_res[ko_abs_grp_test_lineage23_res$qval < .05, ]))),
-         rep(paste('intersection of pseudotime test', sep = ''), length(ko_abs_pseudotime_test_lineage23_res)),
+         # rep(paste('intersection of pseudotime test', sep = ''), length(ko_abs_pseudotime_test_lineage23_res)),
          rep(paste('BEAM test', sep = ''), length(row.names(ko_branching_genes[ko_branching_genes$qval < .05, ])))
          )
 
@@ -96,20 +100,30 @@ pdf(file = paste(fig_root_dir, 'ko_beam_test_benchmark.pdf', sep = ''))
 venneuler_venn(ko_beam_element_all, ko_beam_sets_all)
 dev.off()
 
+intersect(row.names(ko_abs_grp_test_lineage23_res[ko_abs_grp_test_lineage23_res$qval < .05, ]), #0to6
+            # ko_abs_pseudotime_test_lineage23_res, 
+            row.names(ko_branching_genes[ko_branching_genes$qval < .05, ]) )
+table(andrew_sets_all)
+
 #make venn diagram: 
 golgi_abs_pseudotime_test_lineage23_res <- intersect(row.names(golgi_abs_pseudotime_test_lineage2_res[golgi_abs_pseudotime_test_lineage2_res$qval < 0.05, ]),
 									 row.names(golgi_abs_pseudotime_test_lineage3_res[golgi_abs_pseudotime_test_lineage3_res$qval < 0.05, ]))
 
 golgi_beam_element_all <- c(
             row.names(golgi_abs_grp_test_lineage23_res[golgi_abs_grp_test_lineage23_res$qval < .05, ]), #0to6
-            golgi_abs_pseudotime_test_lineage23_res, 
+            # golgi_abs_pseudotime_test_lineage23_res, 
             row.names(golgi_branching_genes[golgi_branching_genes$qval < .05, ]) 
             )
 golgi_beam_sets_all <- c(
          rep(paste('two group test', sep = ''), length(row.names(golgi_abs_grp_test_lineage23_res[golgi_abs_grp_test_lineage23_res$qval < .05, ]))),
-         rep(paste('intersection of pseudotime test', sep = ''), length(golgi_abs_pseudotime_test_lineage23_res)),
+         # rep(paste('intersection of pseudotime test', sep = ''), length(golgi_abs_pseudotime_test_lineage23_res)),
          rep(paste('BEAM test', sep = ''), length(row.names(golgi_branching_genes[golgi_branching_genes$qval < .05, ])))
          )
+
+intersect(row.names(golgi_abs_grp_test_lineage23_res[golgi_abs_grp_test_lineage23_res$qval < .05, ]), #0to6
+            # golgi_abs_pseudotime_test_lineage23_res, 
+            row.names(golgi_branching_genes[golgi_branching_genes$qval < .05, ]) )
+table(andrew_sets_all)
 
 pdf(file = paste(fig_root_dir, 'golgi_beam_test_benchmark.pdf', sep = ''))
 venneuler_venn(golgi_beam_element_all, golgi_beam_sets_all)
@@ -119,12 +133,12 @@ dev.off()
 #make venn diagram: 
 abs_pseudotime_test_lineage23_res_gene_names <- union(row.names(abs_pseudotime_test_lineage2_res[abs_pseudotime_test_lineage2_res$qval < 0.05, ]),
 									 row.names(abs_pseudotime_test_lineage3_res[abs_pseudotime_test_lineage3_res$qval < 0.05, ]))
-beam_element_all <- c(abs_pseudotime_test_lineage23_res_gene_names, 
+beam_element_all <- c(#abs_pseudotime_test_lineage23_res_gene_names, 
             row.names(abs_grp_test_lineage23_res[abs_grp_test_lineage23_res$qval < .05, ]), 
             quake_branch_genes #  %in% valid_expressed_genes
             )
 beam_sets_all <- c(
-         rep(paste('union of pseudotime test', sep = ''), length(abs_pseudotime_test_lineage23_res_gene_names)),
+         # rep(paste('union of pseudotime test', sep = ''), length(abs_pseudotime_test_lineage23_res_gene_names)),
          rep(paste('two group test', sep = ''), sum(abs_grp_test_lineage23_res$qval < .05)),
          rep(paste('BEAM test', sep = ''), length(quake_branch_genes))
          )
@@ -138,12 +152,12 @@ ko_abs_pseudotime_test_lineage23_res <- union(row.names(ko_abs_pseudotime_test_l
 									 row.names(ko_abs_pseudotime_test_lineage3_res[ko_abs_pseudotime_test_lineage3_res$qval < 0.05, ]))
 ko_beam_element_all <- c(
             row.names(ko_abs_grp_test_lineage23_res[ko_abs_grp_test_lineage23_res$qval < .05, ]), #0to6
-            ko_abs_pseudotime_test_lineage23_res, 
+            # ko_abs_pseudotime_test_lineage23_res, 
             row.names(ko_branching_genes[ko_branching_genes$qval < .05, ]) 
             )
 ko_beam_sets_all <- c(
          rep(paste('two group test', sep = ''), length(row.names(ko_abs_grp_test_lineage23_res[ko_abs_grp_test_lineage23_res$qval < .05, ]))),
-         rep(paste('union of pseudotime test', sep = ''), length(ko_abs_pseudotime_test_lineage23_res)),
+         # rep(paste('union of pseudotime test', sep = ''), length(ko_abs_pseudotime_test_lineage23_res)),
          rep(paste('BEAM test', sep = ''), length(row.names(ko_branching_genes[ko_branching_genes$qval < .05, ])))
          )
 
@@ -157,12 +171,12 @@ golgi_abs_pseudotime_test_lineage23_res <- union(row.names(golgi_abs_pseudotime_
 
 golgi_beam_element_all <- c(
             row.names(golgi_abs_grp_test_lineage23_res[golgi_abs_grp_test_lineage23_res$qval < .05, ]), #0to6
-            golgi_abs_pseudotime_test_lineage23_res, 
+            # golgi_abs_pseudotime_test_lineage23_res, 
             row.names(golgi_branching_genes[golgi_branching_genes$qval < .05, ]) 
             )
 golgi_beam_sets_all <- c(
          rep(paste('two group test', sep = ''), length(row.names(golgi_abs_grp_test_lineage23_res[golgi_abs_grp_test_lineage23_res$qval < .05, ]))),
-         rep(paste('union of pseudotime test', sep = ''), length(golgi_abs_pseudotime_test_lineage23_res)),
+         # rep(paste('union of pseudotime test', sep = ''), length(golgi_abs_pseudotime_test_lineage23_res)),
          rep(paste('BEAM test', sep = ''), length(row.names(golgi_branching_genes[golgi_branching_genes$qval < .05, ])))
          )
 

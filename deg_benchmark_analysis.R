@@ -1,4 +1,4 @@
-load('./RData/prepare_lung_data.RData')
+# load('./RData/prepare_lung_data.RData')
 library(monocle)
 library(xacHelper)
 library(MAST)
@@ -114,117 +114,23 @@ std_split_cds <- split(t(exprs(new_std_cds_14_18[1:transcript_num, Time_order]))
 std_fc <- esApply(new_std_cds_14_18[1:transcript_num, ], 1, mean_fc, grp0 = 'E14.5', grp1 = 'E18.5')
 std_split_fc <- split(t(std_fc), col(t(std_fc), as.factor = T))
 
-permuation_pval <- function(x, fc, alpha = 43, beta = 74, permutate_num = 10000, return_fc = F) {
-    fc_vec <- rep(0, permutate_num)
-    pval <- 1
+#std_permutate_pval <- mcmapply(permuation_pval, std_split_cds, std_split_fc, alpha = 43, beta = 60, mc.cores = detectCores()) #multiple cores 
 
-    if (!is.finite(fc))
-        pval <- 1
-    else {
-      for (i in 1:permutate_num) {
-          x <- sample(x, length(x))
-          x_0 <- (mean(x[1:alpha]))
-          x_1 <- (mean(x[(alpha + 1):(alpha + beta)]))
-          mean_fc <- log2(x_1/x_0)
-          fc_vec[i] <- mean_fc
-      }
-      if (fc > 0)
-          pval <- sum(fc <= fc_vec, na.rm = T)/length(fc_vec)
-      else pval <- sum(fc >= fc_vec, na.rm = T)/length(fc_vec)
-    }
+# two-group permutation tests (the same as above)
+std_permutate_pval <- permu_two_group_gen(new_std_cds_14_18[, Time_order], alpha = 43, beta = 60, grp0 = 'E14.5', grp1 = 'E18.5', group = pData(new_std_cds_14_18)$Time)
 
-    if (return_fc)
-        return(list(pval = pval, fc_vec = fc_vec))
-    else return(pval)
-}
+permutation results for two group test on the readcounts value (gold standard for DESEeq / SCDE on readcount data): 
+readcount_split_cds <- split(t(exprs(count_cds[1:transcript_num, Time_order])), col(t(exprs(count_cds[1:transcript_num, Time_order])), as.factor = T))
+readcount_fc <- esApply(count_cds[1:transcript_num, ], 1, mean_fc, grp0 = 'E14.5', grp1 = 'E18.5') #valid_gene_id
+readcount_split_fc <- split(t(readcount_fc), col(t(readcount_fc), as.factor = T))
+## readcount_permutate_pval <- mcmapply(permuation_pval, readcount_split_cds, readcount_split_fc, alpha = 43, beta = 60, mc.cores = detectCores()) #multiple cores 
 
-mc_perm_test_work_around <- function(cds, alpha = 43, beta = 60){ 
-    split_cds <- split(t(exprs(cds)), col(t(exprs(cds)), as.factor = T))
-    fc <- esApply(cds, 1, mean_fc, grp0 = 'E14.5', grp1 = 'E18.5') #valid_gene_id
-    split_fc <- split(t(fc), col(t(fc), as.factor = T))
+# two-group permutation tests (the same as above)
+readcount_permutate_pval <- permu_two_group_gen(count_cds[, Time_order], alpha = 43, beta = 60, grp0 = 'E14.5', grp1 = 'E18.5', group = pData(count_cds)$Time)
 
-    permutate_pval <- mclapply(1:length(split_cds), function(x){
-      res <- permuation_pval(split_cds[[x]], split_fc[[x]], alpha = 43, beta = 60)
-      if(length(res) == 1)
-       res <- res 
-      else
-       res <- 1
-    }, mc.cores = detectCores())
-
-  permutate_pval_update <- lapply(permutate_pval, function(x) 
-    if(is.null(x))
-      1
-    else 
-      x)
-
-  permutate_pval <- unlist(permutate_pval_update)
-  names(permutate_pval) <- names(split_cds)
-
-  return(permutate_pval)
-}
-
-# std_permutate_pval <- mcmapply(permuation_pval, std_split_cds, std_split_fc, alpha = 43, beta = 60, mc.cores = detectCores()) #multiple cores 
-
-# std_permutate_pval <- mapply(permuation_pval, std_split_cds, std_split_fc, alpha = 43, beta = 60) #no parallel
-
-# std_permutate_pval <- mclapply(1:length(std_split_cds), function(x){
-#   res <- permuation_pval(std_split_cds[[x]], readcount_split_fc[[x]], alpha = 43, beta = 60)
-#   if(length(res) == 1)
-#    res <- res 
-#   else
-#    res <- 1
-#   # res <- x
-#   }, mc.cores = detectCores())
-
-# std_permutate_pval_update <- lapply(std_permutate_pval, function(x) 
-#   if(is.null(x))
-#     1
-#   else 
-#     x)
-
-# std_permutate_pval <- unlist(std_permutate_pval)
-# names(std_permutate_pval) <- names(std_split_cds)
-
-#two-group permutation tests (the same as above)
-#std_permutate_pval <- permu_two_group_gen(new_std_cds_14_18[, Time_order], alpha = 43, beta = 60, grp0 = 'E14.5', grp1 = 'E18.5', group = pData(new_std_cds_14_18)$Time)
-
-#permutation results for two group test on the readcounts value (gold standard for DESEeq / SCDE on readcount data): 
-# readcount_split_cds <- split(t(exprs(count_cds[1:transcript_num, Time_order])), col(t(exprs(count_cds[1:transcript_num, Time_order])), as.factor = T))
-# readcount_fc <- esApply(count_cds[1:transcript_num, ], 1, mean_fc, grp0 = 'E14.5', grp1 = 'E18.5') #valid_gene_id
-# readcount_split_fc <- split(t(readcount_fc), col(t(readcount_fc), as.factor = T))
-# ## 
-# readcount_permutate_pval <- mcmapply(permuation_pval, readcount_split_cds, readcount_split_fc, alpha = 43, beta = 60, mc.cores = detectCores()) #multiple cores 
-
-# readcount_permutate_pval <- mclapply(1:length(readcount_split_cds), function(x){
-#   res <- permuation_pval(readcount_split_cds[[x]], readcount_split_fc[[x]], alpha = 43, beta = 60)
-#   if(length(res) == 1)
-#    res <- res 
-#   else
-#    res <- 1
-#   # res <- x
-#   }, mc.cores = detectCores())
-
-# readcount_permutate_pval_update <- lapply(readcount_permutate_pval, function(x) 
-#   if(is.null(x))
-#     1
-#   else 
-#     x)
-
-# readcount_permutate_pval <- unlist(readcount_permutate_pval_update)
-# names(readcount_permutate_pval) <- names(readcount_split_cds)
-
-# # two-group permutation tests (the same as above)
-# readcount_permutate_pval <- permu_two_group_gen(count_cds[, Time_order], alpha = 43, beta = 60, grp0 = 'E14.5', grp1 = 'E18.5', group = pData(count_cds)$Time)
-
-# # permutation results for two group test on the normalized absolute value (gold standard for DESEeq / SCDE on readcount data): 
-# mode_size_norm_permutate_ratio_by_geometric_mean <- cal_perm_pval_size_norm(new_abs_cds_14_18[1:transcript_num, Time_order], alpha = 43, beta = 60)
-# mc_mode_size_norm_permutate_ratio_by_geometric_mean <- cal_perm_pval_size_norm(new_mc_cds_14_18[1:transcript_num, Time_order], alpha = 43, beta = 60)
-
-std_permutate_pval <- mc_perm_test_work_around(new_std_cds_14_18[1:transcript_num, Time_order])
-readcount_permutate_pval <- mc_perm_test_work_around(count_cds[1:transcript_num, Time_order])
-
-mode_size_norm_permutate_ratio_by_geometric_mean <- mc_perm_test_work_around(new_abs_cds_14_18[1:transcript_num, Time_order])
-mc_mode_size_norm_permutate_ratio_by_geometric_mean <- mc_perm_test_work_around(new_mc_cds_14_18[1:transcript_num, Time_order])
+# permutation results for two group test on the normalized absolute value (gold standard for DESEeq / SCDE on readcount data): 
+mode_size_norm_permutate_ratio_by_geometric_mean <- cal_perm_pval_size_norm(new_abs_cds_14_18[1:transcript_num, Time_order], alpha = 43, beta = 60)
+mc_mode_size_norm_permutate_ratio_by_geometric_mean <- cal_perm_pval_size_norm(new_mc_cds_14_18[1:transcript_num, Time_order], alpha = 43, beta = 60)
 
 #add the DEG tests using edgeR / DESeq2: 
 edgeR_res <- edgeR_test(glm = T)
@@ -232,7 +138,7 @@ abs_edgeR_res <- edgeR_test(exprs(new_abs_cds_14_18[1:transcript_num, ]), group 
 
 edgeR_res_glm <- edgeR_test()
 abs_edgeR_res_glm <- edgeR_test(exprs(new_abs_cds_14_18[1:transcript_num, ]), group = Time_ori)
-
+  
 deseq2_res <- DESeq2_deg(dir = NULL, count_cds[1:transcript_num, ], Time = Time_ori, pd = pData(count_cds))
 abs_deseq2_res <- DESeq2_deg(dir = NULL, new_abs_cds_14_18[1:transcript_num, ], Time = Time_ori, pd = pData(new_abs_cds_14_18))
 
@@ -332,6 +238,12 @@ pdf('./supplementary_figures/fig2a_si.pdf', width = 3, height = 2)
 qplot(factor(Type), value, stat = "identity", geom = 'bar', position = 'dodge', fill = data_type, data = melt(df3.1)) + #facet_wrap(~variable) + 
 ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
 ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + nm_theme()
+dev.off()
+
+pdf('./supplementary_figures/fig2a_si_helper.pdf', width = 3, height = 2)
+qplot(factor(Type), value, stat = "identity", geom = 'bar', position = 'dodge', fill = data_type, data = melt(df3.1)) + #facet_wrap(~variable) + 
+ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
+ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) #+ nm_theme()
 dev.off()
 
 # distribution of pval vs the mean expression: 

@@ -71,5 +71,7 @@ Other:
 ##DHS analysis: 
 Quake_intersect_dhs.sh and Shalek_intersect_dhs.sh are the shell scripts used to perform the DHS analysis disussed in the supplementary file. For simplicity, we only provided the output gmt files in the data folder for the current distribution.  
 
+New scripts used to generated new figures since the last submission: 
+- 
 
 

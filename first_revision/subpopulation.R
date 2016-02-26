@@ -1,9 +1,11 @@
-# load('./RData/analysis_shalek_data.RData')
+load('./RData/analysis_shalek_data.RData')
 
 library(monocle)
 library(xacHelper) #plot_clustering_heatmap
 library(pheatmap)
 library(colorRamps)
+load_all_libraries()
+library(grid)
 
 #select unstimulated cells: 
 shalek_unstimulated_cells <- row.names(subset(pData(Shalek_golgi_update), experiment_name == 'Unstimulated_Replicate'))

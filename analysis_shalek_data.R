@@ -1,6 +1,8 @@
 ################################################################################################################################################
  # The following script is based on Adnrew's work #
  ################################################################################################################################################
+#color scheme for shalek tree analysis: 
+shalek_custom_color_scale = c("Unstimulated."="#eff3ff", "On_Chip_Unstim."="#eff3ff", "LPS.1h"="#bdd7e7", "LPS.2h"="#6baed6", "LPS.4h"="#3182bd", "LPS.6h"="#08519c", "PIC.1h"="#bae4b3", "PIC.2h"="#74c476", "PIC.4h"="#31a354", "PIC.6h"="#006d2c", "PAM.1h"="#fdbe85", "PAM.2h"="#fd8d3c", "PAM.4h"="#e6550d", "PAM.6h"="#a63603", "LPS_GolgiPlug.4h_0h"="#fcae91", "LPS_GolgiPlug.4h_1h"="#fb6a4a", "LPS_GolgiPlug.4h_2h"="#cb181d", "Ifnar1_KO_LPS.2h"="#df65b0", "Ifnar1_KO_LPS.4h"="#dd1c77", "Stat1_KO_LPS.2h"="#969696", "Stat1_KO_LPS.4h"="#252525")
 
 library(monocle)
 library(stringr)
@@ -47,8 +49,6 @@ AT1_Lineage = "#BD1C7C"
 AT2_Lineage = "#337DB9" 
 
 #  #load the data: 
-#  # load('xiaojie_test_data.gz') #make the dataset
-source('./data/monocle_helper_functions.R')
 Shalek_valid_genes <- read.table('./data/Aviv_data/valid_genes_for_analyis.txt', header = T)
 Shalek_exprs_mat <- read.table("./data/Aviv_data/cuffnorm_output_files/genes.fpkm_table", row.names = 1, header = T)
 Shalek_fd <- read.table("./data/Aviv_data/cuffnorm_output_files/genes.attr_table", row.names = 1, header = T)

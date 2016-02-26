@@ -3,7 +3,7 @@ install.packages('./ggplot2_1.0.1.tar.gz', dependencies = TRUE)
 
 #install all packages: 
 packages = c("ggplot2", "VGAM", "igraph", "pRlyr", "combinat", "fastICA", "irlba", "matrixStats", "reshape2", "R.utils", "snow", "tsne", "lle", ###DDRTree package 
-        "stringr", "modeest", "Hmisc", "boot", "doMC", "data.table", "fitdistrplus", "ggdendro", "gplots", "princurve", "sp", "devtools",
+        "stringr", "modeest", "Hmisc", "boot", "doMC", "data.table", "fitdistrplus", "ggdendro", "gplots", "princurve", "sp", "devtools", "gridExtra",
         "lmtest", "MASS", "mixsmsn", "pheatmap", "plyr", "pscl", "RColorBrewer", "VennDiagram", "zoo", "raster", "colorRamps", "grid", "ROCR")
 
 install.packages(packages, repo = 'http://cran.fhcrc.org/')

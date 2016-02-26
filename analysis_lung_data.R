@@ -46,6 +46,7 @@ abs_AT12_cds_subset_all_gene@dim_reduce_type <- 'ICA'
 weihgted_relative_abs_AT12_cds_subset_all_gene <- branchTest(abs_AT12_cds_subset_all_gene[1:transcript_num, ], cores = detectCores(), relative_expr = T, weighted = T)
 weihgted_relative_abs_AT12_cds_subset_quake_gene <- branchTest(abs_AT12_cds_subset_all_gene[add_quake_gene_all_marker_ids, ], cores = detectCores(), relative_expr = T, weighted = T)
 
+closeAllConnections()
 
 abs_AT12_cds_subset_all_gene_ILRs_list <- calILRs(cds = abs_AT12_cds_subset_all_gene[1:transcript_num, ], lineage_states = c(2, 3), stretch = T, cores = detectCores(), 
   trend_formula = "~sm.ns(Pseudotime, df = 3) * Lineage", ILRs_limit = 3, 
@@ -56,6 +57,12 @@ weighted_abs_AT12_cds_subset_all_gene_ILRs_list <- calILRs(cds = abs_AT12_cds_su
   trend_formula = "~sm.ns(Pseudotime, df = 3) * Lineage", ILRs_limit = 3, 
   relative_expr = T, weighted = T, label_by_short_name = F, 
   useVST = T, round_exprs = FALSE, pseudocount = 0, output_type = "all", file = "weighted_abs_AT12_cds_subset_all_gene_ILRs_list", return_all = T)
+
+#with progenitor duplication
+duplicate_progenitors_weighted_abs_AT12_cds_subset_all_gene_ILRs_list <- calILRs(cds = abs_AT12_cds_subset_all_gene[1:transcript_num, ], lineage_states = c(2, 3), stretch = T, cores = detectCores(), 
+    trend_formula = "~sm.ns(Pseudotime, df = 3) * Lineage", ILRs_limit = 3, progenitor_method = 'duplicate', 
+    relative_expr = T, weighted = T, label_by_short_name = F, 
+    useVST = T, round_exprs = FALSE, pseudocount = 0, output_type = "all", file = "duplicate_progenitors_weighted_abs_AT12_cds_subset_all_gene_ILRs_list", return_all = T)
 
 abs_bifurcation_time <- detectBifurcationPoint(weighted_abs_AT12_cds_subset_all_gene_ILRs_list$norm_str_logfc_df[1:transcript_num, 27:100], div_threshold = 0.3)
 names(abs_bifurcation_time) <- fData(absolute_cds[names(abs_bifurcation_time), ])$gene_short_name

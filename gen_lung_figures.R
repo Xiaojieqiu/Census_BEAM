@@ -150,7 +150,7 @@ abs_str_logfc_df_list <- calILRs(cds = abs_AT12_cds_subset_all_gene[add_quake_ge
   useVST = T, round_exprs = FALSE, pseudocount = 0, output_type = "all", file = "str_logfc_df", return_all = T)
 
 #make the plot for the comparing of the bifurcation timing: 
-abs_bifurcation_time <- detectBifurcationPoint(abs_str_logfc_df_list$str_norm_div_df[, ], ILRs_threshold = 0.3)
+abs_bifurcation_time <- detectBifurcationPoint(abs_str_logfc_df_list$str_norm_div_df[, ], ILRs_threshold = 0.3) #return the inflection point
 names(abs_bifurcation_time) <- fData(abs_AT12_cds_subset_all_gene[row.names(abs_str_logfc_df_list$str_norm_div_df), ])$gene_short_name
 abs_valid_bifurcation_time  <- abs_bifurcation_time[!is.na(abs_bifurcation_time)]
 abs_valid_bifurcation_time <- abs_valid_bifurcation_time[unique(names(abs_valid_bifurcation_time))]
@@ -183,7 +183,7 @@ add_quake_gene_all_marker_ids_branchTest_res <- weihgted_relative_abs_AT12_cds_s
 valid_add_quake_gene_all_marker_ids <- row.names(subset(add_quake_gene_all_marker_ids_branchTest_res, qval < 0.1))
 
 jet.colors <- colorRampPalette(c("#4F64AD", "#F6F7FB", "#F2991F"))
-bk <- seq(-3.1,3.1, by=0.1)
+bk <- seq(0,3.1, by=0.1)
 hmcols <- jet.colors(length(bk) - 1)
 
 #Quake figure in the paper: 
@@ -202,12 +202,12 @@ cell_cycle_markers_id <- row.names(subset(fData(absolute_cds), gene_short_name %
 
 cell_cycle_timing_example_ids_df <- weihgted_relative_abs_AT12_cds_subset_all_gene[c(timing_example_ids, cell_cycle_markers_id), c('gene_short_name', 'pval')]
 
-add_annotation_row <- data.frame(significance = as.numeric(cell_cycle_timing_example_ids_df$pval < 0.05), row.names = row.names(cell_cycle_timing_example_ids_df), 
+add_annotation_row <- data.frame(significance = as.numeric(cell_cycle_timing_example_ids_df$pval < 0.01), row.names = row.names(cell_cycle_timing_example_ids_df), 
                               Type = c(rep("Markers", length(timing_example_ids)), rep("Cell cycle", length(cell_cycle_markers))))
 
-pdf(paste(submission_directory, 'main_figures/fig2d.pdf', sep = ''))
+pdf(paste(submission_directory, 'main_figures/fig2d.pdf', sep = ''), width = 3.9, height = 3.1)
 time_annotated_heatmap <- plot_genes_branched_heatmap(abs_AT12_cds_subset_all_gene[c(timing_example_ids, cell_cycle_markers_id), ], 
-  num_clusters=4, norm_method = "log", use_fitting_curves = F, scaling = F, hmcols = hmcols, use_gene_short_name = T,
+  num_clusters=4, norm_method = "log", use_fitting_curves = F, scaling = T, hmcols = hmcols, use_gene_short_name = T,
   add_annotation_row = add_annotation_row, return_all = T, show_rownames = T)
 dev.off()
 
@@ -243,9 +243,11 @@ Time <- pData(absolute_cds)$Time
 kb_df <- t(rbind.data.frame(lapply(molModels, function(x) c(b = coef(x)[1], k = coef(x)[2]))))
 colnames(kb_df) <- c('b', 'k')
 
-t <- -kb_df[, 'b'] / kb_df[, 'k']
+t <- -kb_df[, 'b'] / kb_df[, 'k'] 
 pdf('./main_figures/fig3c.pdf', width = 2, height = 2)
-qplot(k, b, data = as.data.frame(kb_df), color = Time) + scale_size(range = c(0.1, 2.5)) + nm_theme() 
+qplot(k, b, data = as.data.frame(kb_df), color = Time, size = 1, alpha = 0.5) + scale_size(range = c(0.1, 1),  limits = c(0.1, 1)) + 
+    geom_smooth(method = 'rlm', color = 'blue', se = T, size = 0.5) + 
+    xlab("Slope from FPKM vs.\n ERCC transcript counts") + ylab("Intercept from FPKM vs.\n ERCC transcript counts") + nm_theme()
 dev.off()
 
 pdf('./tmp/fig3c_helper.pdf', width = 2, height = 2)
@@ -390,7 +392,7 @@ quake_branch_genes <- row.names(subset(weihgted_relative_abs_AT12_cds_subset_all
 fData(abs_AT12_cds_subset_all_gene)$num_cell_expressed <- esApply(abs_AT12_cds_subset_all_gene[, ], 1, function(x) sum(round(x) > 0))
 valid_expressed_genes <- row.names(subset(fData(abs_AT12_cds_subset_all_gene), num_cell_expressed > 5))
 
-pdf(paste(submission_directory, 'main_figures/fig4b.pdf', sep = ''))
+pdf(paste(submission_directory, 'main_figures/fig4b.pdf', sep = ''), height = 2.45, width = 3.4)
 all_AT12_heatmap <- plot_genes_branched_heatmap(abs_AT12_cds_subset_all_gene[quake_branch_genes[quake_branch_genes %in% valid_expressed_genes], ], cores = detectCores(), 
   stretch = T, return_all = T)
 dev.off()
@@ -446,6 +448,8 @@ qplot(cluster_id, gene_set, fill=cluster_color, geom="tile", data=valid_hyper_df
 dev.off()
 
 #Figure 4d: 
+new_cds <- buildLineageBranchCellDataSet(abs_AT12_cds_subset_all_gene[1:10, ], lineage_labels = c('AT1', 'AT2'))
+
 colour_cell <- rep(0, length(new_cds$Lineage))
 names(colour_cell) <- as.character(new_cds$State)
 colour_cell[names(colour_cell) == '1'] <- prog_cell_state
@@ -462,12 +466,23 @@ branch_motif_Tfs <- gene_grn_list$branch_tfs[toupper(gene_grn_list$branch_tfs) %
             toupper(gene_grn_list$branch_tfs) %in% toupper(valid_hyper_df$second)]
 branch_motif_Tfs_id <- row.names(subset(fData(abs_AT12_cds_subset_all_gene), toupper(gene_short_name) %in% branch_motif_Tfs)) 
 
-pdf('./main_figures/fig4d.pdf', width = 5, height = 3)
+select_genes <- c('Cebpa', 'Foxp2', 'Klf5',  'Tcf7l2') #Fosl2, Maff, Nr3c1
+select_branch_motif_Tfs_id <- row.names(subset(fData(abs_AT12_cds_subset_all_gene), toupper(gene_short_name) %in% toupper(select_genes))) 
+
+pdf('./main_figures/fig4d.pdf', width = 5, height = 1.5)
 # pdf('fig4d.pdf', width = 5, height = 3)
-plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[branch_motif_Tfs_id, ], cell_color_by = "State", 
-              trajectory_color_by = "Lineage", fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', normalize = F, stretch = T,
-              lineage_labels = c('AT1', 'AT2'), cell_size = 1, ncol = 4, reducedModelFormulaStr = "~sm.ns(Pseudotime, df=3)", add_pval = T) + 
-              ylab('Transcript counts') + nm_theme() + xlab('Pseudotime')
+  plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[select_branch_motif_Tfs_id, ], cell_color_by = "State", 
+                trajectory_color_by = "Lineage", fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', normalize = F, stretch = T,
+                lineage_labels = c('AT1', 'AT2'), cell_size = 1, ncol = 4, reducedModelFormulaStr = "~sm.ns(Pseudotime, df=3)", add_pval = T) + 
+                ylab('Transcript counts') + nm_theme() + xlab('Pseudotime')
+dev.off()
+
+pdf('./supplementary_figures/fig4d_si.pdf', width = 5, height = 3)
+# pdf('fig4d.pdf', width = 5, height = 3)
+  plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[branch_motif_Tfs_id, ], cell_color_by = "State", 
+                trajectory_color_by = "Lineage", fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', normalize = F, stretch = T,
+                lineage_labels = c('AT1', 'AT2'), cell_size = 1, ncol = 4, reducedModelFormulaStr = "~sm.ns(Pseudotime, df=3)", add_pval = T) + 
+                ylab('Transcript counts') + nm_theme() + xlab('Pseudotime')
 dev.off()
 
 #########################################################################################################

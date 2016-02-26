@@ -11,8 +11,10 @@ library(pheatmap)
 library(plyr)
 library(stringr)
 
-load('./RData/analysis_shalek_data.RData')
+# load('./RData/analysis_shalek_data.RData')
 fig_root_dir = './main_figures/'
+
+#
 shalek_custom_color_scale_plus_states= c(shalek_custom_color_scale, c('1'='#40A43A', '2'='#CB1B1E', '3'='#3660A5', 'Unstimulated_Replicate.' = 'gray'))
 
 #########################################################################################################
@@ -21,19 +23,19 @@ shalek_custom_color_scale_plus_states= c(shalek_custom_color_scale, c('1'='#40A4
 #########################################################################################################
 #panel b: 
 pdf(file =paste(fig_root_dir, 'fig5b.pdf', sep = ''), height = 3, width = 3)
-monocle::plot_spanning_tree(Shalek_abs_subset_ko_LPS, color_by="interaction(experiment_name, time)", cell_size=1) + 
-scale_color_manual(values=shalek_custom_color_scale_plus_states) + illustrator_theme() 
+monocle::plot_spanning_tree(Shalek_abs_subset_ko_LPS, color_by="interaction(experiment_name, time)", cell_size=2) + 
+scale_color_manual(values=shalek_custom_color_scale_plus_states) + nm_theme()
 dev.off()
 
 #for making the legends: 
 pdf(file =paste('./tmp/', 'fig5b_helpA.pdf', sep = ''), height = 3, width = 3)
-monocle::plot_spanning_tree(Shalek_abs_subset_ko_LPS, color_by="interaction(experiment_name, time)", cell_size=1) + 
-scale_color_manual(values=shalek_custom_color_scale_plus_states) + illustrator_theme() 
+monocle::plot_spanning_tree(Shalek_abs_subset_ko_LPS, color_by="interaction(experiment_name, time)", cell_size=2) + 
+scale_color_manual(values=shalek_custom_color_scale_plus_states) + nm_theme()
 dev.off()
 
 pdf(file =paste('./tmp/', 'fig5b_helpB.pdf', sep = ''), height = 3, width = 3)
-monocle::plot_spanning_tree(Shalek_abs_subset_ko_LPS, color_by="State", cell_size=1) + 
-scale_color_manual(values=shalek_custom_color_scale_plus_states) + illustrator_theme() 
+monocle::plot_spanning_tree(Shalek_abs_subset_ko_LPS, color_by="State", cell_size=2) + 
+scale_color_manual(values=shalek_custom_color_scale_plus_states) + nm_theme()
 dev.off()
 
 #########################################################################################################
@@ -55,15 +57,15 @@ names(Shalek_abs_subset_ko_LPS_tree_heatmap_clusters) <- capitalize(tolower(name
 Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_reactome <- collect_gsa_hyper_results(Shalek_abs_subset_ko_LPS, gsc = mouse_reactome_gsc, Shalek_abs_subset_ko_LPS_tree_heatmap_clusters)
 
 pdf(file =paste(fig_root_dir, 'fig5c_reactome.pdf', sep = ''), height = 15, width = 7)
-plot_gsa_hyper_heatmap(Shalek_abs_subset_ko_LPS, Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_reactome, significance=1e-3) + illustrator_theme() 
+plot_gsa_hyper_heatmap(Shalek_abs_subset_ko_LPS, Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_reactome, significance=1e-1) + nm_theme()
 dev.off()
 
 save_hyper_df(Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_reactome, './supplementary_data/ko_hyper_df.xls') 
 
 Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_go <- collect_gsa_hyper_results(Shalek_abs_subset_ko_LPS, gsc = mouse_go_gsc, Shalek_abs_subset_ko_LPS_tree_heatmap_clusters)
 
-pdf(file =paste(fig_root_dir, 'fig5c_reactome.pdf', sep = ''), height = 15, width = 7)
-plot_gsa_hyper_heatmap(Shalek_abs_subset_ko_LPS, Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_go, significance=1e-3) + illustrator_theme() 
+pdf(file =paste(fig_root_dir, 'fig5c_go.pdf', sep = ''), height = 25, width = 7)
+plot_gsa_hyper_heatmap(Shalek_abs_subset_ko_LPS, Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_go, significance=1e-2) + nm_theme()
 dev.off()
 
 save_hyper_df(Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_go, './supplementary_data/go_ko_hyper_df.xls') 
@@ -119,7 +121,7 @@ hyper_df_cluster2_order$label[c(5:STAT1_id, STAT1_id:nrow(hyper_df_cluster2_orde
 #add the barplot with the horizontal line: 
 pdf(file = paste(fig_root_dir, 'fig5d.pdf', sep = ''), height = 2, width = 3)
 qplot(1:nrow(hyper_df_cluster2_order), - log10(qval), data=hyper_df_cluster2_order, geom = c('bar'), stat = 'identity', fill = 'red') +  
-illustrator_theme() + geom_hline(yintercept = 1, linetype = 2, size  = 0.2, color = 'blue') + xlab('')
+nm_theme()+ geom_hline(yintercept = 1, linetype = 2, size  = 0.2, color = 'blue') + xlab('')
 dev.off()
 
 #########################################################################################################
@@ -128,18 +130,18 @@ dev.off()
 #########################################################################################################
 #panel b: 
 pdf(file = paste(fig_root_dir, 'fig6b.pdf', sep = ''), height = 3, width = 3)
-monocle::plot_spanning_tree(Shalek_golgi_update, color_by="interaction(experiment_name, time)", cell_size=1) + 
-scale_color_manual(values=shalek_custom_color_scale_plus_states) + illustrator_theme() 
+monocle::plot_spanning_tree(Shalek_golgi_update, color_by="interaction(experiment_name, time)", cell_size=2) + 
+scale_color_manual(values=shalek_custom_color_scale_plus_states) + nm_theme()
 dev.off()
 
 #help figures for adding the legend: 
 pdf(file = paste('./supplementary_figures/', 'fig6b_heplerA.pdf', sep = ''), height = 12, width = 12)
-monocle::plot_spanning_tree(Shalek_golgi_update, color_by="interaction(experiment_name, time)", cell_size=1) + 
+monocle::plot_spanning_tree(Shalek_golgi_update, color_by="interaction(experiment_name, time)", cell_size=2) + 
 scale_color_manual(values=shalek_custom_color_scale_plus_states) 
 dev.off()
 
 pdf(file = paste('./supplementary_figures/', 'fig6b_heplerB.pdf', sep = ''), height = 12, width = 12)
-monocle::plot_spanning_tree(Shalek_golgi_update, color_by="State", cell_size=1) + 
+monocle::plot_spanning_tree(Shalek_golgi_update, color_by="State", cell_size=2) + 
 scale_color_manual(values=shalek_custom_color_scale_plus_states)
 dev.off()
 
@@ -150,7 +152,7 @@ fData(Shalek_golgi_update)$num_cell_expressed <- esApply(Shalek_golgi_update[, ]
 golgi_valid_expressed_genes <- row.names(subset(fData(Shalek_golgi_update), num_cell_expressed > 5))
 
 pdf(paste(fig_root_dir, 'fig6c.pdf', sep = ''))
-Shalek_golgi_update_heatmap_annotations = plot_genes_branched_heatmap(Shalek_golgi_update[intersect(row.names(subset(golgi_branching_genes, qval < 0.05)), golgi_valid_expressed_genes),], num_clusters=6, norm_method = "vstExprs", lineage_labels = c('Normal', 'Golgi Plug'), 
+Shalek_golgi_update_heatmap_annotations = monocle::plot_genes_branched_heatmap(Shalek_golgi_update[intersect(row.names(subset(golgi_branching_genes, qval < 0.05)), golgi_valid_expressed_genes),], num_clusters=6, norm_method = "vstExprs", lineage_labels = c('Normal', 'Golgi Plug'), 
 cores=detectCores(), ABC_df=NULL, branchTest_df=golgi_branching_genes, hmcols=NULL, return_all = T)
 dev.off()
 
@@ -164,7 +166,7 @@ Shalek_golgi_hyper_geometric_results_reactome <- collect_gsa_hyper_results(Shale
 
 ## Generate the heatmaps
 pdf(file = paste(fig_root_dir, 'fig6c_reactome.pdf', sep = ''), height = 30, width = 7)
-plot_gsa_hyper_heatmap(Shalek_golgi_update_heatmap_annotations, Shalek_golgi_hyper_geometric_results_reactome, significance=1e-4) + illustrator_theme() 
+plot_gsa_hyper_heatmap(Shalek_golgi_update_heatmap_annotations, Shalek_golgi_hyper_geometric_results_reactome, significance=1e-1) + nm_theme()
 dev.off()
 
 save_hyper_df(Shalek_golgi_hyper_geometric_results_reactome, './supplementary_data/golgiplug_hyper_df.xls') 

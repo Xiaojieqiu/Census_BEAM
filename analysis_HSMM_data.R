@@ -104,6 +104,7 @@ optim_mc_func_fix_c <- function (m, c, t_estimate = estimate_t(TPM_isoform_count
   else
     return(10)
 }
+
 ###################the muscle data####################
 #Cole's code to order the muscle cells##
 HSMM_fpkm_matrix <- read.delim("./data/HSMM_data/muscle/HSMM/HSMM_cuffnorm_out/genes.fpkm_table")
@@ -126,7 +127,7 @@ HSMM_fpkm_matrix <- HSMM_fpkm_matrix[,row.names(sample_sheet)]
 HSMM_isoform_fpkm_matrix <- HSMM_isoform_fpkm_matrix[,row.names(sample_sheet)]
   
 #use the new recovery algorithm: 
-TPM_HSMM_isoform_fpkm_matrix <- apply(HSMM_isoform_fpkm_matrix, 2, function(x) x / sum(x) * 10^6)
+TPM_HSMM_isoform_fpkm_matrix <- apply(HSMM_isoform_fpkm_matrix[1:5, 1:5], 2, function(x) x / sum(x) * 10^6)
 
 gene_ann <- read.delim("./data/HSMM_data/muscle/HSMM/gene_annotations.txt")
 
