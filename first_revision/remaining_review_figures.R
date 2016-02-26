@@ -1,10 +1,11 @@
 #this script will generate all the figures we have not done yet for the review: 
 
 #####1. same heatmap#####
-ph_res <- all_AT12_heatmap$ph_res 
-heatmap_gene_list <- ph_res$tree_row$labels #get the label
+ph_res <- Shalek_abs_subset_ko_LPS_heatmap_annotations$ph_res  #Shalek_golgi_update_heatmap_annotations
 
-cds_subset <- abs_AT12_cds_subset_all_gene[heatmap_gene_list, ]
+heatmap_gene_list <- ph_res$tree_row$labels #get the label
+lineage_states=c(2, 3)
+cds_subset <- Shalek_abs_subset_ko_LPS[heatmap_gene_list, ]
 new_cds <- buildLineageBranchCellDataSet(cds_subset, 
                                          lineage_states=c(2, 3), 
                                          branch_point=NULL,
@@ -13,7 +14,7 @@ new_cds <- buildLineageBranchCellDataSet(cds_subset,
 LineageA_exprs <- exprs(new_cds[, pData(new_cds)$Lineage == as.numeric(unique(as.character(pData(new_cds)$Lineage))[1])])[, sort(pData(new_cds[, pData(new_cds)$Lineage == as.numeric(unique(as.character(pData(new_cds)$Lineage))[1])])$Pseudotime, index.return = T)$ix]
 LineageB_exprs <- exprs(new_cds[, pData(new_cds)$Lineage == as.numeric(unique(as.character(pData(new_cds)$Lineage))[2])])[, sort(pData(new_cds[, pData(new_cds)$Lineage == as.numeric(unique(as.character(pData(new_cds)$Lineage))[2])])$Pseudotime, index.return = T)$ix]
 
-col_gap_ind <- sum(pData(new_cds)$Lineage == as.numeric(unique(as.character(pData(new_cds)$Lineage))[1])) + 1
+col_gap_ind <- sum(pData(new_cds)$Lineage == as.numeric(unique(as.character(pData(new_cds)$Lineage))[1])) + 1 
 
 newdataA <- data.frame(Pseudotime = sort(pData(new_cds[, pData(new_cds)$Lineage == as.numeric(unique(as.character(pData(new_cds)$Lineage))[1])])$Pseudotime))
 newdataB <- data.frame(Pseudotime = sort(pData(new_cds[, pData(new_cds)$Lineage == as.numeric(unique(as.character(pData(new_cds)$Lineage))[2])])$Pseudotime))
@@ -35,6 +36,8 @@ heatmap_matrix <- cbind(LineageA_exprs[, (col_gap_ind - 1):1], LineageB_exprs)
 row_dist <- as.dist((1 - cor(Matrix::t(heatmap_matrix)))/2)
 row_dist[is.na(row_dist)] <- 1
 
+scaling <- T
+
 if(scaling) {
   heatmap_matrix <- Matrix::t(scale(Matrix::t(heatmap_matrix)))
   heatmap_matrix[heatmap_matrix > 3] <- 3
@@ -47,7 +50,7 @@ heatmap_matrix <- heatmap_matrix[is.finite(heatmap_matrix[, 1]) & is.finite(heat
 
 exp_rng <- range(heatmap_matrix) #bks is based on the expression range
 bks <- seq(exp_rng[1] - 0.1, exp_rng[2] + 0.1, by=0.1)
-mcols <- blue2green2red(length(bks) - 1)
+hmcols <- blue2green2red(length(bks) - 1)
 
 ph_res <- pheatmap(heatmap_matrix[, ], #ph$tree_row$order
                    useRaster = T,
@@ -72,7 +75,7 @@ ph_res <- pheatmap(heatmap_matrix[, ], #ph$tree_row$order
                    color=hmcols, 
                    height = 2.45, 
                    width = 3.4,
-                   filename="../supplementary_figures/raw_expression_pheatmap.pdf"
+                   filename="./supplementary_figures/raw_expression_pheatmap_ko.pdf"
 )
 
 pdf('../BEAM/supplementary_figures/raw_expression_pheatmap_clustering.pdf')
@@ -173,6 +176,11 @@ benchmark_pseudotime_test <- function(abs_gsaRes , std_gsaRes ) {
   muscle_gs_df <- data.frame(cluster_id = abs_hyper_df_all$cluster_id, abs = abs_hyper_df_all$pval, std = std_hyper_df_all$pval, Type = Types) #muscle related/ non-muscle related 
   muscle_gs_df$ratio <- muscle_gs_df$std /  muscle_gs_df$abs
   pdf(file = './nbt_2nd_sub_reviewers/muscle_pseudotime_benchmark_qval.pdf')
+    ggplot(data = muscle_gs_df[c(muscle_term_ids, which(muscle_gs_df$abs < 0.01 & muscle_gs_df$std < 0.01 )), ], aes(Type, log(ratio))) + 
+        geom_boxplot(aes(fill = Type), alpha = 0.3, size = 0.5,  outlier.size = 0.5, lwd = 0.5, fatten = 0.5) + 
+        geom_jitter() + nm_theme() + geom_vline(xintercept = 0) + xlab('log(P(FPKM) / P(transcript counts))') + ylab('') + scale_size(range = c(0.5, 0.5))
+  dev.off()
+  
   qplot(log(ratio), data = muscle_gs_df[c(muscle_term_ids, which(muscle_gs_df$abs < 0.01 & muscle_gs_df$std < 0.01 )), ], 
         fill = Type, geom = 'density', log = 'x', alpha = 0.3) + nm_theme() + geom_vline(xintercept = 0) + xlab('log(P(FPKM) / P(transcript counts))') + ylab('')
   #qplot(abs, std, data = muscle_gs_df[c(muscle_term_ids, which(muscle_gs_df$abs < 0.01 | muscle_gs_df$std < 0.01 )), ], color = Type, log = 'xy') + nm_theme() + xlab('transcript counts') + ylab('FPKM')
@@ -180,7 +188,6 @@ benchmark_pseudotime_test <- function(abs_gsaRes , std_gsaRes ) {
 }
 
 benchmark_pseudotime_test(abs_gsaRes_reactome, std_gsaRes_reactome)
-
 ####5. overlap the genes from golgi-plug test VS those from the paper ####
 #perform the dimension reduction with the new list of genes: 
 golgi_order_genes_from_paper_df <- read.table('/Users/xqiu/Dropbox (Personal)/Projects/BEAM/study_gene_categories.txt', row.names = 1, header = T)
@@ -312,25 +319,23 @@ HSMM_myo_size_norm_res <- differentialGeneTest(HSMM_myo[, ],
                                                fullModelFormulaStr = "~sm.ns(Pseudotime, df = 3)", #log10(Total_mRNAs) + spike_total_mRNAs
                                                reducedModelFormulaStr = "~1", cores = detectCores(), relative = T)
 
+#update the supplementary data: 
+lung_go_enrichment <- read.delim('./supplementary_data/lung_hyper_df.xls', header = T)
+ko_reactome_enrichment <- read.delim('./supplementary_data/ko_hyper_df.xls', header = T)
+golgiplug_reactome_enrichment <- read.delim('./supplementary_data/golgiplug_hyper_df.xls', header = T)
 
+lung_go_enrichment$cluster_id <- as.character(lung_go_enrichment$cluster_id)
+lung_go_enrichment$cluster_id <- revalue(lung_go_enrichment$cluster_id, c("1" = "cluster_1", "2" = "cluster_6", "3" = "cluster_5", "4" = "cluster_4", "5" = "cluster_2", "6" = "cluster_3"))
 
+ko_reactome_enrichment$cluster_id <- as.character(ko_reactome_enrichment$cluster_id)
+ko_reactome_enrichment$cluster_id <- revalue(ko_reactome_enrichment$cluster_id, c("1" = "cluster_5", "2" = "cluster_6", "3" = "cluster_2", "4" = "cluster_4", "5" = "cluster_1", "6" = "cluster_3"))
 
+golgiplug_reactome_enrichment$cluster_id <- as.character(golgiplug_reactome_enrichment$cluster_id)
+golgiplug_reactome_enrichment$cluster_id <- revalue(golgiplug_reactome_enrichment$cluster_id, c("1" = "cluster_5", "2" = "cluster_4", "3" = "cluster_6", "4" = "cluster_2", "5" = "cluster_3", "6" = "cluster_1"))
 
+write.table(lung_go_enrichment, sep = '\t', quote = F, row.names = F, file = 'lung_go_enrichment')
+write.table(ko_reactome_enrichment, sep = '\t', quote = F, row.names = F, file = 'ko_reactome_enrichment')
+write.table(golgiplug_reactome_enrichment, sep = '\t', quote = F, row.names = F, file = 'golgiplug_reactome_enrichment')
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#save it to file: 
 

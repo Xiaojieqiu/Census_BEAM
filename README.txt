@@ -71,7 +71,21 @@ Other:
 ##DHS analysis: 
 Quake_intersect_dhs.sh and Shalek_intersect_dhs.sh are the shell scripts used to perform the DHS analysis disussed in the supplementary file. For simplicity, we only provided the output gmt files in the data folder for the current distribution.  
 
-New scripts used to generated new figures since the last submission: 
-- 
+New scripts used to generated new figures since the last submission (all depends on script above excepting deg_benchmark_analysis_HSMM_bulk): 
+- analysis_cell_downsampling.R  
+- deg_benchmark_analysis_HSMM_bulk.R       
+- roc_curves.R
+- BEAM_test.R                   
+- dimension_reduction.R                    
+- mode_of_isoform_rebuttal.Rmd      
+- study_gene_categories.txt
+- branchTimePoint.R             
+- gen_impact_num_genes_detected_figures.R  
+- prepare_lung_downsampling_data.R  
+- subpopulation.R
+- cmpr_three_packages.R         
+- gen_lung_downsampling_figures.R          
+- remaining_review_figures.R        
+- umi_normalization.R
 
 

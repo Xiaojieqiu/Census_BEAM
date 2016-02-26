@@ -3,6 +3,7 @@ library(xacHelper)
 library(MAST)
 library(ROCR)
 
+source('roc_curves.R')
 #load the data: 
 load('./RData/analysis_HSMM_data.RData')
 HSMM_bulk <- read.table("./data/HSMM_data/bulk_cuffdiff/gene_exp.diff", header = T, row.names = NULL)

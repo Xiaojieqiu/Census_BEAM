@@ -77,3 +77,62 @@ Rscript gen_shalek_figures.R
 
 ## Generate supplementary figures
 Rscript gen_supplementary_figure.R 
+
+###### The following are scripts developed for the resubmission #####
+##
+#########################################################
+# New figures added in manuscript and rebuttal figures for resubmission 
+# All the scripts below are depend on previous figures 
+# excepting deg_benchmark_analysis_HSMM_bulk.R and roc_curves.R 
+#
+# The following section contains scripts that generates
+# figure panels from the paper.
+#########################################################
+
+## Perform cell dowsampling for testing robustness of BEAM 
+#(WARNING: this script takes about 3 days to finish on a cluster with 64 cores)
+Rscript analysis_cell_downsampling.R  
+
+## DEG bencmark for HSMM data using bulk RNA-seq as gold standard
+Rscript deg_benchmark_analysis_HSMM_bulk.R       
+
+## This R markdown file can be used to generate mode_of_isoform_rebuttal.html   
+## Warning: run this script in Rstudio from R command line  
+mode_of_isoform_rebuttal.Rmd      
+
+## function for perform ROC analysis, required for deg_benchmark_analysis_HSMM_bulk  
+Rscript roc_curves.R
+
+## Perform the benchmark between beam test and two-group test
+Rscript BEAM_test.R                   
+
+## Perform dimension reduction using LLE, diffusion and tSNE 
+Rscript dimension_reduction.R                    
+
+## Perform branch time point analysis (for shalek data, in particular)
+Rscript branchTimePoint.R             
+
+## Perform spike-in free recovery using UMI data 
+Rscript umi_normalization.R
+
+## Assess the impact of number of genes detected on the dimension reduction 
+Rscript gen_impact_num_genes_detected_figures.R  
+
+## Perform read count downsampling 
+Rscript prepare_lung_downsampling_data.R  
+
+## Perform clustering analysis for the unstimulated cells 
+Rscript subpopulation.R
+
+## Compare with other existing software (MAST)
+Rscript cmpr_three_packages.R         
+
+## Making downsampled figure from lung data 
+#(WARNING: this script takes about 2 days to finish on a cluster with 64 cores)
+Rscript gen_lung_downsampling_figures.R          
+
+## Script to generate other figures not in scripts above 
+Rscript remaining_review_figures.R        
+
+
+
