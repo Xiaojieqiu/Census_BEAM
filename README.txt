@@ -78,7 +78,6 @@ New scripts used to generated new figures since the last submission (all depends
 - BEAM_test.R                   
 - dimension_reduction.R                    
 - mode_of_isoform_rebuttal.Rmd      
-- study_gene_categories.txt
 - branchTimePoint.R             
 - gen_impact_num_genes_detected_figures.R  
 - prepare_lung_downsampling_data.R  
