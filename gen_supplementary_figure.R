@@ -212,10 +212,10 @@ dev.off()
 #number of ERCC spike-in detected in each cell
 loss_ercc_spikein <- esApply(ercc_controls, 2, function(x) as.numeric(x < 10e-4))
 
-ercc_controls_detected_df <- data.frame(loss = esApply(ercc_controls, 2, function(x) sum(x > 0)), Time = pData(absolute_cds[, colnames(loss_ercc_spikein)])$Time)
+ercc_controls_detected_df <- data.frame(detected = esApply(ercc_controls, 2, function(x) sum(x > 0)), Time = pData(absolute_cds[, colnames(loss_ercc_spikein)])$Time)
 
 pdf('./supplementary_figures/fig_4b_si.pdf', height = 3, width = 2)
-qplot(loss, fill = Time, data = ercc_controls_detected_df) + facet_wrap(~Time, ncol = 1) + nm_theme()
+qplot(detected, fill = Time, data = ercc_controls_detected_df) + facet_wrap(~Time, ncol = 1) + nm_theme()
 dev.off()
 
 dir = "./data/Aviv_data/cuffnorm_output_files"

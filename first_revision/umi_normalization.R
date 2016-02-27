@@ -128,7 +128,7 @@ qplot(apply(UMI_norm_recovery_all_correct_mc$norm_cds[-ERCC_ids, ], 2, sum), pDa
     nm_theme()
 dev.off()
 
-pdf('./supplementary_figures/UMI_algorithm_mean.pdf', width = 2, height = 2.5)
+pdf('./supplementary_figures/UMI_algorithm_mean.pdf', width = 2, height = 2)
 qplot(apply(UMI_norm_recovery_all_correct_mc$norm_cds[-ERCC_ids, ], 1, mean), esApply(UMI_cds[-ERCC_ids,  colnames(UMI_TPM_cds)], 1, mean), log = 'xy') + 
     geom_smooth(method = 'rlm') + xlab('Mean endogenous mRNA count \n (algorithm)') + ylab('Mean endogenous mRNA count (regression)') + 
     nm_theme()

@@ -206,7 +206,7 @@ gen_branchTime_df <- function(cds = Shalek_abs_subset_ko_LPS, branch_time = all_
 df <- gen_branchTime_df(enrich_branching_TF_gsc_names = enrich_branching_TF_gsc_names)
 df[df$regulators == 'STAT2::STAT1', 'regulators_time'] <- unique(df[df$regulators == 'STAT1', 'regulators_time']) 
 
-pdf('tmp/ko_regulation_hierarchy.pdf', width = 1.5, height = 1.5)
+pdf('supplementary_figures/ko_regulation_hierarchy.pdf', width = 1.5, height = 1.5)
 ggplot(aes(regulators, abs(branching_time)), data = df) + geom_boxplot(aes(color = regulators), fatten = 0.5, lwd = 0.5, outlier.shape=NA, alpha = 0.5) + 
 	geom_jitter(aes(color = regulators), size = 1, alpha = 0.5) + geom_point(aes(regulators, abs(regulators_time)), color = 'black', data = df, size = 1) + 
 	coord_flip() + scale_y_continuous(breaks = round(seq(min(abs(df$regulators_time), na.rm = T), max(abs(df$branching_time), na.rm = T), by = 12),1)) + 
@@ -224,7 +224,7 @@ all_enriched_TF_branching_time_df5 <- gen_branchTime_df(enrich_branching_TF_gsc_
 all_enriched_TF_branching_time_df6 <- gen_branchTime_df(enrich_branching_TF_gsc_names = all_enriched_genes, clusters_id = 6)
 
 df[df$regulators == 'STAT2::STAT1', 'regulators_time'] <- unique(df[df$regulators == 'STAT1', 'regulators_time']) 
-pdf('tmp/ko_regulation_hierarchy_cluster_1.pdf', width = 5, height = 5)
+pdf('supplementary_figures/ko_regulation_hierarchy_cluster_1.pdf', width = 5, height = 5)
 qplot(regulators, abs(branching_time), color = regulators, geom = c('jitter', 'boxplot'), 
     data = all_enriched_TF_branching_time_df1, alpha = I(0.5), log = 'y') +  
     ylab('bifurcation time point') + scale_size(range = c(0.01, 1), limits = c(0.1, 1)) + 

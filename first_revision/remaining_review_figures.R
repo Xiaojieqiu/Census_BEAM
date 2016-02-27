@@ -338,4 +338,6 @@ write.table(ko_reactome_enrichment, sep = '\t', quote = F, row.names = F, file =
 write.table(golgiplug_reactome_enrichment, sep = '\t', quote = F, row.names = F, file = 'golgiplug_reactome_enrichment')
 
 #save it to file: 
+permutation_res <- data.frame(spikein_free = mc_mode_size_norm_permutate_ratio_by_geometric_mean, spikein = mode_size_norm_permutate_ratio_by_geometric_mean, read_count = readcount_permutate_pval[names(std_permutate_pval)], fpkm = std_permutate_pval)
+write.table(permutation_res, file = './permutation.txt', sep = '\t', row.names = T, quote = F)
 
