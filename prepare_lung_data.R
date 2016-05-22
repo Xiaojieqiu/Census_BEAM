@@ -1,6 +1,8 @@
-use_select_algorithm = TRUE
+use_select_algorithm = FALSE
 
-library(monocle)
+library(devtools)
+load_all('~/Projects/monocle-dev')
+# library(monocle)
 library(xacHelper)
 
 load_all_libraries()
@@ -280,7 +282,7 @@ iso_absolute_cds <- newCellDataSet(as.matrix(iso_norm_fpkms),
                                lowerDetectionLimit=1)
 
 #use the algorithm to recover the transcript counts based on mode inferred from isoform data 
-norm_matrix <- relative2abs(standard_cds, t_estimate = estimate_t(exprs(isoform_count_cds)))
+norm_matrix <- relative2abs(standard_cds, t_estimate = estimate_t(exprs(standard_cds)))
 mc_adj_cds <- newCellDataSet(as.matrix(norm_matrix),
                              phenoData = new("AnnotatedDataFrame", data = pData(standard_cds)),
                              featureData = new("AnnotatedDataFrame", data = fData(standard_cds)),
@@ -383,16 +385,16 @@ TPM_isoform_count_cds <- newCellDataSet(as.matrix(esApply(isoform_count_cds, 2, 
                                         expressionFamily=tobit(), 
                                         lowerDetectionLimit=1)
 
-#recover the relative abundance into absolute transcript counts with relative2abs function (not that the c is fixed and m will be optimized)
-Quake_norm_cds_optim_weight_fix_c <- relative2abs(TPM_cds, t_estimate = estimate_t(TPM_isoform_count_cds), cores = 1, m =  -4.864207, c = mean(mean_m_c_select[1, ]), return_all = T)
+# recover the relative abundance into absolute transcript counts with relative2abs function (not that the c is fixed and m will be optimized)
+Quake_norm_cds_optim_weight_fix_c <- relative2abs(TPM_cds, t_estimate = estimate_t(TPM_isoform_count_cds), cores = 1, kb_slope =  -4.864207, kb_intercept = mean(mean_m_c_select[1, ]), return_all = F)
 
-optim_sum <- apply(Quake_norm_cds_optim_weight_fix_c$norm_cds[1:transcript_num, ], 2, sum)
+optim_sum <- apply(Quake_norm_cds_optim_weight_fix_c[1:transcript_num, ], 2, sum)
 cmpr_Quake_norm_cds_optim_weight_fix_c <- relative2abs(TPM_cds, t_estimate = estimate_t(TPM_isoform_count_cds, relative_expr_thresh = .1),                                                   
-                                                              alpha_v = 1, total_RNAs = 50000, weight = 0.01, 
-                                                              verbose = T, return_all = T, cores = 2, m =  -4.864207, c = mean(mean_m_c_select[1, ]))
+                                                              expected_mRNA_mode = 1, expected_total_mRNAs = 50000, weight_mode = 0.01, weight_total_rna = 0.01, weight_relative_expr = 0.98,
+                                                              verbose = T, return_all = F, cores = 2, kb_slope =  -4.864207, kb_intercept = mean(mean_m_c_select[1, ]))
 
 Quake_norm_cds_optim_mc <- relative2abs_mc(relative_expr_matrix = exprs(TPM_cds), t_estimate = estimate_t(TPM_isoform_count_cds, relative_expr_thresh = .1),                                                   
-                                           verbose = T, return_all = T, cores = 2, m =  -4.277778, c = 2.932929)
+                                           verbose = T, return_all = F, cores = 2, m =  -4.277778, c = 2.932929)
 
 ################################## this long section is used to generate all the data for making the figure 1e: ##################################
 #generate the test p-val as well as the permutation pval
@@ -403,7 +405,7 @@ valid_cells <- colnames(absolute_cds)[colSums(round(exprs(absolute_cds[valid_gen
 #use the new algorithm recovered transcript counts for all downstream analysis (lower end ladder removed): 
 if(use_select_algorithm) {
   exprs(absolute_cds) <- exprs(absolute_cds_select)
-  exprs(mc_adj_cds) <- as.matrix(Quake_norm_cds_optim_weight_fix_c$norm_cds)
+  exprs(mc_adj_cds) <- as.matrix(Quake_norm_cds_optim_weight_fix_c)
   pData(mc_adj_cds)$endogenous_RNA <- esApply(mc_adj_cds, 2, function(x) sum(x[1:transcript_num]))
   pData(absolute_cds)$endogenous_RNA <- esApply(absolute_cds, 2, function(x) sum(x[1:transcript_num]))
   fraction <- 1- pData(absolute_cds)[, 'endogenous_RNA'] / pData(absolute_cds)[, 'Total_mRNAs'] 
@@ -466,7 +468,7 @@ absolute_cds <- estimateSizeFactors(absolute_cds)
 
 absolute_cds_subset <- absolute_cds[all_markers_ids, pData(absolute_cds)$Time == 'E18.5']
 absolute_cds_subset@expressionFamily <- tobit() #fix the bug of estimateDispersions
-absolute_cds_subset <- reduceDimension(absolute_cds_subset, use_irlba = F, use_vst = F, scaling = F, method = "ICA") 
+absolute_cds_subset <- reduceDimension(absolute_cds_subset, use_irlba = F, use_vst = F, scaling = F, method = "ICA") #
 absolute_cds_subset <- orderCells(absolute_cds_subset, num_paths = 2, reverse = F) #SRR1033962_0 
 row.names(SRR_cell_type) <- paste(SRR_cell_type[, 6], '0', sep = '_')
 pData(absolute_cds_subset)$Cell_type <- SRR_cell_type[colnames(absolute_cds_subset), 'putative_cell_type']
@@ -479,14 +481,14 @@ all_AT12_markers <- unique(c(AT1, AT2, AT1_novel, AT2_novel, AT1_early, AT1_late
 all_AT12_markers_ids <- row.names(subset(fData(absolute_cds), 
                                          fData(absolute_cds)$gene_short_name %in% all_AT12_markers))
 AT12_cds_subset <- reduceDimension(standard_cds[all_markers_ids, 
-                                                !(colnames(standard_cds) %in% paste(other_cell_names, "_0", sep = ''))], use_irlba = F, use_vst = F, scaling = F, method = "ICA") 
+                                                !(colnames(standard_cds) %in% paste(other_cell_names, "_0", sep = ''))], use_irlba = F, use_vst = F, scaling = F, method = "ICA") #
 
 # absolute_cds.quake_maker <- orderCells(absolute_cds.quake_maker, num_paths = 2, reverse = F)
 AT12_cds_subset <- orderCells(AT12_cds_subset, num_paths = 2, reverse = F) #SRR1033962_0 
 
 
 # use all marker genes and the quake_gene_list used before for performing the tree construction used for the later analysis: 
-AT12_cds_subset_all_gene <- reduceDimension(standard_cds[add_quake_gene_all_marker_ids, !(colnames(standard_cds) %in% paste(other_cell_names, "_0", sep = ''))], use_irlba = F, use_vst = F, scaling = F, method = "ICA") 
+AT12_cds_subset_all_gene <- reduceDimension(standard_cds[add_quake_gene_all_marker_ids, !(colnames(standard_cds) %in% paste(other_cell_names, "_0", sep = ''))], use_irlba = F, use_vst = F, scaling = F, method = "ICA") #
 AT12_cds_subset_all_gene <- orderCells(AT12_cds_subset_all_gene, num_paths = 2, reverse = F) #SRR1033962_0 
 #the ordering of cell need to be mannually checked to ensure the E14.5/18.5 are state 2 while AT2 cells are state 3 and others state 2
 AT12_cds_subset_all_gene <- orderCells(AT12_cds_subset_all_gene, num_paths = 2, reverse = F, root_state = 2) #SRR1033962_0 
@@ -510,7 +512,7 @@ if (pData(AT12_cds_subset_all_gene)[State_3_cell, 'State'] != 3) {
 
 # do the same thing with transcript counts data: 
 absolute_cds@expressionFamily <- tobit()
-AT12_cds_subset_all_gene2 <- reduceDimension(absolute_cds[add_quake_gene_all_marker_ids, !(colnames(absolute_cds) %in% paste(other_cell_names, "_0", sep = ''))], max_components = 2, use_irlba=T, fun="exp", use_vst = F, scaling = F, method = "ICA")  
+AT12_cds_subset_all_gene2 <- reduceDimension(absolute_cds[add_quake_gene_all_marker_ids, !(colnames(absolute_cds) %in% paste(other_cell_names, "_0", sep = ''))], max_components = 2, use_irlba=T, fun="exp", use_vst = F, scaling = F, method = "ICA") #
 AT12_cds_subset_all_gene2 <- orderCells(AT12_cds_subset_all_gene2, num_paths = 2, reverse = T) #SRR1033962_0 
 
 
@@ -534,9 +536,12 @@ quake_id <- row.names(subset(fData(absolute_cds),
 quake_maker_cds <- setOrderingFilter(standard_cds, quake_id)
 quake_maker_cds <- setOrderingFilter(standard_cds, row.names(AT12_cds_subset_all_gene))
 
-quake_maker_cds <- reduceDimension(quake_maker_cds, use_irlba = F, use_vst = F, scaling = F, method = "ICA") 
+quake_maker_cds <- reduceDimension(quake_maker_cds, use_irlba = F, use_vst = F, scaling = F, method = "ICA") #
 quake_maker_cds <- orderCells(quake_maker_cds, num_paths = 2, reverse = F) #SRR1033962_0 
 quake_maker_cds <- orderCells(quake_maker_cds, num_paths = 2, reverse = T) #SRR1033962_0 
+
+standard_cds <- standard_cds[, colnames(AT12_cds_subset_all_gene)] #AT12_cds_subset_all_gene ONLY INCLUDES CELLS OTHER THAN THE CLARA OR CILIATED CELLS
+pData(standard_cds) <- pData(standard_cds[, colnames(AT12_cds_subset_all_gene)])
 
 #assign pseudotime associated data calculated with FPKM values to all datasets: USE THE ORIGINAL CELL ORDERING
 abs_AT12_cds_subset_all_gene <- absolute_cds[, colnames(AT12_cds_subset_all_gene)] #AT12_cds_subset_all_gene ONLY INCLUDES CELLS OTHER THAN THE CLARA OR CILIATED CELLS

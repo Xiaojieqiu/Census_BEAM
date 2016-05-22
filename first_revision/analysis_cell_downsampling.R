@@ -229,24 +229,24 @@ statistics_per_depth_all$Type <- c(rep('Cell ordering fixed', nrow(statistics_pe
 
 subset_statistics_per_depth_all <- subset(statistics_per_depth_all, proportion_original_cells != 1)
 
-pdf("./supplementary_figures/fig10c_si_recall.pdf", height=1.5, width=1.5)
+pdf("./supplementary_figures/fig10c_si_recall_test.pdf", height=1.5, width=1.5)
 ggplot(subset_statistics_per_depth_all, aes(proportion_original_cells, recall)) +
     geom_point(aes(color = Type), size = 0.75) + xlab('Proportion of original cells') + ylab('recall') + xlim(0, 1) + ylim(0, 1) + 
     nm_theme() 
 dev.off()
 
-pdf("./supplementary_figures/fig10c_si_recall_helper.pdf", height=1.5, width=1.5)
+pdf("./supplementary_figures/fig10c_si_recall_helper_test.pdf", height=1.5, width=1.5)
 ggplot(subset_statistics_per_depth_all, aes(proportion_original_cells, recall)) +
     geom_point(aes(color = Type), size = 0.75) + xlab('Proportion of original cells') + ylab('recall') + xlim(0, 1) + ylim(0, 1) 
 dev.off()
 
-pdf("./supplementary_figures/fig10c_si_precision.pdf", height=1.5, width=1.5)
+pdf("./supplementary_figures/fig10c_si_precision_test.pdf", height=1.5, width=1.5)
 ggplot(subset_statistics_per_depth_all, aes(proportion_original_cells, precision)) +
     geom_point(aes(color = Type), size = 0.75) + xlab('Proportion of original cells') + ylab('Precision') + xlim(0, 1) + ylim(0, 1) +
     nm_theme()
 dev.off()
 
-pdf("./supplementary_figures/fig10c_si_spearman.pdf", height=1.5, width=1.5)
+pdf("./supplementary_figures/fig10c_si_spearman_test.pdf", height=1.5, width=1.5)
 ggplot(subset_statistics_per_depth_all, aes(proportion_original_cells, spearman_correlation)) +
   geom_point(aes(color = Type), size = 0.75) + xlab('Proportion of original cells') +  ylab('Spearman rank correlation \n (P value)') + ylim(0, 1) +
   nm_theme()

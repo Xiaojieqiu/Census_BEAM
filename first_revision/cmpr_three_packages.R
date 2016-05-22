@@ -1,10 +1,12 @@
 #function to compare the performance of the three packages
-
-#1. MAST 
-library(devtools)
-install_github('RGLab/MAST')
-
+# load('./RData/deg_benchmark_analysis_tmp.RData')
+# #1. MAST 
+# library(devtools)
+# install_github('RGLab/MAST')
+library(monocle)
 library(MAST)
+library(xacHelper)
+
 MAST_deg <- function(cds, grp = 'Time', test.type = 'hurdle', normalization = F) {
   data <- as.matrix(exprs(cds))
   

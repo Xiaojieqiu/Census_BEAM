@@ -1,5 +1,5 @@
 #load the data 
-load('./RData/analysis_UMI_data.RData')
+load('../RData/analysis_UMI_data.RData')
 
 library(monocle)
 library(xacHelper)
@@ -16,7 +16,7 @@ UMI_TPM <- UMI_TPM[, esApply(UMI_cds, 2, sum) > 5e4] #remove cells have terrible
 UMI_tpm_align <- melt(UMI_TPM)
 UMI_tpm_align <- UMI_tpm_align[UMI_tpm_align$value > 0.1, ]
   
-pdf('./tmp/UMI_tpm_align_distr.pdf', width = 20, height = 20)
+pdf('./tmp/UMI_tpm_align_distr.pdf', width = 20, height = 20) 
   qplot(value, log = 'x', geom = 'density', color = Var2, data = UMI_tpm_align) + facet_wrap(~Var2) + theme_bw() + theme(legend.position = 'none') + xlab('TPM')
 dev.off()
 
@@ -68,8 +68,8 @@ UMI_molModels <- esApply(UMI_TPM_ercc_controls, 2, function(cell_exprs, input.ER
      molModel <- rlm(log_numMolecules ~ log_fpkm, data=spike_df)
      
      #
-     # 		    qp <- qplot(FPKM, numMolecules, data=spike_df, log="xy") +
-     # 			geom_abline(color="green") +
+     #        qp <- qplot(FPKM, numMolecules, data=spike_df, log="xy") +
+     #      geom_abline(color="green") +
      # geom_smooth(aes(y=10^log_numMolecules), method="lm") +
      # geom_smooth(aes(y=10^log_numMolecules), method="rlm", color="red") +
      # geom_line(aes(y=10^predict(molModel,type="response")))
@@ -134,4 +134,40 @@ qplot(apply(UMI_norm_recovery_all_correct_mc$norm_cds[-ERCC_ids, ], 1, mean), es
     nm_theme()
 dev.off()
 
+################################################################################################################################################################################################################################
+#recover without setting range for m
+UMI_norm_recovery_default_c <- relative2abs(UMI_TPM_cds, total_RNAs = median(pData(UMI_TPM_cds[, colnames(UMI_TPM_cds)])$Total_mRNAs), 
+                                                 t_estimate = estimate_t(exprs(UMI_TPM_cds)), # m = -1.9266285 , m_rng = c(-2.1, -1.9), 
+                                                 c = 0.8270289, c_rng = c(0.8270289, 0.8270289), #fix_c
+                                                 return_all = T, cores = detectCores())
+
+qplot(k, b, data = as.data.frame(t(UMI_norm_recovery_default_c$k_b_solution))) + geom_point(aes(x = k, y = b, color = 'red'), data = UMI_models_kd_df)
+rlm(b ~k , data = as.data.frame(t(UMI_norm_recovery_default_c$k_b_solution))) 
+
+pdf('./tmp/UMI_algorithm_total_10e5_optim_m.pdf', width = 2, height = 2)
+qplot(apply(UMI_norm_recovery_default_c$norm_cds[-ERCC_ids, ], 2, sum), pData(UMI_cds[, colnames(UMI_TPM_cds)])$endogenous_RNA, log = 'xy') + 
+    geom_smooth(method = 'rlm') + geom_abline(color = 'red') + xlab('Total endogenous mRNA (algorithm)') + ylab('Total endogenous mRNA (spike-in regression)') + 
+    nm_theme()
+dev.off()
+
+pdf('./tmp/UMI_algorithm_total_optim_m.pdf', width = 2, height = 2)
+qplot(apply(UMI_norm_recovery_default_c$norm_cds[-ERCC_ids, ], 2, sum), pData(UMI_cds[, colnames(UMI_TPM_cds)])$endogenous_RNA, log = 'xy') + 
+    geom_smooth(method = 'rlm') + geom_abline(color = 'red') + expand_limits(x = c(1, 1e6), y = c(1, 1e06)) + xlab('Total endogenous mRNA (algorithm)') + ylab('Total endogenous mRNA (spike-in regression)') + 
+    nm_theme()
+dev.off()
+
+pdf('./supplementary_figures/UMI_algorithm_mean_optim_m.pdf', width = 2, height = 2)
+qplot(apply(UMI_norm_recovery_default_c$norm_cds[-ERCC_ids, ], 1, mean), esApply(UMI_cds[-ERCC_ids,  colnames(UMI_TPM_cds)], 1, mean), log = 'xy') + 
+    geom_smooth(method = 'rlm') + xlab('Mean endogenous mRNA count \n (algorithm)') + ylab('Mean endogenous mRNA count (regression)') + 
+    nm_theme()
+dev.off()
+
+pdf('./supplementary_figures/ERCC_UMI_algorithm_mean_optim_m.pdf', width = 2, height = 2)
+qplot(apply(UMI_norm_recovery_default_c$norm_cds[ERCC_ids, ], 1, mean), esApply(UMI_cds[ERCC_ids,  colnames(UMI_TPM_cds)], 1, mean), log = 'xy') + 
+    geom_smooth(method = 'rlm') + xlab('Mean endogenous mRNA count \n (algorithm)') + ylab('Mean endogenous mRNA count (regression)') + 
+    nm_theme()
+dev.off()
+################################################################################################################################################################################################################################
+
 save.image('./RData/umi_normalization.RData')
+
