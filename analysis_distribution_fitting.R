@@ -1,10 +1,10 @@
-# load('prepare_lung_data.RData')
+load('./RData/prepare_lung_data.RData')
 
-library(monocle)
+library(devtools)
+load_all('~/Projects/monocle-dev')
 library(xacHelper)
 
 load_all_libraries()
-load("./RData/prepare_lung_data.RData")
 
 abs_gd_fit_res <- mcesApply(absolute_cds[ ], 1, gd_fit_pval, cores = detectCores(), required_packages = c('VGAM', 'fitdistrplus', 'MASS', 'pscl'), exprs_thrsld = 10, pseudo_cnt = 0.01)
 closeAllConnections()

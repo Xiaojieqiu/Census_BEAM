@@ -1,6 +1,7 @@
 #UMI data: 
 #from the paper GSE54695_analysis_script.R: 
-library(monocle)
+library(devtools)
+load_all('~/Projects/monocle-dev')
 library(xacHelper)
 
 load_all_libraries()

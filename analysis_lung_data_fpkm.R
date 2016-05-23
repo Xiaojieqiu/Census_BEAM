@@ -1,4 +1,5 @@
-# library(monocle)
+# library(devtools)
+# load_all('~/Projects/monocle-dev')
 # library(xacHelper)
 
 # load_all_libraries()
@@ -77,9 +78,9 @@
 # weihgted_std_AT12_cds_subset_all_gene <- branchTest(standard_cds[1:transcript_num, ], fullModelFormulaStr = "~sm.ns(Pseudotime, df = 3)", reducedModelFormulaStr = "~1", cores = detectCores(), relative_expr = T, weighted = T)
 # weihgted_std_AT12_cds_subset_quake_gene <- branchTest(std_AT12_cds_subset_all_gene[add_quake_gene_all_marker_ids, ], fullModelFormulaStr = "~sm.ns(Pseudotime, df = 3)", reducedModelFormulaStr = "~1", cores = detectCores(), relative_expr = T, weighted = T)
 
-closeAllConnections()
+# closeAllConnections()
 
-standard_cds
+# standard_cds
 std_AT12_cds_subset_all_gene_ILRs_list <- calILRs(cds = std_AT12_cds_subset_all_gene[1:transcript_num, ], lineage_states = c(2, 3), stretch = T, cores = detectCores(), 
   trend_formula = "~sm.ns(Pseudotime, df = 3) * Lineage", ILRs_limit = 3, 
   relative_expr = T, weighted = FALSE, label_by_short_name = F, 
@@ -87,8 +88,8 @@ std_AT12_cds_subset_all_gene_ILRs_list <- calILRs(cds = std_AT12_cds_subset_all_
 
 weighted_std_AT12_cds_subset_all_gene_ILRs_list <- calILRs(cds = std_AT12_cds_subset_all_gene[1:transcript_num, ], lineage_states = c(2, 3), stretch = T, cores = detectCores(), 
   trend_formula = "~sm.ns(Pseudotime, df = 3) * Lineage", ILRs_limit = 3, 
-  relative_expr = T, weighted = T, label_by_short_name = F, 
-  useVST = T, round_exprs = FALSE, pseudocount = 0, output_type = "all", file = "weighted_std_AT12_cds_subset_all_gene_ILRs_list", return_all = T)
+  relative_expr = F, weighted = T, label_by_short_name = F, 
+  useVST = F, round_exprs = FALSE, pseudocount = 0, output_type = "all", file = "weighted_std_AT12_cds_subset_all_gene_ILRs_list", return_all = T)
 
 #with progenitor duplication
 duplicate_progenitors_weighted_std_AT12_cds_subset_all_gene_ILRs_list <- calILRs(cds = std_AT12_cds_subset_all_gene[1:transcript_num, ], lineage_states = c(2, 3), stretch = T, cores = detectCores(), 

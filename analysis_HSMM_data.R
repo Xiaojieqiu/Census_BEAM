@@ -1,4 +1,6 @@
-library(monocle)
+#use monocle2: 
+library(devtools)
+load_all('~/Projects/monocle-dev')
 library(xacHelper)
 
 load_all_libraries()
@@ -150,8 +152,8 @@ HSMM_fpkm_matrix_cds <-  newCellDataSet(as.matrix(HSMM_fpkm_matrix),
                                    expressionFamily=negbinomial(), 
                                    lowerDetectionLimit=1)
 
-HSMM_fpkm_matrix_adj_select <- relative2abs(HSMM_fpkm_matrix_cds, t_estimate = estimate_t(TPM_HSMM_isoform_fpkm_matrix, relative_expr_thresh = 0.1), 
-                                                        alpha_v = 1, total_RNAs = 50000, weight = 0.01, verbose = T, return_all = T, cores = detectCores(), m =  -4.864207, c = 2.77514, c_rng = c(2.77514, 2.77514)) # mean(mean_m_c_select[1, ])
+# HSMM_fpkm_matrix_adj_select <- relative2abs(HSMM_fpkm_matrix_cds, t_estimate = estimate_t(TPM_HSMM_isoform_fpkm_matrix, relative_expr_thresh = 0.1), 
+#                                                         alpha_v = 1, total_RNAs = 50000, weight = 0.01, verbose = T, return_all = T, cores = detectCores(), m =  -4.864207, c = 2.77514, c_rng = c(2.77514, 2.77514)) # mean(mean_m_c_select[1, ])
 
 HSMM_fpkm_matrix_adj <- relative2abs(HSMM_fpkm_matrix_cds, t_estimate = estimate_t(HSMM_isoform_fpkm_matrix), cores=detectCores())
 
@@ -161,13 +163,13 @@ HSMM <-  newCellDataSet(as.matrix(HSMM_fpkm_matrix_adj),
                         featureData = fd, 
                         expressionFamily=negbinomial(), 
                         lowerDetectionLimit=1)
-HSMM_abs_select <-  newCellDataSet(as.matrix(HSMM_fpkm_matrix_adj_select$norm_cds), 
-                                   phenoData = pd, 
-                                   featureData = fd, 
-                                   expressionFamily=negbinomial(), 
-                                   lowerDetectionLimit=1)
+# HSMM_abs_select <-  newCellDataSet(as.matrix(HSMM_fpkm_matrix_adj_select$norm_cds), 
+#                                    phenoData = pd, 
+#                                    featureData = fd, 
+#                                    expressionFamily=negbinomial(), 
+#                                    lowerDetectionLimit=1)
 
-exprs(HSMM) <- as.matrix(HSMM_fpkm_matrix_adj_select$norm_cds)
+# exprs(HSMM) <- as.matrix(HSMM_fpkm_matrix_adj_select$norm_cds)
 
 ######################################analysis code for the HSMM dataset######################################
 pData(HSMM)$Total_mRNAs <- colSums(exprs(HSMM))

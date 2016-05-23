@@ -1,9 +1,10 @@
-library(monocle)
+library(devtools)
+load_all('~/Projects/monocle-dev')
 library(xacHelper)
 
 load_all_libraries()
 
-load('./RData/prepare_lung_data.RData')
+# load('./RData/prepare_lung_data.RData')
 
 # specify states used for branchTest and calABCs
 progenitor_state <- 1

@@ -1,6 +1,7 @@
   load('./RData/prepare_lung_data.RData')
 
-  library(monocle)
+  library(devtools)
+  load_all('~/Projects/monocle-dev')
   library(xacHelper)
   elife_directory = "./"
 
