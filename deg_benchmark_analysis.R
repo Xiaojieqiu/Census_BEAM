@@ -116,11 +116,27 @@ std_split_cds <- split(t(exprs(new_std_cds_14_18[1:transcript_num, Time_order]))
 std_fc <- esApply(new_std_cds_14_18[1:transcript_num, ], 1, mean_fc, grp0 = 'E14.5', grp1 = 'E18.5')
 std_split_fc <- split(t(std_fc), col(t(std_fc), as.factor = T))
 
-std_permutate_pval <- mcmapply(permuation_pval, std_split_cds, std_split_fc, alpha = 43, beta = 60, mc.cores = detectCores()) #multiple cores 
-std_permutate_pval <- mapply(permuation_pval, std_split_cds, std_split_fc, alpha = 43, beta = 60) #use single core
-
-# two-group permutation tests (the same as above)
-std_permutate_pval <- permu_two_group_gen(new_std_cds_14_18[, Time_order], alpha = 43, beta = 60, grp0 = 'E14.5', grp1 = 'E18.5', group = pData(new_std_cds_14_18)$Time)
+permuation_pval <- function (x, fc, alpha = table(pData(absolute_cds)$Time)['E16.5'], beta = table(pData(absolute_cds)$Time)['E18.5'], permutate_num = 10000,
+    return_fc = F)
+{
+    fc_vec <- rep(0, permutate_num)
+    if (is.na(fc))
+        return(1)
+    for (i in 1:permutate_num) {
+        x <- sample(x, length(x))
+        x_0 <- (mean(x[1:alpha]))
+        x_1 <- (mean(x[(alpha + 1):(alpha + beta)]))
+        mean_fc <- log2(x_1/x_0)
+        fc_vec[i] <- mean_fc
+    }
+    if (fc > 0)
+        pval <- sum(fc <= fc_vec)/length(fc_vec)
+    else pval <- sum(fc >= fc_vec)/length(fc_vec)
+    if (return_fc)
+        return(list(pval = pval, fc_vec = fc_vec))
+    else return(pval)
+}
+std_permutate_pval <- mcmapply(permuation_pval, std_split_cds, std_split_fc, mc.cores = detectCores()) #multiple cores 
 
 # permutation results for two group test on the readcounts value (gold standard for DESEeq / SCDE on readcount data): 
 readcount_split_cds <- split(t(exprs(count_cds[1:transcript_num, Time_order])), col(t(exprs(count_cds[1:transcript_num, Time_order])), as.factor = T))
@@ -128,14 +144,14 @@ readcount_fc <- esApply(count_cds[1:transcript_num, ], 1, mean_fc, grp0 = 'E14.5
 readcount_split_fc <- split(t(readcount_fc), col(t(readcount_fc), as.factor = T))
 ## 
 
-readcount_permutate_pval <- mapply(permuation_pval, readcount_split_cds, readcount_split_fc, alpha = 43, beta = 60) #single core
+readcount_permutate_pval <- mcmapply(permuation_pval, readcount_split_cds, readcount_split_fc, mc.cores = detectCores()) #multiple core
 
 # two-group permutation tests (the same as above)
 # readcount_permutate_pval <- permu_two_group_gen(count_cds[, Time_order], alpha = 43, beta = 60, grp0 = 'E14.5', grp1 = 'E18.5', group = pData(count_cds)$Time)
 
 # permutation results for two group test on the normalized absolute value (gold standard for DESEeq / SCDE on readcount data): 
-mode_size_norm_permutate_ratio_by_geometric_mean <- cal_perm_pval_size_norm(new_abs_cds_14_18[1:transcript_num, Time_order], alpha = 43, beta = 60)
-mc_mode_size_norm_permutate_ratio_by_geometric_mean <- cal_perm_pval_size_norm(new_mc_cds_14_18[1:transcript_num, Time_order], alpha = 43, beta = 60)
+mode_size_norm_permutate_ratio_by_geometric_mean <- cal_perm_pval_size_norm(new_abs_cds_14_18[1:transcript_num, Time_order])
+mc_mode_size_norm_permutate_ratio_by_geometric_mean <- cal_perm_pval_size_norm(new_mc_cds_14_18[1:transcript_num, Time_order])
 
 #add the DEG tests using edgeR / DESeq2: 
 edgeR_res <- edgeR_test(glm = T)
@@ -258,5 +274,34 @@ pval_mean <- data.frame(std = std_permutate_pval, abs = mode_size_norm_permutate
                         spike_mean = apply(new_abs_cds_14_18[1:transcript_num, ], 1, mean), 
                         mc_mean = apply(new_mc_cds_14_18[1:transcript_num, ], 1, mean), 
                         read_mean = apply(count_cds[1:transcript_num, ], 1, mean) )
+
+
+# # fig 3h: 
+# # show only the spike-in / mc algorithm test: 
+mc_spikein_df <- plot_pre_rec_f1(test_p_list = list(mode_size_norm_permutate_ratio_by_geometric_mean = new_abs_size_norm_monocle_p_ratio_by_geometric_mean,
+                                    mc_mode_size_norm_permutate_ratio_by_geometric_mean = new_mc_size_norm_monocle_p_ratio_by_geometric_mean),
+                 permutate_pval = list(mode_size_norm_permutate_ratio_by_geometric_mean = mode_size_norm_permutate_ratio_by_geometric_mean,
+                                       mc_mode_size_norm_permutate_ratio_by_geometric_mean = mc_mode_size_norm_permutate_ratio_by_geometric_mean),
+                 row.names(absolute_cds), #gene_list, overlap_genes, high_gene_list
+                 return_df = T, #na.rm = T, 
+                 p_thrsld = 0.01, #0.05
+                 rownames = c('monocle (New size normalization)', 'monocle (New size normalization, Estimate transcript)'))
+mc_spikein_df$data_type = c("Spikein transcripts", "estimated transcripts")
+
+mc_spikein_df[, 'Type'] <- c('Monocle', 'Monocle') # geom_bar(stat = 'identity', position = 'dodge') 
+colnames(mc_spikein_df)[1:3] <- c('Precision', 'Recall', 'F1 score')
+
+pdf('./main_figures/fig3h.pdf', width = 1.7, height = 1.9)
+ggplot(aes(factor(Type), value,  fill = data_type), data = melt(mc_spikein_df)) + geom_bar(position = position_dodge(), stat = 'identity') + #facet_wrap(~variable) + 
+ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
+ggtitle('') + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + nm_theme() + xlab('') + theme(axis.text.x=element_blank(), axis.ticks.x=element_blank())
+dev.off()
+
+pdf('./tmp/fig3h_helper.pdf', width = 3, height = 2)
+ggplot(aes(factor(Type), value,  fill = data_type), data = melt(mc_spikein_df)) + geom_bar(position = position_dodge(), stat = 'identity') + #facet_wrap(~variable) + 
+ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
+ggtitle('') + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank())
+dev.off()
+
 
 save.image('./RData/deg_benchmark_analysis.RData')

@@ -9,8 +9,8 @@ library(grid)
 
 #load the data: 
 load('./RData/analysis_lung_data.RData')
-load('./RData/deg_benchmark_analysis.RData')
-load('./RData/spikein_free_algorithm_sampling.RData')
+# load('./RData/deg_benchmark_analysis.RData')
+# load('./RData/spikein_free_algorithm_sampling.RData')
 #color scheme: 
 prog_cell_state = "#979797"
 AT1_cell_state = "#F05662" 
@@ -228,11 +228,16 @@ dev.off()
 #fig 3b: 
 test <- mapply(function(cell_dmode, model) {
   predict(model, newdata = data.frame(log_fpkm = log10(cell_dmode)), type = 'response')
-}, as.list(estimate_t(exprs(isoform_count_cds)[1:119469, ])), molModels_select)
+}, as.list(estimate_t(exprs(standard_cds)[1:transcript_num, ])), molModels_select)
 
 df <- pData(absolute_cds)
 df$mode_transcript <- 10^test
-df$estimate_mode <- estimate_t(exprs(isoform_count_cds))
+df$estimate_mode <- estimate_t(exprs(standard_cds))
+
+pdf('./main_figures/fig1_estimated_mode_transcripts.pdf', height = 2, width = 2.5)
+qplot(estimate_mode, mode_transcript, data = df, color = Time, log = 'xy') + xlab('estimated mode of the FPKM') + 
+  ylab('corresponding transcript counts \n of estimated mode') + nm_theme()
+dev.off()
 
 #make figure 3b
 pdf('./main_figures/fig3b.pdf', width = 2.2, height = 1.4)
@@ -256,63 +261,6 @@ qplot(k, b, data = as.data.frame(kb_df), size = t, color = Time) + scale_size(ra
 dev.off()
 
 #fig 4e: 
-
-############################make the landscape heatmap: 
-optimization_landscape_3d_trim <- lapply(optimization_landscape_3d, function(x) x[c('m', 'c', 'optim_res')])
-optimization_matrix<- do.call(rbind.data.frame, optimization_landscape_3d_trim)
-
-optimization_matrix_filt <- subset(optimization_matrix, is.nan(optim_res) == FALSE & is.finite(optim_res))
-max_optim_score <- 3
-optimization_matrix_filt$optim_res[optimization_matrix_filt$optim_res > max_optim_score] <- max_optim_score
-
-spdf <- SpatialPointsDataFrame( data.frame( x = optimization_matrix_filt$m , y = optimization_matrix_filt$c ) , data = data.frame( z = optimization_matrix_filt$optim_res ) )
-
-# Make an evenly spaced raster, the same extent as original data
-e <- extent( spdf )
-
-# Determine ratio between x and y dimensions
-ratio <- ( e@xmax - e@xmin ) / ( e@ymax - e@ymin )
-
-# Create template raster to sample to
-r <- raster( nrows = 56 , ncols = floor( 56 * ratio ) , ext = extent(spdf) )
-rf <- rasterize( spdf , r , field = "z" , fun = mean )
-
-# We can then plot this using `geom_tile()` or `geom_raster()`
-rdf <- data.frame( rasterToPoints( rf ) )
-
-optimal_solution <- head(arrange(optimization_matrix_filt, optim_res), 1)
-pdf('./main_figures/fig3e.pdf', width = 1.38, height = 1.25)
-ggplot( NULL ) + geom_raster( data = rdf , aes( x , y , fill = log10(layer) ) ) + 
-  annotate("text", x = -3.85, y = 3.1, label = "True (m,c)", color="magenta", size=2) + 
-  annotate("point", x = -4.277778, y = 2.932929, color="magenta", size = 1) + 
-  #annotate("text", x = -3.7, y = 3.2, label = "True (m,c)") + 
-  annotate("text", x = -5.1, y = 2.7, label = "Algorithm (m,c)", color="red", size=2) + 
-  annotate("point", x = optimal_solution$m, y = optimal_solution$c, color="red", size=1) + 
-  scale_fill_gradientn(guide=guide_legend(title=expression(paste(log[10](F)))), colours=brewer.pal(name="YlGnBu", n=7)) +
-  xlab("m") + ylab("c") +
-  theme(strip.background = element_rect(colour = 'white', fill = 'white')) +
-  theme(panel.border = element_blank(), axis.line = element_line()) +
-  theme(panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) +
-  theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank()) + scale_size(range = c(0.1, 2)) + 
-  theme(panel.background = element_rect(fill='white')) + nm_theme()
-dev.off()
-
-#create the helper pdf file to annotate the figure: 
-pdf('./tmp/fig3e_helper.pdf', width = 5, height = 1.5)
-ggplot( NULL ) + geom_raster( data = rdf , aes( x , y , fill = log10(layer) ) ) + 
-  annotate("text", x = -3.85, y = 3.1, label = "True (m,c)", color="magenta", size=2) + 
-  annotate("point", x = -4.277778, y = 2.932929, color="magenta", size = 1) + 
-  #annotate("text", x = -3.7, y = 3.2, label = "True (m,c)") + 
-  annotate("text", x = -5.1, y = 2.7, label = "Algorithm (m,c)", color="red", size=2) + 
-  annotate("point", x = optimal_solution$m, y = optimal_solution$c, color="red", size=1) + 
-  scale_fill_gradientn(guide=guide_legend(title=expression(paste(log[10](F)))), colours=brewer.pal(name="YlGnBu", n=7)) +
-  xlab("m") + ylab("c") +
-  theme(strip.background = element_rect(colour = 'white', fill = 'white')) +
-  theme(panel.border = element_blank(), axis.line = element_line()) +
-  theme(panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) +
-  theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank()) + scale_size(range = c(0.1, 2)) + 
-  theme(panel.background = element_rect(fill='white'))
-dev.off()
 
 #fig 3f: 
 pdf('./main_figures/fig3f.pdf', width = 2, height = 1.7)
@@ -354,33 +302,6 @@ xlab('Transcript counts (Spike-in)') + #scale_size(range = c(0.25, 0.25)) +
 #stat_density2d(geom="tile", aes(fill=..density..^1, alpha=1), contour=FALSE) + 
 geom_point(size=0.5, aes(color = cell)) + geom_abline() + nm_theme()
 # stat_density2d(geom="tile", aes(fill=..density..^1, alpha=ifelse(..density..^1<0.4,0,1)), contour=FALSE) 
-dev.off()
-
-# # fig 3h: 
-# # show only the spike-in / mc algorithm test: 
-mc_spikein_df <- plot_pre_rec_f1(test_p_list = list(mode_size_norm_permutate_ratio_by_geometric_mean = new_abs_size_norm_monocle_p_ratio_by_geometric_mean,
-                                    mc_mode_size_norm_permutate_ratio_by_geometric_mean = new_mc_size_norm_monocle_p_ratio_by_geometric_mean),
-                 permutate_pval = list(mode_size_norm_permutate_ratio_by_geometric_mean = mode_size_norm_permutate_ratio_by_geometric_mean,
-                                       mc_mode_size_norm_permutate_ratio_by_geometric_mean = mc_mode_size_norm_permutate_ratio_by_geometric_mean),
-                 row.names(absolute_cds), #gene_list, overlap_genes, high_gene_list
-                 return_df = T, #na.rm = T, 
-                 p_thrsld = 0.01, #0.05
-                 rownames = c('monocle (New size normalization)', 'monocle (New size normalization, Estimate transcript)'))
-mc_spikein_df$data_type = c("Spikein transcripts", "estimated transcripts")
-
-mc_spikein_df[, 'Type'] <- c('Monocle', 'Monocle') # geom_bar(stat = 'identity', position = 'dodge') 
-colnames(mc_spikein_df)[1:3] <- c('Precision', 'Recall', 'F1 score')
-
-pdf('./main_figures/fig3h.pdf', width = 1.7, height = 1.9)
-ggplot(aes(factor(Type), value,  fill = data_type), data = melt(mc_spikein_df)) + geom_bar(position = position_dodge(), stat = 'identity') + #facet_wrap(~variable) + 
-ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
-ggtitle('') + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + nm_theme() + xlab('') + theme(axis.text.x=element_blank(), axis.ticks.x=element_blank())
-dev.off()
-
-pdf('./tmp/fig3h_helper.pdf', width = 3, height = 2)
-ggplot(aes(factor(Type), value,  fill = data_type), data = melt(mc_spikein_df)) + geom_bar(position = position_dodge(), stat = 'identity') + #facet_wrap(~variable) + 
-ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
-ggtitle('') + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank())
 dev.off()
 
 ########################################################################################################

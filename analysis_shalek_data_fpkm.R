@@ -4,9 +4,9 @@
 # #color scheme for shalek tree analysis: 
 # shalek_custom_color_scale = c("Unstimulated."="#eff3ff", "On_Chip_Unstim."="#eff3ff", "LPS.1h"="#bdd7e7", "LPS.2h"="#6baed6", "LPS.4h"="#3182bd", "LPS.6h"="#08519c", "PIC.1h"="#bae4b3", "PIC.2h"="#74c476", "PIC.4h"="#31a354", "PIC.6h"="#006d2c", "PAM.1h"="#fdbe85", "PAM.2h"="#fd8d3c", "PAM.4h"="#e6550d", "PAM.6h"="#a63603", "LPS_GolgiPlug.4h_0h"="#fcae91", "LPS_GolgiPlug.4h_1h"="#fb6a4a", "LPS_GolgiPlug.4h_2h"="#cb181d", "Ifnar1_KO_LPS.2h"="#df65b0", "Ifnar1_KO_LPS.4h"="#dd1c77", "Stat1_KO_LPS.2h"="#969696", "Stat1_KO_LPS.4h"="#252525")
 
-# library(devtools)
-# load_all('~/Projects/monocle-dev')
-
+library(devtools)
+load_all('~/Projects/monocle-dev')
+load('./RData/analysis_shalek_data.RData')
 # library(stringr)
 # library(plyr)
 # library(xacHelper)
@@ -255,6 +255,7 @@
 ####################################################################################################################################################################################################################
 
 Shalek_std_subset_ko_LPS <- Shalek_std[, colnames(Shalek_abs_subset_ko_LPS)]
+pData(Shalek_std_subset_ko_LPS) <- pData(Shalek_abs_subset_ko_LPS)
 Shalek_std_subset_ko_LPS@reducedDimS <- Shalek_abs_subset_ko_LPS@reducedDimS
 Shalek_std_subset_ko_LPS@reducedDimA <- Shalek_abs_subset_ko_LPS@reducedDimA
 Shalek_std_subset_ko_LPS@reducedDimK <- Shalek_abs_subset_ko_LPS@reducedDimK
@@ -262,7 +263,7 @@ Shalek_std_subset_ko_LPS@reducedDimW <- Shalek_abs_subset_ko_LPS@reducedDimW
 Shalek_std_subset_ko_LPS@minSpanningTree <- Shalek_abs_subset_ko_LPS@minSpanningTree
 Shalek_std_subset_ko_LPS@auxOrderingData <- Shalek_abs_subset_ko_LPS@auxOrderingData
 Shalek_std_subset_ko_LPS@dim_reduce_type <- 'ICA'
-std_ko_branching_genes_ori = branchTest(Shalek_std_subset_ko_LPS, fullModelFormulaStr = full_model_string, cores = detectCores(), relative_expr = T, weighted = T)
+std_ko_branching_genes_ori = branchTest(Shalek_std_subset_ko_LPS, fullModelFormulaStr = full_model_string, cores = detectCores(), relative_expr = F, weighted = T)
 closeAllConnections()
 
 #perform all the above analysis with fpkm values
@@ -274,7 +275,7 @@ Shalek_std_subset_ko_LPS <- orderCells(Shalek_std_subset_ko_LPS, num_path = 2)
 # Detect branching genes and calulate ABCs and ILRs
 full_model_string = '~sm.ns(Pseudotime, df = 3)*Lineage'
 
-std_ko_branching_genes = branchTest(Shalek_std_subset_ko_LPS, fullModelFormulaStr = full_model_string, cores = detectCores(), relative_expr = T, weighted = T)
+std_ko_branching_genes = branchTest(Shalek_std_subset_ko_LPS, fullModelFormulaStr = full_model_string, cores = detectCores(), relative_expr = F, weighted = T)
 closeAllConnections()
 
 save.image('./RData/analysis_shalek_data_fpkm.RData')

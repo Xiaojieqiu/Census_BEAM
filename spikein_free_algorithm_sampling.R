@@ -1,7 +1,7 @@
 load('./RData/prepare_lung_data.RData')
 library(devtools)
 load_all('~/Projects/monocle-dev')
-
+library(MASS)
 # load_all_libraries()
 
 ############################make the landscape heatmap: 
@@ -23,15 +23,15 @@ x_list <- split(expand.grid(c(seq(-6, -1, length.out = 2), -4.403166,  as.numeri
 #                    c(seq(0, 4, length.out = 100), 2.77514, as.numeric(mc_select[1]))), 1:102^2), optim_mc_func_fix_c)
 
 
-# split_relative_exprs <- split(exprs(standard_cds), rep(1:ncol(exprs(standard_cds)), each = nrow(exprs(standard_cds))))
+split_relative_exprs <- split(exprs(standard_cds), rep(1:ncol(exprs(standard_cds)), each = nrow(exprs(standard_cds))))
 
-# test <- mapply(function(cell_dmode, model) {
-#   predict(model, newdata = data.frame(log_fpkm = log10(cell_dmode)), type = 'response')
-# }, as.list(estimate_t(exprs(standard_cds)[1:transcript_num, ])), molModels) #molModels_select
+test <- mapply(function(cell_dmode, model) {
+  predict(model, newdata = data.frame(log_fpkm = log10(cell_dmode)), type = 'response')
+}, as.list(estimate_t(exprs(standard_cds)[1:transcript_num, ])), molModels) #molModels_select
 
-# df <- pData(absolute_cds)
-# df$mode_transcript <- 10^test
-# df$estimate_mode <- estimate_t(exprs(standard_cds))
+df <- pData(absolute_cds)
+df$mode_transcript <- 10^test
+df$estimate_mode <- estimate_t(exprs(standard_cds))
 
 #update the mc optimization landscape: 
 optim_mc_func_fix_c(mc_select[2], kb_intercept = mc_select[1], t_estimate = estimate_t(standard_cds),
@@ -133,13 +133,12 @@ optim_mc_func_fix_c_simulation <- function (mc_list, t_estimate = estimate_t(TPM
     print (mean(sum_total_cells_rna_finite -  total_RNAs_finite))
 
   }
-  #   return(list(m = m_val, c = c_val, dmode_rmse_weight_total = dmode_rmse_weight_total, gm_dist_divergence = gm_dist_divergence, dist_divergence_round = dist_divergence_round,
-  #               cell_dmode = cell_dmode, t_k_b_solution = t_k_b_solution, sum_total_cells_rna = sum_total_cells_rna, optim_res = res))
+    return(list(m = as.numeric(kb_slope_val), c = as.numeric(kb_intercept_val), optim_res = res))
   #
-  if(is.finite(res))
-    return(res)
-  else
-    return(1e10 * runif(1)) #Census should not run this part since non-finite values are removed
+  # if(is.finite(res))
+  #   return(res)
+  # else
+  #   return(1e10 * runif(1)) #Census should not run this part since non-finite values are removed
 }
 
 optimization_landscape_3d_perfect_parameters <- mclapply(X = split(expand.grid(c(seq(-6, -1, length.out = 2), -4.403166,  as.numeric(mc[2])), 
@@ -149,10 +148,68 @@ optimization_landscape_3d_perfect_parameters <- mclapply(X = split(expand.grid(c
           	   cores = 1, weight_mode=0.17, weight_relative_expr=0.50, weight_total_rna=0.33, mc.cores = detectCores())
 
 
-optimization_landscape_3d_perfect_parameters <- mclapply(X = split(expand.grid(c(seq(-6, -1, length.out = 100), -4.403166,  as.numeric(mc[2])), 
+optimization_landscape_3d <- mclapply(X = split(expand.grid(c(seq(-6, -1, length.out = 100), -4.403166,  as.numeric(mc[2])), 
                c(seq(0, 4, length.out = 100), 2.77514, as.numeric(mc[1]))), 1:102^2), optim_mc_func_fix_c_simulation, t_estimate = estimate_t(standard_cds),
           	   relative_expr_matrix = exprs(standard_cds), split_relative_expr_matrix = split_relative_exprs,
           	   alpha = df$mode_transcript, total_RNAs = pData(absolute_cds)$endo,
           	   cores = 1, weight_mode=0.17, weight_relative_expr=0.50, weight_total_rna=0.33, mc.cores = detectCores())
+
+
+############################make the landscape heatmap: 
+optimization_landscape_3d_trim <- lapply(optimization_landscape_3d, function(x) x[c('m', 'c', 'optim_res')])
+optimization_matrix<- do.call(rbind.data.frame, optimization_landscape_3d_trim)
+
+optimization_matrix_filt <- subset(optimization_matrix, is.nan(optim_res) == FALSE & is.finite(optim_res))
+max_optim_score <- 3
+optimization_matrix_filt$optim_res[optimization_matrix_filt$optim_res > max_optim_score] <- max_optim_score
+
+spdf <- SpatialPointsDataFrame( data.frame( x = as.numeric(as.character(optimization_matrix_filt$m)), y = as.numeric(as.character(optimization_matrix_filt$c)) ) , data = data.frame( z = as.numeric(as.character(optimization_matrix_filt$optim_res)) ) )
+
+# Make an evenly spaced raster, the same extent as original data
+e <- extent( spdf )
+
+# Determine ratio between x and y dimensions
+ratio <- ( e@xmax - e@xmin ) / ( e@ymax - e@ymin )
+
+# Create template raster to sample to
+r <- raster( nrows = 56 , ncols = floor( 56 * ratio ) , ext = extent(spdf) )
+rf <- rasterize( spdf , r , field = "z" , fun = mean )
+
+# We can then plot this using `geom_tile()` or `geom_raster()`
+rdf <- data.frame( rasterToPoints( rf ) )
+
+optimal_solution <- head(arrange(optimization_matrix_filt, optim_res), 1)
+pdf('./main_figures/fig3e.pdf', width = 1.38, height = 1.25)
+ggplot( NULL ) + geom_raster( data = rdf , aes( x , y , fill = log10(layer) ) ) + 
+  annotate("text", x = -3.85, y = 3.1, label = "True (m,c)", color="magenta", size=2) + 
+  annotate("point", x = -4.277778, y = 2.932929, color="magenta", size = 1) + 
+  #annotate("text", x = -3.7, y = 3.2, label = "True (m,c)") + 
+  annotate("text", x = -5.1, y = 2.7, label = "Algorithm (m,c)", color="red", size=2) + 
+  annotate("point", x = as.numeric(as.character(optimal_solution$m)), y = as.numeric(as.character(optimal_solution$c)), color="red", size=1) + 
+  scale_fill_gradientn(guide=guide_legend(title=expression(paste(log[10](F)))), colours=brewer.pal(name="YlGnBu", n=7)) +
+  xlab("m") + ylab("c") +
+  theme(strip.background = element_rect(colour = 'white', fill = 'white')) +
+  theme(panel.border = element_blank(), axis.line = element_line()) +
+  theme(panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) +
+  theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank()) + scale_size(range = c(0.1, 2)) + 
+  theme(panel.background = element_rect(fill='white')) + nm_theme()
+dev.off()
+
+#create the helper pdf file to annotate the figure: 
+pdf('./tmp/fig3e_helper.pdf', width = 5, height = 1.5)
+ggplot( NULL ) + geom_raster( data = rdf , aes( x , y , fill = log10(layer) ) ) + 
+  annotate("text", x = -3.85, y = 3.1, label = "True (m,c)", color="magenta", size=2) + 
+  annotate("point", x = -4.277778, y = 2.932929, color="magenta", size = 1) + 
+  #annotate("text", x = -3.7, y = 3.2, label = "True (m,c)") + 
+  annotate("text", x = -5.1, y = 2.7, label = "Algorithm (m,c)", color="red", size=2) + 
+  annotate("point", x = as.numeric(as.character(optimal_solution$m)), y = as.numeric(as.character(optimal_solution$c)), color="red", size=1) + 
+  scale_fill_gradientn(guide=guide_legend(title=expression(paste(log[10](F)))), colours=brewer.pal(name="YlGnBu", n=7)) +
+  xlab("m") + ylab("c") +
+  theme(strip.background = element_rect(colour = 'white', fill = 'white')) +
+  theme(panel.border = element_blank(), axis.line = element_line()) +
+  theme(panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) +
+  theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank()) + scale_size(range = c(0.1, 2)) + 
+  theme(panel.background = element_rect(fill='white'))
+dev.off()
 
 save.image('./RData/spikein_free_algorithm_sampling.RData')
