@@ -6,7 +6,7 @@
 
 library(devtools)
 load_all('~/Projects/monocle-dev')
-load('./RData/analysis_shalek_data.RData')
+# load('./RData/analysis_shalek_data.RData')
 # library(stringr)
 # library(plyr)
 # library(xacHelper)
@@ -263,19 +263,23 @@ Shalek_std_subset_ko_LPS@reducedDimW <- Shalek_abs_subset_ko_LPS@reducedDimW
 Shalek_std_subset_ko_LPS@minSpanningTree <- Shalek_abs_subset_ko_LPS@minSpanningTree
 Shalek_std_subset_ko_LPS@auxOrderingData <- Shalek_abs_subset_ko_LPS@auxOrderingData
 Shalek_std_subset_ko_LPS@dim_reduce_type <- 'ICA'
-std_ko_branching_genes_ori = branchTest(Shalek_std_subset_ko_LPS, fullModelFormulaStr = full_model_string, cores = detectCores(), relative_expr = F, weighted = T)
-closeAllConnections()
-
-#perform all the above analysis with fpkm values
-Shalek_std_subset_ko_LPS <- reduceDimension(Shalek_std[, colnames(Shalek_abs_subset_ko_LPS)], use_vst = F, use_irlba=F, pseudo_expr = 0, residualModelFormulaStr = "~num_genes_expressed", scaling = F, method = "ICA")
-Shalek_std_subset_ko_LPS <- orderCells(Shalek_std_subset_ko_LPS, num_path = 2)
-
 
 # Figure 5C -- Heatmap
 # Detect branching genes and calulate ABCs and ILRs
 full_model_string = '~sm.ns(Pseudotime, df = 3)*Lineage'
 
-std_ko_branching_genes = branchTest(Shalek_std_subset_ko_LPS, fullModelFormulaStr = full_model_string, cores = detectCores(), relative_expr = F, weighted = T)
+std_ko_branching_genes = branchTest(Shalek_std_subset_ko_LPS, fullModelFormulaStr = full_model_string, cores = 1, relative_expr = F, weighted = T)
+closeAllConnections()
+
+std_ko_Ifnar1_wt4 <- differentialGeneTest(Shalek_std_subset_ko_LPS[, c(pData(Shalek_abs_subset_ko_LPS)$experiment_name %in% c('LPS') & 
+                                         pData(Shalek_abs_subset_ko_LPS)$time %in% '4h') | c(pData(Shalek_abs_subset_ko_LPS)$experiment_name %in% c('Ifnar1_KO_LPS') & 
+                                         pData(Shalek_abs_subset_ko_LPS)$time %in% '4h')
+                                         ], fullModelFormulaStr="~experiment_name", reducedModelFormulaStr="~1", cores=detectCores())
+closeAllConnections()
+std_ko_stat1_wt4 <- differentialGeneTest(Shalek_std_subset_ko_LPS[, c(pData(Shalek_abs_subset_ko_LPS)$experiment_name %in% c('LPS') & 
+                                         pData(Shalek_abs_subset_ko_LPS)$time %in% '4h') | c(pData(Shalek_abs_subset_ko_LPS)$experiment_name %in% c('Stat1_KO_LPS') & 
+                                         pData(Shalek_abs_subset_ko_LPS)$time %in% '4h')
+                                         ], fullModelFormulaStr="~experiment_name", reducedModelFormulaStr="~1", cores=detectCores())
 closeAllConnections()
 
 save.image('./RData/analysis_shalek_data_fpkm.RData')

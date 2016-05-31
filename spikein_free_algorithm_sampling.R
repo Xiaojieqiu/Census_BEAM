@@ -2,6 +2,11 @@ load('./RData/prepare_lung_data.RData')
 library(devtools)
 load_all('~/Projects/monocle-dev')
 library(MASS)
+library(sp)
+library(plyr)
+library(roaster)
+library(xacHelper)
+library(grid)
 # load_all_libraries()
 
 ############################make the landscape heatmap: 
@@ -42,7 +47,7 @@ optim_mc_func_fix_c(mc_select[2], kb_intercept = mc_select[1], t_estimate = esti
 # # provide perfect parameters: 
 optim_mc_func_fix_c_simulation <- function (mc_list, t_estimate = estimate_t(TPM_isoform_count_cds),
           relative_expr_matrix = relative_expr_matrix, split_relative_expr_matrix = split_relative_exprs,
-          alpha = rep(1, ncol(relative_expr_matrix)), total_RNAs = rep(150000, ncol(relative_expr_matrix)),
+          alpha = rep(1, ncol(relative_expr_matrix)), total_RNAs = rep(100000, ncol(relative_expr_matrix)),
           cores = 1, weight_mode=0.17, weight_relative_expr=0.50, weight_total_rna=0.33, verbose = F,  ...) {
   data('spike_df') #add the spikein dataset
 
@@ -172,7 +177,7 @@ e <- extent( spdf )
 ratio <- ( e@xmax - e@xmin ) / ( e@ymax - e@ymin )
 
 # Create template raster to sample to
-r <- raster( nrows = 56 , ncols = floor( 56 * ratio ) , ext = extent(spdf) )
+r <- raster( nrows = 20 , ncols = floor( 20 * ratio ) , ext = extent(spdf) )
 rf <- rasterize( spdf , r , field = "z" , fun = mean )
 
 # We can then plot this using `geom_tile()` or `geom_raster()`

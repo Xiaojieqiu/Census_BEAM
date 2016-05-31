@@ -146,7 +146,7 @@ closeAllConnections()
 pData(Shalek_abs_subset_ko_LPS)$Total_mRNAs <- colSums(exprs(Shalek_abs_subset_ko_LPS))
 Shalek_abs_subset_ko_LPS <- Shalek_abs_subset_ko_LPS[, pData(Shalek_abs_subset_ko_LPS)$Total_mRNAs < 170000]
 
-order_genes <- c(row.names(subset(Shalek_abs_subset_ko_LPS_subset_DEG_res, qval < 1e-40)))
+order_genes <- c(row.names(subset(Shalek_abs_subset_ko_LPS_subset_DEG_res, qval < 1e-30)))
 
 Shalek_abs_subset_ko_LPS <- setOrderingFilter(Shalek_abs_subset_ko_LPS, order_genes)
 Shalek_abs_subset_ko_LPS <- reduceDimension(Shalek_abs_subset_ko_LPS, pseudo_expr = 0, method = "ICA", scaling = F) #
@@ -159,44 +159,44 @@ monocle::plot_spanning_tree(Shalek_abs_subset_ko_LPS, color_by="interaction(expe
 dev.off()
 
 save.image('./RData/analysis_shalek_data_tmp.RData')
-# state_1_cell <- 'Unstimulated_Replicate_S47_0'
-# # State_2_cell <- 'LPS_4h_S59_0'
-# State_3_cell <- 'Stat1_KO_LPS_4h_S22_0'
+# # state_1_cell <- 'Unstimulated_Replicate_S47_0'
+# # # State_2_cell <- 'LPS_4h_S59_0'
+# # State_3_cell <- 'Stat1_KO_LPS_4h_S22_0'
 
-# #ko data: 
-# root_state <- pData(Shalek_abs_subset_ko_LPS[, state_1_cell])$State
-# Shalek_abs_subset_ko_LPS <- orderCells(Shalek_abs_subset_ko_LPS, root_state = root_state, num_path = 2)
-# if (pData(Shalek_abs_subset_ko_LPS)[State_3_cell, 'State'] != 3) {
-#   State <- pData(Shalek_abs_subset_ko_LPS)$State 
-#   pData(Shalek_abs_subset_ko_LPS)$State[State == 3] <- 2
-#   pData(Shalek_abs_subset_ko_LPS)$State[State == 2] <- 3
-# }
+# # #ko data: 
+# # root_state <- pData(Shalek_abs_subset_ko_LPS[, state_1_cell])$State
+# # Shalek_abs_subset_ko_LPS <- orderCells(Shalek_abs_subset_ko_LPS, root_state = root_state, num_path = 2)
+# # if (pData(Shalek_abs_subset_ko_LPS)[State_3_cell, 'State'] != 3) {
+# #   State <- pData(Shalek_abs_subset_ko_LPS)$State 
+# #   pData(Shalek_abs_subset_ko_LPS)$State[State == 3] <- 2
+# #   pData(Shalek_abs_subset_ko_LPS)$State[State == 2] <- 3
+# # }
 
-# Figure 5C -- Heatmap
-# Detect branching genes and calulate ABCs and ILRs
-full_model_string = '~sm.ns(Pseudotime, df = 3)*Lineage'
+# # Figure 5C -- Heatmap
+# # Detect branching genes and calulate ABCs and ILRs
+# full_model_string = '~sm.ns(Pseudotime, df = 3)*Lineage'
 
-ko_branching_genes = branchTest(Shalek_abs_subset_ko_LPS, fullModelFormulaStr = full_model_string, cores = detectCores(), relative_expr = T) #, weighted = T
-closeAllConnections()
+# ko_branching_genes = branchTest(Shalek_abs_subset_ko_LPS, fullModelFormulaStr = full_model_string, cores = detectCores(), relative_expr = T) #, weighted = T
+# closeAllConnections()
 
-# Figure 5B annotations -- Enrichment analysis on clusters
+# # Figure 5B annotations -- Enrichment analysis on clusters
 
-# make venn diagram for the genes for figure 5/6:
-# figure 5: 
-# pseudotime test for the WT cells
+# # make venn diagram for the genes for figure 5/6:
+# # figure 5: 
+# # pseudotime test for the WT cells
 
-##two group tests: 
-#comparign with time 4h:
-ko_Ifnar1_wt4 <- differentialGeneTest(Shalek_abs_subset_ko_LPS[, c(pData(Shalek_abs_subset_ko_LPS)$experiment_name %in% c('LPS') & 
-                                         pData(Shalek_abs_subset_ko_LPS)$time %in% '4h') | c(pData(Shalek_abs_subset_ko_LPS)$experiment_name %in% c('Ifnar1_KO_LPS') & 
-                                         pData(Shalek_abs_subset_ko_LPS)$time %in% '4h')
-                                         ], fullModelFormulaStr="~experiment_name", reducedModelFormulaStr="~1", cores=detectCores())
-closeAllConnections()
-ko_stat1_wt4 <- differentialGeneTest(Shalek_abs_subset_ko_LPS[, c(pData(Shalek_abs_subset_ko_LPS)$experiment_name %in% c('LPS') & 
-                                         pData(Shalek_abs_subset_ko_LPS)$time %in% '4h') | c(pData(Shalek_abs_subset_ko_LPS)$experiment_name %in% c('Stat1_KO_LPS') & 
-                                         pData(Shalek_abs_subset_ko_LPS)$time %in% '4h')
-                                         ], fullModelFormulaStr="~experiment_name", reducedModelFormulaStr="~1", cores=detectCores())
-closeAllConnections()
+# ##two group tests: 
+# #comparign with time 4h:
+# ko_Ifnar1_wt4 <- differentialGeneTest(Shalek_abs_subset_ko_LPS[, c(pData(Shalek_abs_subset_ko_LPS)$experiment_name %in% c('LPS') & 
+#                                          pData(Shalek_abs_subset_ko_LPS)$time %in% '4h') | c(pData(Shalek_abs_subset_ko_LPS)$experiment_name %in% c('Ifnar1_KO_LPS') & 
+#                                          pData(Shalek_abs_subset_ko_LPS)$time %in% '4h')
+#                                          ], fullModelFormulaStr="~experiment_name", reducedModelFormulaStr="~1", cores=detectCores())
+# closeAllConnections()
+# ko_stat1_wt4 <- differentialGeneTest(Shalek_abs_subset_ko_LPS[, c(pData(Shalek_abs_subset_ko_LPS)$experiment_name %in% c('LPS') & 
+#                                          pData(Shalek_abs_subset_ko_LPS)$time %in% '4h') | c(pData(Shalek_abs_subset_ko_LPS)$experiment_name %in% c('Stat1_KO_LPS') & 
+#                                          pData(Shalek_abs_subset_ko_LPS)$time %in% '4h')
+#                                          ], fullModelFormulaStr="~experiment_name", reducedModelFormulaStr="~1", cores=detectCores())
+# closeAllConnections()
 
 # #####################golgi: with all LPS cells: ######################
 # Shalek_golgi_update <- Shalek_abs[,pData(Shalek_abs)$experiment_name %in% c("LPS_GolgiPlug", "LPS", "Unstimulated_Replicate")]

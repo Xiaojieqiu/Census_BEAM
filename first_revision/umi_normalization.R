@@ -1,7 +1,9 @@
 #load the data 
-load('../RData/analysis_UMI_data.RData')
+load('./RData/analysis_UMI_data.RData')
 
-library(monocle)
+# library(monocle)
+library(devtools)
+load_all('~/Projects/monocle-dev')
 library(xacHelper)
 load_all_libraries()
 
@@ -106,11 +108,11 @@ qplot(k, b, data = UMI_models_kd_df) + geom_smooth(method = 'rlm') +
     xlab('Slope from TPM vs. Median UMI counts \n for ERCC spike-in transcripts') + ylab('Intercept from TPM vs. Median UMI counts \n for ERCC spike-in transcripts') +  nm_theme()
 dev.off()
 
-rlm(b ~ k, data = UMI_models_kd_df)
+rlm(b ~ k, data = UMI_models_kd_df) 
 
-UMI_norm_recovery_all_correct_mc <- relative2abs(UMI_TPM_cds, total_RNAs = pData(UMI_cds[, colnames(UMI_TPM_cds)])$total_RNAs, 
-                                                 t_estimate = estimate_t(exprs(UMI_TPM_cds)),  m = -1.9266285 , m_rng = c(-2.1, -1.9), 
-                                                 c = 0.8270289, c_rng = c(0.8270289, 0.8270289), 
+UMI_norm_recovery_all_correct_mc <- relative2abs(UMI_TPM_cds, expected_total_mRNAs = pData(UMI_cds[, colnames(UMI_TPM_cds)])$Total_mRNAs, 
+                                                 t_estimate = estimate_t(exprs(UMI_TPM_cds)),  kb_slope = -1.9266285 , kb_slope_rng = c(-2.1, -1.9), 
+                                                 kb_intercept = 0.8270289, kb_intercept_rng = c(0.8270289, 0.8270289), 
                                                  return_all = T, cores = 1)
 
 qplot(k, b, data = as.data.frame(t(UMI_norm_recovery_all_correct_mc$k_b_solution))) + geom_point(aes(x = k, y = b, color = 'red'), data = UMI_models_kd_df)
@@ -136,9 +138,9 @@ dev.off()
 
 ################################################################################################################################################################################################################################
 #recover without setting range for m
-UMI_norm_recovery_default_c <- relative2abs(UMI_TPM_cds, total_RNAs = median(pData(UMI_TPM_cds[, colnames(UMI_TPM_cds)])$Total_mRNAs), 
+UMI_norm_recovery_default_c <- relative2abs(UMI_TPM_cds, expected_total_mRNAs = median(pData(UMI_cds[, colnames(UMI_TPM_cds)])$Total_mRNAs), 
                                                  t_estimate = estimate_t(exprs(UMI_TPM_cds)), # m = -1.9266285 , m_rng = c(-2.1, -1.9), 
-                                                 c = 0.8270289, c_rng = c(0.8270289, 0.8270289), #fix_c
+                                                 kb_intercept = 0.8270289, kb_intercept_rng = c(0.8270289, 0.8270289), #fix_c
                                                  return_all = T, cores = detectCores())
 
 qplot(k, b, data = as.data.frame(t(UMI_norm_recovery_default_c$k_b_solution))) + geom_point(aes(x = k, y = b, color = 'red'), data = UMI_models_kd_df)

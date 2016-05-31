@@ -58,7 +58,7 @@ umi_spike_df <- data.frame(spikein = input.ERCC.annotation[row.names(umi_matrix)
 all_umi_spike_df <- data.frame(spikein = input.ERCC.annotation[row.names(umi_matrix)[ERCC_ids], 'numMolecules'], UMI = as.vector(exprs(UMI_cds)[ERCC_ids, ]))
 
 UMI_cds <- UMI_cds[, pData(UMI_cds)$Total_mRNAs > 0]
-pData(UMI_cds)$dmode <- estimate_t(UMI_cds)
+pData(UMI_cds)$dmode <- estimate_t(exprs(UMI_cds))
 
 UMI_cds_subset <-  UMI_cds[, pData(UMI_cds)$Total_mRNAs > 10000 & pData(UMI_cds)$group %in% c('SC_2i', 'SC_serum')]
 UMI_cds_subset <- estimateSizeFactors(UMI_cds_subset)

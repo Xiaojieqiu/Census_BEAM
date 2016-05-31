@@ -21,7 +21,7 @@ fig_root_dir = './main_figures/'
 #########################################################################################################
 #panel b: 
 pdf(file =paste(fig_root_dir, 'fig5b.pdf', sep = ''), height = 3, width = 3)
-monocle::plot_spanning_tree(Shalek_abs_subset_ko_LPS, color_by="interaction(experiment_name, time)", cell_size=2) + 
+plot_spanning_tree(Shalek_abs_subset_ko_LPS, color_by="interaction(experiment_name, time)", cell_size=2) + 
 scale_color_manual(values=shalek_custom_color_scale_plus_states) + nm_theme()
 dev.off()
 

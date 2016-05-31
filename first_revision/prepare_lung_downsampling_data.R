@@ -2,8 +2,10 @@ library(argparse)
 library(tidyr)
 library(grid)
 library(gridExtra)
-library(monocle)
-library(DevTree)
+# library(monocle)
+library(devtools)
+load_all('~/Projects/monocle-dev')
+library(xacHelper)
 library(plyr)
 library(data.table)
 library(MASS)
@@ -65,7 +67,7 @@ get_recovered_transcript_counts_with_stats = function(cds, isoform_matrix) {
 
     # Put the CDS in the list and return with m and c parameters
     normalized_cds_stats$norm_cds = cds
-    return(normalized_cds_stats[c("norm_cds", "m", "c")])
+    return(normalized_cds_stats[c("norm_cds", "kb_intercept", "kb_slope")])
 }
 
 # Wraps code borrowed from lung analysis to do spike-in regression

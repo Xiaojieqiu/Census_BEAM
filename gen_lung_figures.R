@@ -239,6 +239,18 @@ qplot(estimate_mode, mode_transcript, data = df, color = Time, log = 'xy') + xla
   ylab('corresponding transcript counts \n of estimated mode') + nm_theme()
 dev.off()
 
+#obtain the calibrated parameters
+tmp <- relative2abs(standard_cds, verbose = T, return_all = T, use_fixed_intercept = T, reads_per_cell = colSums(read_countdata), expected_total_mRNAs = dmode(pData(absolute_cds)$total), 
+                          expected_capture_rate = rep(0.25, 183),
+                          cores = detectCores()) 
+
+df$estimate_mode <- tmp$calibrated_modes[, 1]
+pdf('./main_figures/fig3b_mode_time.pdf', width = 1.4, height = 1.4)
+qplot(mode_transcript, estimate_mode,  data = df, log = 'xy', color = Time, size = 1)  +  scale_size(range = c(0.1, 1)) + 
+  xlab('Mode \n (spike-in regression)') + ylab('Mode (calibration)') + geom_abline(color = I('red'), size = .1) + 
+  geom_smooth(method = 'rlm', aes(group = 1), color = 'blue') + nm_theme()
+dev.off()
+
 #make figure 3b
 pdf('./main_figures/fig3b.pdf', width = 2.2, height = 1.4)
 qplot(ceiling(mode_transcript), fill = I('red'), data = df)  + xlab('Transcript count for most frequent log10(FPKM)') + ylab('Cells') + nm_theme() #+ geom_vline(x = 1, linetype = 'longdash', color = I('blue'), size = .1)

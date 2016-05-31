@@ -3,7 +3,9 @@
 # #1. MAST 
 # library(devtools)
 # install_github('RGLab/MAST')
-library(monocle)
+# library(monocle)
+library(devtools)
+load_all('~/Projects/monocle-dev')
 library(MAST)
 library(xacHelper)
 

@@ -407,6 +407,7 @@ if(use_select_algorithm) {
   exprs(absolute_cds) <- exprs(absolute_cds_select)
   # exprs(mc_adj_cds) <- as.matrix(Quake_norm_cds_optim_weight_fix_c)
   # pData(mc_adj_cds)$endogenous_RNA <- esApply(mc_adj_cds, 2, function(x) sum(x[1:transcript_num]))
+  pData(absolute_cds)$Total_mRNAs <- esApply(absolute_cds, 2, sum)
   pData(absolute_cds)$endogenous_RNA <- esApply(absolute_cds, 2, function(x) sum(x[1:transcript_num]))
   fraction <- 1- pData(absolute_cds)[, 'endogenous_RNA'] / pData(absolute_cds)[, 'Total_mRNAs'] 
 }
