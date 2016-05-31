@@ -249,6 +249,7 @@ get_root_state <- function(cds, root_cell ) {
 reduce_dimension_and_order_cells_transcript_counts = function(cds, root_cell) {
   cds = estimateSizeFactors(cds)
   cds = estimateDispersions(cds)
+  fData(cds)$use_for_ordering = T
   cds = reduceDimension(cds[add_quake_gene_all_marker_ids, ], use_irlba = F, use_vst=T, method="ICA", scaling=F, pseudo_expr=0) 
   cds = orderCells(cds, num_paths = 2, reverse = T)
   root_state = get_root_state(cds, root_cell)  # get state that was assigned to root cell

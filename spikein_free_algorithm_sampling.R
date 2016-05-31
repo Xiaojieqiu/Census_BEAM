@@ -7,6 +7,7 @@ library(plyr)
 library(roaster)
 library(xacHelper)
 library(grid)
+library(RColorBrewer)
 # load_all_libraries()
 
 ############################make the landscape heatmap: 
@@ -177,7 +178,7 @@ e <- extent( spdf )
 ratio <- ( e@xmax - e@xmin ) / ( e@ymax - e@ymin )
 
 # Create template raster to sample to
-r <- raster( nrows = 20 , ncols = floor( 20 * ratio ) , ext = extent(spdf) )
+r <- raster( nrows = 10 , ncols = floor( 9 * ratio ) , ext = extent(spdf) ) 
 rf <- rasterize( spdf , r , field = "z" , fun = mean )
 
 # We can then plot this using `geom_tile()` or `geom_raster()`
@@ -186,35 +187,35 @@ rdf <- data.frame( rasterToPoints( rf ) )
 optimal_solution <- head(arrange(optimization_matrix_filt, optim_res), 1)
 pdf('./main_figures/fig3e.pdf', width = 1.38, height = 1.25)
 ggplot( NULL ) + geom_raster( data = rdf , aes( x , y , fill = log10(layer) ) ) + 
-  annotate("text", x = -3.85, y = 3.1, label = "True (m,c)", color="magenta", size=2) + 
-  annotate("point", x = -4.277778, y = 2.932929, color="magenta", size = 1) + 
-  #annotate("text", x = -3.7, y = 3.2, label = "True (m,c)") + 
-  annotate("text", x = -5.1, y = 2.7, label = "Algorithm (m,c)", color="red", size=2) + 
-  annotate("point", x = as.numeric(as.character(optimal_solution$m)), y = as.numeric(as.character(optimal_solution$c)), color="red", size=1) + 
-  scale_fill_gradientn(guide=guide_legend(title=expression(paste(log[10](F)))), colours=brewer.pal(name="YlGnBu", n=7)) +
-  xlab("m") + ylab("c") +
-  theme(strip.background = element_rect(colour = 'white', fill = 'white')) +
-  theme(panel.border = element_blank(), axis.line = element_line()) +
-  theme(panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) +
-  theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank()) + scale_size(range = c(0.1, 2)) + 
-  theme(panel.background = element_rect(fill='white')) + nm_theme()
+    annotate("text", x = -3.85, y = 3.2, label = "True (m,c)", color="magenta", size=2) + 
+    annotate("point", x = mc_select[2], y = mc_select[1], color="magenta", size = 1) + #-4.636364 3.434343
+    #annotate("text", x = -3.7, y = 3.2, label = "True (m,c)") + 
+    annotate("text", x = -4.1, y = 2.7, label = "Algorithm (m,c)", color="red", size=2) + 
+    annotate("point", x = as.numeric(as.character(optimal_solution$m)), y = as.numeric(as.character(optimal_solution$c)), color="red", size=1) + 
+    scale_fill_gradientn(guide=guide_legend(title=expression(paste(log[10](F)))), colours=brewer.pal(name="YlGnBu", n=7)) +
+    xlab("m") + ylab("c") +
+    theme(strip.background = element_rect(colour = 'white', fill = 'white')) +
+    theme(panel.border = element_blank(), axis.line = element_line()) +
+    theme(panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) +
+    theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank()) + scale_size(range = c(0.1, 2)) + 
+    theme(panel.background = element_rect(fill='white')) + nm_theme()
 dev.off()
 
 #create the helper pdf file to annotate the figure: 
 pdf('./tmp/fig3e_helper.pdf', width = 5, height = 1.5)
 ggplot( NULL ) + geom_raster( data = rdf , aes( x , y , fill = log10(layer) ) ) + 
-  annotate("text", x = -3.85, y = 3.1, label = "True (m,c)", color="magenta", size=2) + 
-  annotate("point", x = -4.277778, y = 2.932929, color="magenta", size = 1) + 
-  #annotate("text", x = -3.7, y = 3.2, label = "True (m,c)") + 
-  annotate("text", x = -5.1, y = 2.7, label = "Algorithm (m,c)", color="red", size=2) + 
-  annotate("point", x = as.numeric(as.character(optimal_solution$m)), y = as.numeric(as.character(optimal_solution$c)), color="red", size=1) + 
-  scale_fill_gradientn(guide=guide_legend(title=expression(paste(log[10](F)))), colours=brewer.pal(name="YlGnBu", n=7)) +
-  xlab("m") + ylab("c") +
-  theme(strip.background = element_rect(colour = 'white', fill = 'white')) +
-  theme(panel.border = element_blank(), axis.line = element_line()) +
-  theme(panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) +
-  theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank()) + scale_size(range = c(0.1, 2)) + 
-  theme(panel.background = element_rect(fill='white'))
+    annotate("text", x = -3.85, y = 3.2, label = "True (m,c)", color="magenta", size=2) + 
+    annotate("point", x = mc_select[2], y = mc_select[1], color="magenta", size = 1) + #-4.636364 3.434343
+    #annotate("text", x = -3.7, y = 3.2, label = "True (m,c)") + 
+    annotate("text", x = -4.1, y = 2.7, label = "Algorithm (m,c)", color="red", size=2) + 
+    annotate("point", x = as.numeric(as.character(optimal_solution$m)), y = as.numeric(as.character(optimal_solution$c)), color="red", size=1) + 
+    scale_fill_gradientn(guide=guide_legend(title=expression(paste(log[10](F)))), colours=brewer.pal(name="YlGnBu", n=7)) +
+    xlab("m") + ylab("c") +
+    theme(strip.background = element_rect(colour = 'white', fill = 'white')) +
+    theme(panel.border = element_blank(), axis.line = element_line()) +
+    theme(panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) +
+    theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank()) + scale_size(range = c(0.1, 2)) + 
+    theme(panel.background = element_rect(fill='white')) + nm_theme()
 dev.off()
 
 save.image('./RData/spikein_free_algorithm_sampling.RData')

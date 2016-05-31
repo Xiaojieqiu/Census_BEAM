@@ -146,11 +146,10 @@ closeAllConnections()
 pData(Shalek_abs_subset_ko_LPS)$Total_mRNAs <- colSums(exprs(Shalek_abs_subset_ko_LPS))
 Shalek_abs_subset_ko_LPS <- Shalek_abs_subset_ko_LPS[, pData(Shalek_abs_subset_ko_LPS)$Total_mRNAs < 170000]
 
-order_genes <- c(row.names(subset(Shalek_abs_subset_ko_LPS_subset_DEG_res, qval < 1e-30)))
+order_genes <- c(row.names(subset(Shalek_abs_subset_ko_LPS_subset_DEG_res, qval < 1e-34)))
 
 Shalek_abs_subset_ko_LPS <- setOrderingFilter(Shalek_abs_subset_ko_LPS, order_genes)
-Shalek_abs_subset_ko_LPS <- reduceDimension(Shalek_abs_subset_ko_LPS, pseudo_expr = 0, method = "ICA", scaling = F) #
-# Shalek_abs_subset_ko_LPS <- reduceDimension(Shalek_abs_subset_ko_LPS, use_vst = T, use_irlba=F, pseudo_expr = 0, residualModelFormulaStr = "~num_genes_expressed", scaling = F, method = "ICA")
+Shalek_abs_subset_ko_LPS <- reduceDimension(Shalek_abs_subset_ko_LPS, use_vst = T, use_irlba=F, pseudo_expr = 0, residualModelFormulaStr = "~num_genes_expressed", scaling = F, method = "ICA")
 Shalek_abs_subset_ko_LPS <- orderCells(Shalek_abs_subset_ko_LPS, num_path = 2)
 
 pdf('tmp/Shalek_LPS_tree.pdf')
@@ -172,31 +171,31 @@ save.image('./RData/analysis_shalek_data_tmp.RData')
 # #   pData(Shalek_abs_subset_ko_LPS)$State[State == 2] <- 3
 # # }
 
-# # Figure 5C -- Heatmap
-# # Detect branching genes and calulate ABCs and ILRs
-# full_model_string = '~sm.ns(Pseudotime, df = 3)*Lineage'
+# Figure 5C -- Heatmap
+# Detect branching genes and calulate ABCs and ILRs
+full_model_string = '~sm.ns(Pseudotime, df = 3)*Lineage'
 
-# ko_branching_genes = branchTest(Shalek_abs_subset_ko_LPS, fullModelFormulaStr = full_model_string, cores = detectCores(), relative_expr = T) #, weighted = T
-# closeAllConnections()
+ko_branching_genes = branchTest(Shalek_abs_subset_ko_LPS, fullModelFormulaStr = full_model_string, cores = detectCores(), relative_expr = T) #, weighted = T
+closeAllConnections()
 
-# # Figure 5B annotations -- Enrichment analysis on clusters
+# Figure 5B annotations -- Enrichment analysis on clusters
 
-# # make venn diagram for the genes for figure 5/6:
-# # figure 5: 
-# # pseudotime test for the WT cells
+# make venn diagram for the genes for figure 5/6:
+# figure 5: 
+# pseudotime test for the WT cells
 
-# ##two group tests: 
-# #comparign with time 4h:
-# ko_Ifnar1_wt4 <- differentialGeneTest(Shalek_abs_subset_ko_LPS[, c(pData(Shalek_abs_subset_ko_LPS)$experiment_name %in% c('LPS') & 
-#                                          pData(Shalek_abs_subset_ko_LPS)$time %in% '4h') | c(pData(Shalek_abs_subset_ko_LPS)$experiment_name %in% c('Ifnar1_KO_LPS') & 
-#                                          pData(Shalek_abs_subset_ko_LPS)$time %in% '4h')
-#                                          ], fullModelFormulaStr="~experiment_name", reducedModelFormulaStr="~1", cores=detectCores())
-# closeAllConnections()
-# ko_stat1_wt4 <- differentialGeneTest(Shalek_abs_subset_ko_LPS[, c(pData(Shalek_abs_subset_ko_LPS)$experiment_name %in% c('LPS') & 
-#                                          pData(Shalek_abs_subset_ko_LPS)$time %in% '4h') | c(pData(Shalek_abs_subset_ko_LPS)$experiment_name %in% c('Stat1_KO_LPS') & 
-#                                          pData(Shalek_abs_subset_ko_LPS)$time %in% '4h')
-#                                          ], fullModelFormulaStr="~experiment_name", reducedModelFormulaStr="~1", cores=detectCores())
-# closeAllConnections()
+##two group tests: 
+#comparign with time 4h:
+ko_Ifnar1_wt4 <- differentialGeneTest(Shalek_abs_subset_ko_LPS[, c(pData(Shalek_abs_subset_ko_LPS)$experiment_name %in% c('LPS') & 
+                                         pData(Shalek_abs_subset_ko_LPS)$time %in% '4h') | c(pData(Shalek_abs_subset_ko_LPS)$experiment_name %in% c('Ifnar1_KO_LPS') & 
+                                         pData(Shalek_abs_subset_ko_LPS)$time %in% '4h')
+                                         ], fullModelFormulaStr="~experiment_name", reducedModelFormulaStr="~1", cores=detectCores())
+closeAllConnections()
+ko_stat1_wt4 <- differentialGeneTest(Shalek_abs_subset_ko_LPS[, c(pData(Shalek_abs_subset_ko_LPS)$experiment_name %in% c('LPS') & 
+                                         pData(Shalek_abs_subset_ko_LPS)$time %in% '4h') | c(pData(Shalek_abs_subset_ko_LPS)$experiment_name %in% c('Stat1_KO_LPS') & 
+                                         pData(Shalek_abs_subset_ko_LPS)$time %in% '4h')
+                                         ], fullModelFormulaStr="~experiment_name", reducedModelFormulaStr="~1", cores=detectCores())
+closeAllConnections()
 
 # #####################golgi: with all LPS cells: ######################
 # Shalek_golgi_update <- Shalek_abs[,pData(Shalek_abs)$experiment_name %in% c("LPS_GolgiPlug", "LPS", "Unstimulated_Replicate")]

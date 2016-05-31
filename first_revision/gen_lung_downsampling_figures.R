@@ -1,8 +1,11 @@
 library(tidyr)
 library(grid)
 library(gridExtra)
+
+load_all('~/Projects/monocle-dev')
+library(xacHelper)
 library(monocle)
-library(DevTree)
+library(xacHelper)
 library(plyr)
 library(data.table)
 library(MASS)
@@ -14,8 +17,8 @@ library(matrixStats)
 ####################################################
 # Load prepared downsampling data and required code
 ####################################################
-load("RData/prepare_downsampling_data.RData")
-source("monocle_helper_functions.R")
+# load("RData/prepare_downsampling_data.RData")
+# source("monocle_helper_functions.R")
 
 ####################################################
 # Helper functions for analysis
@@ -86,15 +89,14 @@ performance = performance %>% dplyr::arrange(as.numeric(quartile_start))
 performance$quartile = factor(performance$quartile, levels=unique(performance$quartile))
 
 # Make plot
-pdf("fig7c_si.pdf", height=3, width=3)
-
+pdf("./supplementary_figures/fig7c_si.pdf", height=3, width=3)
 ggplot(performance, aes(as.numeric(depth), as.numeric(mean_value), color=quantification_type)) +
     geom_point() +
-    geom_line() +
-    geom_hline(y=1, linetype="longdash", color="black", alpha=0.75) + 
-    ylim(c(0, 1)) +
+    # geom_line() +
+    #geom_hline(y=1, linetype="longdash", color="black", alpha=0.75) + 
+    #ylim(c(0, 1)) +
     facet_wrap(~ quartile, nrow=2) +
-    illustrator_theme() +
+    nm_theme() +
     xlab("max depth per cell (read pairs)") +
     ylab("median proportion of genes quantified within 20% of original per cell") +
     scale_color_brewer(palette="Set1") +
@@ -118,7 +120,7 @@ colnames(recovery) = c("depth", "gene", "transcript_counts_recovery")
 combined_recovery_and_regression_by_depth = regression %>% left_join(recovery, by=c("depth", "gene"))
 
 # Generate scatterplots at different depths to show how recovery algorithm performance changes with depth 
-pdf("fig7a_si.pdf", width=3, height=3)
+pdf("./supplementary_figures/fig7a_si.pdf", width=3, height=3)
 
 ggplot(combined_recovery_and_regression_by_depth, aes(log10(transcript_counts_regression + 0.1), log10(transcript_counts_recovery + 0.1))) +
     geom_point(size=0.3) + 
@@ -126,7 +128,7 @@ ggplot(combined_recovery_and_regression_by_depth, aes(log10(transcript_counts_re
     facet_wrap(~ depth, ncol=3) + 
     xlab("log10(spike-in regression transcript counts + 0.1)") + 
     ylab("log10(spike-free transcript counts + 0.1)") + 
-    illustrator_theme()
+    nm_theme()
 
 dev.off()
 
@@ -139,7 +141,7 @@ combined_recovery_and_regression_by_depth = subset(combined_recovery_and_regress
 
 median_proportion_of_error_per_depth = combined_recovery_and_regression_by_depth %>% group_by(depth) %>% summarize(median=median((transcript_counts_recovery - transcript_counts_regression) / sum(transcript_counts_regression)), quartile_2=quantile((transcript_counts_recovery - transcript_counts_regression) / sum(transcript_counts_regression))[[2]], quartile_3=quantile((transcript_counts_recovery - transcript_counts_regression) / sum(transcript_counts_regression))[[4]])
 
-pdf("fig7b_si.pdf", width=3, height=3)
+pdf("./supplementary_figures/fig7b_si.pdf", width=3, height=3)
 ggplot(median_proportion_of_error_per_depth, aes(depth, median)) +
     geom_hline(y=0, linetype="longdash", color="red", alpha=0.75) + 
     geom_errorbar(aes(ymax=quartile_3, ymin=quartile_2), color="#d3d3d3") +
@@ -147,7 +149,7 @@ ggplot(median_proportion_of_error_per_depth, aes(depth, median)) +
     geom_line() +
     xlab("max depth per cell (read pairs)") +
     ylab("median normalized difference between recovery methods") + 
-    illustrator_theme()
+    nm_theme()
 dev.off()
 
 
@@ -162,7 +164,7 @@ recovery_algorithm_stability_df = reshape2::melt(recovery_algorithm_stability_df
 # Temporary hack to fix depth of original dataset (not 10,000,000)
 recovery_algorithm_stability_df$depth[recovery_algorithm_stability_df$depth == 10000000] = 5000000
 
-pdf("fig7d_si.pdf", width=2.5, height=2.5)
+pdf("./supplementary_figures/fig7d_si.pdf", width=2.5, height=2.5)
 
 ggplot(recovery_algorithm_stability_df, aes(depth, value, color=variable)) +
     geom_point() +
@@ -171,7 +173,7 @@ ggplot(recovery_algorithm_stability_df, aes(depth, value, color=variable)) +
     ylab("spike-free method parameter value") +
     facet_grid(variable ~ ., scales="free_y") + 
     scale_color_brewer(palette="Set1") + 
-    illustrator_theme()
+    nm_theme()
 
 dev.off()
 
@@ -221,4 +223,4 @@ ggplot(proportion_correct, aes(depth, proportion_correct, color=method)) +
     ylab("proportion of cells within 20% of original value") +
     xlab("max depth per cell (total aligned PE reads)") +
     theme_bw() +
-    ggsave("temp.png", height=7.5, width=7.5)
+    ggsave("./tmp/temp.png", height=7.5, width=7.5)

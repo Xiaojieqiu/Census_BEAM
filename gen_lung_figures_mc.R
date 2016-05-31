@@ -8,7 +8,7 @@ library(igraph)
 library(grid)
 
 #load the data: 
-load('./RData/analysis_lung_data_fpkm.RData')
+load('./RData/analysis_lung_data_mc.RData')
 # load('./RData/deg_benchmark_analysis.RData')
 # load('./RData/spikein_free_algorithm_sampling.RData')
 #color scheme: 
@@ -394,8 +394,9 @@ colour <- rep(0, length(new_cds$Lineage))
 names(colour) <- as.character(pData(new_cds)$Lineage)
 colour[names(colour) == 'AT1'] <- AT1_Lineage
 colour[names(colour) ==  'AT2'] <- AT2_Lineage
-
-gene_grn_list <- infer_branch_gene_grn(TF_enrichment_gsc = lung_TF_5k_enrichment_gsc, file = 'gene_regulatory_net_up5k', p_thrsld = 0.01, branchTest_res = weihgted_mc_AT12_cds_subset_all_gene)
+ 
+gene_grn_list <- infer_branch_gene_grn(TF_enrichment_gsc = lung_TF_5k_enrichment_gsc, file = 'gene_regulatory_net_up5k', p_thrsld = 0.01, 
+                    branchTest_res = weihgted_mc_AT12_cds_subset_all_gene, bifurcation_time = mc_bifurcation_time)
 branch_motif_Tfs <- gene_grn_list$branch_tfs[toupper(gene_grn_list$branch_tfs) %in% toupper(valid_hyper_df$first) | 
                                                toupper(gene_grn_list$branch_tfs) %in% toupper(valid_hyper_df$second)]
 branch_motif_Tfs_id <- row.names(subset(fData(mc_AT12_cds_subset_all_gene), toupper(gene_short_name) %in% branch_motif_Tfs)) 

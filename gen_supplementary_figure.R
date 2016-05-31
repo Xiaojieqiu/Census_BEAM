@@ -4,7 +4,7 @@ library(xacHelper)
 load_all_libraries()
 
 load('./RData/deg_benchmark_analysis.RData')
-load('./RData/analysis_lung_data.RData')
+load('./RData/analysis_lung_data_mc.RData') #load('./RData/analysis_lung_data.RData')
 load('./RData/analysis_HSMM_data.RData')
 load('./RData/analysis_distribution_fitting.RData')
 load('./RData/analysis_shalek_data.RData')
@@ -350,10 +350,10 @@ dev.off()
 
 #make kinetic plots: 
 # Nkx2-1, Hopx, Sox9, Foxa2,  and Gata6
-abs_AT12_cds_subset_all_gene@dim_reduce_type <- 'ICA'
-important_tf_ids <- row.names(subset(fData(abs_AT12_cds_subset_all_gene), gene_short_name %in% c('Hopx', 'Sox9', 'Foxa2', 'Gata6', 'Nkx2-1')))
+mc_AT12_cds_subset_all_gene@dim_reduce_type <- 'ICA'
+important_tf_ids <- row.names(subset(fData(mc_AT12_cds_subset_all_gene), gene_short_name %in% c('Hopx', 'Sox9', 'Foxa2', 'Gata6', 'Nkx2-1')))
 
-new_cds <- buildLineageBranchCellDataSet(abs_AT12_cds_subset_all_gene[1:10, ], lineage_labels = c('AT1', 'AT2'))
+new_cds <- buildLineageBranchCellDataSet(mc_AT12_cds_subset_all_gene[1:10, ], lineage_labels = c('AT1', 'AT2'))
 
 colour_cell <- rep(0, length(new_cds$Lineage))
 names(colour_cell) <- as.character(new_cds$Time)
@@ -368,7 +368,7 @@ colour[names(colour) == 'AT1'] <- AT1_Lineage
 colour[names(colour) == 'AT2'] <- AT2_Lineage
 
 pdf('./supplementary_figures/fig6b_si_kinetic_plots.pdf', height = 1.5, width = 5)
-plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[important_tf_ids, ], cell_color_by = "Time", lineage_labels = c('AT1', 'AT2'), 
+plot_genes_branched_pseudotime2(mc_AT12_cds_subset_all_gene[important_tf_ids, ], cell_color_by = "Time", lineage_labels = c('AT1', 'AT2'), 
     trajectory_color_by = "Lineage", trend_formula = '~sm.ns(Pseudotime, df = 3)*Lineage', normalize = F, stretch = T,
     cell_size = 1, ncol = 3, reducedModelFormulaStr = "~ sm.ns(Pseudotime, df=3)", add_pval = T) + xlab('Pseudotime') + 
     ylab('Transcript counts') + nm_theme()
