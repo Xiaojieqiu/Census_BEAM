@@ -1,13 +1,17 @@
 ########################################
 # Downsampling the number of cells
 # ########################################
-library(monocle)
+# library(monocle)
+library(devtools)
+load_all('~/Projects/monocle-dev')
 library(xacHelper)
 # source("monocle_helper_functions.R")
+library(plyr)
+library(stringr)
 library(dplyr) 
 library(grid)
 library(gridExtra)
-load("RData/analysis_shalek_data.RData")
+# load("RData/analysis_shalek_data.RData")
 
 #functions used in the scripts
 order_shalek_cells_by_original_states <- function(cds_subset, original_cds, root_state, cells_state_2, cells_state_3) {
@@ -24,7 +28,7 @@ order_shalek_cells_by_original_states <- function(cds_subset, original_cds, root
   
   # Filter out high mRNAs
   cds_subset <- cds_subset[, pData(cds_subset)$Total_mRNAs < 75000]
-  order_genes = subset(differential_genes, qval < 0.05) %>% top_n(36, -qval)
+  order_genes = subset(differential_genes, qval < 0.05) %>% top_n(34, -qval)
   order_genes = order_genes$gene_id
   cds_subset = setOrderingFilter(cds_subset, order_genes)
 
@@ -93,6 +97,99 @@ cds_downsampled_cells = lapply(downsampled_proportions, function(x) { Shalek_abs
 cds_downsampled_cells_ordered = lapply(cds_downsampled_cells, order_shalek_cells_by_original_states, Shalek_abs_subset_ko_LPS, root_state, cells_state_2, cells_state_3)
 save(cds_downsampled_cells_ordered, Shalek_abs_subset_ko_LPS, file="analysis_cell_downsampling.gz")
 
+#################################################Parallel the above analysis#####################################################
+# cds_subset, original_cds, root_state, cells_state_2, cells_state_3
+abs_cds_downsampled_cells_branch_genes = lapply(cds_downsampled_cells[1:6], function(cds) { 
+  cds <- order_shalek_cells_by_original_states(cds, Shalek_abs_subset_ko_LPS, root_state, cells_state_2, cells_state_3)
+  res <- branchTest(cds[, ], fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', cores = detectCores(), relative_expr = T, weighted = T)
+  return(list(order_cds = cds, res = res))
+   })
+abs_cds_downsampled_cells_branch_genes_1 <- abs_cds_downsampled_cells_branch_genes
+save(abs_cds_downsampled_cells_branch_genes_1, file = 'abs_cds_downsampled_cells_branch_genes_1')
+
+abs_cds_downsampled_cells_branch_genes = lapply(cds_downsampled_cells[7:12], function(cds) { 
+  cds <- order_shalek_cells_by_original_states(cds, Shalek_abs_subset_ko_LPS, root_state, cells_state_2, cells_state_3)
+  res <- branchTest(cds[, ], fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', cores = detectCores(), relative_expr = T, weighted = T)
+  return(list(order_cds = cds, res = res))
+   })
+abs_cds_downsampled_cells_branch_genes_2 <- abs_cds_downsampled_cells_branch_genes
+save(abs_cds_downsampled_cells_branch_genes_2, file = 'abs_cds_downsampled_cells_branch_genes_2')
+
+abs_cds_downsampled_cells_branch_genes = lapply(cds_downsampled_cells[13:19], function(cds) { 
+  cds <- order_shalek_cells_by_original_states(cds, Shalek_abs_subset_ko_LPS, root_state, cells_state_2, cells_state_3)
+  res <- branchTest(cds[, ], fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', cores = detectCores(), relative_expr = T, weighted = T)
+  return(list(order_cds = cds, res = res))
+   })
+abs_cds_downsampled_cells_branch_genes_3 <- abs_cds_downsampled_cells_branch_genes
+save(abs_cds_downsampled_cells_branch_genes_3, file = 'abs_cds_downsampled_cells_branch_genes_3')
+
+abs_cds_downsampled_cells_branch_genes = lapply(cds_downsampled_cells[20:21], function(cds) { 
+  cds <- order_shalek_cells_by_original_states(cds, Shalek_abs_subset_ko_LPS, root_state, cells_state_2, cells_state_3)
+  res <- branchTest(cds[, ], fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', cores = detectCores(), relative_expr = T, weighted = T)
+  return(list(order_cds = cds, res = res))
+   })
+abs_cds_downsampled_cells_branch_genes_4 <- abs_cds_downsampled_cells_branch_genes
+save(abs_cds_downsampled_cells_branch_genes_4, file = 'abs_cds_downsampled_cells_branch_genes_4')
+
+abs_cds_downsampled_cells_branch_genes = lapply(cds_downsampled_cells[22:24], function(cds) { 
+  cds <- order_shalek_cells_by_original_states(cds, Shalek_abs_subset_ko_LPS, root_state, cells_state_2, cells_state_3)
+  res <- branchTest(cds[, ], fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', cores = detectCores(), relative_expr = T, weighted = T)
+  return(list(order_cds = cds, res = res))
+   })
+abs_cds_downsampled_cells_branch_genes_5 <- abs_cds_downsampled_cells_branch_genes
+save(abs_cds_downsampled_cells_branch_genes_5, file = 'abs_cds_downsampled_cells_branch_genes_5')
+
+abs_cds_downsampled_cells_branch_genes = lapply(cds_downsampled_cells[25:28], function(cds) { 
+  cds <- order_shalek_cells_by_original_states(cds, Shalek_abs_subset_ko_LPS, root_state, cells_state_2, cells_state_3)
+  res <- branchTest(cds[, ], fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', cores = detectCores(), relative_expr = T, weighted = T)
+  return(list(order_cds = cds, res = res))
+   })
+abs_cds_downsampled_cells_branch_genes_6 <- abs_cds_downsampled_cells_branch_genes
+save(abs_cds_downsampled_cells_branch_genes_6, file = 'abs_cds_downsampled_cells_branch_genes_6')
+
+abs_cds_downsampled_cells_branch_genes = lapply(cds_downsampled_cells[29:32], function(cds) { 
+  cds <- order_shalek_cells_by_original_states(cds, Shalek_abs_subset_ko_LPS, root_state, cells_state_2, cells_state_3)
+  res <- branchTest(cds[, ], fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', cores = detectCores(), relative_expr = T, weighted = T)
+  return(list(order_cds = cds, res = res))
+   })
+abs_cds_downsampled_cells_branch_genes_7 <- abs_cds_downsampled_cells_branch_genes
+save(abs_cds_downsampled_cells_branch_genes_7, file = 'abs_cds_downsampled_cells_branch_genes_7')
+
+abs_cds_downsampled_cells_branch_genes = lapply(cds_downsampled_cells[33:36], function(cds) { 
+  cds <- order_shalek_cells_by_original_states(cds, Shalek_abs_subset_ko_LPS, root_state, cells_state_2, cells_state_3)
+  res <- branchTest(cds[, ], fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', cores = detectCores(), relative_expr = T, weighted = T)
+  return(list(order_cds = cds, res = res))
+   })
+abs_cds_downsampled_cells_branch_genes_8 <- abs_cds_downsampled_cells_branch_genes
+save(abs_cds_downsampled_cells_branch_genes_8, file = 'abs_cds_downsampled_cells_branch_genes_8')
+#################################################Parallel the above analysis#####################################################
+
+load('abs_cds_downsampled_cells_branch_genes_1')
+load('abs_cds_downsampled_cells_branch_genes_2')
+load('abs_cds_downsampled_cells_branch_genes_3')
+load('abs_cds_downsampled_cells_branch_genes_4')
+load('abs_cds_downsampled_cells_branch_genes_5')
+load('abs_cds_downsampled_cells_branch_genes_6')
+load('abs_cds_downsampled_cells_branch_genes_7')
+load('abs_cds_downsampled_cells_branch_genes_8')
+
+cds_downsampled_cells_ordered <- c(lapply(abs_cds_downsampled_cells_branch_genes_1, function(x) x$order_cds), 
+                                lapply(abs_cds_downsampled_cells_branch_genes_2, function(x) x$order_cds), 
+                                lapply(abs_cds_downsampled_cells_branch_genes_3, function(x) x$order_cds), 
+                                lapply(abs_cds_downsampled_cells_branch_genes_4, function(x) x$order_cds),
+                                lapply(abs_cds_downsampled_cells_branch_genes_5, function(x) x$order_cds),
+                                lapply(abs_cds_downsampled_cells_branch_genes_6, function(x) x$order_cds),
+                                lapply(abs_cds_downsampled_cells_branch_genes_7, function(x) x$order_cds),
+                                lapply(abs_cds_downsampled_cells_branch_genes_8, function(x) x$order_cds))
+
+cds_downsampled_cells_branch_genes <- c(lapply(abs_cds_downsampled_cells_branch_genes_1, function(x) x$res), 
+                                lapply(abs_cds_downsampled_cells_branch_genes_2, function(x) x$res), 
+                                lapply(abs_cds_downsampled_cells_branch_genes_3, function(x) x$res), 
+                                lapply(abs_cds_downsampled_cells_branch_genes_4, function(x) x$res),
+                                lapply(abs_cds_downsampled_cells_branch_genes_5, function(x) x$res),
+                                lapply(abs_cds_downsampled_cells_branch_genes_6, function(x) x$res),
+                                lapply(abs_cds_downsampled_cells_branch_genes_7, function(x) x$res),
+                                lapply(abs_cds_downsampled_cells_branch_genes_8, function(x) x$res))
 ## Plot the reordered trajectories
 cds_downsampled_cells_ordered_trajectories = lapply(cds_downsampled_cells_ordered, plot_monocle_spanning_tree_vectorized)
 
@@ -107,42 +204,16 @@ for(i in 1:length(cds_downsampled_cells_ordered)) {
 #get the number of cells: 
 lapply(cds_downsampled_cells_ordered[c(3, 6, 9, 12, 15, 17, 21, 24, 27, 30, 33, 36)], ncol)
 
-# Get branching genes for all these subsets
-#parallel on multiple clusters (think about MPI, etc): 
-cds_downsampled_cells_branch_genes = lapply(cds_downsampled_cells_ordered, function(cds) { 
-  branchTest(cds[, ], fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', cores = detectCores(), relative_expr = T, weighted = T) })
+# # Get branching genes for all these subsets
+# #parallel on multiple clusters (think about MPI, etc): 
+# cds_downsampled_cells_branch_genes = lapply(cds_downsampled_cells_ordered, function(cds) { 
+#   branchTest(cds[, ], fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', cores = detectCores(), relative_expr = T, weighted = T) })
 
-save(cds_downsampled_cells_ordered, cds_downsampled_cells_branch_genes, Shalek_abs_subset_ko_LPS, file="analysis_cell_downsampling.gz")
-
-#number of cells assigned correct states: 
-state_correct_fraction <- lapply(cds_downsampled_cells_ordered, function(cds) {
-  state_correct_num <- sum(as.numeric(pData(cds)$State) - as.numeric(pData(full_set_cds)[colnames(cds), 'State']) == 0)
-  state_correct_num / ncol(cds)
-}
-)
-
-statistics_per_depth$state_correct_fraction <- unlist(state_correct_fraction)
-pdf("./supplementary_figures/fig10c_state_corr_fraction.pdf", height=1.6, width=2.2)
-ggplot(statistics_per_depth, aes(proportion_original_cells, state_correct_fraction)) + ylim(0, 1) +
-    geom_point(color = 'red', size = 0.75) + xlab('Proportion of original cells') + ylab('Fraction of correctly \n assigned states') + 
-    nm_theme()
-dev.off()
-
-pseudotime_correlation <- lapply(cds_downsampled_cells_ordered, function(cds) {
-  state_correlation <- cor(as.numeric(pData(cds)$Pseudotime), as.numeric(pData(full_set_cds)[colnames(cds), 'Pseudotime']))
-}
-)
-
-statistics_per_depth$pseudotime_correlation <- unlist(pseudotime_correlation)
-pdf("./supplementary_figures/fig10c_pseudotime_cor.pdf", height=1.6, width=2.2)
-ggplot(statistics_per_depth, aes(proportion_original_cells, pseudotime_correlation)) + ylim(0, 1) +
-    geom_point(color = 'red', size = 0.75) + xlab('Proportion of original cells') + ylab('Pseudotime correlation') + 
-    nm_theme()
-dev.off()
+# save(cds_downsampled_cells_ordered, cds_downsampled_cells_branch_genes, Shalek_abs_subset_ko_LPS, file="analysis_cell_downsampling.gz")
 
 #BEAM gene overlap, FPR, p-value spearman correlation (with number_gene_removed)
 cds_downsampled_cells_significant_genes= lapply(cds_downsampled_cells_branch_genes, function(branching_genes) row.names(subset(branching_genes, qval <= 0.01 )))
-original_branch_genes = cds_downsampled_cells_branch_genes[[36]] 
+original_branch_genes = cds_downsampled_cells_significant_genes[[36]] 
 
 statistics_per_depth <- lapply(cds_downsampled_cells_branch_genes, function(branching_genes) {
   true_positive <- intersect(row.names(branching_genes[branching_genes$qval < 0.01, ]), 
@@ -160,16 +231,44 @@ recall <- lapply(cds_downsampled_cells_branch_genes, function(branching_genes) {
 }
 )
 
+original_branch_genes_res = cds_downsampled_cells_branch_genes[[36]] 
+
 spearman_correlation = lapply(cds_downsampled_cells_branch_genes, function(branching_genes) {
-    cor(branching_genes_res[row.names(branching_genes), 'pval'], branching_genes[, 'pval'], method = 'spearman') 
+    cor(original_branch_genes_res[row.names(branching_genes), 'pval'], branching_genes[, 'pval'], method = 'spearman') 
   }
   )
 
 statistics_per_depth <- do.call(rbind.data.frame, statistics_per_depth)
 statistics_per_depth$proportion_original_cells <- downsampled_proportions
 statistics_per_depth$recall = unlist(recall)
-branching_genes_res <- cds_downsampled_cells_branch_genes[[36]]
 statistics_per_depth$spearman_correlation <- unlist(spearman_correlation)
+
+#number of cells assigned correct states: 
+load('Shalek_abs_subset_ko_LPS')
+state_correct_fraction <- lapply(cds_downsampled_cells_ordered, function(cds) {
+  state_correct_num <- sum(as.numeric(pData(cds)$State) - as.numeric(pData(Shalek_abs_subset_ko_LPS)[colnames(cds), 'State']) == 0) #cds_downsampled_cells_ordered[[36]]
+  state_correct_num / ncol(cds)
+}
+)
+
+statistics_per_depth$state_correct_fraction <- unlist(state_correct_fraction)
+pdf("./supplementary_figures/fig10c_state_corr_fraction.pdf", height=1.6, width=2.2)
+ggplot(statistics_per_depth, aes(proportion_original_cells, state_correct_fraction)) + ylim(0, 1) +
+    geom_point(color = 'red', size = 0.75) + xlab('Proportion of original cells') + ylab('Fraction of correctly \n assigned states') + 
+    nm_theme()
+dev.off()
+
+pseudotime_correlation <- lapply(cds_downsampled_cells_ordered, function(cds) {
+  state_correlation <- cor(as.numeric(pData(cds)$Pseudotime), as.numeric(pData(Shalek_abs_subset_ko_LPS)[colnames(cds), 'Pseudotime'])) ##cds_downsampled_cells_ordered[[36]]
+}
+)
+
+statistics_per_depth$pseudotime_correlation <- unlist(pseudotime_correlation)
+pdf("./supplementary_figures/fig10c_pseudotime_cor.pdf", height=1.6, width=2.2)
+ggplot(statistics_per_depth, aes(proportion_original_cells, pseudotime_correlation)) + ylim(0, 1) +
+    geom_point(color = 'red', size = 0.75) + xlab('Proportion of original cells') + ylab('Pseudotime correlation') + 
+    nm_theme()
+dev.off()
 
 #BEAM gene overlap, FPR, p-value spearman correlation without tree re-ordering: 
 #######just sample the cells: 
@@ -179,6 +278,8 @@ MIN_PROPORTION = 0.1
 MAX_PROPORTION = 0.9
 STEP = 0.1
 REPS_PER = 3
+
+#################################################Parallel the above analysis in three individual runs#####################################################
 PILOT_SAMPLING_A = rep(c(0.99, 0.98, 0.96, 0.94, 0.9), each = 3)
 PILOT_SAMPLING_branch_genes_A = lapply(PILOT_SAMPLING_A, function(fraction) { 
   cell_id_list <- colnames(Shalek_abs_subset_ko_LPS)[sample(ncol(Shalek_abs_subset_ko_LPS), round(ncol(Shalek_abs_subset_ko_LPS) * fraction))]
@@ -199,8 +300,10 @@ PILOT_SAMPLING_branch_genes_C = lapply(PILOT_SAMPLING_C, function(fraction) {
 
   branchTest(Shalek_abs_subset_ko_LPS[, ], fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', cores = detectCores(), relative_expr = T, weighted = T, cell_id_list = cell_id_list) })
 
+#################################################Parallel the above analysis in three individual runs#####################################################
+
 #calculate the result: 
-PILOT_SAMPLING_branch_genes <- Reduce(append, list(PILOT_SAMPLING_branch_genes_A, PILOT_SAMPLING_C_0.6_0.85, PILOT_SAMPLING_C_0.1_0.5))
+PILOT_SAMPLING_branch_genes <- Reduce(append, list(PILOT_SAMPLING_branch_genes_A, PILOT_SAMPLING_branch_genes_B, PILOT_SAMPLING_branch_genes_C))
 
 #calculate the pilot experiment: 
 statistics_per_depth_fix_tree <- lapply(PILOT_SAMPLING_branch_genes, function(branching_genes) {
@@ -222,10 +325,10 @@ statistics_per_depth_fix_tree$proportion_original_cells = c(PILOT_SAMPLING_A, PI
 statistics_per_depth_fix_tree$spearman_correlation <- unlist(spearman_correlation)
 
 statistics_per_depth_all <- rbind(statistics_per_depth_fix_tree[, c('proportion_original_cells', 'precision', 'recall', 'spearman_correlation')], 
-      statistics_per_depth_precision_no_limma[, c('proportion_original_cells', 'precision', 'recall', 'spearman_correlation')])
+      statistics_per_depth[, c('proportion_original_cells', 'precision', 'recall', 'spearman_correlation')])
 
 statistics_per_depth_all$Type <- c(rep('Cell ordering fixed', nrow(statistics_per_depth_fix_tree)), 
-                                  rep('Cell reordering', nrow(statistics_per_depth_precision_no_limma)))
+                                  rep('Cell reordering', nrow(statistics_per_depth)))
 
 subset_statistics_per_depth_all <- subset(statistics_per_depth_all, proportion_original_cells != 1)
 

@@ -1,7 +1,9 @@
 #scripts for responding the third rebuttal submission: 
-setwd('~/Dropbox (Personal)/Projects/BEAM/')
+# setwd('~/Dropbox (Personal)/Projects/BEAM/')
 
-library(monocle)
+# library(monocle)
+library(devtools)
+load_all('~/Projects/monocle-dev') 
 library(xacHelper)
 
 load_all_libraries()
@@ -10,7 +12,7 @@ library(igraph)
 library(grid)
 
 #load the data: 
-load('/Users/xqiu/Dropbox (Personal)/Projects/BEAM/RData/analysis_lung_data.RData')
+load('/Users/xqiu/Dropbox (Personal)/Projects/BEAM/third_submission/RData/analysis_lung_data.RData')
 
 pData(absolute_cds)$spike_in_RNA <-  esApply(absolute_cds, 2, function(x) sum(x[transcript_num:nrow(absolute_cds)]))
 pData(mc_adj_cds)$spike_in_RNA <-  esApply(mc_adj_cds, 2, function(x) sum(x[transcript_num:nrow(mc_adj_cds)]))
@@ -61,7 +63,7 @@ dev.off()
 
 #figure 8c: 
 #use UMI counts
-load('/Users/xqiu/Dropbox (Personal)/Projects/BEAM/RData/umi_normalization.RData')
+load('/Users/xqiu/Dropbox (Personal)/Projects/BEAM/third_submission/RData/umi_normalization.RData')
 
 #save.image('./RData/umi_normalization.RData')
 pData(UMI_cds)$Total_mRNAs <- esApply(UMI_cds, 2, sum)
@@ -76,7 +78,7 @@ dev.off()
 
 #use fpkm for performing all the similar analysis? 
 #change all data for downstream analysis to fpkm values: 
-
+#run the fpkm values in the shalek data, etc. 
 
 
 

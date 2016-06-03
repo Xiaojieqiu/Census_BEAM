@@ -12,7 +12,7 @@ library(pheatmap)
 library(plyr)
 library(stringr)
 
-load('./RData/analysis_shalek_data.RData')
+# load('./RData/analysis_shalek_data.RData')
 fig_root_dir = './main_figures/'
 
 #########################################################################################################
@@ -252,7 +252,7 @@ dev.off()
 #          )
 
 # pdf(file = paste('./tmp/', 'fig6_golgi_branch_overlapping.pdf', sep = ''))
-# venneuler_venn(andrew_element_all, andrew_sets_all)
+# venneuler_venn(andrew_element_all, andrew_sets_all) 
 # dev.off()
 
-save.image('./RData/gen_shalek_figures.RData')
+# save.image('./RData/gen_shalek_figures.RData')

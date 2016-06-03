@@ -314,4 +314,78 @@ muscle_df$data_type = c("Transcript (size normalization)", "Transcript (size nor
 
 muscle_df$class = '3relative'
 
+####4. enrichment for GO/motif analysis for the muscle permuation test ####
+abs_HSMM_ids <- row.names(HSMM_myo_size_norm_res[HSMM_myo_size_norm_res$pval <0.05, ]) 
+std_HSMM_ids <- row.names(std_HSMM_myo_pseudotime_res_ori[std_HSMM_myo_pseudotime_res_ori$pval <0.05, ])
+
+abs_HSMM_name <- fData(HSMM_myo[abs_HSMM_ids, ])$gene_short_name
+std_HSMM_name <- fData(HSMM_myo[std_HSMM_ids, ])$gene_short_name
+
+write.table(std_HSMM_name, file = '../std_muscle_pseudotime_gene.txt', sep = '\t', row.names = F, quote = F)
+write.table(abs_HSMM_name, file = '../abs_muscle_pseudotime_gene.txt', sep = '\t', row.names = F, quote = F)
+
+# abs_gsaRes <- runGSAhyper(unique(abs_HSMM_name), gsc=human_go_gsc, universe=unique(as.vector(fData(HSMM_myo)$gene_short_name)))
+# std_gsaRes <- runGSAhyper(unique(std_HSMM_name), gsc=human_go_gsc, universe=unique(as.vector(fData(HSMM_myo)$gene_short_name)))
+
+abs_gsaRes_reactome <- runGSAhyper(unique(abs_HSMM_name), gsc=human_reactome_gsc, universe=unique(as.vector(fData(HSMM_myo)$gene_short_name)))
+std_gsaRes_reactome <- runGSAhyper(unique(std_HSMM_name), gsc=human_reactome_gsc, universe=unique(as.vector(fData(HSMM_myo)$gene_short_name)))
+
+#plot the terms and significance: 
+# gsa_results <- list('Transcript_counts' = abs_gsaRes, 'FPKM' = std_gsaRes)
+# plot_gsa_hyper_heatmap(HSMM_myo, gsa_results, significance=1e-3)
+
+gsa_results_reactome <- list('Transcript_counts' = abs_gsaRes_reactome, 'FPKM' = std_gsaRes_reactome)
+plot_gsa_hyper_heatmap(HSMM_myo, gsa_results_reactome, significance=1e-3)
+
+benchmark_pseudotime_test <- function(abs_gsaRes , std_gsaRes ) {
+    abs_hyper_df_all <- data.frame(gene_set = names(abs_gsaRes$pvalues), pval = abs_gsaRes$pvalues, qval = abs_gsaRes$p.adj)
+    abs_hyper_df_all$qval <- p.adjust(abs_hyper_df_all$pval, method = 'fdr')
+    colnames(abs_hyper_df_all)[1] <- "cluster_id"
+    
+    std_hyper_df_all <- data.frame(gene_set = names(std_gsaRes$pvalues), pval = std_gsaRes$pvalues, qval = std_gsaRes$p.adj)
+    std_hyper_df_all$qval <- p.adjust(std_hyper_df_all$pval, method = 'fdr')
+    colnames(std_hyper_df_all)[1] <- "cluster_id"
+    
+    abs_hyper_df <- subset(abs_hyper_df_all, abs_hyper_df_all[, 'qval'] <= 0.01)
+    std_hyper_df <- subset(std_hyper_df_all, std_hyper_df_all[, 'qval'] <= 0.01)
+    
+    gsa_results <- list('1' = abs_gsaRes, '2' = std_gsaRes)
+    
+    #performance comparision based on Cole's idea: 
+    element_all_list <- c(
+        abs_hyper_df$cluster_id, 
+        std_hyper_df$cluster_id
+    )
+    
+    sets_all <- c(
+        rep(paste('transcript counts', sep = ''), nrow(abs_hyper_df)),
+        rep(paste('FPKM values', sep = ''), nrow(std_hyper_df))
+    )
+    
+    pdf(file = './supplementary_figures/overlap_enriched_muscle_term.pdf')
+    venneuler_venn(element_all_list, sets_all)
+    dev.off()
+    
+    #p-val plot show the gene names relevant for muscle differentiation 
+    abs_hyper_df_all$cluster_id
+    muscle_term_ids <- c(grep(pattern = 'MUSCLE', abs_hyper_df_all$cluster_id, ignore.case = T), grep(pattern = 'Myogenesis', abs_hyper_df_all$cluster_id, ignore.case = T))
+    # muscle_term_ids <- Reduce(intersect, list(which(abs_hyper_df_all$qval < 0.01), which(std_hyper_df_all$qval < 0.01), muscle_term_ids))
+    Types <- rep('Term without muscle', nrow(abs_hyper_df_all))
+    Types[muscle_term_ids] <- 'Term with muscle'
+    muscle_gs_df <- data.frame(cluster_id = abs_hyper_df_all$cluster_id, abs = abs_hyper_df_all$pval, std = std_hyper_df_all$pval, Type = Types) #muscle related/ non-muscle related 
+    muscle_gs_df$ratio <- muscle_gs_df$std /  muscle_gs_df$abs
+    pdf(file = './supplementary_figures/muscle_pseudotime_benchmark_qval.pdf')
+    ggplot(data = muscle_gs_df[c(muscle_term_ids, which(muscle_gs_df$abs < 0.01 & muscle_gs_df$std < 0.01 )), ], aes(Type, log(ratio))) + 
+        geom_boxplot(aes(fill = Type), alpha = 0.3, size = 0.5,  outlier.size = 0.5, lwd = 0.5, fatten = 0.5) + 
+        geom_jitter() + nm_theme() + geom_vline(xintercept = 0) + xlab('log(P(FPKM) / P(transcript counts))') + ylab('') + scale_size(range = c(0.5, 0.5))
+    dev.off()
+    
+    qplot(log(ratio), data = muscle_gs_df[c(muscle_term_ids, which(muscle_gs_df$abs < 0.01 & muscle_gs_df$std < 0.01 )), ], 
+          fill = Type, geom = 'density', log = 'x', alpha = 0.3) + nm_theme() + geom_vline(xintercept = 0) + xlab('log(P(FPKM) / P(transcript counts))') + ylab('')
+    #qplot(abs, std, data = muscle_gs_df[c(muscle_term_ids, which(muscle_gs_df$abs < 0.01 | muscle_gs_df$std < 0.01 )), ], color = Type, log = 'xy') + nm_theme() + xlab('transcript counts') + ylab('FPKM')
+    dev.off()
+}
+
+benchmark_pseudotime_test(abs_gsaRes_reactome, std_gsaRes_reactome)
+
 save.image('./RData/analysis_HSMM_data.RData')

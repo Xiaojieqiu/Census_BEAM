@@ -371,7 +371,7 @@ valid_gene_id_20_cell <- row.names(absolute_cds[which(rowSums(exprs(standard_cds
 valid_hyper_df <- subset(hyper_df, (toupper(first) %in% toupper(fData(mc_AT12_cds_subset_all_gene[valid_gene_id_20_cell, ])$gene_short_name)) | 
                            (toupper(second) %in% toupper(fData(mc_AT12_cds_subset_all_gene[valid_gene_id_20_cell, ])$gene_short_name))
 ) 
-
+ 
 valid_hyper_df$sig <- T
 cluster_color <- c('#E52027' = '#E52027', '#357EB9' = '#357EB9', '#4BAE49' = '#4BAE49', '#974F9F' = '#974F9F', '#F47D20' = '#F47D20', '#F6EE38' = '#F6EE38')
 valid_hyper_df$cluster_color <- cluster_color[as.numeric(valid_hyper_df$cluster_id)]
@@ -422,4 +422,4 @@ dev.off()
 
 #########################################################################################################
 
-save.image('./RData/gen_lung_figures.RData')
+save.image('./RData/gen_lung_figures_mc.RData')

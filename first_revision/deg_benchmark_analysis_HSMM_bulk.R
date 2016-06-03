@@ -1,168 +1,171 @@
-# library(monocle)
-library(devtools)
-load_all('~/Projects/monocle-dev')
-library(xacHelper)
-library(MAST)
-library(ROCR)
+# # library(monocle)
+# library(devtools)
+# load_all('~/Projects/monocle-dev')
+# library(xacHelper)
+# library(MAST)
+# library(ROCR)
 
-# source('roc_curves.R')
-#load the data: 
-load('./RData/analysis_HSMM_data.RData')
-HSMM_bulk <- read.table("./data/HSMM_data/bulk_cuffdiff/gene_exp.diff", header = T, row.names = NULL)
+# # source('roc_curves.R')
+# #load the data: 
+# load('./RData/analysis_HSMM_data.RData')
+# HSMM_bulk <- read.table("./data/HSMM_data/bulk_cuffdiff/gene_exp.diff", header = T, row.names = NULL)
 
-HSMM_bulk_T0_T72 <-  subset(HSMM_bulk, sample_1 == "T0" & sample_2 == "T24")
-order_stats_HSMM_bulk_T0_T72 <-  HSMM_bulk_T0_T72[order(abs(HSMM_bulk_T0_T72$test_stat), decreasing=T), ]
+# HSMM_bulk_T0_T72 <-  subset(HSMM_bulk, sample_1 == "T0" & sample_2 == "T24")
+# order_stats_HSMM_bulk_T0_T72 <-  HSMM_bulk_T0_T72[order(abs(HSMM_bulk_T0_T72$test_stat), decreasing=T), ]
 
-#add read counts: 
-HSMM_readcounts_matrix <- read.delim("./data/HSMM_data/muscle/HSMM/HSMM_cuffnorm_out/genes.count_table")
-row.names(HSMM_readcounts_matrix) <- HSMM_readcounts_matrix$tracking_id
-HSMM_readcounts_matrix <- HSMM_readcounts_matrix[,-1]
+# #add read counts: 
+# HSMM_readcounts_matrix <- read.delim("./data/HSMM_data/muscle/HSMM/HSMM_cuffnorm_out/genes.count_table")
+# row.names(HSMM_readcounts_matrix) <- HSMM_readcounts_matrix$tracking_id
+# HSMM_readcounts_matrix <- HSMM_readcounts_matrix[,-1]
 
-pd <- new("AnnotatedDataFrame", data = pData(HSMM_myo))
-fd <- new("AnnotatedDataFrame", data = fData(HSMM_myo))
-HSMM_readcounts_matrix_cds <-  newCellDataSet(as.matrix(HSMM_fpkm_matrix[row.names(HSMM_myo), colnames(HSMM_myo)]), 
-                                   phenoData = pd, 
-                                   featureData = fd, 
-                                   expressionFamily=negbinomial(), 
-                                   lowerDetectionLimit=1)
+# pd <- new("AnnotatedDataFrame", data = pData(HSMM_myo))
+# fd <- new("AnnotatedDataFrame", data = fData(HSMM_myo))
+# HSMM_readcounts_matrix_cds <-  newCellDataSet(as.matrix(HSMM_fpkm_matrix[row.names(HSMM_myo), colnames(HSMM_myo)]), 
+#                                    phenoData = pd, 
+#                                    featureData = fd, 
+#                                    expressionFamily=negbinomial(), 
+#                                    lowerDetectionLimit=1)
 
-##integrate into the benchmark analysis: 
+# ##integrate into the benchmark analysis: 
 
-##########################based on the deg_benchmark_analysis.R#############################
+# ##########################based on the deg_benchmark_analysis.R#############################
 
-library(scde)
-#########################run the following scripts in remote sever#############################
+# library(scde)
+# #########################run the following scripts in remote sever#############################
 
-HSMM_valid_cells <- colnames(HSMM_myo)
-#generate the pvals from the statistical test (permutation based or from software: monocle/DESeq/SCDE)
+# HSMM_valid_cells <- colnames(HSMM_myo)
+# #generate the pvals from the statistical test (permutation based or from software: monocle/DESeq/SCDE)
 
-#double check the cells selected are the same as we used in the paper:  identical(colnames(new_mc_cds_T0_T72), cells_used)
-new_mc_cds_T0_T72 <- HSMM_myo[, intersect(HSMM_valid_cells, row.names(subset(pData(HSMM_myo), Time %in% c('T72_CT_', 'T0_CT_'))))]
-new_mc_cds_T0_T72 <- estimateSizeFactors(new_mc_cds_T0_T72) #calculate the size factor for performing the relative absolute expression tests
-new_mc_cds_T0_T72 <- estimateDispersions(new_mc_cds_T0_T72) #calculate the size factor for performing the relative absolute expression tests
+# #double check the cells selected are the same as we used in the paper:  identical(colnames(new_mc_cds_T0_T72), cells_used)
+# new_mc_cds_T0_T72 <- HSMM_myo[, intersect(HSMM_valid_cells, row.names(subset(pData(HSMM_myo), Time %in% c('T72_CT_', 'T0_CT_'))))]
+# new_mc_cds_T0_T72 <- estimateSizeFactors(new_mc_cds_T0_T72) #calculate the size factor for performing the relative absolute expression tests
+# new_mc_cds_T0_T72 <- estimateDispersions(new_mc_cds_T0_T72) #calculate the size factor for performing the relative absolute expression tests
 
-new_std_cds_T0_T72 <- std_HSMM[, colnames(new_mc_cds_T0_T72)]
-# new_std_cds_T0_T72 <- estimateSizeFactors(new_std_cds_T0_T72) #FPKM values are already on relative scale
+# new_std_cds_T0_T72 <- std_HSMM[, colnames(new_mc_cds_T0_T72)]
+# # new_std_cds_T0_T72 <- estimateSizeFactors(new_std_cds_T0_T72) #FPKM values are already on relative scale
 
-#create a cds for readcount data to perform the default DEG tests for DESeq and SCDE : 
-count_cds_HSMM_bulk <- HSMM_readcounts_matrix_cds[row.names(new_mc_cds_T0_T72), colnames(new_mc_cds_T0_T72)] 
+# #create a cds for readcount data to perform the default DEG tests for DESeq and SCDE : 
+# count_cds_HSMM_bulk <- HSMM_readcounts_matrix_cds[row.names(new_mc_cds_T0_T72), colnames(new_mc_cds_T0_T72)] 
 
-count_cds_HSMM_bulk <- estimateSizeFactors(count_cds_HSMM_bulk)
-count_cds_HSMM_bulk <- estimateDispersions(count_cds_HSMM_bulk)
+# count_cds_HSMM_bulk <- estimateSizeFactors(count_cds_HSMM_bulk)
+# count_cds_HSMM_bulk <- estimateDispersions(count_cds_HSMM_bulk)
 
-# calculate the pval with the readcount with scde: (calculate the scde associate DEG test result LOCALLY) 
-std_scde_res_list <- scde_DEG(dir = NULL, count_cds = count_cds_HSMM_bulk, DEG_attribute = 'Time', contrast = c('T0_CT_', 'T72_CT_'), n.cores = 1)
+# # calculate the pval with the readcount with scde: (calculate the scde associate DEG test result LOCALLY) 
+# std_scde_res_list <- scde_DEG(dir = NULL, count_cds = count_cds_HSMM_bulk, DEG_attribute = 'Time', contrast = c('T0_CT_', 'T72_CT_'), n.cores = detectCores())
 
-#calculate the pval with the normalized transcripts with scde: 
-mc_scde_res_list <- scde_DEG(dir = NULL, count_cds = new_mc_cds_T0_T72, DEG_attribute = 'Time', contrast = c('T0_CT_', 'T72_CT_'), n.cores = 1, normalize = T)
-mc_scde_res_list_no_normalize <- scde_DEG(dir = NULL, count_cds = new_mc_cds_T0_T72, DEG_attribute = 'Time', contrast = c('T0_CT_', 'T72_CT_'), n.cores = 1)
+# #calculate the pval with the normalized transcripts with scde: 
+# mc_scde_res_list <- scde_DEG(dir = NULL, count_cds = new_mc_cds_T0_T72, DEG_attribute = 'Time', contrast = c('T0_CT_', 'T72_CT_'), n.cores = detectCores(), normalize = T)
+# mc_scde_res_list_no_normalize <- scde_DEG(dir = NULL, count_cds = new_mc_cds_T0_T72, DEG_attribute = 'Time', contrast = c('T0_CT_', 'T72_CT_'), n.cores = detectCores())
 
-#load all other necessary packages: 
-load_all_libraries()
+# #load all other necessary packages: 
+# load_all_libraries()
 
-#perform  the stastical tests on the data: 
-new_std_diff_test_res <- differentialGeneTest(new_std_cds_T0_T72[, ], 
-                                              fullModelFormulaStr = "~Time", 
-                                              reducedModelFormulaStr = "~1", cores = detectCores(), relative = F)  
+# #perform  the stastical tests on the data: 
+# new_std_diff_test_res <- differentialGeneTest(new_std_cds_T0_T72[, ], 
+#                                               fullModelFormulaStr = "~Time", 
+#                                               reducedModelFormulaStr = "~1", cores = detectCores(), relative = F)  
 
-new_size_norm_mc_diff_test_res <- differentialGeneTest(new_mc_cds_T0_T72[, ], 
-                                                       fullModelFormulaStr = "~Time", 
-                                                       reducedModelFormulaStr = "~1", cores = detectCores(), relative = T)
+# new_size_norm_mc_diff_test_res <- differentialGeneTest(new_mc_cds_T0_T72[, ], 
+#                                                        fullModelFormulaStr = "~Time", 
+#                                                        reducedModelFormulaStr = "~1", cores = detectCores(), relative = T)
 
-new_cds_diff_test_res <- differentialGeneTest(count_cds_HSMM_bulk[, ], 
-                                              fullModelFormulaStr = "~Time", 
-                                              reducedModelFormulaStr = "~1", cores = detectCores(), relative = T)
+# new_cds_diff_test_res <- differentialGeneTest(count_cds_HSMM_bulk[, ], 
+#                                               fullModelFormulaStr = "~Time", 
+#                                               reducedModelFormulaStr = "~1", cores = detectCores(), relative = T)
 
-new_cds_diff_test_res_no_relative <- differentialGeneTest(count_cds_HSMM_bulk[, ], 
-                                                          fullModelFormulaStr = "~Time", 
-                                                          reducedModelFormulaStr = "~1", cores = detectCores(), relative = F)
+# new_cds_diff_test_res_no_relative <- differentialGeneTest(count_cds_HSMM_bulk[, ], 
+#                                                           fullModelFormulaStr = "~Time", 
+#                                                           reducedModelFormulaStr = "~1", cores = detectCores(), relative = F)
 
-Time_ori <- pData(new_mc_cds_T0_T72)$Time #Time as input for newCountDataSet
-Time_ori <- as.character(Time_ori) #Time as input for newCountDataSet
+# Time_ori <- pData(new_mc_cds_T0_T72)$Time #Time as input for newCountDataSet
+# Time_ori <- as.character(Time_ori) #Time as input for newCountDataSet
 
 
-#benchmark with edgeR / DESeq2:
-edgeR_res <- edgeR_test(counts = exprs(count_cds_HSMM_bulk), glm = T)
-mc_edgeR_res <- edgeR_test(exprs(new_mc_cds_T0_T72), group = Time_ori, glm = T)
+# #benchmark with edgeR / DESeq2:
+# edgeR_res <- edgeR_test(counts = exprs(count_cds_HSMM_bulk), glm = T)
+# mc_edgeR_res <- edgeR_test(exprs(new_mc_cds_T0_T72), group = Time_ori, glm = T)
 
-edgeR_res_glm <- edgeR_test(counts = exprs(count_cds_HSMM_bulk))
-mc_edgeR_res_glm <- edgeR_test(exprs(new_mc_cds_T0_T72), group = Time_ori)
+# edgeR_res_glm <- edgeR_test(counts = exprs(count_cds_HSMM_bulk))
+# mc_edgeR_res_glm <- edgeR_test(exprs(new_mc_cds_T0_T72), group = Time_ori)
 
-#calculate the pval with the readcount with DESeq: 
+# #calculate the pval with the readcount with DESeq: 
 
-read_count_d <- newCountDataSet(round(exprs(count_cds_HSMM_bulk)), Time_ori) 
-std_dtable_pool_max_nbinomTest <- DESeq1_test(read_count_d, disp_method = 'pooled', contrast = c("T0_CT_", "T72_CT_"), sharing = 'maximum', test_type = 'nbinomTest', scale = T) 
-row.names(std_dtable_pool_max_nbinomTest$dtalbe) <- std_dtable_pool_max_nbinomTest$dtalbe$id
+# read_count_d <- newCountDataSet(round(exprs(count_cds_HSMM_bulk)), Time_ori) 
+# std_dtable_pool_max_nbinomTest <- DESeq1_test(read_count_d, disp_method = 'pooled', contrast = c("T0_CT_", "T72_CT_"), sharing = 'maximum', test_type = 'nbinomTest', scale = T) 
+# row.names(std_dtable_pool_max_nbinomTest$dtalbe) <- std_dtable_pool_max_nbinomTest$dtalbe$id
 
-# # calculate the pval with the normalized transcripts with DESeq: 
-mc_count_d <- newCountDataSet(round(t(t(exprs(new_mc_cds_T0_T72)) / sizeFactors(new_mc_cds_T0_T72))), (Time_ori)) #normalized the data by size factor
-mc_dtable_pool_max_nbinomTest <- DESeq1_test(mc_count_d, disp_method = 'pooled', contrast = c("T0_CT_", "T72_CT_"), sharing = 'maximum', test_type = 'nbinomTest') 
-row.names(mc_dtable_pool_max_nbinomTest$dtalbe) <- mc_dtable_pool_max_nbinomTest$dtalbe$id
+# # # calculate the pval with the normalized transcripts with DESeq: 
+# mc_count_d <- newCountDataSet(round(t(t(exprs(new_mc_cds_T0_T72)) / sizeFactors(new_mc_cds_T0_T72))), (Time_ori)) #normalized the data by size factor
+# mc_dtable_pool_max_nbinomTest <- DESeq1_test(mc_count_d, disp_method = 'pooled', contrast = c("T0_CT_", "T72_CT_"), sharing = 'maximum', test_type = 'nbinomTest') 
+# row.names(mc_dtable_pool_max_nbinomTest$dtalbe) <- mc_dtable_pool_max_nbinomTest$dtalbe$id
 
-# DESeq glm: (GLM tests are more relevant to our software)
-std_dtable_pool_max_nbinomGLMTest <- DESeq1_test(read_count_d[, ], disp_method = 'pooled', contrast = c("T0_CT_", "T72_CT_"), sharing = 'maximum', test_type = 'nbinomGLMTest', scale = T) 
-row.names(std_dtable_pool_max_nbinomGLMTest$dtalbe) <-  row.names(read_count_d[, ])
-mc_dtable_pool_max_nbinomGLMTest <- DESeq1_test(mc_count_d[, ], disp_method = 'pooled', contrast = c("T0_CT_", "T72_CT_"), sharing = 'maximum', test_type = 'nbinomGLMTest') 
-row.names(mc_dtable_pool_max_nbinomGLMTest$dtalbe) <- row.names(new_mc_cds_T0_T72[, ])
+# # DESeq glm: (GLM tests are more relevant to our software)
+# std_dtable_pool_max_nbinomGLMTest <- DESeq1_test(read_count_d[, ], disp_method = 'pooled', contrast = c("T0_CT_", "T72_CT_"), sharing = 'maximum', test_type = 'nbinomGLMTest', scale = T) 
+# row.names(std_dtable_pool_max_nbinomGLMTest$dtalbe) <-  row.names(read_count_d[, ])
+# mc_dtable_pool_max_nbinomGLMTest <- DESeq1_test(mc_count_d[, ], disp_method = 'pooled', contrast = c("T0_CT_", "T72_CT_"), sharing = 'maximum', test_type = 'nbinomGLMTest') 
+# row.names(mc_dtable_pool_max_nbinomGLMTest$dtalbe) <- row.names(new_mc_cds_T0_T72[, ])
 
-#add the DEG tests using edgeR / DESeq2: 
-edgeR_res <- edgeR_test(counts = exprs(count_cds_HSMM_bulk), glm = T)
-mc_edgeR_res <- edgeR_test(exprs(new_mc_cds_T0_T72[, ]), group = Time_ori, glm = F)
+# #add the DEG tests using edgeR / DESeq2: 
+# edgeR_res <- edgeR_test(counts = exprs(count_cds_HSMM_bulk), glm = T)
+# mc_edgeR_res <- edgeR_test(exprs(new_mc_cds_T0_T72[, ]), group = Time_ori, glm = F)
 
-# edgeR_res_glm <- edgeR_test()
-mc_edgeR_res_glm <- edgeR_test(exprs(new_mc_cds_T0_T72[, ]), group = Time_ori, glm = T)
+# # edgeR_res_glm <- edgeR_test()
+# mc_edgeR_res_glm <- edgeR_test(exprs(new_mc_cds_T0_T72[, ]), group = Time_ori, glm = T)
 
-deseq2_res <- DESeq2_deg(dir = NULL, count_cds_HSMM_bulk[, ], Time = Time_ori, pd = pData(count_cds_HSMM_bulk))
-mc_deseq2_res <- DESeq2_deg(dir = NULL, new_mc_cds_T0_T72[, ], Time = Time_ori, pd = pData(new_mc_cds_T0_T72))
+# deseq2_res <- DESeq2_deg(dir = NULL, count_cds_HSMM_bulk[, ], Time = Time_ori, pd = pData(count_cds_HSMM_bulk))
+# mc_deseq2_res <- DESeq2_deg(dir = NULL, new_mc_cds_T0_T72[, ], Time = Time_ori, pd = pData(new_mc_cds_T0_T72))
 
-#prepare to generate the data for create the precision/recall/F1 score data.frame: 
-# #new monocle_p: 
-monocle_p_HSMM_bulk <- new_std_diff_test_res[, 'pval'] 
-names(monocle_p_HSMM_bulk) <- row.names(new_std_diff_test_res)
-#use cds: 
-monocle_p_readcount_HSMM_bulk <- new_cds_diff_test_res[, 'pval'] 
-names(monocle_p_readcount_HSMM_bulk) <- row.names(new_cds_diff_test_res)
+# #prepare to generate the data for create the precision/recall/F1 score data.frame: 
+# # #new monocle_p: 
+# monocle_p_HSMM_bulk <- new_std_diff_test_res[, 'pval'] 
+# names(monocle_p_HSMM_bulk) <- row.names(new_std_diff_test_res)
+# #use cds: 
+# monocle_p_readcount_HSMM_bulk <- new_cds_diff_test_res[, 'pval'] 
+# names(monocle_p_readcount_HSMM_bulk) <- row.names(new_cds_diff_test_res)
 
-#mc
-new_mc_size_norm_monocle_p_ratio_by_geometric_mean_HSMM_bulk <- new_size_norm_mc_diff_test_res[, 'pval']
-names(new_mc_size_norm_monocle_p_ratio_by_geometric_mean_HSMM_bulk) <- row.names(new_size_norm_mc_diff_test_res)
-#mc 
-new_mc_size_norm_monocle_p_ratio_by_geometric_mean_HSMM_bulk <- new_size_norm_mc_diff_test_res[, 'pval']
-names(new_mc_size_norm_monocle_p_ratio_by_geometric_mean_HSMM_bulk) <- row.names(new_size_norm_mc_diff_test_res)
-#deseq
-default_deseq_p_HSMM_bulk <- std_dtable_pool_max_nbinomGLMTest$dtalbe[, 'pval'] #std_dtable_pool_max_nbinomTest
-names(default_deseq_p_HSMM_bulk) <- row.names(std_dtable_pool_max_nbinomGLMTest$dtalbe) #std_dtable_pool_max_nbinomGLMTest
-mc_default_deseq_p_HSMM_bulk <- mc_dtable_pool_max_nbinomGLMTest$dtalbe[, 'pval'] #abs_dtable_pool_max_nbinomTest
-names(mc_default_deseq_p_HSMM_bulk) <- row.names(mc_dtable_pool_max_nbinomGLMTest$dtalbe)
-# scde
-#save.image('tmp_benchmark_analysis.RData')
+# #mc
+# new_mc_size_norm_monocle_p_ratio_by_geometric_mean_HSMM_bulk <- new_size_norm_mc_diff_test_res[, 'pval']
+# names(new_mc_size_norm_monocle_p_ratio_by_geometric_mean_HSMM_bulk) <- row.names(new_size_norm_mc_diff_test_res)
+# #mc 
+# new_mc_size_norm_monocle_p_ratio_by_geometric_mean_HSMM_bulk <- new_size_norm_mc_diff_test_res[, 'pval']
+# names(new_mc_size_norm_monocle_p_ratio_by_geometric_mean_HSMM_bulk) <- row.names(new_size_norm_mc_diff_test_res)
+# #deseq
+# default_deseq_p_HSMM_bulk <- std_dtable_pool_max_nbinomGLMTest$dtalbe[, 'pval'] #std_dtable_pool_max_nbinomTest
+# names(default_deseq_p_HSMM_bulk) <- row.names(std_dtable_pool_max_nbinomGLMTest$dtalbe) #std_dtable_pool_max_nbinomGLMTest
+# mc_default_deseq_p_HSMM_bulk <- mc_dtable_pool_max_nbinomGLMTest$dtalbe[, 'pval'] #abs_dtable_pool_max_nbinomTest
+# names(mc_default_deseq_p_HSMM_bulk) <- row.names(mc_dtable_pool_max_nbinomGLMTest$dtalbe)
+# # scde
+# #save.image('tmp_benchmark_analysis.RData')
 
-scde_p_HSMM_bulk <- std_scde_res_list$pval 
-mc_scde_p_HSMM_bulk <- mc_scde_res_list$pval #_no_normalize
+# scde_p_HSMM_bulk <- std_scde_res_list$pval 
+# mc_scde_p_HSMM_bulk <- mc_scde_res_list$pval #_no_normalize
 
-# generate df3.1 for making the comparision: 
-#select only high expressed genes: 
-# high_gene_list <- esApply(HSMM_myo[, colnames(AT12_cds_subset_all_gene)], 1, function(x) sum(x > 1) > 15)
+# # generate df3.1 for making the comparision: 
+# #select only high expressed genes: 
+# # high_gene_list <- esApply(HSMM_myo[, colnames(AT12_cds_subset_all_gene)], 1, function(x) sum(x > 1) > 15)
 
-#prepare the data for the DESeq2 / edgeR: 
-default_edgeR_p_HSMM_bulk = edgeR_res$lrt$table$PValue
-names(default_edgeR_p_HSMM_bulk) <- row.names(edgeR_res$lrt$table)
-mc_default_edgeR_p = mc_edgeR_res$et$table$PValue
-names(mc_default_edgeR_p) <- row.names(mc_edgeR_res$et$table)
+# #prepare the data for the DESeq2 / edgeR: 
+# default_edgeR_p_HSMM_bulk = edgeR_res$lrt$table$PValue
+# names(default_edgeR_p_HSMM_bulk) <- row.names(edgeR_res$lrt$table)
+# mc_default_edgeR_p = mc_edgeR_res$et$table$PValue
+# names(mc_default_edgeR_p) <- row.names(mc_edgeR_res$et$table)
 
-default_deseq2_p_HSMM_bulk = results(deseq2_res)$pvalue
-names(default_deseq2_p_HSMM_bulk) <- row.names(results(deseq2_res))
-mc_default_deseq2_p_HSMM_bulk = results(mc_deseq2_res)$pvalue 
-names(mc_default_deseq2_p_HSMM_bulk) <- row.names(results(mc_deseq2_res))
+# default_deseq2_p_HSMM_bulk = results(deseq2_res)$pvalue
+# names(default_deseq2_p_HSMM_bulk) <- row.names(results(deseq2_res))
+# mc_default_deseq2_p_HSMM_bulk = results(mc_deseq2_res)$pvalue 
+# names(mc_default_deseq2_p_HSMM_bulk) <- row.names(results(mc_deseq2_res))
 
-#mast function: 
-mast_mc_pval_no_norm_HSMM_bulk <- MAST_deg(new_mc_cds_T0_T72)
-mast_std_pval_no_norm_HSMM_bulk <- MAST_deg(new_std_cds_T0_T72)
-mast_count_pval_no_norm_HSMM_bulk <- MAST_deg(count_cds_HSMM_bulk)
+# #mast function: 
+# mast_mc_pval_no_norm_HSMM_bulk <- MAST_deg(new_mc_cds_T0_T72)
+# mast_std_pval_no_norm_HSMM_bulk <- MAST_deg(new_std_cds_T0_T72)
+# mast_count_pval_no_norm_HSMM_bulk <- MAST_deg(count_cds_HSMM_bulk)
 
-mast_mc_pval_norm <- MAST_deg(new_mc_cds_T0_T72, normalization = T)
-# mast_std_pval_norm <- MAST_deg(new_std_cds_T0_T72, normalization = T)
-mast_count_pval_norm <- MAST_deg(count_cds_HSMM_bulk, normalization = T)
+# mast_mc_pval_norm <- MAST_deg(new_mc_cds_T0_T72, normalization = T)
+# # mast_std_pval_norm <- MAST_deg(new_std_cds_T0_T72, normalization = T)
+# mast_count_pval_norm <- MAST_deg(count_cds_HSMM_bulk, normalization = T)
+
+top_1k_HSMM_bulk_T0_T72_pval <- HSMM_bulk_T0_T72$p_value
+names(top_1k_HSMM_bulk_T0_T72_pval) <- HSMM_bulk_T0_T72$gene_id
 
 #generate the dataframe for making the benchmarking plots: 
 ############NOTE: mode_size_norm_permutate_ratio_by_geometric_mean may be changed into the same as DESEQ size normalization############ 
@@ -217,14 +220,21 @@ df3_HSMM_bulk$class = '3relative'
 df3.1_HSMM_bulk <- df3_HSMM_bulk
 df3.1_HSMM_bulk[, 'Type'] <- c('MAST', 'MAST', 'MAST', 'SCDE', 'SCDE', 'DESeq1', 'DESeq1', 'DESeq2', 'DESeq2', 'edgeR', 'edgeR', 'Monocle', 'Monocle', 'Monocle') # geom_bar(stat = 'identity', position = 'dodge') 
 
+tmp <- data.frame(Type = c('SCDE', 'DESeq1', 'DESeq2', 'edgeR'), 
+                  data_type = c('FPKM', 'FPKM', 'FPKM', 'FPKM'),
+                  class = '3relative', 
+                  pre = NA, rec = NA, f1 = NA)
+df_res <- rbind(df3.1_HSMM_bulk, tmp) 
+df_res <-  melt(df_res)
+
 pdf('./supplementary_figures/fig2a_si_HSMM_bulk.pdf', width = 3, height = 2)
-qplot(factor(Type), value, stat = "identity", geom = 'bar', position = 'dodge', fill = data_type, data = melt(df3.1_HSMM_bulk)) + #facet_wrap(~variable) + 
+qplot(factor(Type), value, stat = "identity", geom = 'bar', position = 'dodge', fill = data_type, data = df_res) + #facet_wrap(~variable) + 
 ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
 ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + nm_theme()
 dev.off()
 
 pdf('./supplementary_figures/fig2a_si_HSMM_bulk_helper.pdf', width = 6, height = 2)
-qplot(factor(Type), value, stat = "identity", geom = 'bar', position = 'dodge', fill = data_type, data = melt(df3.1_HSMM_bulk)) + #facet_wrap(~variable) + 
+qplot(factor(Type), value, stat = "identity", geom = 'bar', position = 'dodge', fill = data_type, data = df_res) + #facet_wrap(~variable) + 
 ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
 ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) 
 dev.off()
@@ -304,7 +314,7 @@ roc_df$Type <- revalue(roc_df$method, c("monocle_p" = 'FPKM', "monocle_p_readcou
                                             "mast_count_pval_no_norm" = "estimated transcript counts"))
 
 pdf('./supplementary_figures/roc.pdf', height = 3, width = 4)
-qplot(fpr, tpr, data=roc_df, geom="line", linetype = Type) + 
+qplot(fpr, tpr, data=roc_df, geom="line", linetype = Type, color = method) + 
     xlab("False positive rate") +
     ylab("True positive rate") +
       ylim(c(0, 1.0)) + facet_wrap(~software) + 

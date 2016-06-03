@@ -1,6 +1,8 @@
-load('./RData/gen_shalek_figures.RData')
-load('./RData/gen_lung_figures.RData')
-library(monocle)
+#load('./RData/gen_shalek_figures.RData')
+#load('./RData/gen_lung_figures.RData')
+#library(monocle)
+library(devtools)
+load_all('~/Projects/monocle-dev') 
 library(xacHelper)
 library(grid)
 
@@ -34,7 +36,7 @@ names(all_abs_bifurcation_time_gene_names) <- as.character(fData(abs_AT12_cds_su
 branching_TF_TF_5k_enrichment_gsc_branch_time <- all_abs_bifurcation_time_gene_names[unique(unlist(branching_TF_TF_5k_enrichment_gsc))] 
 
 #significant gens from each cluster and potentially regulated by the enriched TF
-significant_branching_TF_TF_5k_enrichment_gsc_branch_time <- all_abs_bifurcation_time_gene_names[unique(unlist(significant_branching_TF_TF_5k_enrichment_gsc))]
+#significant_branching_TF_TF_5k_enrichment_gsc_branch_time <- all_abs_bifurcation_time_gene_names[unique(unlist(significant_branching_TF_TF_5k_enrichment_gsc))]
 
 #pseduotime plots for the enriched TFs and their downstream targets: 
 #this function finds targets (among the genes in that cluster) in for each enriched branching TF at the CORRESPONDING enriched clusters and creates a data frame storing all the branching time for the regulators and their targets:  

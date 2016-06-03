@@ -1,7 +1,9 @@
 ######################################################################
 # Downsampling the number of cells to benchmark BEAM performance 
 # ####################################################################
-library(monocle)
+# library(monocle)
+library(devtools)
+load_all('~/Projects/monocle-dev')
 library(xacHelper)
 # source("monocle_helper_functions.R")
 library(dplyr) 
@@ -9,7 +11,7 @@ library(grid)
 library(gridExtra)
 
 # load('./RData/analysis_cell_downsampling.RData')
-load("RData/gen_shalek_figures.RData")
+load("RData/analysis_shalek_data.RData")
 
 #functions used in the scripts
 branchTest_downsampling <- function(cds_subset, cell_id_list, relative_expr = T, cores = detectCores()) {
@@ -58,15 +60,15 @@ closeAllConnections()
 # [21] "0.7"  "0.8"  "0.8"  "0.8"  "0.85" "0.85" "0.85" "0.9"  "0.9"  "0.9"
 # [31] "0.95" "0.95" "0.95" "1"    "1"    "1"
 
-######################################################################################################
-std_cds_downsampled_cells_branch_genes = lapply(downsampled_proportions[c(1, 15, 31)], function(x) { 
-  cell_id_list <- sample(ncol(Shalek_abs_subset_ko_LPS), round(ncol(Shalek_std_subset_KO_LPS) * x))
-  res <- branchTest_downsampling(Shalek_std_subset_KO_LPS[, ], cell_id_list, relative_expr = F, cores = 1)
+# ######################################################################################################
+# std_cds_downsampled_cells_branch_genes = lapply(downsampled_proportions[c(1, 15, 31)], function(x) { 
+#   cell_id_list <- sample(ncol(Shalek_abs_subset_ko_LPS), round(ncol(Shalek_std_subset_KO_LPS) * x))
+#   res <- branchTest_downsampling(Shalek_std_subset_KO_LPS[, ], cell_id_list, relative_expr = F, cores = 1)
 
-  return(list(cell_id_list = cell_id_list, res = res))
-   })
-std_cds_downsampled_cells_branch_genes_test <- std_cds_downsampled_cells_branch_genes
-save(std_cds_downsampled_cells_branch_genes_test, file = 'std_cds_downsampled_cells_branch_genes_test')
+#   return(list(cell_id_list = cell_id_list, res = res))
+#    })
+# std_cds_downsampled_cells_branch_genes_test <- std_cds_downsampled_cells_branch_genes
+# save(std_cds_downsampled_cells_branch_genes_test, file = 'std_cds_downsampled_cells_branch_genes_test')
 ######################################################################################################
 
 std_cds_downsampled_cells_branch_genes = lapply(downsampled_proportions[1:6], function(x) { 
@@ -96,7 +98,7 @@ std_cds_downsampled_cells_branch_genes = lapply(downsampled_proportions[13:19], 
 std_cds_downsampled_cells_branch_genes_3 <- std_cds_downsampled_cells_branch_genes
 save(std_cds_downsampled_cells_branch_genes_3, file = 'std_cds_downsampled_cells_branch_genes_3')
 
-std_cds_downsampled_cells_branch_genes = lapply(downsampled_proportions[16:18], function(x) { 
+std_cds_downsampled_cells_branch_genes = lapply(downsampled_proportions[20:21], function(x) { 
   cell_id_list <- sample(ncol(Shalek_abs_subset_ko_LPS), round(ncol(Shalek_std_subset_KO_LPS) * x))
   res <- branchTest_downsampling(Shalek_std_subset_KO_LPS[, ], cell_id_list, relative_expr = F, cores = 1)
 
@@ -105,7 +107,7 @@ std_cds_downsampled_cells_branch_genes = lapply(downsampled_proportions[16:18], 
 std_cds_downsampled_cells_branch_genes_4 <- std_cds_downsampled_cells_branch_genes
 save(std_cds_downsampled_cells_branch_genes_4, file = 'std_cds_downsampled_cells_branch_genes_4')
 
-std_cds_downsampled_cells_branch_genes = lapply(downsampled_proportions[19:21], function(x) { 
+std_cds_downsampled_cells_branch_genes = lapply(downsampled_proportions[22:24], function(x) { 
   cell_id_list <- sample(ncol(Shalek_abs_subset_ko_LPS), round(ncol(Shalek_std_subset_KO_LPS) * x))
   res <- branchTest_downsampling(Shalek_std_subset_KO_LPS[, ], cell_id_list, relative_expr = F, cores = 1)
 
@@ -114,7 +116,7 @@ std_cds_downsampled_cells_branch_genes = lapply(downsampled_proportions[19:21], 
 std_cds_downsampled_cells_branch_genes_5 <- std_cds_downsampled_cells_branch_genes
 save(std_cds_downsampled_cells_branch_genes_5, file = 'std_cds_downsampled_cells_branch_genes_5')
 
-std_cds_downsampled_cells_branch_genes = lapply(downsampled_proportions[22:24], function(x) { 
+std_cds_downsampled_cells_branch_genes = lapply(downsampled_proportions[25:28], function(x) { 
   cell_id_list <- sample(ncol(Shalek_abs_subset_ko_LPS), round(ncol(Shalek_std_subset_KO_LPS) * x))
   res <- branchTest_downsampling(Shalek_std_subset_KO_LPS[, ], cell_id_list, relative_expr = F, cores = 1)
 
@@ -123,7 +125,7 @@ std_cds_downsampled_cells_branch_genes = lapply(downsampled_proportions[22:24], 
 std_cds_downsampled_cells_branch_genes_6 <- std_cds_downsampled_cells_branch_genes
 save(std_cds_downsampled_cells_branch_genes_6, file = 'std_cds_downsampled_cells_branch_genes_6')
 
-std_cds_downsampled_cells_branch_genes = lapply(downsampled_proportions[25:27], function(x) { 
+std_cds_downsampled_cells_branch_genes = lapply(downsampled_proportions[29:32], function(x) { 
   cell_id_list <- sample(ncol(Shalek_abs_subset_ko_LPS), round(ncol(Shalek_std_subset_KO_LPS) * x))
   res <- branchTest_downsampling(Shalek_std_subset_KO_LPS[, ], cell_id_list, relative_expr = F, cores = 1)
 
@@ -132,16 +134,7 @@ std_cds_downsampled_cells_branch_genes = lapply(downsampled_proportions[25:27], 
 std_cds_downsampled_cells_branch_genes_7 <- std_cds_downsampled_cells_branch_genes
 save(std_cds_downsampled_cells_branch_genes_7, file = 'std_cds_downsampled_cells_branch_genes_7')
 
-std_cds_downsampled_cells_branch_genes = lapply(downsampled_proportions[28:30], function(x) { 
-  cell_id_list <- sample(ncol(Shalek_abs_subset_ko_LPS), round(ncol(Shalek_std_subset_KO_LPS) * x))
-  res <- branchTest_downsampling(Shalek_std_subset_KO_LPS[, ], cell_id_list, relative_expr = F, cores = 1)
-
-  return(list(cell_id_list = cell_id_list, res = res))
-   })
-std_cds_downsampled_cells_branch_genes_7.1 <- std_cds_downsampled_cells_branch_genes
-save(std_cds_downsampled_cells_branch_genes_7.1, file = 'std_cds_downsampled_cells_branch_genes_7.1')
-
-std_cds_downsampled_cells_branch_genes = lapply(downsampled_proportions[31:33], function(x) { 
+std_cds_downsampled_cells_branch_genes = lapply(downsampled_proportions[33:36], function(x) { 
   cell_id_list <- sample(ncol(Shalek_abs_subset_ko_LPS), round(ncol(Shalek_std_subset_KO_LPS) * x))
   res <- branchTest_downsampling(Shalek_std_subset_KO_LPS[, ], cell_id_list, relative_expr = F, cores = 1)
 
@@ -150,16 +143,6 @@ std_cds_downsampled_cells_branch_genes = lapply(downsampled_proportions[31:33], 
 std_cds_downsampled_cells_branch_genes_8 <- std_cds_downsampled_cells_branch_genes
 save(std_cds_downsampled_cells_branch_genes_8, file = 'std_cds_downsampled_cells_branch_genes_8')
 
-std_cds_downsampled_cells_branch_genes = lapply(downsampled_proportions[33:36], function(x) { 
-  cell_id_list <- sample(ncol(Shalek_abs_subset_ko_LPS), round(ncol(Shalek_std_subset_KO_LPS) * x))
-  res <- branchTest_downsampling(Shalek_std_subset_KO_LPS[, ], cell_id_list, relative_expr = F, cores = 1)
-
-  return(list(cell_id_list = cell_id_list, res = res))
-   })
-std_cds_downsampled_cells_branch_genes_8.1 <- std_cds_downsampled_cells_branch_genes
-save(std_cds_downsampled_cells_branch_genes_8.1, file = 'std_cds_downsampled_cells_branch_genes_8.1')
-
-
 load('std_cds_downsampled_cells_branch_genes_1')
 load('std_cds_downsampled_cells_branch_genes_2')
 load('std_cds_downsampled_cells_branch_genes_3')
@@ -167,16 +150,35 @@ load('std_cds_downsampled_cells_branch_genes_4')
 load('std_cds_downsampled_cells_branch_genes_5')
 load('std_cds_downsampled_cells_branch_genes_6')
 load('std_cds_downsampled_cells_branch_genes_7')
-load('std_cds_downsampled_cells_branch_genes_7.1')
 load('std_cds_downsampled_cells_branch_genes_8')
-load('std_cds_downsampled_cells_branch_genes_8.1')
-std_cds_downsampled_cells_branch_genes <- c(std_cds_downsampled_cells_branch_genes_1, std_cds_downsampled_cells_branch_genes_2, std_cds_downsampled_cells_branch_genes_3, #std_cds_downsampled_cells_branch_genes_4, 
-                                std_cds_downsampled_cells_branch_genes_5[2:3], std_cds_downsampled_cells_branch_genes_6, std_cds_downsampled_cells_branch_genes_7, std_cds_downsampled_cells_branch_genes_7.1,
-                                std_cds_downsampled_cells_branch_genes_8, std_cds_downsampled_cells_branch_genes_8.1[2:4])
+
+std_cds_downsampled_cells_branch_genes <- c(std_cds_downsampled_cells_branch_genes_1, std_cds_downsampled_cells_branch_genes_2, 
+                                std_cds_downsampled_cells_branch_genes_3, std_cds_downsampled_cells_branch_genes_4, 
+                                std_cds_downsampled_cells_branch_genes_5, std_cds_downsampled_cells_branch_genes_6, 
+                                std_cds_downsampled_cells_branch_genes_7, std_cds_downsampled_cells_branch_genes_8)
+
+std_cds_downsampled_cells_ordered <- c(lapply(std_cds_downsampled_cells_branch_genes_1, function(x) x$order_cds), 
+                                lapply(std_cds_downsampled_cells_branch_genes_2, function(x) x$order_cds), 
+                                lapply(std_cds_downsampled_cells_branch_genes_3, function(x) x$order_cds), 
+                                lapply(std_cds_downsampled_cells_branch_genes_4, function(x) x$order_cds),
+                                lapply(std_cds_downsampled_cells_branch_genes_5, function(x) x$order_cds),
+                                lapply(std_cds_downsampled_cells_branch_genes_6, function(x) x$order_cds),
+                                lapply(std_cds_downsampled_cells_branch_genes_7, function(x) x$order_cds),
+                                lapply(std_cds_downsampled_cells_branch_genes_8, function(x) x$order_cds))
+
+std_cds_downsampled_cells_branch_genes <- c(lapply(std_cds_downsampled_cells_branch_genes_1, function(x) x$res), 
+                                lapply(std_cds_downsampled_cells_branch_genes_2, function(x) x$res), 
+                                lapply(std_cds_downsampled_cells_branch_genes_3, function(x) x$res), 
+                                lapply(std_cds_downsampled_cells_branch_genes_4, function(x) x$res),
+                                lapply(std_cds_downsampled_cells_branch_genes_5, function(x) x$res),
+                                lapply(std_cds_downsampled_cells_branch_genes_6, function(x) x$res),
+                                lapply(std_cds_downsampled_cells_branch_genes_7, function(x) x$res),
+                                lapply(std_cds_downsampled_cells_branch_genes_8, function(x) x$res))
 
 # Perform the BEAM test on those genes: 
+cds_downsampled_cells_branch_genes <- std_cds_downsampled_cells_branch_genes
 PILOT_SAMPLING_branch_genes <- lapply(cds_downsampled_cells_branch_genes, function(x) x$res) 
-std_PILOT_SAMPLING_branch_genes <- lapply(std_cds_downsampled_cells_branch_genes, function(x) x$res) #std_cds_downsampled_cells_branch_genes
+# std_PILOT_SAMPLING_branch_genes <- lapply(std_cds_downsampled_cells_branch_genes, function(x) x$res) #std_cds_downsampled_cells_branch_genes
 save(cds_downsampled_cells_branch_genes, file="cds_downsampled_cells_branch_genes.gz")
 
 #calculate the pilot experiment: 
@@ -203,15 +205,16 @@ cal_cell_downsampling_stats <- function(PILOT_SAMPLING_branch_genes, ori_branchi
 }
 
 # abs_statistics_per_depth <- cal_cell_downsampling_stats(PILOT_SAMPLING_branch_genes)
-abs_statistics_per_depth <- statistics_per_depth_fix_tree
+abs_statistics_per_depth <- abs_statistics_per_depth_all
 
-std_statistics_per_depth <- cal_cell_downsampling_stats(std_PILOT_SAMPLING_branch_genes, std_ko_branching_genes)
+std_statistics_per_depth <- cal_cell_downsampling_stats(std_cds_downsampled_cells_branch_genes, std_ko_branching_genes)
+std_statistics_per_depth$Type <- rep('FPKM', nrow(std_statistics_per_depth))
 
-statistics_per_depth_all <- rbind(abs_statistics_per_depth[, c('proportion_original_cells', 'precision', 'recall', 'spearman_correlation')], 
-      std_statistics_per_depth[, c('proportion_original_cells', 'precision', 'recall', 'spearman_correlation')])
+statistics_per_depth_all <- rbind(abs_statistics_per_depth[, c('proportion_original_cells', 'precision', 'recall', 'spearman_correlation', 'Type')], 
+      std_statistics_per_depth[, c('proportion_original_cells', 'precision', 'recall', 'spearman_correlation', 'Type')])
 
-statistics_per_depth_all$Type <- c(rep('Transcript counts', nrow(abs_statistics_per_depth)), 
-                                  rep('FPKM', nrow(std_statistics_per_depth)))
+# statistics_per_depth_all$Type <- c(rep('Transcript counts', nrow(abs_statistics_per_depth)), 
+#                                   rep('FPKM', nrow(std_statistics_per_depth)))
 
 subset_statistics_per_depth_all <- subset(statistics_per_depth_all, proportion_original_cells != 1)
 

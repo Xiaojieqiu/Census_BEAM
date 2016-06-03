@@ -1,11 +1,11 @@
-load('./RData/prepare_lung_data.RData')
+# # load('./RData/prepare_lung_data.RData')
 library(devtools)
 load_all('~/Projects/monocle-dev')
  
 library(xacHelper)
 library(MAST)
 
-library(scde)
+# library(scde)
 #########################run the following scripts in remote sever#############################
 
 #generate the pvals from the statistical test (permutation based or from software: monocle/DESeq/SCDE)
@@ -34,17 +34,17 @@ count_cds <- newCellDataSet(read_countdata[row.names(new_abs_cds_14_18), colname
 
 count_cds <- estimateSizeFactors(count_cds)
 
-# calculate the pval with the readcount with scde: (calculate the scde associate DEG test result LOCALLY) 
-std_scde_res_list <- scde_DEG(dir = NULL, count_cds = count_cds, DEG_attribute = 'Time', contrast = c('E14.5', 'E18.5'), n.cores = 1)
+# # calculate the pval with the readcount with scde: (calculate the scde associate DEG test result LOCALLY) 
+# std_scde_res_list <- scde_DEG(dir = NULL, count_cds = count_cds, DEG_attribute = 'Time', contrast = c('E14.5', 'E18.5'), n.cores = detectCores())
 
-#calculate the pval with the normalized transcripts with scde: 
-abs_scde_res_list <- scde_DEG(dir = NULL, count_cds = new_abs_cds_14_18, DEG_attribute = 'Time', contrast = c('E14.5', 'E18.5'), n.cores = 1, normalize = T)
-abs_scde_res_list_no_normalize <- scde_DEG(dir = NULL, count_cds = new_abs_cds_14_18, DEG_attribute = 'Time', contrast = c('E14.5', 'E18.5'), n.cores = 1)
+# #calculate the pval with the normalized transcripts with scde: 
+# abs_scde_res_list <- scde_DEG(dir = NULL, count_cds = new_abs_cds_14_18, DEG_attribute = 'Time', contrast = c('E14.5', 'E18.5'), n.cores = detectCores(), normalize = T)
+# abs_scde_res_list_no_normalize <- scde_DEG(dir = NULL, count_cds = new_abs_cds_14_18, DEG_attribute = 'Time', contrast = c('E14.5', 'E18.5'), n.cores = detectCores())
 
 #load all other necessary packages: 
 load_all_libraries()
 
-#perform  the stastical tests on the data: 
+# #perform  the stastical tests on the data: 
 new_std_diff_test_res <- differentialGeneTest(new_std_cds_14_18[1:transcript_num, ], 
                                               fullModelFormulaStr = "~Time", 
                                               reducedModelFormulaStr = "~1", cores = detectCores(), relative = F)  
@@ -86,82 +86,97 @@ mc_pseudotime_test_lineage3_res <- differentialGeneTest(mc_AT12_cds_subset_all_g
                                                       reducedModelFormulaStr = "~1", cores = detectCores(), relative = T)
 Time_ori <- pData(new_abs_cds_14_18)$Time #Time as input for newCountDataSet
 
-#benchmark with edgeR / DESeq2:
-edgeR_res <- edgeR_test(glm = T)
-abs_edgeR_res <- edgeR_test(exprs(new_abs_cds_14_18), group = Time_ori, glm = T)
+# #calculate the pval with the readcount with DESeq: 
 
-edgeR_res_glm <- edgeR_test()
-abs_edgeR_res_glm <- edgeR_test(exprs(new_abs_cds_14_18), group = Time_ori)
+# read_count_d <- newCountDataSet(round(read_countdata)[, ], Time_ori) 
+# # std_dtable_pool_max_nbinomTest <- DESeq1_test(read_count_d, disp_method = 'pooled', sharing = 'maximum', test_type = 'nbinomTest', scale = T) 
+# # row.names(std_dtable_pool_max_nbinomTest$dtalbe) <- std_dtable_pool_max_nbinomTest$dtalbe$id
 
-#calculate the pval with the readcount with DESeq: 
+# #calculate the pval with the normalized transcripts with DESeq: 
+# abs_count_d <- newCountDataSet(round(t(t(exprs(new_abs_cds_14_18)) / sizeFactors(new_abs_cds_14_18))), (Time_ori)) #normalized the data by size factor
+# # abs_dtable_pool_max_nbinomTest <- DESeq1_test(abs_count_d, disp_method = 'pooled', sharing = 'maximum', test_type = 'nbinomTest') 
+# # row.names(abs_dtable_pool_max_nbinomTest$dtalbe) <- abs_dtable_pool_max_nbinomTest$dtalbe$id
 
-read_count_d <- newCountDataSet(round(read_countdata)[, ], Time_ori) 
-# std_dtable_pool_max_nbinomTest <- DESeq1_test(read_count_d, disp_method = 'pooled', sharing = 'maximum', test_type = 'nbinomTest', scale = T) 
-# row.names(std_dtable_pool_max_nbinomTest$dtalbe) <- std_dtable_pool_max_nbinomTest$dtalbe$id
+# #DESeq glm: (GLM tests are more relevant to our software)
+# std_dtable_pool_max_nbinomGLMTest <- DESeq1_test(read_count_d[1:transcript_num, ], disp_method = 'pooled', sharing = 'maximum', test_type = 'nbinomGLMTest', scale = T) 
+# row.names(std_dtable_pool_max_nbinomGLMTest$dtalbe) <-  row.names(read_count_d[1:transcript_num, ])
+# abs_dtable_pool_max_nbinomGLMTest <- DESeq1_test(abs_count_d[1:transcript_num, ], disp_method = 'pooled', sharing = 'maximum', test_type = 'nbinomGLMTest') 
+# row.names(abs_dtable_pool_max_nbinomGLMTest$dtalbe) <- row.names(new_abs_cds_14_18[1:transcript_num, ])
 
-#calculate the pval with the normalized transcripts with DESeq: 
-abs_count_d <- newCountDataSet(round(t(t(exprs(new_abs_cds_14_18)) / sizeFactors(new_abs_cds_14_18))), (Time_ori)) #normalized the data by size factor
-# abs_dtable_pool_max_nbinomTest <- DESeq1_test(abs_count_d, disp_method = 'pooled', sharing = 'maximum', test_type = 'nbinomTest') 
-# row.names(abs_dtable_pool_max_nbinomTest$dtalbe) <- abs_dtable_pool_max_nbinomTest$dtalbe$id
+# #permutation results for two group test on the FPKM value (gold standard for monocle on FPKM values with tobit model): 
+# Time_order <- order(Time_ori) #order the E14.5 cell at the begining (ensure E14.5 cells number is 43 while E18.5 is 74)
+# std_split_cds <- split(t(exprs(new_std_cds_14_18[1:transcript_num, Time_order])), col(t(exprs(new_std_cds_14_18[1:transcript_num, Time_order])), as.factor = T))
+# std_fc <- esApply(new_std_cds_14_18[1:transcript_num, ], 1, mean_fc, grp0 = 'E14.5', grp1 = 'E18.5')
+# std_split_fc <- split(t(std_fc), col(t(std_fc), as.factor = T))
 
-#DESeq glm: (GLM tests are more relevant to our software)
-std_dtable_pool_max_nbinomGLMTest <- DESeq1_test(read_count_d[1:transcript_num, ], disp_method = 'pooled', sharing = 'maximum', test_type = 'nbinomGLMTest', scale = T) 
-row.names(std_dtable_pool_max_nbinomGLMTest$dtalbe) <-  row.names(read_count_d[1:transcript_num, ])
-abs_dtable_pool_max_nbinomGLMTest <- DESeq1_test(abs_count_d[1:transcript_num, ], disp_method = 'pooled', sharing = 'maximum', test_type = 'nbinomGLMTest') 
-row.names(abs_dtable_pool_max_nbinomGLMTest$dtalbe) <- row.names(new_abs_cds_14_18[1:transcript_num, ])
+# permuation_pval <- function (x, fc, alpha = table(pData(new_abs_cds_14_18)$Time)['E14.5'], beta = table(pData(new_abs_cds_14_18)$Time)['E18.5'], permutate_num = 10000,
+#     return_fc = F)
+# {
+#     fc_vec <- rep(0, permutate_num)
+#     if (is.na(fc))
+#         return(1)
+#     for (i in 1:permutate_num) {
+#         x <- sample(x, length(x))
+#         x_0 <- (mean(x[1:alpha]))
+#         x_1 <- (mean(x[(alpha + 1):(alpha + beta)]))
+#         mean_fc <- log2(x_1/x_0)
+#         fc_vec[i] <- mean_fc
+#     }
+#     if (fc > 0)
+#         pval <- sum(fc <= fc_vec)/length(fc_vec)
+#     else pval <- sum(fc >= fc_vec)/length(fc_vec)
+#     if (return_fc)
+#         return(list(pval = pval, fc_vec = fc_vec))
+#     else return(pval)
+# }
+# std_permutate_pval <- mcmapply(permuation_pval, std_split_cds, std_split_fc, mc.cores = detectCores()) #multiple cores 
 
-#permutation results for two group test on the FPKM value (gold standard for monocle on FPKM values with tobit model): 
-Time_order <- order(Time_ori) #order the E14.5 cell at the begining (ensure E14.5 cells number is 43 while E18.5 is 74)
-std_split_cds <- split(t(exprs(new_std_cds_14_18[1:transcript_num, Time_order])), col(t(exprs(new_std_cds_14_18[1:transcript_num, Time_order])), as.factor = T))
-std_fc <- esApply(new_std_cds_14_18[1:transcript_num, ], 1, mean_fc, grp0 = 'E14.5', grp1 = 'E18.5')
-std_split_fc <- split(t(std_fc), col(t(std_fc), as.factor = T))
+# closeAllConnections()
+# # permutation results for two group test on the readcounts value (gold standard for DESEeq / SCDE on readcount data): 
+# readcount_sf_mat <- matrix(rep(sizeFactors(count_cds), nrow(count_cds)), nrow = nrow(count_cds), byrow = T)
+# readcount_split_cds <- split(t(exprs(count_cds[1:transcript_num, Time_order]) / readcount_sf_mat[1:transcript_num, Time_order]), col(t(exprs(count_cds[1:transcript_num, Time_order])), as.factor = T))
+# #readcount_split_cds <- split(t(exprs(count_cds[1:transcript_num, Time_order])), col(t(exprs(count_cds[1:transcript_num, Time_order])), as.factor = T))
 
-permuation_pval <- function (x, fc, alpha = table(pData(new_abs_cds_14_18)$Time)['E14.5'], beta = table(pData(new_abs_cds_14_18)$Time)['E18.5'], permutate_num = 10000,
-    return_fc = F)
-{
-    fc_vec <- rep(0, permutate_num)
-    if (is.na(fc))
-        return(1)
-    for (i in 1:permutate_num) {
-        x <- sample(x, length(x))
-        x_0 <- (mean(x[1:alpha]))
-        x_1 <- (mean(x[(alpha + 1):(alpha + beta)]))
-        mean_fc <- log2(x_1/x_0)
-        fc_vec[i] <- mean_fc
-    }
-    if (fc > 0)
-        pval <- sum(fc <= fc_vec)/length(fc_vec)
-    else pval <- sum(fc >= fc_vec)/length(fc_vec)
-    if (return_fc)
-        return(list(pval = pval, fc_vec = fc_vec))
-    else return(pval)
-}
-std_permutate_pval <- mcmapply(permuation_pval, std_split_cds, std_split_fc, mc.cores = detectCores()) #multiple cores 
+# readcount_fc <- apply(exprs(count_cds[1:transcript_num, Time_order]) / readcount_sf_mat[1:transcript_num, Time_order], 1, mean_fc, grp0 = 'E14.5', grp1 = 'E18.5', grp = pData(count_cds)$Time) #valid_gene_id
+# # readcount_fc <- esApply(count_cds[1:transcript_num, ], 1, mean_fc, grp0 = 'E14.5', grp1 = 'E18.5') #valid_gene_id
+# readcount_split_fc <- split(t(readcount_fc), col(t(readcount_fc), as.factor = T))
+# ## 
 
-# permutation results for two group test on the readcounts value (gold standard for DESEeq / SCDE on readcount data): 
-readcount_split_cds <- split(t(exprs(count_cds[1:transcript_num, Time_order])), col(t(exprs(count_cds[1:transcript_num, Time_order])), as.factor = T))
-readcount_fc <- esApply(count_cds[1:transcript_num, ], 1, mean_fc, grp0 = 'E14.5', grp1 = 'E18.5') #valid_gene_id
-readcount_split_fc <- split(t(readcount_fc), col(t(readcount_fc), as.factor = T))
-## 
+# readcount_permutate_pval <- mcmapply(permuation_pval, readcount_split_cds, readcount_split_fc, mc.cores = detectCores()) #multiple core
+# closeAllConnections()
 
-readcount_permutate_pval <- mcmapply(permuation_pval, readcount_split_cds, readcount_split_fc, mc.cores = detectCores()) #multiple core
+# # two-group permutation tests (the same as above)
+# # readcount_permutate_pval <- permu_two_group_gen(count_cds[, Time_order], alpha = 43, beta = 60, grp0 = 'E14.5', grp1 = 'E18.5', group = pData(count_cds)$Time)
 
-# two-group permutation tests (the same as above)
-# readcount_permutate_pval <- permu_two_group_gen(count_cds[, Time_order], alpha = 43, beta = 60, grp0 = 'E14.5', grp1 = 'E18.5', group = pData(count_cds)$Time)
+# # permutation results for two group test on the normalized absolute value (gold standard for DESEeq / SCDE on readcount data): 
+# # mode_size_norm_permutate_ratio_by_geometric_mean <- cal_perm_pval_size_norm(new_abs_cds_14_18[1:transcript_num, Time_order])
+# # mc_mode_size_norm_permutate_ratio_by_geometric_mean <- cal_perm_pval_size_norm(new_mc_cds_14_18[1:transcript_num, Time_order])
 
-# permutation results for two group test on the normalized absolute value (gold standard for DESEeq / SCDE on readcount data): 
-mode_size_norm_permutate_ratio_by_geometric_mean <- cal_perm_pval_size_norm(new_abs_cds_14_18[1:transcript_num, Time_order])
-mc_mode_size_norm_permutate_ratio_by_geometric_mean <- cal_perm_pval_size_norm(new_mc_cds_14_18[1:transcript_num, Time_order])
+# #new implementation: 
+# abs_sf_mat <- matrix(rep(sizeFactors(new_abs_cds_14_18), nrow(new_abs_cds_14_18)), nrow = nrow(new_abs_cds_14_18), byrow = T)
+# abs_split_cds <- split(t(exprs(new_abs_cds_14_18[1:transcript_num, Time_order]) / abs_sf_mat[1:transcript_num, Time_order]), col(t(exprs(new_abs_cds_14_18[1:transcript_num, Time_order])), as.factor = T))
+# abs_fc <- apply(exprs(new_abs_cds_14_18[1:transcript_num, Time_order]) / abs_sf_mat[1:transcript_num, Time_order], 1, mean_fc, grp0 = 'E14.5', grp1 = 'E18.5', grp = pData(new_abs_cds_14_18)$Time) #valid_gene_id
+# abs_split_fc <- split(t(abs_fc), col(t(abs_fc), as.factor = T))
+# mode_size_norm_permutate_ratio_by_geometric_mean <- mcmapply(permuation_pval, abs_split_cds, abs_split_fc, mc.cores = detectCores()) #multiple core
+# closeAllConnections()
+
+# mc_sf_mat <- matrix(rep(sizeFactors(new_mc_cds_14_18), nrow(new_mc_cds_14_18)), nrow = nrow(new_mc_cds_14_18), byrow = T)
+# mc_split_cds <- split(t(exprs(new_mc_cds_14_18[1:transcript_num, Time_order]) / mc_sf_mat[1:transcript_num, Time_order]), col(t(exprs(new_mc_cds_14_18[1:transcript_num, Time_order])), as.factor = T))
+# mc_fc <- esApply(new_mc_cds_14_18[1:transcript_num, ], 1, mean_fc, grp0 = 'E14.5', grp1 = 'E18.5') #valid_gene_id
+# mc_fc <- apply(exprs(new_mc_cds_14_18[1:transcript_num, Time_order]) / mc_sf_mat[1:transcript_num, Time_order], 1, mean_fc, grp0 = 'E14.5', grp1 = 'E18.5', grp = pData(new_mc_cds_14_18)$Time) #valid_gene_id
+# mc_split_fc <- split(t(mc_fc), col(t(mc_fc), as.factor = T))
+# mc_mode_size_norm_permutate_ratio_by_geometric_mean <- mcmapply(permuation_pval, mc_split_cds, mc_split_fc, mc.cores = detectCores()) #multiple core
+# closeAllConnections()
 
 #add the DEG tests using edgeR / DESeq2: 
-edgeR_res <- edgeR_test(glm = T)
-abs_edgeR_res <- edgeR_test(exprs(new_abs_cds_14_18[1:transcript_num, ]), group = Time_ori, glm = T)
+# edgeR_res <- edgeR_test(counts = exprs(count_cds)[1:transcript_num, ], glm = F)
+# abs_edgeR_res <- edgeR_test(exprs(new_abs_cds_14_18[1:transcript_num, ]), group = Time_ori, glm = F)
 
-edgeR_res_glm <- edgeR_test()
-abs_edgeR_res_glm <- edgeR_test(exprs(new_abs_cds_14_18[1:transcript_num, ]), group = Time_ori)
+# edgeR_res_glm <- edgeR_test(counts = exprs(count_cds)[1:transcript_num, ], glm = T)
+# abs_edgeR_res_glm <- edgeR_test(exprs(new_abs_cds_14_18[1:transcript_num, ]), group = Time_ori, glm = T)
   
-deseq2_res <- DESeq2_deg(dir = NULL, count_cds[1:transcript_num, ], Time = Time_ori, pd = pData(count_cds))
-abs_deseq2_res <- DESeq2_deg(dir = NULL, new_abs_cds_14_18[1:transcript_num, ], Time = Time_ori, pd = pData(new_abs_cds_14_18))
+# deseq2_res <- DESeq2_deg(dir = NULL, count_cds[1:transcript_num, ], Time = Time_ori, pd = pData(count_cds))
+# abs_deseq2_res <- DESeq2_deg(dir = NULL, new_abs_cds_14_18[1:transcript_num, ], Time = Time_ori, pd = pData(new_abs_cds_14_18))
 
 #prepare to generate the data for create the precision/recall/F1 score data.frame: 
 #new monocle_p: 
@@ -199,10 +214,17 @@ permutation_sets <- list(FPKM = names(std_permutate_pval[which(std_permutate_pva
 overlap_genes <- Reduce(intersect,  permutation_sets) 
 
 #prepare the data for the DESeq2 / edgeR: 
-default_edgeR_p = edgeR_res$lrt$table$PValue
-  names(default_edgeR_p) <- row.names(edgeR_res$lrt$table)
-  abs_default_edgeR_p = abs_edgeR_res$lrt$table$PValue
-  names(abs_default_edgeR_p) <- row.names(abs_edgeR_res$lrt$table)
+default_edgeR_p_glm = edgeR_res_glm$lrt$table$PValue
+names(default_edgeR_p_glm) <- row.names(edgeR_res_glm$lrt$table)
+abs_default_edgeR_p_glm = abs_edgeR_res_glm$lrt$table$PValue
+names(abs_default_edgeR_p_glm) <- row.names(abs_edgeR_res_glm$lrt$table)
+
+#non_glm: 
+default_edgeR_p = edgeR_res$et$table$PValue
+names(default_edgeR_p) <- row.names(edgeR_res$et$table)
+abs_default_edgeR_p = abs_edgeR_res$et$table$PValue
+names(abs_default_edgeR_p) <- row.names(abs_edgeR_res$et$table)
+
 
 default_deseq2_p = results(deseq2_res)$pvalue
 names(default_deseq2_p) <- row.names(results(deseq2_res))
@@ -304,4 +326,4 @@ ggtitle('') + theme(strip.text.x = element_blank(), strip.text.y = element_blank
 dev.off()
 
 
-save.image('./RData/deg_benchmark_analysis.RData')
+# save.image('./RData/deg_benchmark_analysis.RData')

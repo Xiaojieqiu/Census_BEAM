@@ -1,10 +1,18 @@
+#use mse, correlation: 
+spike_mse_true_rpc <- mean((spike_rpc[true_nzgenes] - E[true_nzgenes])^2, na.rm=T)
+spike_mse_library_rpc <- mean((spike_rpc[library_nzgenes] - S[library_nzgenes])^2, na.rm=T)
+
+num_genes_converged_true_rpc <- sum((abs(spike_rpc[true_nzgenes] - E[true_nzgenes]) / E[true_nzgenes]) < 0.2) / length(true_nzgenes)
+num_genes_converged_library_rpc <- sum((abs(spike_rpc[library_nzgenes] - S[library_nzgenes]) / S[library_nzgenes]) < 0.2) / length(library_nzgenes)
+
+cor_true_estimated <- mean(unlist(lapply(1:cells, function(x) cor(estimated_rpc_matrix[, x], true_rpc_matrix[, x]))))
+
 library(tidyr)
 library(grid)
 library(gridExtra)
-
+# library(monocle) 
+library(devtools)
 load_all('~/Projects/monocle-dev')
-library(xacHelper)
-library(monocle)
 library(xacHelper)
 library(plyr)
 library(data.table)
@@ -47,6 +55,14 @@ calculate_fraction_of_genes_detected_within_error = function(expression_matrix, 
     return(performance_by_quartile)
 }
 
+# New metrics for showing the performance of the recovery algorithm: 
+calculate_mse_cor <- function(expression_matrix, reference_matrix) {
+    mse <- (expression_matrix - reference_matrix)^2
+    cor_true_estimated <- unlist(lapply(1:cells, function(x) cor(expression_matrix[, x], reference_matrix[, x]))))
+
+    return(data.frame(mse = mse, cor = cor_true_estimated))
+}
+
 # Helper function to massage results obtained with lapply calls to calculate_fraction_of_genes_detected_within_error
 # into a more usable format
 process_performance_dataframe = function(performance_results, quantification_type) {
@@ -80,6 +96,10 @@ performance_fpkm = process_performance_dataframe(performance_fpkm, "FPKM")
 performance_transcript_counts = process_performance_dataframe(performance_transcript_counts, "spike-free transcript counts")
 performance_transcript_counts_regression = process_performance_dataframe(performance_transcript_counts_regression, "spike-in regression transcript counts")
 
+newperformance_fpkm = process_performance_dataframe(performance_fpkm, "FPKM")
+performance_transcript_counts = process_performance_dataframe(performance_transcript_counts, "spike-free transcript counts")
+performance_transcript_counts_regression = process_performance_dataframe(performance_transcript_counts_regression, "spike-in regression transcript counts")
+
 # Generate a single matrix with methods (FPKM, normalization, and spike-in regression)
 performance = rbind(performance_transcript_counts_regression, performance_transcript_counts, performance_fpkm)
 
@@ -90,11 +110,11 @@ performance$quartile = factor(performance$quartile, levels=unique(performance$qu
 
 # Make plot
 pdf("./supplementary_figures/fig7c_si.pdf", height=3, width=3)
-ggplot(performance, aes(as.numeric(depth), as.numeric(mean_value), color=quantification_type)) +
+ggplot(performance, aes(as.numeric(depth), as.numeric(as.character(mean_value)), color=quantification_type)) +
     geom_point() +
-    # geom_line() +
-    #geom_hline(y=1, linetype="longdash", color="black", alpha=0.75) + 
-    #ylim(c(0, 1)) +
+    geom_line() +
+    geom_hline(y=1, linetype="longdash", color="black", alpha=0.75) + 
+    ylim(c(0, 1)) +
     facet_wrap(~ quartile, nrow=2) +
     nm_theme() +
     xlab("max depth per cell (read pairs)") +
@@ -215,6 +235,7 @@ proportion_correct_transcript_counts$method = "spike-in free"
 # Combine all results and generate plot
 proportion_correct = rbind(proportion_correct_fpkm, proportion_correct_transcript_counts_regression, proportion_correct_transcript_counts)
 
+pdf("./tmp/temp.pdf", width=2.5, height=2.5)
 ggplot(proportion_correct, aes(depth, proportion_correct, color=method)) +
     geom_point() +
     geom_line() +
@@ -222,5 +243,9 @@ ggplot(proportion_correct, aes(depth, proportion_correct, color=method)) +
     scale_color_brewer(palette="Set1") +
     ylab("proportion of cells within 20% of original value") +
     xlab("max depth per cell (total aligned PE reads)") +
-    theme_bw() +
-    ggsave("./tmp/temp.png", height=7.5, width=7.5)
+    theme_bw() 
+dev.off()
+
+
+
+

@@ -51,10 +51,11 @@ get_monocle_cds <- function(fpkm_matrix, pd, fd, valid_cells) {
 }
 
 # Wraps conversion to transcript counts while also returning the m and c statistics from each run
-get_recovered_transcript_counts_with_stats = function(cds, isoform_matrix) {
+get_recovered_transcript_counts_with_stats = function(cds, kb_intercept = 2.62, isoform_matrix) {
     closeAllConnections()
 
-    normalized_cds_stats = monocle::relative2abs(cds, monocle::estimate_t(isoform_matrix), cores=detectCores(), return_all=T) # also get m and c from return="all"
+    set.seed(1:(300*ncol(cds))) #set the seed so that we get the same result every time
+    normalized_cds_stats = relative2abs(cds, estimate_t(exprs(cds)), cores=detectCores(), return_all=T) #kb_intercept = kb_intercept,  also get m and c from return="all"
     closeAllConnections()
 
     # Update the expression matrix
@@ -226,6 +227,10 @@ input_data$isoform_matrices_to_compare = lapply(input_data$isoform_matrices_to_c
 # Convert the dataset to transcript counts and keep info about m and c values
 original_depth_cds_conversion_stats = get_recovered_transcript_counts_with_stats(original_depth_cds, input_data$original_isoform_matrix)
 original_depth_cds_transcript_counts = original_depth_cds_conversion_stats$norm_cds
+
+# #test the consistency
+# original_depth_cds_conversion_stats2 = get_recovered_transcript_counts_with_stats(original_depth_cds, input_data$original_isoform_matrix)
+# original_depth_cds_transcript_counts2 = original_depth_cds_conversion_stats2$norm_cds
 
 closeAllConnections()
 cds_to_compare_conversion_stats = mapply(get_recovered_transcript_counts_with_stats, cds_to_compare, input_data$isoform_matrices_to_compare)
