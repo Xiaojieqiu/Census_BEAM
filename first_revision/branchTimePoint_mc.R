@@ -86,10 +86,10 @@ library(grid)
 
 #################################### Shalek data: #################################### 
 #no progenitor duplication
-weighted_abs_Shalek_KO_subset_all_gene_ILRs_list <- calILRs(cds = Shalek_abs_subset_ko_LPS[, ], lineage_states = c(2, 3), stretch = T, cores = 1, 
-    trend_formula = "~sm.ns(Pseudotime, df = 3) * Lineage", ILRs_limit = 3, 
-    relative_expr = T, weighted = T, label_by_short_name = F, 
-    useVST = T, round_exprs = FALSE, pseudocount = 0, output_type = "all", file = "weighted_abs_Shalek_KO_subset_all_gene_ILRs_list", return_all = T)
+# weighted_abs_Shalek_KO_subset_all_gene_ILRs_list <- calILRs(cds = Shalek_abs_subset_ko_LPS[, ], lineage_states = c(2, 3), stretch = T, cores = 1, 
+#     trend_formula = "~sm.ns(Pseudotime, df = 3) * Lineage", ILRs_limit = 3, 
+#     relative_expr = T, weighted = T, label_by_short_name = F, 
+#     useVST = T, round_exprs = FALSE, pseudocount = 0, output_type = "all", file = "weighted_abs_Shalek_KO_subset_all_gene_ILRs_list", return_all = T)
 
 #with progenitor duplication
 duplicate_progenitors_weighted_abs_Shalek_KO_subset_all_gene_ILRs_list <- calILRs(cds = Shalek_abs_subset_ko_LPS[, ], lineage_states = c(2, 3), stretch = T, cores = 1, 
@@ -105,7 +105,7 @@ rng_tmp <- (pData(Shalek_abs_subset_ko_LPS)$Pseudotime - MST_branch_range[2])
 first_branching_cell <- colnames(Shalek_abs_subset_ko_LPS)[which(abs(rng_tmp) == min(abs(rng_tmp)))]
 MST_branch_time <- round(pData(new_cds)[first_branching_cell, 'Pseudotime'])
 subset_MST_branch_abs_ko_bifurcation_time <- detectBifurcationPoint(duplicate_progenitors_weighted_abs_Shalek_KO_subset_all_gene_ILRs_list$norm_str_logfc_df[, ]) #weighted_abs_Shalek_KO_subset_all_gene_ILRs_list
-all_abs_ko_bifurcation_time <- detectBifurcationPoint(duplicate_progenitors_weighted_abs_Shalek_KO_subset_all_gene_ILRs_list$norm_str_logfc_df[, MST_branch_time:100]) #weighted_abs_Shalek_KO_subset_all_gene_ILRs_list
+all_abs_ko_bifurcation_time <- detectBifurcationPoint(duplicate_progenitors_weighted_abs_Shalek_KO_subset_all_gene_ILRs_list$norm_str_logfc_df[, 1:100]) #weighted_abs_Shalek_KO_subset_all_gene_ILRs_list
 
 #collect list of grn from Aviv science paper: 
 grn_fig4a <- c("STAT2", "STAT1", "HHEX", "RBL1", "Timeless", "Ifnb1", "Cxcl9", "Ifit3", "Tsc22d1", "Tnfsf8", "Isg20", "Nmi", "Iigp1", "Irf7", "Lhx2", "Bbx", "Fus", "Tcf4", "Pml", "Usp12", "Irf7", "Ifit1", "Isg15", "Rbl1", "Usp25", "Daxx", "Cd40", "Atm", "Lrf1", "Ligp2", "Mertk", "Cxcl11", "Trim12", "Trim21", "NfkbIz")
@@ -125,7 +125,7 @@ top_group <- c("STAT2", "STAT1", "HHEX", "RBL1", "Timeless", "FUS")
 bottom_group <- c("Ifnb1", "Cxcl9", "Ifit3", "Tsc22d1", "Tnfsf8", "Isg20", "Nmi", "Iigp1", "Irf7", "Lhx2", "Bbx", "Fus", "Tcf4", "Pml", "Usp12", "Irf7", "Ifit1", "Isg15", "Usp25", "Daxx", "Cd40", "Atm", "Lrf1", "Lgp2", "Mertk", "Cxcl11", "Trim12", "Trim21")
 
 top_group_ids <- row.names(subset(fData(Shalek_abs_subset_ko_LPS), toupper(gene_short_name) %in% toupper(top_group)))
-fData(Shalek_golgi_update)[grn_ids, 'gene_short_name']
+fData(Shalek_abs_subset_ko_LPS)[grn_ids, 'gene_short_name']
 bottom_group_ids <- row.names(subset(fData(Shalek_abs_subset_ko_LPS), toupper(gene_short_name) %in% toupper(bottom_group)))
 fData(Shalek_abs_subset_ko_LPS)[bottom_group_ids, 'gene_short_name']
 
@@ -133,7 +133,7 @@ fData(Shalek_abs_subset_ko_LPS)[bottom_group_ids, 'gene_short_name']
 valid_ko_branching_genes_list <- intersect(row.names(subset(ko_branching_genes, qval < 0.05)), ko_valid_expressed_genes)
 valid_top_group_ids <- intersect(top_group_ids, valid_ko_branching_genes_list)
 top_group_branch_time <- all_abs_ko_bifurcation_time[valid_top_group_ids]
-names(top_group_branch_time) <- fData(Shalek_golgi_update)[valid_top_group_ids, 'gene_short_name']
+names(top_group_branch_time) <- fData(Shalek_abs_subset_ko_LPS)[valid_top_group_ids, 'gene_short_name']
 sort(abs(top_group_branch_time), index.return = T)
 
 valid_bottom_group_ids <- intersect(bottom_group_ids, valid_ko_branching_genes_list)
@@ -144,7 +144,7 @@ sort(abs(bottom_group_branch_time), index.return = T)
 df <- data.frame(bifurcation_time = c(top_group_branch_time, bottom_group_branch_time), 
 		type = c(rep("Antiviral regulators", length(top_group_branch_time)), rep("Targets", length(bottom_group_branch_time))))
 
-pdf('tmp/DC_regulation_hierarchy.pdf', width = 2.25, height = 2.25)
+pdf('main_figures/DC_regulation_hierarchy.pdf', width = 1.7, height = 1)
 qplot(type, abs(bifurcation_time), color = type, geom = c('jitter', 'boxplot'), data = df, alpha = I(0.7), log = 'y') + 
     xlab('') + ylab('bifurcation time point') + coord_flip() + #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
     nm_theme()
@@ -176,7 +176,7 @@ valid_ko_branch_gene_names <- as.character(fData(Shalek_abs_subset_ko_LPS[valid_
 branching_TF_TF_5k_enrichment_gsc <- lapply(enrich_branching_TF_gsc_names, function(x) intersect(toupper(shalek_TF_5k_enrichment_gsc$gsc[[x]]), toupper(valid_ko_branch_gene_names)))
 
 #this function finds targets of genes for each enriched branching TF at the CORRESPONDING enriched clusters and creates a data frame storing all the branching time for the regulators and their targets:  
-gen_branchTime_df <- function(cds = Shalek_golgi_update, branch_time = all_abs_ko_bifurcation_time, gene_clusters  = Shalek_abs_subset_ko_LPS_tree_heatmap_clusters, clusters_id = 5, 
+gen_branchTime_df <- function(cds = Shalek_abs_subset_ko_LPS, branch_time = all_abs_ko_bifurcation_time, gene_clusters  = Shalek_abs_subset_ko_LPS_tree_heatmap_clusters, clusters_id = 5, 
 	enrich_branching_TF_gsc_names) {
 	all_abs_bifurcation_time_gene_names <- branch_time
 	names(all_abs_bifurcation_time_gene_names) <- toupper(fData(cds[names(branch_time), ])$gene_short_name)
@@ -207,12 +207,13 @@ gen_branchTime_df <- function(cds = Shalek_golgi_update, branch_time = all_abs_k
 
 df <- gen_branchTime_df(enrich_branching_TF_gsc_names = enrich_branching_TF_gsc_names)
 df[df$regulators == 'STAT2::STAT1', 'regulators_time'] <- unique(df[df$regulators == 'STAT1', 'regulators_time']) 
-pdf('tmp/ko_regulation_hierarchy.pdf', width = 1.5, height = 1.5)
+df <- subset(df, regulators != 'PRDM1')
+pdf('./main_figures/ko_regulation_hierarchy.pdf', width = 1.5, height = 1.5)
 qplot(regulators, abs(branching_time), color = regulators, geom = c('jitter', 'boxplot'), 
 	data = df, alpha = I(0.5), log = 'y') +  
     ylab('bifurcation time point') + 
     geom_point(aes(regulators, abs(regulators_time)), color = 'black', data = df) + 
-    coord_flip() + scale_y_continuous(breaks = round(seq(abs(min(df$regulators_time, na.rm = T)), max(df$branching_time, na.rm = T), by = 12),1)) + #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
+    coord_flip() + scale_y_continuous(breaks = round(seq(min(abs(df$regulators_time), na.rm = T), max(abs(df$branching_time), na.rm = T), by = 12),1)) + #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
     nm_theme()
 dev.off()
 
@@ -231,7 +232,7 @@ qplot(regulators, abs(branching_time), color = regulators, geom = c('jitter', 'b
 	data = all_enriched_TF_branching_time_df1, alpha = I(0.5), log = 'y') +  
     ylab('bifurcation time point') + 
     geom_point(aes(regulators, abs(regulators_time)), color = 'black', data = all_enriched_TF_branching_time_df1) + 
-    coord_flip() + scale_y_continuous(breaks = round(seq(abs(min(df$regulators_time, na.rm = T)), max(df$branching_time, na.rm = T), by = 12),1)) + #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
+    coord_flip() + scale_y_continuous(breaks = round(seq(min(abs(df$regulators_time), na.rm = T), max(abs(df$branching_time), na.rm = T), by = 12),1)) + #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
     nm_theme()
 dev.off()
 
@@ -240,7 +241,7 @@ qplot(regulators, abs(branching_time), color = regulators, geom = c('jitter', 'b
 	data = all_enriched_TF_branching_time_df2, alpha = I(0.5), log = 'y') +  
     ylab('bifurcation time point') + 
     geom_point(aes(regulators, abs(regulators_time)), color = 'black', data = all_enriched_TF_branching_time_df2) + 
-    coord_flip() + scale_y_continuous(breaks = round(seq(abs(min(df$regulators_time, na.rm = T)), max(df$branching_time, na.rm = T), by = 12),1)) + #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
+    coord_flip() + scale_y_continuous(breaks = round(seq(min(abs(df$regulators_time), na.rm = T), max(abs(df$branching_time), na.rm = T), by = 12),1)) + #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
     nm_theme()
 dev.off()
 
@@ -249,7 +250,7 @@ qplot(regulators, abs(branching_time), color = regulators, geom = c('jitter', 'b
 	data = all_enriched_TF_branching_time_df3, alpha = I(0.5), log = 'y') +  
     ylab('bifurcation time point') + 
     geom_point(aes(regulators, abs(regulators_time)), color = 'black', data = all_enriched_TF_branching_time_df3) + 
-    coord_flip() + scale_y_continuous(breaks = round(seq(abs(min(df$regulators_time, na.rm = T)), max(df$branching_time, na.rm = T), by = 12),1)) + #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
+    coord_flip() + scale_y_continuous(breaks = round(seq(min(abs(df$regulators_time), na.rm = T), max(abs(df$branching_time), na.rm = T), by = 12),1)) + #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
     nm_theme()
 dev.off()
 
@@ -258,7 +259,7 @@ qplot(regulators, abs(branching_time), color = regulators, geom = c('jitter', 'b
 	data = all_enriched_TF_branching_time_df4, alpha = I(0.5), log = 'y') +  
     ylab('bifurcation time point') + 
     geom_point(aes(regulators, abs(regulators_time)), color = 'black', data = all_enriched_TF_branching_time_df4) + 
-    coord_flip() + scale_y_continuous(breaks = round(seq(abs(min(df$regulators_time, na.rm = T)), max(df$branching_time, na.rm = T), by = 12),1)) + #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
+    coord_flip() + scale_y_continuous(breaks = round(seq(min(abs(df$regulators_time), na.rm = T), max(abs(df$branching_time), na.rm = T), by = 12),1)) + #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
     nm_theme()
 dev.off()
 
@@ -267,7 +268,7 @@ qplot(regulators, abs(branching_time), color = regulators, geom = c('jitter', 'b
 	data = all_enriched_TF_branching_time_df5, alpha = I(0.5), log = 'y') +  
     ylab('bifurcation time point') + 
     geom_point(aes(regulators, abs(regulators_time)), color = 'black', data = all_enriched_TF_branching_time_df5) + 
-    coord_flip() + scale_y_continuous(breaks = round(seq(abs(min(df$regulators_time, na.rm = T)), max(df$branching_time, na.rm = T), by = 12),1)) + #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
+    coord_flip() + scale_y_continuous(breaks = round(seq(min(abs(df$regulators_time), na.rm = T), max(abs(df$branching_time), na.rm = T), by = 12),1)) + #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
     nm_theme()
 dev.off()
 
@@ -276,7 +277,7 @@ qplot(regulators, abs(branching_time), color = regulators, geom = c('jitter', 'b
 	data = all_enriched_TF_branching_time_df6, alpha = I(0.5), log = 'y') +  
     ylab('bifurcation time point') + 
     geom_point(aes(regulators, abs(regulators_time)), color = 'black', data = all_enriched_TF_branching_time_df6) + 
-    coord_flip() + scale_y_continuous(breaks = round(seq(abs(min(df$regulators_time, na.rm = T)), max(df$branching_time, na.rm = T), by = 12),1)) + #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
+    coord_flip() + scale_y_continuous(breaks = round(seq(min(abs(df$regulators_time), na.rm = T), max(abs(df$branching_time), na.rm = T), by = 12),1)) + #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
     nm_theme()
 dev.off()
 

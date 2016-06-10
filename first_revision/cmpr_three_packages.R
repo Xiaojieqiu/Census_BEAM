@@ -4,48 +4,48 @@
 # library(devtools)
 # install_github('RGLab/MAST')
 # library(monocle)
-library(devtools)
-load_all('~/Projects/monocle-dev')
-library(MAST)
-library(xacHelper)
+# library(devtools)
+# load_all('~/Projects/monocle-dev')
+# library(MAST)
+# library(xacHelper)
 
-MAST_deg <- function(cds, grp = 'Time', test.type = 'hurdle', normalization = F) {
-  data <- as.matrix(exprs(cds))
+# MAST_deg <- function(cds, grp = 'Time', test.type = 'hurdle', normalization = F) {
+#   data <- as.matrix(exprs(cds))
   
-  if(normalization)
-    data <- t(t(data) / sizeFactors(cds))
-  else
-    data <- data
+#   if(normalization)
+#     data <- t(t(data) / sizeFactors(cds))
+#   else
+#     data <- data
   
-  data <- melt(data)
-  colnames(data) <- c('Gene', 'Cell', 'exprs')
-  data[, grp] <- c(pData(cds)[data[, 2], grp])
-  data$ncells <- 1 
+#   data <- melt(data)
+#   colnames(data) <- c('Gene', 'Cell', 'exprs')
+#   data[, grp] <- c(pData(cds)[data[, 2], grp])
+#   data$ncells <- 1 
   
-  mast_cds <- FluidigmAssay(data, idvars="Cell", 
-                            primerid='Gene', measurement='exprs', geneid="Gene", 
-                            ncells = 'ncells', phenovars=grp)
+#   mast_cds <- FluidigmAssay(data, idvars="Cell", 
+#                             primerid='Gene', measurement='exprs', geneid="Gene", 
+#                             ncells = 'ncells', phenovars=grp)
   
-  zlm.output <- zlm.SingleCellAssay(as.formula(paste("~ ", grp)), mast_cds, method='glm', ebayes=TRUE) #
-  # show(zlm.output)
-  zlm.lr <- lrTest(zlm.output, grp)
-  # dimnames(zlm.lr)
+#   zlm.output <- zlm.SingleCellAssay(as.formula(paste("~ ", grp)), mast_cds, method='glm', ebayes=TRUE) #
+#   # show(zlm.output)
+#   zlm.lr <- lrTest(zlm.output, grp)
+#   # dimnames(zlm.lr)
   
-  pval_df <- zlm.lr[,,'Pr(>Chisq)']
-  pval <- pval_df[, test.type]
+#   pval_df <- zlm.lr[,,'Pr(>Chisq)']
+#   pval <- pval_df[, test.type]
   
-  return(pval)
-}
+#   return(pval)
+# }
 
-mast_abs_pval_no_norm <- MAST_deg(new_abs_cds_14_18)
-mast_mc_pval_no_norm <- MAST_deg(new_mc_cds_14_18)
-mast_std_pval_no_norm <- MAST_deg(new_std_cds_14_18)
-mast_count_pval_no_norm <- MAST_deg(count_cds)
+# mast_abs_pval_no_norm <- MAST_deg(new_abs_cds_14_18)
+# mast_mc_pval_no_norm <- MAST_deg(new_mc_cds_14_18)
+# mast_std_pval_no_norm <- MAST_deg(new_std_cds_14_18)
+# mast_count_pval_no_norm <- MAST_deg(count_cds)
 
-mast_abs_pval_norm <- MAST_deg(new_abs_cds_14_18, normalization = T)
-mast_mc_pval_norm <- MAST_deg(new_mc_cds_14_18, normalization = T)
-mast_std_pval_norm <- MAST_deg(new_std_cds_14_18, normalization = T)
-mast_count_pval_norm <- MAST_deg(count_cds, normalization = T)
+# mast_abs_pval_norm <- MAST_deg(new_abs_cds_14_18, normalization = T)
+# mast_mc_pval_norm <- MAST_deg(new_mc_cds_14_18, normalization = T)
+# mast_std_pval_norm <- MAST_deg(new_std_cds_14_18, normalization = T)
+# mast_count_pval_norm <- MAST_deg(count_cds, normalization = T)
 
 #integrate into the benchmark analysis: 
 df3 <- plot_pre_rec_f1(test_p_list = list(monocle_p = monocle_p, 
@@ -120,7 +120,7 @@ ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_w
 ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank())
 dev.off()
 
-save.image('./RData/cmpr_three_packages.RData')
+# save.image('./RData/cmpr_three_packages.RData')
 
 
 #2. SUBRA (matlab code) this is also a very different tool and we are not going to test that too

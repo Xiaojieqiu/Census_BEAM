@@ -6,7 +6,7 @@
 
 library(devtools)
 load_all('~/Projects/monocle-dev')
-# load('./RData/analysis_shalek_data.RData')
+load('./RData/analysis_shalek_data.RData')
 # library(stringr)
 # library(plyr)
 # library(xacHelper)

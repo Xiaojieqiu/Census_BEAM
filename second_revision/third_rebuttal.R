@@ -45,14 +45,14 @@ mc_abs_exprs_df <- data.frame(spikein = as.vector(c(E14.5_cell, E16.5_cell, E18.
   mc_algorithm = as.vector(c(mc_E14.5_cell, mc_E16.5_cell, mc_E18.5_cell, mc_Adult_cell)),
   cell = rep(c("E14.5_cell", "E16.5_cell", "E18.5_cell", "Adult_cell"), each = length(transcript_num:nrow(mc_adj_cds))))
 
-pdf('./main_figures/fig3g2_ercc_genes.pdf', width = 3, height = 2) #main_figures/
+pdf('./main_figures/fig3g2_ercc_genes.pdf', width = 1.8, height = 1.8) #main_figures/
 qplot(spikein + 1, mc_algorithm + 1, log = 'xy', 
     color = cell, data = mc_abs_exprs_df, size  = 1.5) + facet_wrap(~cell, scales = 'free', ncol = 2) +  geom_smooth(method = 'rlm', aes(group = 199), size = .1) + 
     scale_size(range = c(1.5, 1)) +  geom_abline(size = .1) + xlab('Transcript counts (Spike-in)') + #scale_size(range = c(0.25, 0.25)) + 
         ylab('Transcript counts (Recovery algorithm)') + nm_theme()
 dev.off()
 
-pdf('./main_figures/fig3g_ercc_genes.pdf', width = 3, height = 2)
+pdf('./main_figures/fig3g_ercc_genes.pdf', width = 1.8, height = 1.8)
 ggplot(mc_abs_exprs_df) + aes(x=spikein + 1, y= mc_algorithm + 1) + scale_x_log10() + scale_y_log10() + facet_wrap(~cell, scales = 'free', ncol = 2) + 
 xlab('Transcript counts (Spike-in)') + scale_size(range = c(1.5, 1)) + 
       ylab('Transcript counts (Recovery algorithm)')  + 

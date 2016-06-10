@@ -39,7 +39,7 @@ gd_fit_res_success_num <- subset(gd_fit_res, data_type == 'success_fit_num')
 #generate the result of goodness of fit for each gene: 
 colnames(gd_fit_res_num)[1:2] <- c('NB', 'ZINB')
 test <- melt(gd_fit_res_num[, 1:3], id.vars = 'type')
-p1 <- qplot(as.factor(variable), as.numeric(value), geom = 'bar', stat = 'identity', data = test, fill = type) + facet_wrap('type') + nm_theme() + 
+p1 <- qplot(as.factor(variable), as.numeric(as.character(value)), geom = 'bar', stat = 'identity', data = test, fill = type) + facet_wrap('type') + nm_theme() + 
   theme(legend.position = 'none') + xlab('Fit types') + ylab('number of genes') + theme(strip.background = element_blank(),
                                                                                         strip.text.x = element_blank()) + theme(axis.text.x = element_text(angle = 30, hjust = .9))
 pdf('./supplementary_figures/fig1b_si.pdf', height = 1.5, width = 1)
@@ -49,7 +49,7 @@ dev.off()
 colnames(gd_fit_res_success_num)[1:2] <- c('NB', 'ZINB')
 test <- melt(gd_fit_res_success_num[, 1:3], id.vars = 'type')
 
-p2 <- qplot(as.factor(variable), as.numeric(value), geom = 'bar', stat = 'identity', data = test, fill = type) + facet_wrap('type') + nm_theme() + 
+p2 <- qplot(as.factor(variable), as.numeric(as.character(value)), geom = 'bar', stat = 'identity', data = test, fill = type) + facet_wrap('type') + nm_theme() + 
   theme(legend.position = 'none') + xlab('Fit types') + ylab('number of genes') + theme(strip.background = element_blank(),
                                                                                         strip.text.x = element_blank()) + theme(axis.text.x = element_text(angle = 30, hjust = .9))
 
@@ -83,19 +83,19 @@ readcount_union <- Reduce(union, element_all_list)
 abs_overlap <- Reduce(intersect, abs_element_all_list)
 abs_union <- Reduce(union, abs_element_all_list)
 
-overlap_df <- data.frame(read_counts = length(readcount_overlap), transcript_counts = length(abs_overlap)) 
-union_df <- data.frame(read_counts = length(readcount_union), transcript_counts = length(abs_union))  
+overlap_df <- data.frame("read.counts" = length(readcount_overlap), "transcript.counts" = length(abs_overlap)) 
+union_df <- data.frame("read.counts" = length(readcount_union), "transcript.counts" = length(abs_union))  
 
-cols <- c("Read counts" = "#00BFC4","MC transcripts" = "#7CAE00", "Spikein transcripts" = "#C77CFF", "FPKM" = "#F8766D", 'read_counts' = "#00BFC4", transcript_counts = '#C77CFF')
+cols <- c("Read counts" = "#00BFC4", "read.counts" = "#00BFC4", "MC transcripts" = "#7CAE00", "Spikein transcripts" = "#C77CFF", "transcript.counts" = "#C77CFF", "FPKM" = "#F8766D", 'read_counts' = "#00BFC4", transcript_counts = '#C77CFF')
 
-pdf('./supplementary_figures/fig2b.1.pdf', width = 1, height = 1.1)
+pdf('./supplementary_figures/fig2b.1.pdf', width = 0.75, height = 1.5)
 qplot(variable, value, geom = 'bar', stat = 'identity', fill = variable, data = melt(overlap_df)) + xlab('') + ylab('number') + nm_theme() + 
-theme(axis.text.x = element_text(angle = 30, hjust = .9)) +  scale_fill_manual(values = cols)
+scale_fill_manual(values = cols) + theme(axis.text.x = element_text(angle = 30, hjust = .9)) #+ theme(axis.ticks = element_blank(), axis.text.x = element_blank()) #
 dev.off()
 
-pdf('./supplementary_figures/fig2b.2.pdf', width = 1, height = 1.1)
+pdf('./supplementary_figures/fig2b.2.pdf', width = 0.75, height = 1.5)
 qplot(variable, value, geom = 'bar', stat = 'identity', fill = variable, data = melt(union_df)) + xlab('') + 
-  ylab('number') + nm_theme() + theme(axis.text.x = element_text(angle = 30, hjust = .9)) + scale_fill_manual(values = cols)
+  ylab('number') + nm_theme() +  scale_fill_manual(values = cols) + theme(axis.text.x = element_text(angle = 30, hjust = .9)) #+ theme(axis.ticks = element_blank(), axis.text.x = element_blank()) #
 dev.off()
 
 ##UMI data: 
@@ -344,7 +344,7 @@ lung_custom_color_scale_plus_states <- c('no_avail' = 'gray', 'AT1' = '#40A43A',
 pdf('./supplementary_figures/fig6_si.pdf', height = 2, width = 2.5)
 plot_spanning_tree(AT12_cds_subset_all_gene, color_by="Cell_type", show_backbone=T, backbone_color = 'black', 
                    markers=NULL, show_cell_names = F, cell_link_size = 0.2) + scale_size(range = c(0.1, 2.5)) + 
-  scale_color_manual(values=lung_custom_color_scale_plus_states) + nm_theme() #+ coord_flip()
+  scale_color_manual(values=lung_custom_color_scale_plus_states) + nm_theme() + scale_y_reverse()
 dev.off()
 
 
@@ -559,9 +559,121 @@ recovery_mean <- do.call(rbind.data.frame, recovery_mean)
 cv <- apply(recovery_mean, 2, function(x) sd(x) / mean(x))
 mean_exprs <- apply(recovery_mean, 2, function(x) mean(x))
   
-pdf('./supplementary_figures/mean_expr_cv_census.pdf', height = 1.2, width = 1.2)
-qplot(mean_exprs[mean_exprs > 0.01], cv[mean_exprs > 0.01], log = 'x', alpha = I(0.2), size = 0.5) + xlab('mean gene expression') + 
+pdf('./supplementary_figures/mean_expr_cv_census.pdf', height = 1.5, width = 1.5)
+qplot(mean_exprs[mean_exprs > 0.01], cv[mean_exprs > 0.01], log = 'x', alpha = I(0.4), size = 0.5) + xlab('mean gene expression') + 
   ylab('CV') + geom_density2d(lwd = 0.1) + scale_size(range = c(0.1, 0.5)) + nm_theme()
 dev.off()
 
-save.image('./RData/gen_supplementary_figure.RData')
+#do this for a few cells instead of averaging across different cells: 
+cell_ind <- 180
+recovery_cell_select <- lapply(replicates_recovery, function(x) x$norm_cds[1:transcript_num, cell_ind])
+recovery_mean <- do.call(rbind.data.frame, recovery_cell_select)
+cv <- apply(recovery_mean, 2, function(x) sd(x) / mean(x))
+mean_exprs <- apply(recovery_mean, 2, function(x) mean(x))
+sd_exprs <- apply(recovery_mean, 2, function(x) sd(x))
+  
+pdf('./supplementary_figures/mean_expr_cv_census_sample_cells.pdf', height = 1.5, width = 1.5)
+qplot(mean_exprs[mean_exprs > 0.01], cv[mean_exprs > 0.01], log = 'x', alpha = I(0.4), size = 0.5) + xlab('mean gene expression') + 
+  ylab('CV') + geom_density2d(lwd = 0.1) + scale_size(range = c(0.1, 0.5)) + nm_theme()
+dev.off()
+
+#generate the figure for calculating capture efficiency: 
+Time <- pData(absolute_cds)$Time
+ercc_exprs <- exprs(ercc_controls)
+
+#fit the data: 
+detected_ercc_spikein <- apply(ercc_exprs, 2, function(x) as.numeric(x > 10e-4))
+
+#total number of detected spikein for each cell
+num_time_spike_in_detect_df <- data.frame(Time = rep(unique(pData(absolute_cds)$Time), each = length(unique(spike_df$rounded_numMolecules))), 
+                                          rounded_numMolecules = rep(sort(unique(spike_df$rounded_numMolecules)), 4),
+                                          detected = 0, tau = 0)
+
+#calculate number of observed cases for a particular spikein in a particular time point,
+#also calculate tau, the probability for a particular spikein to be detected 
+for(t in unique(Time)){
+  for(round_numMolecules in sort(unique(spike_df$rounded_numMolecules))){
+    print(t)
+    print(round_numMolecules)
+    ind <- num_time_spike_in_detect_df$Time == t & num_time_spike_in_detect_df$rounded_numMolecules == round_numMolecules
+    num_time_spike_in_detect_df[ind, 3] <- 
+      sum(detected_ercc_spikein[spike_df$rounded_numMolecules == round_numMolecules, Time == t])
+    
+    num_spikein <- sum(spike_df$rounded_numMolecules == round_numMolecules)
+    num_time_spike_in_detect_df[ind, 4] <- num_time_spike_in_detect_df[ind, 3] / (table(Time)[t] * num_spikein)
+  }
+  
+}
+
+#write the objective function: 
+optim_p_from_tau <- function(x, tau, rounded_numMolecules) {
+  res <- 0
+  for(i in 1:length(tau)){
+    tmp <- (tau[i] - (1 - (1 - x)^rounded_numMolecules[i]))^2
+    res <- res + tmp
+  }
+  res
+}
+
+optim_p <- function(num_time_spike_in_detect_df, Time, rounded_numMolecules) {
+  tau <- num_time_spike_in_detect_df[num_time_spike_in_detect_df$Time == Time, 4]
+  message('initial guess for tau, ', tau[2])
+  optim_res <- optim(par = c(x = tau[2]), optim_p_from_tau,
+                     gr = NULL, tau = tau[2:9],
+                     rounded_numMolecules = rounded_numMolecules[2:9],
+                     method = c("Brent"), 
+                     lower = c(0), 
+                     upper = c(1),
+                     hessian = FALSE)
+  optim_p_val <- optim_res$par
+  predict_tau <- rep(0, length(tau))
+  optim_predict_tau <- rep(0, length(tau))
+  empirical_p <- rep(0, length(tau))
+  
+  for(i in 1:length(tau)) {
+    optim_predict_tau[i] <- (1 - (1 - optim_p_val)^rounded_numMolecules[i])
+  }
+  
+  for(i in 1:length(tau)) {
+    predict_tau[i] <- (1 - (1 - tau[2])^rounded_numMolecules[i])
+  }
+  
+  for(i in 1:length(tau)) {
+    empirical_p[i] <- (1 - (1 - tau)^(1/rounded_numMolecules[i]))
+  }
+  
+  list(optim_p_val = optim_p_val, optim_predict_tau = optim_predict_tau, predict_tau = predict_tau, empirical_p = empirical_p)
+}
+
+#show the results: 
+optim_res_14 <- optim_p(num_time_spike_in_detect_df, 'E14.5', unique(num_time_spike_in_detect_df$rounded_numMolecules))
+optim_res_16 <- optim_p(num_time_spike_in_detect_df, 'E16.5', unique(num_time_spike_in_detect_df$rounded_numMolecules))
+optim_res_18 <- optim_p(num_time_spike_in_detect_df, 'E18.5', unique(num_time_spike_in_detect_df$rounded_numMolecules))
+optim_res_adult <- optim_p(num_time_spike_in_detect_df, 'Adult', unique(num_time_spike_in_detect_df$rounded_numMolecules))
+
+#plot the results: 
+#detected number for each trnscripts 
+num_time_spike_in_detect_df$optim_predicted_tau <- c(optim_res_18$optim_predict_tau, optim_res_14$optim_predict_tau, optim_res_adult$optim_predict_tau, optim_res_16$optim_predict_tau)
+num_time_spike_in_detect_df$predicted_tau <- c(optim_res_18$predict_tau, optim_res_14$predict_tau, optim_res_adult$predict_tau, optim_res_16$predict_tau)
+num_time_spike_in_detect_df$optim_p_val <- rep(c(optim_res_18$optim_p_val, optim_res_14$optim_p_val, optim_res_adult$optim_p_val, optim_res_16$optim_p_val), each = length(unique(spike_df$rounded_numMolecules)))
+num_time_spike_in_detect_df$empirical_p <- c(optim_res_18$empirical_p, optim_res_14$empirical_p, optim_res_adult$empirical_p, optim_res_16$empirical_p)
+
+ggplot(aes(rounded_numMolecules, tau), data = num_time_spike_in_detect_df) + geom_point(aes(color = Time), size = 4)+ geom_line(aes(rounded_numMolecules, optim_predicted_tau, color = Time)) + scale_x_log10() + facet_wrap(~Time + optim_p_val)
+ggplot(aes(rounded_numMolecules, tau), data = num_time_spike_in_detect_df) + geom_point(aes(color = Time), size = 4)+ geom_line(aes(rounded_numMolecules, predicted_tau, color = Time)) + scale_x_log10() + facet_wrap(~Time)
+
+pdf('./supplementary_figures//sequencing_efficiency.pdf', width = 2, height = 1.4)
+ggplot(aes(rounded_numMolecules, tau), data = num_time_spike_in_detect_df) + geom_point(aes(color = Time), alpha = 0.5, size = 1) + 
+    geom_line(aes(rounded_numMolecules, optim_predicted_tau, color = Time), size = 0.2) + scale_x_log10() + nm_theme() + xlab('Spike-in molecules')
+dev.off()
+
+pdf('./supplementary_figures//sequencing_efficiency_helper.pdf', width = 2, height = 1.4)
+ggplot(aes(rounded_numMolecules, tau), data = num_time_spike_in_detect_df) + geom_point(aes(color = Time), size = 1) + 
+  geom_line(aes(rounded_numMolecules, optim_predicted_tau, color = Time), size = 0.2) + scale_x_log10() 
+dev.off()
+
+#num_time_spike_in_detect_df$Time <- factor(num_time_spike_in_detect_df$Time, levels = c('E14.5', 'E16.5', 'E18.5', 'Adult'))
+pdf('./supplementary_figures/capture_rate.pdf', width = 2, height = 1.4)
+ggplot(aes(Time, unique(optim_p_val)), data = unique(num_time_spike_in_detect_df[, c('Time', 'optim_p_val')])) + geom_bar(stat = 'identity', aes(fill = unique(Time))) + ylab('Estimate capture rate') + nm_theme()
+dev.off()
+
+save.image('./RData/gen_supplementary_figure.RData') 

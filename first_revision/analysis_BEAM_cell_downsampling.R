@@ -218,9 +218,9 @@ statistics_per_depth_all <- rbind(abs_statistics_per_depth[, c('proportion_origi
 
 subset_statistics_per_depth_all <- subset(statistics_per_depth_all, proportion_original_cells != 1)
 
-pdf("./supplementary_figures/beam_fpkm_abs_recall.pdf", height=5, width=5)
+pdf("./supplementary_figures/beam_fpkm_abs_recall.pdf", height=1.5, width=1.5)
 ggplot(subset_statistics_per_depth_all, aes(proportion_original_cells, recall)) +
-    geom_point(aes(color = Type), size = 0.75) + xlab('Proportion of original cells') + ylab('recall') + xlim(0, 1) + ylim(0, 1) #nm_theme() 
+    geom_point(aes(color = Type), size = 0.75) + xlab('Proportion of original cells') + ylab('recall') + xlim(0, 1) + ylim(0, 1) + nm_theme() 
 dev.off()
 
 pdf("./supplementary_figures/beam_fpkm_abs_recall_helper.pdf", height=1.5, width=1.5)

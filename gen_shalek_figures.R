@@ -255,4 +255,4 @@ dev.off()
 # venneuler_venn(andrew_element_all, andrew_sets_all)
 # dev.off()
 
-# save.image('./RData/gen_shalek_figures.RData')
+save.image('./RData/gen_shalek_figures.RData')

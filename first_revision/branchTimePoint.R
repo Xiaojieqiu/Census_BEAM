@@ -145,7 +145,7 @@ pdf('tmp/DC_regulation_hierarchy.pdf', width = 1.5, height = 1)
 qplot(type, abs(bifurcation_time), color = type, geom = c('jitter'), data = df, alpha = I(0.7), log = 'y', size = 1) +  #, 'boxplot'
     xlab('') + ylab('bifurcation time point') + coord_flip() + scale_size(range = c(0.01, 1), limits = c(0.1, 1)) + 
     geom_boxplot(aes(color = type), fatten = 0.5, lwd = 0.5, outlier.shape=NA, alpha = 0.5) + 
-    scale_y_continuous(breaks = round(seq(min(abs(df$bifurcation_time), na.rm = T), max(abs(df$bifurcation_time) + 5, na.rm = T), by = 12),1)) + #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
+    scale_y_continuous(breaks = round(seq(min(abs(df$bifurcation_time), na.rm = T), max(abs(df$bifurcation_time) + 5, na.rm = T), by = 4),1)) + #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
     nm_theme()
 dev.off()
 

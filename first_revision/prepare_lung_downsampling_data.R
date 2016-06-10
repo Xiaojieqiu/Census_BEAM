@@ -3,7 +3,7 @@ library(tidyr)
 library(grid)
 library(gridExtra)
 # library(monocle)
-library(devtools)
+library(devtools) 
 load_all('~/Projects/monocle-dev')
 library(xacHelper)
 library(plyr)
@@ -11,13 +11,13 @@ library(data.table)
 library(MASS)
 library(modeest)
 library(dplyr)
-library(matrixStats)
+library(matrixStats) 
 
 
 ####################################################
 # Load in data from initial lung analysis (mostly need marker genes and a few other sets of genes)
 ####################################################
-load("RData/prepare_lung_data.RData")
+# load("RData/prepare_lung_data.RData")
 valid_cells = c("SRR1033854_thout_0", "SRR1033855_thout_0", "SRR1033856_thout_0", "SRR1033859_thout_0", "SRR1033860_thout_0", "SRR1033861_thout_0", "SRR1033862_thout_0", "SRR1033863_thout_0", "SRR1033864_thout_0", "SRR1033867_thout_0", "SRR1033869_thout_0", "SRR1033871_thout_0", "SRR1033872_thout_0", "SRR1033874_thout_0", "SRR1033875_thout_0", "SRR1033876_thout_0", "SRR1033877_thout_0", "SRR1033878_thout_0", "SRR1033879_thout_0", "SRR1033880_thout_0", "SRR1033881_thout_0", "SRR1033882_thout_0", "SRR1033883_thout_0", "SRR1033884_thout_0", "SRR1033885_thout_0", "SRR1033886_thout_0", "SRR1033887_thout_0", "SRR1033888_thout_0", "SRR1033889_thout_0", "SRR1033890_thout_0", "SRR1033891_thout_0", "SRR1033892_thout_0", "SRR1033893_thout_0", "SRR1033894_thout_0", "SRR1033895_thout_0", "SRR1033896_thout_0", "SRR1033897_thout_0", "SRR1033898_thout_0", "SRR1033899_thout_0", "SRR1033900_thout_0", "SRR1033901_thout_0", "SRR1033902_thout_0", "SRR1033904_thout_0", "SRR1033905_thout_0", "SRR1033906_thout_0", "SRR1033907_thout_0", "SRR1033908_thout_0", "SRR1033909_thout_0", "SRR1033910_thout_0", "SRR1033911_thout_0", "SRR1033914_thout_0", "SRR1033915_thout_0", "SRR1033916_thout_0", "SRR1033917_thout_0", "SRR1033919_thout_0", "SRR1033921_thout_0", "SRR1033922_thout_0", "SRR1033923_thout_0", "SRR1033926_thout_0", "SRR1033927_thout_0", "SRR1033928_thout_0", "SRR1033929_thout_0", "SRR1033931_thout_0", "SRR1033932_thout_0", "SRR1033933_thout_0", "SRR1033934_thout_0", "SRR1033936_thout_0", "SRR1033937_thout_0", "SRR1033938_thout_0", "SRR1033939_thout_0", "SRR1033940_thout_0", "SRR1033941_thout_0", "SRR1033942_thout_0", "SRR1033943_thout_0", "SRR1033945_thout_0", "SRR1033946_thout_0", "SRR1033947_thout_0", "SRR1033948_thout_0", "SRR1033949_thout_0", "SRR1033950_thout_0", "SRR1033951_thout_0", "SRR1033952_thout_0", "SRR1033953_thout_0", "SRR1033954_thout_0", "SRR1033955_thout_0", "SRR1033956_thout_0", "SRR1033957_thout_0", "SRR1033958_thout_0", "SRR1033959_thout_0", "SRR1033960_thout_0", "SRR1033961_thout_0", "SRR1033962_thout_0", "SRR1033963_thout_0", "SRR1033964_thout_0", "SRR1033965_thout_0", "SRR1033966_thout_0", "SRR1033967_thout_0", "SRR1033968_thout_0", "SRR1033969_thout_0", "SRR1033970_thout_0", "SRR1033971_thout_0", "SRR1033972_thout_0", "SRR1033973_thout_0", "SRR1033974_thout_0", "SRR1033975_thout_0", "SRR1033976_thout_0", "SRR1033977_thout_0", "SRR1033978_thout_0", "SRR1033979_thout_0", "SRR1033980_thout_0", "SRR1033981_thout_0", "SRR1033982_thout_0", "SRR1033983_thout_0", "SRR1033984_thout_0", "SRR1033985_thout_0", "SRR1033986_thout_0", "SRR1033987_thout_0", "SRR1033988_thout_0", "SRR1033989_thout_0", "SRR1033990_thout_0", "SRR1033991_thout_0", "SRR1033992_thout_0", "SRR1033993_thout_0", "SRR1033994_thout_0", "SRR1033995_thout_0", "SRR1033996_thout_0", "SRR1033997_thout_0", "SRR1033998_thout_0", "SRR1033999_thout_0", "SRR1034000_thout_0", "SRR1034001_thout_0", "SRR1034002_thout_0", "SRR1034003_thout_0", "SRR1034004_thout_0", "SRR1034005_thout_0", "SRR1034006_thout_0", "SRR1034007_thout_0", "SRR1034008_thout_0", "SRR1034009_thout_0", "SRR1034010_thout_0", "SRR1034011_thout_0", "SRR1034012_thout_0", "SRR1034013_thout_0", "SRR1034014_thout_0", "SRR1034015_thout_0", "SRR1034016_thout_0", "SRR1034017_thout_0", "SRR1034018_thout_0", "SRR1034019_thout_0", "SRR1034020_thout_0", "SRR1034021_thout_0", "SRR1034022_thout_0", "SRR1034023_thout_0", "SRR1034024_thout_0", "SRR1034025_thout_0", "SRR1034026_thout_0", "SRR1034027_thout_0", "SRR1034028_thout_0", "SRR1034029_thout_0", "SRR1034030_thout_0", "SRR1034031_thout_0", "SRR1034032_thout_0", "SRR1034033_thout_0", "SRR1034034_thout_0", "SRR1034035_thout_0", "SRR1034036_thout_0", "SRR1034037_thout_0", "SRR1034038_thout_0", "SRR1034039_thout_0", "SRR1034040_thout_0", "SRR1034041_thout_0", "SRR1034042_thout_0", "SRR1034043_thout_0", "SRR1034044_thout_0", "SRR1034045_thout_0", "SRR1034046_thout_0", "SRR1034047_thout_0", "SRR1034048_thout_0", "SRR1034049_thout_0", "SRR1034050_thout_0", "SRR1034051_thout_0", "SRR1034052_thout_0", "SRR1034053_thout_0")
 
 ####################################################
@@ -54,8 +54,9 @@ get_monocle_cds <- function(fpkm_matrix, pd, fd, valid_cells) {
 get_recovered_transcript_counts_with_stats = function(cds, kb_intercept = 2.62, isoform_matrix) {
     closeAllConnections()
 
-    set.seed(1:(300*ncol(cds))) #set the seed so that we get the same result every time
-    normalized_cds_stats = relative2abs(cds, estimate_t(exprs(cds)), cores=detectCores(), return_all=T) #kb_intercept = kb_intercept,  also get m and c from return="all"
+    # set.seed(1:(300*ncol(cds))) #set the seed so that we get the same result every time
+    normalized_cds_stats = relative2abs(cds, estimate_t(exprs(cds)), cores=detectCores(), 
+          return_all=T, calibration_trial = 1000) #kb_intercept = kb_intercept,  also get m and c from return="all"
     closeAllConnections()
 
     # Update the expression matrix
@@ -63,8 +64,8 @@ get_recovered_transcript_counts_with_stats = function(cds, kb_intercept = 2.62, 
 
     # Update expression family and estimate size factors, etc.
     cds@expressionFamily = negbinomial()
-    cds = estimateSizeFactors(cds)
-    cds = estimateDispersions(cds)
+    # cds = estimateSizeFactors(cds)
+    # cds = estimateDispersions(cds)
 
     # Put the CDS in the list and return with m and c parameters
     normalized_cds_stats$norm_cds = cds
@@ -233,44 +234,72 @@ original_depth_cds_transcript_counts = original_depth_cds_conversion_stats$norm_
 # original_depth_cds_transcript_counts2 = original_depth_cds_conversion_stats2$norm_cds
 
 closeAllConnections()
-cds_to_compare_conversion_stats = mapply(get_recovered_transcript_counts_with_stats, cds_to_compare, input_data$isoform_matrices_to_compare)
+cds_to_compare_conversion_stats_rep1 = mapply(get_recovered_transcript_counts_with_stats, cds_to_compare, input_data$isoform_matrices_to_compare)
 closeAllConnections()
-cds_to_compare_transcript_counts = cds_to_compare_conversion_stats[1, ]
-cds_to_compare_conversion_m_values = cds_to_compare_conversion_stats[2, ]
-cds_to_compare_conversion_c_values = cds_to_compare_conversion_stats[3, ]
+cds_to_compare_conversion_stats_rep2 = mapply(get_recovered_transcript_counts_with_stats, cds_to_compare, input_data$isoform_matrices_to_compare)
+closeAllConnections()
+cds_to_compare_conversion_stats_rep3 = mapply(get_recovered_transcript_counts_with_stats, cds_to_compare, input_data$isoform_matrices_to_compare)
+closeAllConnections()
+cds_to_compare_conversion_stats_rep4 = mapply(get_recovered_transcript_counts_with_stats, cds_to_compare, input_data$isoform_matrices_to_compare)
+closeAllConnections()
+cds_to_compare_conversion_stats_rep5 = mapply(get_recovered_transcript_counts_with_stats, cds_to_compare, input_data$isoform_matrices_to_compare)
+closeAllConnections()
+cds_to_compare_conversion_stats_rep6 = mapply(get_recovered_transcript_counts_with_stats, cds_to_compare, input_data$isoform_matrices_to_compare)
+closeAllConnections()
+cds_to_compare_conversion_stats_rep7 = mapply(get_recovered_transcript_counts_with_stats, cds_to_compare, input_data$isoform_matrices_to_compare)
+closeAllConnections()
+cds_to_compare_conversion_stats_rep8 = mapply(get_recovered_transcript_counts_with_stats, cds_to_compare, input_data$isoform_matrices_to_compare)
+closeAllConnections()
+cds_to_compare_conversion_stats_rep9 = mapply(get_recovered_transcript_counts_with_stats, cds_to_compare, input_data$isoform_matrices_to_compare)
+closeAllConnections()
+cds_to_compare_conversion_stats_rep10 = mapply(get_recovered_transcript_counts_with_stats, cds_to_compare, input_data$isoform_matrices_to_compare)
+closeAllConnections()
+
+save.image('./RData/prepare_lung_downsampling_tmp.RData')
+
+num_downsampling <- ncol(cds_to_compare_conversion_stats_rep1)
+cds_to_compare_transcript_counts = lapply(1:num_downsampling,function(i) 
+  (exprs(cds_to_compare_conversion_stats_rep1[1, ][[i]]) + exprs(cds_to_compare_conversion_stats_rep2[1, ][[i]]) + exprs(cds_to_compare_conversion_stats_rep3[1, ][[i]]) + exprs(cds_to_compare_conversion_stats_rep4[1, ][[i]]) + exprs(cds_to_compare_conversion_stats_rep5[1, ][[i]]) + 
+                                    exprs(cds_to_compare_conversion_stats_rep6[1, ][[i]]) + exprs(cds_to_compare_conversion_stats_rep7[1, ][[i]]) + exprs(cds_to_compare_conversion_stats_rep8[1, ][[i]]) + exprs(cds_to_compare_conversion_stats_rep9[1, ][[i]]) + exprs(cds_to_compare_conversion_stats_rep10[1, ][[i]])) / 10)
+cds_to_compare_conversion_m_values = lapply(1:num_downsampling,function(i) 
+  (cds_to_compare_conversion_stats_rep1[2, ][[i]] + cds_to_compare_conversion_stats_rep2[2, ][[i]] + cds_to_compare_conversion_stats_rep3[2, ][[i]] + cds_to_compare_conversion_stats_rep4[2, ][[i]] + cds_to_compare_conversion_stats_rep5[2, ][[i]] + 
+                                    cds_to_compare_conversion_stats_rep6[2, ][[i]] + cds_to_compare_conversion_stats_rep7[2, ][[i]] + cds_to_compare_conversion_stats_rep8[2, ][[i]] + cds_to_compare_conversion_stats_rep9[2, ][[i]] + cds_to_compare_conversion_stats_rep10[2, ][[i]]) / 10)
+cds_to_compare_conversion_c_values = lapply(1:num_downsampling,function(i) 
+  (cds_to_compare_conversion_stats_rep1[3, ][[i]] + cds_to_compare_conversion_stats_rep2[3, ][[i]] + cds_to_compare_conversion_stats_rep3[3, ][[i]] + cds_to_compare_conversion_stats_rep4[3, ][[i]] + cds_to_compare_conversion_stats_rep5[3, ][[i]] + 
+                                    cds_to_compare_conversion_stats_rep6[3, ][[i]] + cds_to_compare_conversion_stats_rep7[3, ][[i]] + cds_to_compare_conversion_stats_rep8[3, ][[i]] + cds_to_compare_conversion_stats_rep9[3, ][[i]] + cds_to_compare_conversion_stats_rep10[3, ][[i]]) / 10)
 
 # Also convert using spike-in regression for comparison (no stats need to be collected here)
 original_depth_cds_transcript_counts_regression = convert_monocle_cds_to_transcript_counts_regression(original_depth_cds)
 cds_to_compare_transcript_counts_regression = mapply(convert_monocle_cds_to_transcript_counts_regression, cds_to_compare)
 
-#########################################
-# Reduce dimension and order cells
-#########################################
-## use all marker genes and the quake_gene_list used before for performing the tree construction used for the later analysis: 
-get_root_state <- function(cds, root_cell ) {
-  pData(cds[, root_cell])$State
-}
+# #########################################
+# # Reduce dimension and order cells
+# #########################################
+# ## use all marker genes and the quake_gene_list used before for performing the tree construction used for the later analysis: 
+# get_root_state <- function(cds, root_cell ) {
+#   pData(cds[, root_cell])$State
+# }
 
-reduce_dimension_and_order_cells_transcript_counts = function(cds, root_cell) {
-  cds = estimateSizeFactors(cds)
-  cds = estimateDispersions(cds)
-  fData(cds)$use_for_ordering = T
-  cds = reduceDimension(cds[add_quake_gene_all_marker_ids, ], use_irlba = F, use_vst=T, method="ICA", scaling=F, pseudo_expr=0) 
-  cds = orderCells(cds, num_paths = 2, reverse = T)
-  root_state = get_root_state(cds, root_cell)  # get state that was assigned to root cell
-  cds = orderCells(cds, root_state, num_paths = 2, reverse = T)  # now set root cell state as root state
-  return(cds)
-}
+# reduce_dimension_and_order_cells_transcript_counts = function(cds, root_cell) {
+#   cds = estimateSizeFactors(cds)
+#   cds = estimateDispersions(cds)
+#   fData(cds)$use_for_ordering = T
+#   cds = reduceDimension(cds[add_quake_gene_all_marker_ids, ], use_irlba = F, use_vst=T, method="ICA", scaling=F, pseudo_expr=0) 
+#   cds = orderCells(cds, num_paths = 2, reverse = T)
+#   root_state = get_root_state(cds, root_cell)  # get state that was assigned to root cell
+#   cds = orderCells(cds, root_state, num_paths = 2, reverse = T)  # now set root cell state as root state
+#   return(cds)
+# }
 
-# Reduce dimension and order all transcript counts matrices 
-original_depth_cds_transcript_counts_ordered = reduce_dimension_and_order_cells_transcript_counts(original_depth_cds_transcript_counts, "SRR1033943_thout_0")
-original_depth_cds_transcript_counts_regression_ordered = reduce_dimension_and_order_cells_transcript_counts(original_depth_cds_transcript_counts_regression, "SRR1033943_thout_0")
+# # Reduce dimension and order all transcript counts matrices 
+# original_depth_cds_transcript_counts_ordered = reduce_dimension_and_order_cells_transcript_counts(original_depth_cds_transcript_counts, "SRR1033943_thout_0")
+# original_depth_cds_transcript_counts_regression_ordered = reduce_dimension_and_order_cells_transcript_counts(original_depth_cds_transcript_counts_regression, "SRR1033943_thout_0")
 
-cds_to_compare_transcript_counts_ordered = lapply(cds_to_compare_transcript_counts, reduce_dimension_and_order_cells_transcript_counts, "SRR1033943_thout_0") 
-cds_to_compare_transcript_counts_regression_ordered = lapply(cds_to_compare_transcript_counts_regression, reduce_dimension_and_order_cells_transcript_counts, "SRR1033943_thout_0") 
+# cds_to_compare_transcript_counts_ordered = lapply(cds_to_compare_transcript_counts, reduce_dimension_and_order_cells_transcript_counts, "SRR1033943_thout_0") 
+# cds_to_compare_transcript_counts_regression_ordered = lapply(cds_to_compare_transcript_counts_regression, reduce_dimension_and_order_cells_transcript_counts, "SRR1033943_thout_0") 
 
-cor(pData(original_depth_cds_transcript_counts_regression_ordered)$Pseudotime, pData(cds_to_compare_transcript_counts_regression_ordered$"7645000")$Pseudotime)
-cor(pData(original_depth_cds_transcript_counts_ordered)$Pseudotime, pData(cds_to_compare_transcript_counts_ordered$"7645000")$Pseudotime)
+# cor(pData(original_depth_cds_transcript_counts_regression_ordered)$Pseudotime, pData(cds_to_compare_transcript_counts_regression_ordered$"7645000")$Pseudotime)
+# cor(pData(original_depth_cds_transcript_counts_ordered)$Pseudotime, pData(cds_to_compare_transcript_counts_ordered$"7645000")$Pseudotime)
 
 #########################################
 # Save results for figure generation script

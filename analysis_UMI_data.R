@@ -144,11 +144,11 @@ df3$class = '3relative'
 colnames(df3)[1:3] <- c('Precision', 'Recall', 'F1 score')
 df3$class <- c('UMI', 'UMI', 'UMI', 'TPM')
 
-
+cols <- c("Read counts" = "#00BFC4","MC transcripts" = "#7CAE00", "Spikein transcripts" = "#C77CFF", "FPKM" = "#F8766D", 'read_counts' = "#00BFC4", transcript_counts = '#C77CFF', UMI = '#C77CFF', TPM = '#F8766D')
 pdf(file = "./supplementary_figures/fig2c_si.pdf", width = 2.5, height = 2)
 ggplot(aes(factor(Type), value,  fill = class), data = melt(df3)) + geom_bar(position = position_dodge(), stat = 'identity') + #facet_wrap(~variable) + 
-  ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
-  ggtitle('') + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + nm_theme() + xlab('') + ylim(0, 1)
+  ggtitle(title) +  scale_fill_manual(values = cols) + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') + 
+  ggtitle('') + theme(axis.ticks = element_blank(), axis.text.x = element_blank()) + theme(strip.background = element_blank()) + nm_theme() + xlab('') + ylim(0, 1)
 dev.off()
 
 save.image('./RData/analysis_UMI_data.RData')

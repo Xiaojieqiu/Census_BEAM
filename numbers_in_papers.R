@@ -84,3 +84,10 @@ write.table(golgiplug_reactome_enrichment, sep = '\t', quote = F, row.names = F,
 permutation_res <- data.frame(spikein_free = mc_mode_size_norm_permutate_ratio_by_geometric_mean, spikein = mode_size_norm_permutate_ratio_by_geometric_mean, read_count = readcount_permutate_pval[names(std_permutate_pval)], fpkm = std_permutate_pval)
 write.table(permutation_res, file = './permutation.txt', sep = '\t', row.names = T, quote = F)
 
+#number of cells in the tree downsampling figure: 
+load('./RData/analysis_cell_downsampling.RData')
+unlist(lapply(c(1, 6, 8, 10, 14, 18, 19, 23, 27, 30, 33, 36), function(x) ncol(cds_downsampled_cells_ordered[[x]])))
+# Samples Samples Samples Samples Samples Samples Samples Samples Samples Samples
+#      37      78     117     150     196     230     273     304     325     342
+# Samples Samples
+#     371     387

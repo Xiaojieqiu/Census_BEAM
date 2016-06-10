@@ -362,6 +362,10 @@ benchmark_pseudotime_test <- function(abs_gsaRes , std_gsaRes ) {
         rep(paste('FPKM values', sep = ''), nrow(std_hyper_df))
     )
     
+    #show the number for the overlapping:
+    table(sets_all)
+    intersect(abs_hyper_df$cluster_id, std_hyper_df$cluster_id)
+
     pdf(file = './supplementary_figures/overlap_enriched_muscle_term.pdf')
     venneuler_venn(element_all_list, sets_all)
     dev.off()
@@ -374,18 +378,24 @@ benchmark_pseudotime_test <- function(abs_gsaRes , std_gsaRes ) {
     Types[muscle_term_ids] <- 'Term with muscle'
     muscle_gs_df <- data.frame(cluster_id = abs_hyper_df_all$cluster_id, abs = abs_hyper_df_all$pval, std = std_hyper_df_all$pval, Type = Types) #muscle related/ non-muscle related 
     muscle_gs_df$ratio <- muscle_gs_df$std /  muscle_gs_df$abs
-    pdf(file = './supplementary_figures/muscle_pseudotime_benchmark_qval.pdf')
+    pdf(file = './supplementary_figures/muscle_pseudotime_benchmark_qval.pdf', width = 2.5, height = 1.5)
     ggplot(data = muscle_gs_df[c(muscle_term_ids, which(muscle_gs_df$abs < 0.01 & muscle_gs_df$std < 0.01 )), ], aes(Type, log(ratio))) + 
-        geom_boxplot(aes(fill = Type), alpha = 0.3, size = 0.5,  outlier.size = 0.5, lwd = 0.5, fatten = 0.5) + 
-        geom_jitter() + nm_theme() + geom_vline(xintercept = 0) + xlab('log(P(FPKM) / P(transcript counts))') + ylab('') + scale_size(range = c(0.5, 0.5))
+        geom_boxplot(aes(fill = Type), alpha = 0.3, outlier.size = 0.25, lwd = 0.25, fatten = 0.5) + 
+        geom_jitter(size = 0.25) + nm_theme() + geom_vline(xintercept = 0) + xlab('log(P(FPKM) / P(transcript counts))') + ylab('') + scale_size(range = c(0.25, 0.25))
     dev.off()
     
+    pdf(file = './supplementary_figures/muscle_pseudotime_benchmark_qval2.pdf')
     qplot(log(ratio), data = muscle_gs_df[c(muscle_term_ids, which(muscle_gs_df$abs < 0.01 & muscle_gs_df$std < 0.01 )), ], 
           fill = Type, geom = 'density', log = 'x', alpha = 0.3) + nm_theme() + geom_vline(xintercept = 0) + xlab('log(P(FPKM) / P(transcript counts))') + ylab('')
     #qplot(abs, std, data = muscle_gs_df[c(muscle_term_ids, which(muscle_gs_df$abs < 0.01 | muscle_gs_df$std < 0.01 )), ], color = Type, log = 'xy') + nm_theme() + xlab('transcript counts') + ylab('FPKM')
     dev.off()
+
+    return(muscle_gs_df)
 }
 
-benchmark_pseudotime_test(abs_gsaRes_reactome, std_gsaRes_reactome)
+test <- benchmark_pseudotime_test(abs_gsaRes_reactome, std_gsaRes_reactome)
+ggplot(data = test[c(muscle_term_ids, which(muscle_gs_df$abs < 0.01 & muscle_gs_df$std < 0.01 )), ], aes(Type, log(ratio))) + 
+        geom_boxplot(aes(fill = Type), alpha = 0.3, size = 0.5,  outlier.size = 0.5, lwd = 0.5, fatten = 0.5) + 
+        geom_jitter() + nm_theme() + geom_vline(xintercept = 0) + xlab('log(P(FPKM) / P(transcript counts))') + ylab('') + scale_size(range = c(0.5, 0.5))
 
 save.image('./RData/analysis_HSMM_data.RData')

@@ -4,11 +4,11 @@ load_all('~/Projects/monocle-dev')
 library(MASS)
 library(sp)
 library(plyr)
-library(roaster)
+library(raster)
 library(xacHelper)
 library(grid)
 library(RColorBrewer)
-# load_all_libraries()
+load_all_libraries()
 
 ############################make the landscape heatmap: 
 mc_select <- coef(rlm(unlist(lapply(molModels_select, function(x) coef(x)[1])) ~ unlist(lapply(molModels_select, function(x) coef(x)[2]))))
@@ -187,10 +187,10 @@ rdf <- data.frame( rasterToPoints( rf ) )
 optimal_solution <- head(arrange(optimization_matrix_filt, optim_res), 1)
 pdf('./main_figures/fig3e.pdf', width = 1.38, height = 1.25)
 ggplot( NULL ) + geom_raster( data = rdf , aes( x , y , fill = log10(layer) ) ) + 
-    annotate("text", x = -3.85, y = 3.2, label = "True (m,c)", color="magenta", size=2) + 
+    annotate("text", x = -4.1, y = 2.7, label = "True (m,c)", color="magenta", size=2) + 
     annotate("point", x = mc_select[2], y = mc_select[1], color="magenta", size = 1) + #-4.636364 3.434343
     #annotate("text", x = -3.7, y = 3.2, label = "True (m,c)") + 
-    annotate("text", x = -4.1, y = 2.7, label = "Algorithm (m,c)", color="red", size=2) + 
+    annotate("text", x = -3.85, y = 3.2, label = "Algorithm (m,c)", color="red", size=2) + 
     annotate("point", x = as.numeric(as.character(optimal_solution$m)), y = as.numeric(as.character(optimal_solution$c)), color="red", size=1) + 
     scale_fill_gradientn(guide=guide_legend(title=expression(paste(log[10](F)))), colours=brewer.pal(name="YlGnBu", n=7)) +
     xlab("m") + ylab("c") +

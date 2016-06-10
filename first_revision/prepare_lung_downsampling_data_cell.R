@@ -156,4 +156,4 @@ cds_to_compare_transcript_counts_regression = mapply(convert_monocle_cds_to_tran
 #########################################
 # Save results for figure generation script
 #########################################
-save.image("RData/prepare_downsampling_data.RData")
+save.image("RData/prepare_downsampling_data_cell.RData")

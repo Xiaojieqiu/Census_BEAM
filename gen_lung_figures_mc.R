@@ -208,7 +208,7 @@ add_annotation_row <- data.frame(significance = as.numeric(cell_cycle_timing_exa
 
 pdf(paste(submission_directory, 'main_figures/fig2d.pdf', sep = ''), width = 3.9, height = 3.1)
 time_annotated_heatmap <- plot_genes_branched_heatmap(mc_AT12_cds_subset_all_gene[c(timing_example_ids, cell_cycle_markers_id), ], 
-                                                      num_clusters=4, norm_method = "log", use_fitting_curves = F, scaling = T, hmcols = hmcols, use_gene_short_name = T,
+                                                      num_clusters=4, norm_method = "log", use_fitting_curves = F, scaling = T, use_gene_short_name = T, # hmcols = hmcols, 
                                                       add_annotation_row = add_annotation_row, return_all = T, show_rownames = T)
 dev.off()
 
@@ -233,10 +233,21 @@ test <- mapply(function(cell_dmode, model) {
 df <- pData(absolute_cds)
 df$mode_transcript <- 10^test
 df$estimate_mode <- estimate_t(exprs(standard_cds))
+df$mode_in_transcripts <- estimate_t(absolute_cds)
 
 pdf('./main_figures/fig1_estimated_mode_transcripts.pdf', height = 2, width = 2.5)
 qplot(estimate_mode, mode_transcript, data = df, color = Time, log = 'xy') + xlab('estimated mode of the FPKM') + 
   ylab('corresponding transcript counts \n of estimated mode') + nm_theme()
+dev.off()
+
+pdf('./main_figures/fig1_estimated_mode_transcripts.pdf', height = 2, width = 2.5)
+qplot(estimate_mode, mode_transcript, data = df, color = Time, log = 'xy') + xlab('estimated mode of the FPKM') + 
+  ylab('corresponding transcript counts \n of estimated mode') + nm_theme()
+dev.off()
+
+pdf('./main_figures/fig1_estimated_mode_cell_transcripts_mode.pdf', height = 1.5, width = 1.5)
+qplot(estimate_mode, mode_in_transcripts, data = df, color = Time, log = 'xy', size = 1) + xlab('estimated mode\n of the FPKM') + scale_size(range = c(0.1, 1),  limits = c(0.1, 1)) + 
+  ylab('mode of transcript count') + nm_theme()
 dev.off()
 
 #obtain the calibrated parameters
@@ -258,11 +269,11 @@ dev.off()
 
 #fig 3c: 
 Time <- pData(absolute_cds)$Time
-kb_df <- t(rbind.data.frame(lapply(molModels, function(x) c(b = coef(x)[1], k = coef(x)[2]))))
+kb_df <- t(rbind.data.frame(lapply(molModels_select, function(x) c(b = coef(x)[1], k = coef(x)[2]))))
 colnames(kb_df) <- c('b', 'k')
 
 t <- -kb_df[, 'b'] / kb_df[, 'k'] 
-pdf('./main_figures/fig3c.pdf', width = 2, height = 2)
+pdf('./main_figures/fig3c.pdf', width = 1.5, height = 1.5)
 qplot(k, b, data = as.data.frame(kb_df), color = Time, size = 1, alpha = 0.5) + scale_size(range = c(0.1, 1),  limits = c(0.1, 1)) + 
   geom_smooth(method = 'rlm', color = 'blue', se = T, size = 0.5) + 
   xlab("Slope from FPKM vs.\n ERCC transcript counts") + ylab("Intercept from FPKM vs.\n ERCC transcript counts") + nm_theme()
