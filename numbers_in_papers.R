@@ -4,12 +4,11 @@
 #in the second submission and originally included as part of the `remaining_review_figures.R` 
 ################################################################################################
 
-load('./RData/gen_supplementary_figure.RData')
-load('./RData/gen_lung_figures.RData')
+load('./RData/gen_lung_figures_mc.RData')
 load('./RData/gen_shalek_figures.RData')
 load('./RData/deg_benchmark_analysis.RData')
 load('./RData/cmpr_three_packages.RData')
-load('./RData/cmpr_three_packages.RData')
+load('./RData/gen_supplementary_figure.RData')
 
 #1. consensus between five tools: 
 length(readcount_overlap)

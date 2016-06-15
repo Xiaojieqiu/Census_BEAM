@@ -307,11 +307,11 @@ roc_df$software <- revalue(roc_df$method, c("monocle_p" = 'Monocle', "monocle_p_
 roc_df$Type <- revalue(roc_df$method, c("monocle_p" = 'FPKM', "monocle_p_readcount" = 'read counts', "mc_mode_size_norm_permutate_ratio_by_geometric_mean" = 'estimated transcript counts', 
                                             "default_edgeR_p" = 'read counts', "mc_default_edgeR_p" = 'estimated transcript counts',
                                             "default_deseq2_p" = 'read counts', "mc_default_deseq2_p" = 'estimated transcript counts',
-                                            "default_deseq_p" = 'FPKM', "mc_default_deseq_p" = 'estimated transcript counts',
+                                            "default_deseq_p" = 'read counts', "mc_default_deseq_p" = 'estimated transcript counts',
                                             "scde_p" = 'read counts', "mc_scde_p" = 'estimated transcript counts',
                                             "mast_mc_pval_no_norm" = 'estimated transcript counts', 
                                             "mast_std_pval_no_norm" = "FPKM", 
-                                            "mast_count_pval_no_norm" = "estimated transcript counts"))
+                                            "mast_count_pval_no_norm" = "read counts"))
 
 pdf('./supplementary_figures/roc.pdf', height = 3, width = 4)
 qplot(fpr, tpr, data=roc_df, geom="line", linetype = Type, color = method) + 
@@ -331,13 +331,35 @@ qplot(fpr, tpr, data=roc_df, geom="line", linetype = Type) +
    scale_color_manual(values = hmcols, name = "Test", label = test) 
 dev.off()
 
+#ensure the color is the same: 
+#"tpr"      "fpr"      "auc"      "method"   "software" "Type"
+cols <- c("FPKM" = "#F2756D", "read.counts" = "#6F94CC", "transcript.counts" = "#26B24B")
+roc_df$Type <- revalue(roc_df$Type, c("estimated transcript counts" =  "transcript.counts", "FPKM" = "FPKM", "read counts" = "read.counts"))
+tmp <- data.frame(tpr = NA, fpr = NA, auc = NA, method = NA, 
+                  software = c('DESeq', 'DESeq2', 'edgeR', 'MAST', 'SCDE'), 
+                  Type = c('FPKM', 'FPKM', 'FPKM', 'FPKM', 'FPKM'))
+roc_df <- rbind(roc_df, tmp) 
+roc_df <-  melt(df_res)
+#                              software
+# Type                          DESeq DESeq2 edgeR MAST Monocle SCDE
+#   estimated transcript counts  1139   1239  1234 2484    1249 1207
+#   FPKM                         1229      0     0 1242     996    0
+#   read counts                     0   1289  1424    0    1313 1275
+
+pdf('./supplementary_figures/roc_auc_bar.pdf', height = 3, width = 3)
+ggplot(aes(software, auc), data = roc_df) + geom_bar(position = 'dodge', stat = 'identity', aes(fill=Type)) + 
+    xlab("") +
+    # ylim(0.5, 1.0) + 
+    # monocle_theme_opts() +  theme(axis.text.x=element_text(angle=30, hjust=1)) + 
+    scale_fill_manual(values = cols, name = "Software", label = test)  + nm_theme()
+dev.off()
 
 pdf('./supplementary_figures/roc_auc_bar.pdf', height = 3, width = 3)
 qplot(method, auc, stat = 'identity', data=roc_df, fill=method, geom="bar") + 
     xlab("") +
     ylim(c(0, 1.0)) + 
     monocle_theme_opts() +  theme(axis.text.x=element_text(angle=30, hjust=1)) + 
-    scale_fill_manual(values = hmcols, name = "Software", label = test)  + nm_theme()
+    scale_fill_manual(values = cols, name = "Software", label = test)  + nm_theme()
 dev.off()
 
 pdf('./supplementary_figures/roc_helper.pdf', height = 3, width = 14)
@@ -349,9 +371,8 @@ qplot(fpr, tpr, data=roc_df, color=method, geom="line") +
    scale_color_manual(values = hmcols, name = "Test", label = test)  # + nm_theme()
 dev.off()
 
-save.image('./RData/deg_benchmark_analysis_HSMM_bulk.RData')
-
-
+#show the values of auc 
+unique(roc_df[, c('method','auc')])
 #                                                             auc
 # monocle_p.1                                           0.9365970
 # monocle_p_readcount.1                                 0.8637075
@@ -367,3 +388,7 @@ save.image('./RData/deg_benchmark_analysis_HSMM_bulk.RData')
 # mast_mc_pval_no_norm.1                                0.8229900
 # mast_std_pval_no_norm.1                               0.8265460
 # mast_count_pval_no_norm.1                             0.8265460
+
+save.image('./RData/deg_benchmark_analysis_HSMM_bulk.RData')
+
+

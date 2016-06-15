@@ -54,6 +54,26 @@ names(Shalek_abs_subset_ko_LPS_tree_heatmap_clusters) <- capitalize(tolower(name
 
 Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_reactome <- collect_gsa_hyper_results(Shalek_abs_subset_ko_LPS, gsc = mouse_reactome_gsc, Shalek_abs_subset_ko_LPS_tree_heatmap_clusters)
 
+plot_gsa_hyper_heatmap <- function (cds, gsa_results, significance = 0.05, sign_type = "qval")
+{
+    hyper_df <- ldply(gsa_results, function(gsa_res) {
+        data.frame(gene_set = names(gsa_res$pvalues), pval = gsa_res$pvalues,
+            qval = gsa_res$p.adj)
+    })
+    hyper_df$qval <- p.adjust(hyper_df$pval, method = 'fdr')
+    colnames(hyper_df)[1] <- "cluster_id"
+    hyper_df <- subset(hyper_df, hyper_df[, sign_type] <= significance)
+    hyper_df <- merge(hyper_df, ddply(hyper_df, .(gene_set),
+        function(x) {
+            nrow(x)
+        }), by = "gene_set")
+    save(hyper_df, file = "hyper_df")
+    hyper_df$gene_set <- factor(hyper_df$gene_set, levels = unique(arrange(hyper_df,
+        V1, cluster_id)$gene_set))
+    qplot(cluster_id, gene_set, fill = -log10(qval), geom = "tile",
+        data = hyper_df) + scale_fill_gradientn(colours = rainbow(7))
+}
+
 pdf(file =paste(fig_root_dir, 'fig5c_reactome.pdf', sep = ''), height = 15, width = 7)
 plot_gsa_hyper_heatmap(Shalek_abs_subset_ko_LPS, Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_reactome, significance=1e-1) + nm_theme()
 dev.off()
@@ -62,8 +82,8 @@ save_hyper_df(Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_reactome, '.
 
 Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_go <- collect_gsa_hyper_results(Shalek_abs_subset_ko_LPS, gsc = mouse_go_gsc, Shalek_abs_subset_ko_LPS_tree_heatmap_clusters)
 
-pdf(file =paste(fig_root_dir, 'fig5c_go.pdf', sep = ''), height = 25, width = 7)
-plot_gsa_hyper_heatmap(Shalek_abs_subset_ko_LPS, Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_go, significance=1e-2) + nm_theme()
+pdf(file =paste(fig_root_dir, 'fig5c_go.pdf', sep = ''), height = 25, width = 12)
+plot_gsa_hyper_heatmap(Shalek_abs_subset_ko_LPS, Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_go, significance=5e-2) + nm_theme()
 dev.off()
 
 save_hyper_df(Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_go, './supplementary_data/go_ko_hyper_df.xls') 

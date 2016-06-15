@@ -206,7 +206,7 @@ cell_cycle_timing_example_ids_df <- weihgted_relative_abs_AT12_cds_subset_all_ge
 add_annotation_row <- data.frame(significance = as.numeric(cell_cycle_timing_example_ids_df$pval < 0.01), row.names = row.names(cell_cycle_timing_example_ids_df), 
                               Type = c(rep("Markers", length(timing_example_ids)), rep("Cell cycle", length(cell_cycle_markers))))
 
-pdf(paste(submission_directory, 'main_figures/fig2d.pdf', sep = ''), width = 3.9, height = 3.1)
+pdf(paste(submission_directory, 'main_figures/fig2d.pdf', sep = ''), width = 3.9, height = 3.5)
 time_annotated_heatmap <- plot_genes_branched_heatmap(abs_AT12_cds_subset_all_gene[c(timing_example_ids, cell_cycle_markers_id), ], 
   num_clusters=4, norm_method = "log", use_fitting_curves = F, scaling = T, hmcols = hmcols, use_gene_short_name = T,
   add_annotation_row = add_annotation_row, return_all = T, show_rownames = T)
@@ -376,7 +376,7 @@ valid_hyper_df$sig <- T
 cluster_color <- c('#E52027' = '#E52027', '#357EB9' = '#357EB9', '#4BAE49' = '#4BAE49', '#974F9F' = '#974F9F', '#F47D20' = '#F47D20', '#F6EE38' = '#F6EE38')
 valid_hyper_df$cluster_color <- cluster_color[as.numeric(valid_hyper_df$cluster_id)]
 
-pdf('./main_figures/fig4c.pdf', width = 2, height = 6)
+pdf('./main_figures/fig4c.pdf', width = 2, height = 4.4)
 qplot(cluster_id, gene_set, fill=cluster_color, geom="tile", data=valid_hyper_df) + nm_theme() + scale_fill_manual(values=cluster_color)  + 
   theme(axis.text.x = element_text(angle = 0, hjust = 1)) + xlab('') + ylab('')
 dev.off()
@@ -395,7 +395,7 @@ names(colour) <- as.character(pData(new_cds)$Lineage)
 colour[names(colour) == 'AT1'] <- AT1_Lineage
 colour[names(colour) ==  'AT2'] <- AT2_Lineage
 
-gene_grn_list <- infer_branch_gene_grn(TF_enrichment_gsc = lung_TF_5k_enrichment_gsc, file = 'gene_regulatory_net_up5k', p_thrsld = 0.01, branchTest_res = weihgted_relative_abs_AT12_cds_subset_all_gene)
+gene_grn_list <- infer_branch_gene_grn(TF_enrichment_gsc = lung_TF_5k_enrichment_gsc, file = 'gene_regulatory_net_up5k', p_thrsld = 0.01, branchTest_res = weihgted_abs_AT12_cds_subset_all_gene)
 branch_motif_Tfs <- gene_grn_list$branch_tfs[toupper(gene_grn_list$branch_tfs) %in% toupper(valid_hyper_df$first) | 
             toupper(gene_grn_list$branch_tfs) %in% toupper(valid_hyper_df$second)]
 branch_motif_Tfs_id <- row.names(subset(fData(abs_AT12_cds_subset_all_gene), toupper(gene_short_name) %in% branch_motif_Tfs)) 

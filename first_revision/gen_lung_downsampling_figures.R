@@ -243,7 +243,7 @@ proportion_correct_transcript_counts$method = "spike-in free"
 # Combine all results and generate plot
 proportion_correct = rbind(proportion_correct_fpkm, proportion_correct_transcript_counts_regression, proportion_correct_transcript_counts)
 
-pdf("./supplementary_figures/three_precision.pdf", width=2.5, height=2.5)
+pdf("./supplementary_figures/three_precision_helper.pdf", width=2.5, height=2.5)
 ggplot(proportion_correct, aes(depth, proportion_correct, color=method)) +
     geom_point() +
     geom_line() +
@@ -252,6 +252,17 @@ ggplot(proportion_correct, aes(depth, proportion_correct, color=method)) +
     ylab("proportion of cells within 20% of original value") +
     xlab("max depth per cell (total aligned PE reads)") +
     theme_bw() 
+dev.off()
+
+pdf("./supplementary_figures/three_precision.pdf", width=2.5, height=2.5)
+ggplot(proportion_correct, aes(depth, proportion_correct, color=method)) +
+    geom_point() +
+    geom_line() +
+    ylim(c(0, 1)) + 
+    scale_color_brewer(palette="Set1") +
+    ylab("proportion of cells within 20% of original value") +
+    xlab("max depth per cell (total aligned PE reads)") +
+    nm_theme() 
 dev.off()
 
 ####################################################

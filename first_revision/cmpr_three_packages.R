@@ -1,13 +1,13 @@
 #function to compare the performance of the three packages
 # load('./RData/deg_benchmark_analysis_tmp.RData')
 # #1. MAST 
-# library(devtools)
-# install_github('RGLab/MAST')
-# library(monocle)
-# library(devtools)
-# load_all('~/Projects/monocle-dev')
-# library(MAST)
-# library(xacHelper)
+library(devtools)
+install_github('RGLab/MAST')
+library(monocle)
+library(devtools)
+load_all('~/Projects/monocle-dev')
+library(MAST)
+library(xacHelper)
 
 # MAST_deg <- function(cds, grp = 'Time', test.type = 'hurdle', normalization = F) {
 #   data <- as.matrix(exprs(cds))
@@ -60,10 +60,15 @@ df3 <- plot_pre_rec_f1(test_p_list = list(monocle_p = monocle_p,
                                         abs_default_deseq_p = abs_default_deseq_p, 
                                         scde_p = scde_p, 
                                         abs_scde_p = abs_scde_p, 
+                                        # mast_abs_pval_norm = mast_abs_pval_norm, 
+                                        # mast_mc_pval_norm = mast_mc_pval_norm, 
+                                        # #mast_std_pval_no_norm = mast_std_pval_no_norm, 
+                                        # mast_count_pval_norm = mast_count_pval_norm
                                         mast_abs_pval_no_norm = mast_abs_pval_no_norm, 
                                         mast_mc_pval_no_norm = mast_mc_pval_no_norm, 
                                         #mast_std_pval_no_norm = mast_std_pval_no_norm, 
-                                        mast_count_pval_no_norm = mast_count_pval_no_norm),
+                                        mast_count_pval_no_norm = mast_count_pval_no_norm
+                                        ),
                      permutate_pval = list(monocle_p = std_permutate_pval, #readcount_permutate_pval, #std_permutate_pval, 
                                            monocle_p_readcount = readcount_permutate_pval, 
                                            mode_size_norm_permutate_ratio_by_geometric_mean = mode_size_norm_permutate_ratio_by_geometric_mean,
@@ -80,7 +85,12 @@ df3 <- plot_pre_rec_f1(test_p_list = list(monocle_p = monocle_p,
                                            mast_abs_pval_no_norm = mode_size_norm_permutate_ratio_by_geometric_mean, 
                                            mast_mc_pval_no_norm = mc_mode_size_norm_permutate_ratio_by_geometric_mean, 
                                            #mast_std_pval_no_norm = std_permutate_pval, 
-                                           mast_count_pval_no_norm = readcount_permutate_pval),
+                                           mast_count_pval_no_norm = readcount_permutate_pval
+                                           # mast_abs_pval_norm = mode_size_norm_permutate_ratio_by_geometric_mean, 
+                                           # mast_mc_pval_norm = mc_mode_size_norm_permutate_ratio_by_geometric_mean, 
+                                           # #mast_std_pval_no_norm = std_permutate_pval, 
+                                           # mast_count_pval_norm = readcount_permutate_pval
+                                           ),
                      row.names(absolute_cds), #gene_list, overlap_genes, high_gene_list
                      return_df = T, #na.rm = T, 
                      p_thrsld = 0.01, #0.05
@@ -108,7 +118,7 @@ tmp <- data.frame(Type = c('SCDE', 'SCDE', 'DESeq1', 'DESeq1', 'DESeq2', 'DESeq2
 df_res <- rbind(df3.1, tmp) 
 df_res <-  melt(df_res)
 
-pdf('./supplementary_figures/fig2a_si_test.pdf', width = 3, height = 2)
+pdf('./supplementary_figures/fig2a_si_test_test2.pdf', width = 3, height = 2)
 qplot(factor(Type), value, stat = "identity", geom = 'bar', position = 'dodge', fill = data_type, data = df_res) + #facet_wrap(~variable) + 
 ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
 ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + nm_theme()

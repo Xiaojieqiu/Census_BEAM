@@ -425,11 +425,20 @@ dev.off()
 
 pdf('./supplementary_figures/fig4d_si.pdf', width = 5, height = 3)
 # pdf('fig4d.pdf', width = 5, height = 3)
-plot_genes_branched_pseudotime2(mc_AT12_cds_subset_all_gene[select_branch_motif_Tfs_id, ], cell_color_by = "State", 
+plot_genes_branched_pseudotime2(mc_AT12_cds_subset_all_gene[branch_motif_Tfs_id, ], cell_color_by = "State", 
                                 trajectory_color_by = "Lineage", fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', normalize = F, stretch = T,
                                 lineage_labels = c('AT1', 'AT2'), cell_size = 1, ncol = 4, reducedModelFormulaStr = "~sm.ns(Pseudotime, df=3)", add_pval = T) + 
   ylab('Transcript counts') + nm_theme() + xlab('Pseudotime')
 dev.off()
+
+pdf('./supplementary_figures/fig4d_si.pdf', width = 5, height = 3)
+# pdf('fig4d.pdf', width = 5, height = 3)
+plot_genes_branched_pseudotime2(mc_AT12_cds_subset_all_gene[setdiff(branch_motif_Tfs_id, c('ENSMUSG00000022463.7', 'ENSMUSG00000055320.10', 'ENSMUSG00000005698.9')), ], cell_color_by = "State", 
+                                trajectory_color_by = "Lineage", fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', normalize = F, stretch = T,
+                                lineage_labels = c('AT1', 'AT2'), cell_size = 1, ncol = 4, reducedModelFormulaStr = "~sm.ns(Pseudotime, df=3)", add_pval = T) + 
+  ylab('Transcript counts') + nm_theme() + xlab('Pseudotime')
+dev.off()
+
 
 #########################################################################################################
 

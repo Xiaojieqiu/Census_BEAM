@@ -243,6 +243,7 @@ Shalek_read_countdata_cds <- newCellDataSet(as.matrix(Shalek_read_countdata),
 pData(Shalek_read_countdata_cds)$Total_mRNAs <- esApply(Shalek_read_countdata_cds, 2, sum)
 pData(Shalek_read_countdata_cds)$endogenous_RNA <- esApply(Shalek_read_countdata_cds, 2, sum)
 
+Shalek_golgi_update <- Shalek_abs[,pData(Shalek_abs)$experiment_name %in% c("LPS_GolgiPlug", "LPS", "Unstimulated_Replicate")] #Shalek_golgi_update is commented in the current analysis, added back here 
 Shalek_gene_df <- data.frame(experiment_name = pData(Shalek_read_countdata_cds[, c(colnames(Shalek_abs_subset_ko_LPS), colnames(Shalek_golgi_update))])$experiment_name, 
                              sum_readcounts = esApply(Shalek_read_countdata_cds[, c(colnames(Shalek_abs_subset_ko_LPS), colnames(Shalek_golgi_update))], 2, sum))
 
@@ -332,7 +333,94 @@ qplot(factor(Type), value, stat = "identity", geom = 'bar', position = 'dodge', 
   ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + ylim(0, 1) + 
   theme(strip.background = element_blank(), strip.text.x = element_blank()) + nm_theme() + theme(strip.background = element_blank(), strip.text.x = element_blank())
 dev.off()
-#   #
+
+
+####4. enrichment for GO/motif analysis for the muscle permuation test ####
+abs_HSMM_ids <- row.names(HSMM_myo_size_norm_res[HSMM_myo_size_norm_res$pval <0.05, ]) 
+std_HSMM_ids <- row.names(std_HSMM_myo_pseudotime_res_ori[std_HSMM_myo_pseudotime_res_ori$pval <0.05, ])
+
+abs_HSMM_name <- fData(HSMM_myo[abs_HSMM_ids, ])$gene_short_name
+std_HSMM_name <- fData(HSMM_myo[std_HSMM_ids, ])$gene_short_name
+
+write.table(std_HSMM_name, file = '../std_muscle_pseudotime_gene.txt', sep = '\t', row.names = F, quote = F)
+write.table(abs_HSMM_name, file = '../abs_muscle_pseudotime_gene.txt', sep = '\t', row.names = F, quote = F)
+
+# abs_gsaRes <- runGSAhyper(unique(abs_HSMM_name), gsc=human_go_gsc, universe=unique(as.vector(fData(HSMM_myo)$gene_short_name)))
+# std_gsaRes <- runGSAhyper(unique(std_HSMM_name), gsc=human_go_gsc, universe=unique(as.vector(fData(HSMM_myo)$gene_short_name)))
+
+abs_gsaRes_reactome <- runGSAhyper(unique(abs_HSMM_name), gsc=human_reactome_gsc, universe=unique(as.vector(fData(HSMM_myo)$gene_short_name)))
+std_gsaRes_reactome <- runGSAhyper(unique(std_HSMM_name), gsc=human_reactome_gsc, universe=unique(as.vector(fData(HSMM_myo)$gene_short_name)))
+
+#plot the terms and significance: 
+# gsa_results <- list('Transcript_counts' = abs_gsaRes, 'FPKM' = std_gsaRes)
+# plot_gsa_hyper_heatmap(HSMM_myo, gsa_results, significance=1e-3)
+
+gsa_results_reactome <- list('Transcript_counts' = abs_gsaRes_reactome, 'FPKM' = std_gsaRes_reactome)
+plot_gsa_hyper_heatmap(HSMM_myo, gsa_results_reactome, significance=1e-3)
+
+benchmark_pseudotime_test <- function(abs_gsaRes , std_gsaRes ) {
+    abs_hyper_df_all <- data.frame(gene_set = names(abs_gsaRes$pvalues), pval = abs_gsaRes$pvalues, qval = abs_gsaRes$p.adj)
+    abs_hyper_df_all$qval <- p.adjust(abs_hyper_df_all$pval, method = 'fdr')
+    colnames(abs_hyper_df_all)[1] <- "cluster_id"
+    
+    std_hyper_df_all <- data.frame(gene_set = names(std_gsaRes$pvalues), pval = std_gsaRes$pvalues, qval = std_gsaRes$p.adj)
+    std_hyper_df_all$qval <- p.adjust(std_hyper_df_all$pval, method = 'fdr')
+    colnames(std_hyper_df_all)[1] <- "cluster_id"
+    
+    abs_hyper_df <- subset(abs_hyper_df_all, abs_hyper_df_all[, 'qval'] <= 0.01)
+    std_hyper_df <- subset(std_hyper_df_all, std_hyper_df_all[, 'qval'] <= 0.01)
+    
+    gsa_results <- list('1' = abs_gsaRes, '2' = std_gsaRes)
+    
+    #performance comparision based on Cole's idea: 
+    element_all_list <- c(
+        abs_hyper_df$cluster_id, 
+        std_hyper_df$cluster_id
+    )
+    
+    sets_all <- c(
+        rep(paste('transcript counts', sep = ''), nrow(abs_hyper_df)),
+        rep(paste('FPKM values', sep = ''), nrow(std_hyper_df))
+    )
+    
+    #show the number for the overlapping:
+    table(sets_all)
+    intersect(abs_hyper_df$cluster_id, std_hyper_df$cluster_id)
+
+    pdf(file = './supplementary_figures/overlap_enriched_muscle_term.pdf')
+    venneuler_venn(element_all_list, sets_all)
+    dev.off()
+    
+    #p-val plot show the gene names relevant for muscle differentiation 
+    abs_hyper_df_all$cluster_id
+    muscle_term_ids <- c(grep(pattern = 'MUSCLE', abs_hyper_df_all$cluster_id, ignore.case = T), grep(pattern = 'Myogenesis', abs_hyper_df_all$cluster_id, ignore.case = T))
+    # muscle_term_ids <- Reduce(intersect, list(which(abs_hyper_df_all$qval < 0.01), which(std_hyper_df_all$qval < 0.01), muscle_term_ids))
+    Types <- rep('Term without muscle', nrow(abs_hyper_df_all))
+    Types[muscle_term_ids] <- 'Term with muscle'
+    muscle_gs_df <- data.frame(cluster_id = abs_hyper_df_all$cluster_id, abs = abs_hyper_df_all$pval, std = std_hyper_df_all$pval, Type = Types) #muscle related/ non-muscle related 
+    muscle_gs_df$ratio <- muscle_gs_df$std /  muscle_gs_df$abs
+    valid_muscle_gs_df <- muscle_gs_df[c(muscle_term_ids, which(muscle_gs_df$abs < 0.01 & muscle_gs_df$std < 0.01 )), ]
+    pdf(file = './supplementary_figures/muscle_pseudotime_benchmark_qval.pdf', width = 2.5, height = 1.5)
+    ggplot(data = valid_muscle_gs_df, aes(Type, log(ratio))) + 
+        geom_boxplot(aes(fill = Type), alpha = 0.3, outlier.size = 0.25, lwd = 0.25, fatten = 0.5) + 
+        geom_jitter(size = 0.5) + nm_theme() + geom_vline(xintercept = 0) + xlab('log(P(FPKM) / P(transcript counts))') + ylab('') + scale_size(range = c(0.25, 0.5))
+    dev.off()
+    
+    pdf(file = './supplementary_figures/muscle_pseudotime_benchmark_qval2.pdf')
+    qplot(log(ratio), data = muscle_gs_df[c(muscle_term_ids, which(muscle_gs_df$abs < 0.01 & muscle_gs_df$std < 0.01 )), ], 
+          fill = Type, geom = 'density', log = 'x', alpha = 0.3) + nm_theme() + geom_vline(xintercept = 0) + xlab('log(P(FPKM) / P(transcript counts))') + ylab('')
+    #qplot(abs, std, data = muscle_gs_df[c(muscle_term_ids, which(muscle_gs_df$abs < 0.01 | muscle_gs_df$std < 0.01 )), ], color = Type, log = 'xy') + nm_theme() + xlab('transcript counts') + ylab('FPKM')
+    dev.off()
+
+    return(valid_muscle_gs_df)
+}
+
+valid_muscle_gs_df <- benchmark_pseudotime_test(abs_gsaRes_reactome, std_gsaRes_reactome)
+pdf(file = './supplementary_figures/muscle_pseudotime_benchmark_qval.pdf', width = 2.5, height = 1.5)
+ggplot(data = valid_muscle_gs_df, aes(Type, log(ratio))) + 
+    geom_boxplot(aes(fill = Type), alpha = 0.3, outlier.size = 0.25, lwd = 0.25, fatten = 0.5) + 
+    geom_jitter(size = 0.5) + nm_theme() + geom_vline(xintercept = 0) + xlab('log(P(FPKM) / P(transcript counts))') + ylab('') + scale_size(range = c(0.25, 0.5))
+dev.off()
 
 ##############################################################################################################
 #make the tree plot with quake annotation:     
@@ -549,17 +637,18 @@ dev.off()
 ################################################################################################
 
 replicates_recovery <- list()
-replicates_recovery <- lapply(1:10, function(x) {
-  relative2abs(standard_cds, cores = 6, return_all = T)
+res <- lapply(1:10, function(x) {
+  print(paste('the current iteration is ', x))
+  replicates_recovery <- c(replicates_recovery, relative2abs(standard_cds, cores = detectCores(), return_all = T, verbose = T))
 })
 
 #plot the mean VS CV: 
-recovery_mean <- lapply(replicates_recovery, function(x) apply(x$norm_cds[1:transcript_num, ], 1, mean))
+recovery_mean <- lapply(res, function(x) apply(x$norm_cds[1:transcript_num, ], 1, mean))
 recovery_mean <- do.call(rbind.data.frame, recovery_mean)
 cv <- apply(recovery_mean, 2, function(x) sd(x) / mean(x))
 mean_exprs <- apply(recovery_mean, 2, function(x) mean(x))
   
-pdf('./supplementary_figures/mean_expr_cv_census.pdf', height = 1.5, width = 1.5)
+pdf('./supplementary_figures/mean_expr_cv_census.pdf', height = 2.5, width = 2.5)
 qplot(mean_exprs[mean_exprs > 0.01], cv[mean_exprs > 0.01], log = 'x', alpha = I(0.4), size = 0.5) + xlab('mean gene expression') + 
   ylab('CV') + geom_density2d(lwd = 0.1) + scale_size(range = c(0.1, 0.5)) + nm_theme()
 dev.off()
@@ -572,7 +661,7 @@ cv <- apply(recovery_mean, 2, function(x) sd(x) / mean(x))
 mean_exprs <- apply(recovery_mean, 2, function(x) mean(x))
 sd_exprs <- apply(recovery_mean, 2, function(x) sd(x))
   
-pdf('./supplementary_figures/mean_expr_cv_census_sample_cells.pdf', height = 1.5, width = 1.5)
+pdf('./supplementary_figures/mean_expr_cv_census_sample_cells.pdf', height = 2.5, width = 2.5)
 qplot(mean_exprs[mean_exprs > 0.01], cv[mean_exprs > 0.01], log = 'x', alpha = I(0.4), size = 0.5) + xlab('mean gene expression') + 
   ylab('CV') + geom_density2d(lwd = 0.1) + scale_size(range = c(0.1, 0.5)) + nm_theme()
 dev.off()
