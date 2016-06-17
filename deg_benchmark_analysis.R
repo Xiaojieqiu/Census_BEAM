@@ -133,11 +133,11 @@ abs_scde_res_list_no_normalize <- scde_DEG(dir = NULL, count_cds = new_abs_cds_1
 
 # closeAllConnections()
 # # permutation results for two group test on the readcounts value (gold standard for DESEeq / SCDE on readcount data): 
-# # readcount_sf_mat <- matrix(rep(sizeFactors(count_cds), nrow(count_cds)), nrow = nrow(count_cds), byrow = T)
-# # readcount_split_cds <- split(t(exprs(count_cds[1:transcript_num, Time_order]) / readcount_sf_mat[1:transcript_num, Time_order]), col(t(exprs(count_cds[1:transcript_num, Time_order])), as.factor = T))
+# #readcount_sf_mat <- matrix(rep(sizeFactors(count_cds), nrow(count_cds)), nrow = nrow(count_cds), byrow = T)
+# #readcount_split_cds <- split(t(exprs(count_cds[1:transcript_num, Time_order]) / readcount_sf_mat[1:transcript_num, Time_order]), col(t(exprs(count_cds[1:transcript_num, Time_order])), as.factor = T))
 # readcount_split_cds <- split(t(exprs(count_cds[1:transcript_num, Time_order])), col(t(exprs(count_cds[1:transcript_num, Time_order])), as.factor = T))
 
-# # readcount_fc <- apply(exprs(count_cds[1:transcript_num, Time_order]) / readcount_sf_mat[1:transcript_num, Time_order], 1, mean_fc, grp0 = 'E14.5', grp1 = 'E18.5', grp = pData(count_cds)$Time) #valid_gene_id
+# #readcount_fc <- apply(exprs(count_cds[1:transcript_num, Time_order]) / readcount_sf_mat[1:transcript_num, Time_order], 1, mean_fc, grp0 = 'E14.5', grp1 = 'E18.5', grp = pData(count_cds)$Time) #valid_gene_id
 # readcount_fc <- esApply(count_cds[1:transcript_num, ], 1, mean_fc, grp0 = 'E14.5', grp1 = 'E18.5') #valid_gene_id
 # # readcount_split_fc <- split(t(readcount_fc), col(t(readcount_fc), as.factor = T))
 # ## 

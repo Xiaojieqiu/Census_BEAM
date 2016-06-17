@@ -212,7 +212,7 @@ dev.off()
 df <- data.frame(Time = pData(read_countdata_cds)$Time, sum_readcounts = esApply(read_countdata_cds[fData(read_countdata_cds)$biotype == 'spike', ], 2, sum))
 # qplot(sum_readcounts, fill = Time, log = 'x') + facet_wrap(~Time)
 pdf('./supplementary_figures/fig_4a_si.pdf', height = 3, width = 2)
-qplot(sum_readcounts, fill = Time, log = 'x', data = df) + facet_wrap(~Time, ncol = 1, scales = 'free_y') + nm_theme() 
+qplot(sum_readcounts, fill = Time, log = 'x', data = df) + facet_wrap(~Time, ncol = 1, scales = 'free_y') + nm_theme() + xlab('Total reads') + ylab('Cells')
 dev.off()
 
 #number of ERCC spike-in detected in each cell
@@ -221,7 +221,7 @@ loss_ercc_spikein <- esApply(ercc_controls, 2, function(x) as.numeric(x < 10e-4)
 ercc_controls_detected_df <- data.frame(detected = esApply(ercc_controls, 2, function(x) sum(x > 0)), Time = pData(absolute_cds[, colnames(loss_ercc_spikein)])$Time)
 
 pdf('./supplementary_figures/fig_4b_si.pdf', height = 3, width = 2)
-qplot(detected, fill = Time, data = ercc_controls_detected_df) + facet_wrap(~Time, ncol = 1) + xlab('Number of detected ERCC spike-in transcripts') + nm_theme()
+qplot(detected, fill = Time, data = ercc_controls_detected_df) + facet_wrap(~Time, ncol = 1) + xlab('Spike-ins detected') + ylab('Cells') + nm_theme()
 dev.off()
 
 dir = "./data/Aviv_data/cuffnorm_output_files"
@@ -252,7 +252,7 @@ Shalek_gene_df <- data.frame(experiment_name = pData(Shalek_read_countdata_cds[,
                              sum_readcounts = esApply(Shalek_read_countdata_cds[, c(colnames(Shalek_abs_subset_ko_LPS), colnames(Shalek_golgi_update))], 2, sum))
 
 pdf('./supplementary_figures/fig_4c_si.pdf', height = 3, width = 2)
-qplot(sum_readcounts, fill = experiment_name, log = 'x', data = Shalek_gene_df) + facet_wrap(~~experiment_name, ncol = 1, scales = 'free_y') + nm_theme()
+qplot(sum_readcounts, fill = experiment_name, log = 'x', data = Shalek_gene_df) + facet_wrap(~~experiment_name, ncol = 1, scales = 'free_y') + nm_theme() + xlab('Total reads') + ylab('Cells')
 dev.off()
 
 ################################################fig5_si##############################################################
@@ -752,7 +752,7 @@ ggplot(aes(rounded_numMolecules, tau), data = num_time_spike_in_detect_df) + geo
 
 pdf('./supplementary_figures//sequencing_efficiency.pdf', width = 2, height = 1.4)
 ggplot(aes(rounded_numMolecules, tau), data = num_time_spike_in_detect_df) + geom_point(aes(color = Time), alpha = 0.5, size = 1) + 
-    geom_line(aes(rounded_numMolecules, optim_predicted_tau, color = Time), size = 0.2) + scale_x_log10() + nm_theme() + xlab('Spike-in molecules')
+    geom_line(aes(rounded_numMolecules, optim_predicted_tau, color = Time), size = 0.2) + scale_x_log10() + nm_theme() + xlab('Spike-in molecules') + ylab('Probability of observation (P)”')
 dev.off()
 
 pdf('./supplementary_figures//sequencing_efficiency_helper.pdf', width = 2, height = 1.4)
@@ -762,7 +762,7 @@ dev.off()
 
 #num_time_spike_in_detect_df$Time <- factor(num_time_spike_in_detect_df$Time, levels = c('E14.5', 'E16.5', 'E18.5', 'Adult'))
 pdf('./supplementary_figures/capture_rate.pdf', width = 2, height = 1.4)
-ggplot(aes(Time, unique(optim_p_val)), data = unique(num_time_spike_in_detect_df[, c('Time', 'optim_p_val')])) + geom_bar(stat = 'identity', aes(fill = unique(Time))) + ylab('Estimate capture rate') + nm_theme()
+ggplot(aes(Time, unique(optim_p_val)), data = unique(num_time_spike_in_detect_df[, c('Time', 'optim_p_val')])) + geom_bar(stat = 'identity', aes(fill = unique(Time))) + ylab('Estimated capture rate') + nm_theme()
 dev.off()
 
 save.image('./RData/gen_supplementary_figure.RData') 

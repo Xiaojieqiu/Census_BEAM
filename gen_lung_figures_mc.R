@@ -236,18 +236,18 @@ df$estimate_mode <- estimate_t(exprs(standard_cds))
 df$mode_in_transcripts <- estimate_t(absolute_cds)
 
 pdf('./main_figures/fig1_estimated_mode_transcripts.pdf', height = 2, width = 2.5)
-qplot(estimate_mode, mode_transcript, data = df, color = Time, log = 'xy') + xlab('estimated mode of the FPKM') + 
-  ylab('corresponding transcript counts \n of estimated mode') + nm_theme()
+qplot(estimate_mode, mode_transcript, data = df, color = Time, log = 'xy') + xlab('Estimated mode of the FPKM ( )') + 
+  ylab('Corresponding transcript counts \n of estimated mode ( )') + nm_theme()
 dev.off()
 
 pdf('./main_figures/fig1_estimated_mode_transcripts.pdf', height = 2, width = 2.5)
-qplot(estimate_mode, mode_transcript, data = df, color = Time, log = 'xy') + xlab('estimated mode of the FPKM') + 
-  ylab('corresponding transcript counts \n of estimated mode') + nm_theme()
+qplot(estimate_mode, mode_transcript, data = df, color = Time, log = 'xy') + xlab('Estimated mode of the FPKM ( )') + 
+  ylab('Corresponding transcript counts \n of estimated mode ( )') + nm_theme()
 dev.off()
 
 pdf('./main_figures/fig1_estimated_mode_cell_transcripts_mode.pdf', height = 1.5, width = 1.5)
-qplot(estimate_mode, mode_in_transcripts, data = df, color = Time, log = 'xy', size = 1) + xlab('estimated mode\n of the FPKM') + scale_size(range = c(0.1, 1),  limits = c(0.1, 1)) + 
-  ylab('mode of transcript count') + nm_theme()
+qplot(estimate_mode, mode_in_transcripts, data = df, color = Time, log = 'xy', size = 1) + xlab('Estimated mode\n of the FPKM ( )') + scale_size(range = c(0.1, 1),  limits = c(0.1, 1)) + 
+  ylab('Mode of transcript count ( )') + nm_theme()
 dev.off()
 
 #obtain the calibrated parameters
@@ -276,7 +276,7 @@ t <- -kb_df[, 'b'] / kb_df[, 'k']
 pdf('./main_figures/fig3c.pdf', width = 1.5, height = 1.5)
 qplot(k, b, data = as.data.frame(kb_df), color = Time, size = 1, alpha = 0.5) + scale_size(range = c(0.1, 1),  limits = c(0.1, 1)) + 
   geom_smooth(method = 'rlm', color = 'blue', se = T, size = 0.5) + 
-  xlab("Slope from FPKM vs.\n ERCC transcript counts") + ylab("Intercept from FPKM vs.\n ERCC transcript counts") + nm_theme()
+  xlab("Slope from FPKM vs.\n ERCC transcript counts ( )") + ylab("Intercept from FPKM vs.\n ERCC transcript counts ( )") + nm_theme()
 dev.off()
 
 pdf('./tmp/fig3c_helper.pdf', width = 2, height = 2)

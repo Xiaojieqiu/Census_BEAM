@@ -9,33 +9,33 @@ load_all('~/Projects/monocle-dev')
 library(MAST)
 library(xacHelper)
 
-# MAST_deg <- function(cds, grp = 'Time', test.type = 'hurdle', normalization = F) {
-#   data <- as.matrix(exprs(cds))
+MAST_deg <- function(cds, grp = 'Time', test.type = 'hurdle', normalization = F) {
+  data <- as.matrix(exprs(cds))
   
-#   if(normalization)
-#     data <- t(t(data) / sizeFactors(cds))
-#   else
-#     data <- data
+  if(normalization)
+    data <- t(t(data) / sizeFactors(cds))
+  else
+    data <- data
   
-#   data <- melt(data)
-#   colnames(data) <- c('Gene', 'Cell', 'exprs')
-#   data[, grp] <- c(pData(cds)[data[, 2], grp])
-#   data$ncells <- 1 
+  data <- melt(data)
+  colnames(data) <- c('Gene', 'Cell', 'exprs')
+  data[, grp] <- c(pData(cds)[data[, 2], grp])
+  data$ncells <- 1 
   
-#   mast_cds <- FluidigmAssay(data, idvars="Cell", 
-#                             primerid='Gene', measurement='exprs', geneid="Gene", 
-#                             ncells = 'ncells', phenovars=grp)
+  mast_cds <- FluidigmAssay(data, idvars="Cell", 
+                            primerid='Gene', measurement='exprs', geneid="Gene", 
+                            ncells = 'ncells', phenovars=grp)
   
-#   zlm.output <- zlm.SingleCellAssay(as.formula(paste("~ ", grp)), mast_cds, method='glm', ebayes=TRUE) #
-#   # show(zlm.output)
-#   zlm.lr <- lrTest(zlm.output, grp)
-#   # dimnames(zlm.lr)
+  zlm.output <- zlm.SingleCellAssay(as.formula(paste("~ ", grp)), mast_cds, method='glm', ebayes=TRUE) #
+  # show(zlm.output)
+  zlm.lr <- lrTest(zlm.output, grp)
+  # dimnames(zlm.lr)
   
-#   pval_df <- zlm.lr[,,'Pr(>Chisq)']
-#   pval <- pval_df[, test.type]
+  pval_df <- zlm.lr[,,'Pr(>Chisq)']
+  pval <- pval_df[, test.type]
   
-#   return(pval)
-# }
+  return(pval)
+}
 
 # mast_abs_pval_no_norm <- MAST_deg(new_abs_cds_14_18)
 # mast_mc_pval_no_norm <- MAST_deg(new_mc_cds_14_18)
@@ -118,7 +118,7 @@ tmp <- data.frame(Type = c('SCDE', 'SCDE', 'DESeq1', 'DESeq1', 'DESeq2', 'DESeq2
 df_res <- rbind(df3.1, tmp) 
 df_res <-  melt(df_res)
 
-pdf('./supplementary_figures/fig2a_si_test_test2.pdf', width = 3, height = 2)
+pdf('./supplementary_figures/fig2a_si_test.pdf', width = 3, height = 2)
 qplot(factor(Type), value, stat = "identity", geom = 'bar', position = 'dodge', fill = data_type, data = df_res) + #facet_wrap(~variable) + 
 ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
 ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + nm_theme()

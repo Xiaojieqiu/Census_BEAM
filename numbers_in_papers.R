@@ -90,3 +90,21 @@ unlist(lapply(c(1, 6, 8, 10, 14, 18, 19, 23, 27, 30, 33, 36), function(x) ncol(c
 #      37      78     117     150     196     230     273     304     325     342
 # Samples Samples
 #     371     387
+
+#figure 5: 
+fData(HSMM_myo_isoform[row.names(subset(fData(HSMM_myo_isoform), 
+                                   gene_short_name %in% c("ACTA1", "ACTA2", "ACTB", "ACTG1", "ACTG2", "ACTC1") & num_cells_expressed >= 15)),])
+#                              gene_id gene_short_name        biotype                     tss_id num_cells_expressed
+# ENST00000366684.3 ENSG00000143632.10           ACTA1 protein_coding ENSG00000143632.10_TSS9173                  18
+# ENST00000224784.6  ENSG00000107796.8           ACTA2 protein_coding ENSG00000107796.8_TSS12411                 107
+# ENST00000290378.4  ENSG00000159251.6           ACTC1 protein_coding ENSG00000159251.6_TSS32091                 164
+# ENST00000557860.1  ENSG00000159251.6           ACTC1 protein_coding ENSG00000159251.6_TSS32092                 168
+# ENST00000560563.1  ENSG00000159251.6           ACTC1 protein_coding ENSG00000159251.6_TSS32093                  63
+# ENST00000331925.2  ENSG00000184009.5           ACTG1 protein_coding ENSG00000184009.5_TSS44058                 174
+# ENST00000576209.1  ENSG00000184009.5           ACTG1 protein_coding ENSG00000184009.5_TSS44060                 173
+# ENST00000464611.1  ENSG00000075624.9            ACTB protein_coding ENSG00000075624.9_TSS85735                 165
+# ENST00000331789.5  ENSG00000075624.9            ACTB protein_coding ENSG00000075624.9_TSS85736                 174
+
+
+
+
