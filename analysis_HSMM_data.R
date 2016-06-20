@@ -1,6 +1,7 @@
 # use monocle2: 
-library(devtools)
-load_all('~/Projects/monocle-dev')
+# library(devtools)
+# load_all('~/Projects/monocle-dev')
+library(monocle)
 library(xacHelper)
 
 load_all_libraries()

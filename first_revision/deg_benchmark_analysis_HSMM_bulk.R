@@ -1,11 +1,11 @@
-# library(monocle)
-library(devtools)
-load_all('~/Projects/monocle-dev')
+library(monocle)
+# library(devtools)
+# load_all('~/Projects/monocle-dev')
 library(xacHelper) 
 library(MAST)
 library(ROCR)
 
-# source('roc_curves.R')
+source('roc_curves.R')
 #load the data: 
 load('./RData/analysis_HSMM_data.RData')
 HSMM_bulk <- read.table("./data/HSMM_data/bulk_cuffdiff/gene_exp.diff", header = T, row.names = NULL)
@@ -202,7 +202,7 @@ df3_HSMM_bulk <- plot_pre_rec_f1(test_p_list = list(monocle_p = monocle_p_HSMM_b
                                            mast_count_pval_no_norm = top_1k_HSMM_bulk_T0_T72_pval),
                      names(top_1k_HSMM_bulk_T0_T72_pval), #gene_list, overlap_genes, high_gene_list
                      return_df = T, #na.rm = T, 
-                     p_thrsld = 0.01, #0.05
+                     p_thrsld = 0.05, #0.05
                      rownames = c('monocle (FPKM)', 'monocle (readcount)', 'monocle (New size normalization, Estimate transcript)', 
                         'edgeR (edgeR size normalization)', 'edgeR (New Size normalization)', 'DESeq2 (DESeq2 size normalization)', 'DESeq2 (New Size normalization)',
                         'DESeq (DESeq size normalization)', "DESeq (New Size normalization)", 'SCDE (Read Counts)', 'SCDE (New size normalization)', 

@@ -1,6 +1,6 @@
-# library(monocle)
-library(devtools)
-load_all('~/Projects/monocle-dev')
+library(monocle)
+# library(devtools)
+# load_all('~/Projects/monocle-dev')
 library(xacHelper)
 
 load_all_libraries()
@@ -765,4 +765,19 @@ pdf('./supplementary_figures/capture_rate.pdf', width = 2, height = 1.4)
 ggplot(aes(Time, unique(optim_p_val)), data = unique(num_time_spike_in_detect_df[, c('Time', 'optim_p_val')])) + geom_bar(stat = 'identity', aes(fill = unique(Time))) + ylab('Estimated capture rate') + nm_theme()
 dev.off()
 
+#generate the perfect recovery figure: 
+test <- mapply(function(cell_dmode, model) {
+  predict(model, newdata = data.frame(log_fpkm = log10(cell_dmode)), type = 'response')
+}, as.list(estimate_t(exprs(standard_cds)[1:transcript_num, ])), molModels_select) #molModels_select
+
+df <- pData(absolute_cds)
+df$mode_transcript <- 10^test
+df$estimate_mode <- estimate_t(exprs(standard_cds))
+
+abs_mat_1 <- relative2abs(standard_cds, verbose = T, return_all = T, reads_per_cell = colSums(read_countdata), expected_total_mRNAs = exp(dmode(log(pData(absolute_cds)$endo ))), use_fixed_intercept = T, expected_mRNA_mode = df$mode_transcript,
+                          expected_capture_rate = c(rep(0.2326, sum(Time == 'E18.5')), rep(0.2987, sum(Time == 'E14.5')), rep(0.3093, sum(Time == 'Adult')), rep(0.09174, sum(Time == 'E16.5'))), 
+                          cores = detectCores(), kb_intercept = 2.268025, kb_slope = -3.655828, kb_slope_rng = c(-3.665828, -3.645828))
+source('/Users/xqiu/Dropbox (Personal)/Projects/BEAM/third_submission/transcript_count_cmpr.R', echo = T)
+
+file.rename(c('./main_figures/fig3f_new.pdf', './main_figures/fig3g2_new.pdf'), c('./main_figures/fig3f_perferct_recovery.pdf', './main_figures/fig3g_perferct_recovery.pdf'))
 save.image('./RData/gen_supplementary_figure.RData') 

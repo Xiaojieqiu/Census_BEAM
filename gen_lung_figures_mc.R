@@ -1,5 +1,6 @@
-library(devtools)
-load_all('~/Projects/monocle-dev')
+# library(devtools)
+# load_all('~/Projects/monocle-dev')
+library(monocle)
 library(xacHelper)
 
 load_all_libraries()
@@ -318,7 +319,7 @@ qplot(spikein + 1, mc_algorithm + 1, log = 'xy',
   ylab('Transcript counts (Recovery algorithm)') + nm_theme()
 dev.off()
 
-pdf('./main_figures/fig3g.pdf', width = 3, height = 2)
+pdf('./main_figures/fig3g.pdf', width = 2.5, height = 2.5)
 ggplot(mc_abs_exprs_df) + aes(x=spikein + 1, y= mc_algorithm + 1) + scale_x_log10() + scale_y_log10() + facet_wrap(~cell, scales = 'free', ncol = 2) + 
   xlab('Transcript counts (Spike-in)') + #scale_size(range = c(0.25, 0.25)) + 
   ylab('Transcript counts (Recovery algorithm)')  + 

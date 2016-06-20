@@ -12,24 +12,24 @@ load('./RData/gen_supplementary_figure.RData')
 
 #1. consensus between five tools: 
 length(readcount_overlap)
-#[1] 946
+#[1] 1324
 length(readcount_union)
-#[1] 13364
+#[1] 14386
 length(abs_overlap)
-#[1] 1649
+#[1] 1957
 length(abs_union)
-#[1] 7209
+#[1] 5946
 
 #2. false discovery rate for the DESEq: 
 fdr_sensitivity_df
 subset(fdr_sensitivity_df, Type == 'DESeq1')
 #read_count transcript_counts
-#fpr: 0.1490958 0.0490389
-#sensitivity: 0.2721133 0.3959332
+#fpr: 0.12194463 0.02481542
+#sensitivity: 0.3019018 0.6183206
 
 subset(fdr_sensitivity_df, Type == 'Monocle' & data_type %in% c('Spikein transcripts', 'Read counts'))[, c('data_type', 'fpr')]
 #read_counts transcript_counts: 
-#fpr: 0.04736089   0.02127532 
+#fpr: 0.018550392 0.008000911   
 #3. number of enriched TFs: 
 nrow(valid_hyper_df)
 # 56
@@ -105,6 +105,39 @@ fData(HSMM_myo_isoform[row.names(subset(fData(HSMM_myo_isoform),
 # ENST00000464611.1  ENSG00000075624.9            ACTB protein_coding ENSG00000075624.9_TSS85735                 165
 # ENST00000331789.5  ENSG00000075624.9            ACTB protein_coding ENSG00000075624.9_TSS85736                 174
 
+table(cutree(iso_switch_heatmap$tree_row, 6))
+#  1  2  3  4  5  6 
+# 44 58 29 15 21 56 
+
+iso_names <- names(cutree(iso_switch_heatmap$tree_row, 6))
+length(unique(fData(HSMM_myo_isoform)[iso_names[cutree(iso_switch_heatmap$tree_row, 6) == 1], 'gene_short_name']))
+length(unique(fData(HSMM_myo_isoform)[iso_names[cutree(iso_switch_heatmap$tree_row, 6) == 2], 'gene_short_name']))
+length(unique(fData(HSMM_myo_isoform)[iso_names[cutree(iso_switch_heatmap$tree_row, 6) == 3], 'gene_short_name']))
+length(unique(fData(HSMM_myo_isoform)[iso_names[cutree(iso_switch_heatmap$tree_row, 6) == 4], 'gene_short_name']))
+length(unique(fData(HSMM_myo_isoform)[iso_names[cutree(iso_switch_heatmap$tree_row, 6) == 5], 'gene_short_name']))
+length(unique(fData(HSMM_myo_isoform)[iso_names[cutree(iso_switch_heatmap$tree_row, 6) == 6], 'gene_short_name']))
 
 
+
+
+
+sum(iso_switch_test_res$qval < 0.01)
+sum(count_iso_switch_test_res$qval < 0.1)
+
+#figure 6: 
+1-	nrow(subset(genes_interval_test_df, value > up)) / nrow(genes_interval_test_df)
+#315/ 6629
+
+nrow(subset(genes_interval_test_df, value > up)) / nrow(genes_interval_test_df)
+# 4502/ 21988
+
+#numbers in supplementary texts: 
+
+#number of cells selected for analysis: 
+absolute_cds
+
+Shalek_abs_subset_ko_LPS #check the code (analysis_shalek) for the qval threshold for making the tree 
+
+HSMM_myo
+HSMM_myo #in figure 5 comparing to the supplementary file is a little different: 174 cells
 

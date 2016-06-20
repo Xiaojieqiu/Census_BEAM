@@ -1,8 +1,8 @@
 library(stringr)
 library(scales)
-# library(monocle)
-library(devtools)
-load_all('/Users/xqiu/Dropbox (Personal)/Projects/monocle-dev') 
+library(monocle)
+# library(devtools)
+# load_all('/Users/xqiu/Dropbox (Personal)/Projects/monocle-dev') 
 
 library(reshape2)
 library(plyr)
@@ -797,6 +797,6 @@ plot_genes_in_pseudotime(MYL6,
 dev.off()
 
 
-# save.image('./RData/analysis_hsmm_isoform.RData')
+save.image('./RData/analysis_hsmm_isoform.RData')
 
 

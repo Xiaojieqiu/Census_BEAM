@@ -71,7 +71,8 @@ Other:
 ##DHS analysis: 
 Quake_intersect_dhs.sh and Shalek_intersect_dhs.sh are the shell scripts used to perform the DHS analysis disussed in the supplementary file. For simplicity, we only provided the output gmt files in the data folder for the current distribution.  
 
-New scripts used to generated new figures since the last submission (all depends on script above excepting deg_benchmark_analysis_HSMM_bulk): 
+New scripts used to generated new figures since the second submission (all depends on script above excepting deg_benchmark_analysis_HSMM_bulk): 
+#(folder: first_revision)
 - analysis_cell_downsampling.R  
 - deg_benchmark_analysis_HSMM_bulk.R       
 - roc_curves.R
@@ -86,5 +87,58 @@ New scripts used to generated new figures since the last submission (all depends
 - gen_lung_downsampling_figures.R          
 - remaining_review_figures.R        
 - umi_normalization.R
+
+New scripts used to generated new figures since the second submission (all depends on script above excepting deg_benchmark_analysis_HSMM_bulk): 
+#(folder: second_revision)
+
+##simulation of the generative process of sc RNA-seq with spike-in: 
+- simulator_helper.R
+- simulator.R
+
+##analysis of isoform switch 
+- isoform_helper.R
+- isoform_analysis.R
+
+##analysis of allele switch 
+- allele_sandberg.R
+- allele_fig6ab.R
+- allele_fig6cd.R
+- allele_fig6e.R
+- allele_fig6f.R
+
+##a few figures for answering the reviewer's comments
+- third_rebuttal.R
+
+Scripts that split the downsampling analysis for the purpose of parallelism 
+#(folder: downsampling_subscripts)
+
+##cell downsampling transcript counts data (don't fix ordering)   
+- analysis_BEAM_cell_downsampling.R           
+- analysis_cell_downsampling_subset_1.R
+- analysis_cell_downsampling_subset_2.R
+- analysis_cell_downsampling_subset_3.R
+- analysis_cell_downsampling_subset_4.R
+- analysis_cell_downsampling_subset_5.R
+- analysis_cell_downsampling_subset_6.R
+- analysis_cell_downsampling_subset_7.R
+- analysis_cell_downsampling_subset_8.R
+
+##cell downsampling fpkm data (fix ordering)  
+- analysis_BEAM_cell_downsampling_subset_1.R  
+- analysis_BEAM_cell_downsampling_subset_2.R  
+- analysis_BEAM_cell_downsampling_subset_3.R  
+- analysis_BEAM_cell_downsampling_subset_4.R  
+- analysis_BEAM_cell_downsampling_subset_5.R  
+- analysis_BEAM_cell_downsampling_subset_6.R  
+- analysis_BEAM_cell_downsampling_subset_7.R  
+- analysis_BEAM_cell_downsampling_subset_8.R  
+
+##cell downsampling fpkm data (fix ordering)  
+- analysis_cell_downsampling_A.R              
+- analysis_cell_downsampling_B.R              
+- analysis_cell_downsampling_c.R     
+- analysis_cell_downsampling.R       
+
+
 
 

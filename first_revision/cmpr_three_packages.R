@@ -1,5 +1,5 @@
 #function to compare the performance of the three packages
-# load('./RData/deg_benchmark_analysis_tmp.RData')
+load('./RData/deg_benchmark_analysis.RData')
 # #1. MAST 
 library(devtools)
 install_github('RGLab/MAST')
@@ -37,17 +37,17 @@ MAST_deg <- function(cds, grp = 'Time', test.type = 'hurdle', normalization = F)
   return(pval)
 }
 
-# mast_abs_pval_no_norm <- MAST_deg(new_abs_cds_14_18)
-# mast_mc_pval_no_norm <- MAST_deg(new_mc_cds_14_18)
-# mast_std_pval_no_norm <- MAST_deg(new_std_cds_14_18)
-# mast_count_pval_no_norm <- MAST_deg(count_cds)
+mast_abs_pval_no_norm <- MAST_deg(new_abs_cds_14_18)
+mast_mc_pval_no_norm <- MAST_deg(new_mc_cds_14_18)
+mast_std_pval_no_norm <- MAST_deg(new_std_cds_14_18)
+mast_count_pval_no_norm <- MAST_deg(count_cds)
 
-# mast_abs_pval_norm <- MAST_deg(new_abs_cds_14_18, normalization = T)
-# mast_mc_pval_norm <- MAST_deg(new_mc_cds_14_18, normalization = T)
-# mast_std_pval_norm <- MAST_deg(new_std_cds_14_18, normalization = T)
-# mast_count_pval_norm <- MAST_deg(count_cds, normalization = T)
+mast_abs_pval_norm <- MAST_deg(new_abs_cds_14_18, normalization = T)
+mast_mc_pval_norm <- MAST_deg(new_mc_cds_14_18, normalization = T)
+mast_std_pval_norm <- MAST_deg(new_std_cds_14_18, normalization = T)
+mast_count_pval_norm <- MAST_deg(count_cds, normalization = T)
 
-#integrate into the benchmark analysis: 
+#integrate into the benchmark analysis:  
 df3 <- plot_pre_rec_f1(test_p_list = list(monocle_p = monocle_p, 
                                         monocle_p_readcount = monocle_p_readcount,
                                         mode_size_norm_permutate_ratio_by_geometric_mean = new_abs_size_norm_monocle_p_ratio_by_geometric_mean,
@@ -58,10 +58,10 @@ df3 <- plot_pre_rec_f1(test_p_list = list(monocle_p = monocle_p,
                                         abs_default_deseq2_p = abs_default_deseq2_p, 
                                         default_deseq_p = default_deseq_p, 
                                         abs_default_deseq_p = abs_default_deseq_p, 
-                                        scde_p = scde_p, 
+                                        scde_p = scde_p,  
                                         abs_scde_p = abs_scde_p, 
                                         # mast_abs_pval_norm = mast_abs_pval_norm, 
-                                        # mast_mc_pval_norm = mast_mc_pval_norm, 
+                                        # mast_mc_pval_norm = mast_mc_pval_norm,  
                                         # #mast_std_pval_no_norm = mast_std_pval_no_norm, 
                                         # mast_count_pval_norm = mast_count_pval_norm
                                         mast_abs_pval_no_norm = mast_abs_pval_no_norm, 
@@ -93,7 +93,7 @@ df3 <- plot_pre_rec_f1(test_p_list = list(monocle_p = monocle_p,
                                            ),
                      row.names(absolute_cds), #gene_list, overlap_genes, high_gene_list
                      return_df = T, #na.rm = T, 
-                     p_thrsld = 0.01, #0.05
+                     p_thrsld = 0.05, #0.05
                      rownames = c('monocle (FPKM)', 'monocle (readcount)', 'monocle (New size normalization)', 'monocle (New size normalization, Estimate transcript)', 
                         'edgeR (edgeR size normalization)', 'edgeR (New Size normalization)', 'DESeq2 (DESeq2 size normalization)', 'DESeq2 (New Size normalization)',
                         'DESeq (DESeq size normalization)', "DESeq (New Size normalization)", 'SCDE (Read Counts)', 'SCDE (New size normalization)', 
@@ -130,7 +130,7 @@ ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_w
 ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank())
 dev.off()
 
-# save.image('./RData/cmpr_three_packages.RData')
+save.image('./RData/cmpr_three_packages.RData')
 
 
 #2. SUBRA (matlab code) this is also a very different tool and we are not going to test that too

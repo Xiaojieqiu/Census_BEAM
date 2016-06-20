@@ -1,9 +1,9 @@
 ########################################
 # Downsampling the number of cells
 # ########################################
-# library(monocle)
-library(devtools)
-load_all('~/Projects/monocle-dev')
+library(monocle)
+# library(devtools)
+# load_all('~/Projects/monocle-dev')
 library(xacHelper)
 # source("monocle_helper_functions.R")
 library(plyr)
@@ -11,7 +11,7 @@ library(stringr)
 library(dplyr) 
 library(grid)
 library(gridExtra)
-# load("RData/analysis_shalek_data.RData")
+load("RData/analysis_shalek_data.RData")
 
 #functions used in the scripts
 order_shalek_cells_by_original_states <- function(cds_subset, original_cds, root_state, cells_state_2, cells_state_3) {

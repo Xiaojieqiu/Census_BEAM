@@ -1,7 +1,8 @@
 #UMI data: 
 #from the paper GSE54695_analysis_script.R: 
-library(devtools)
-load_all('~/Projects/monocle-dev')
+# library(devtools)
+# load_all('~/Projects/monocle-dev')
+library(monocle)
 library(xacHelper)
 
 load_all_libraries()
@@ -148,7 +149,7 @@ cols <- c("Read counts" = "#00BFC4","MC transcripts" = "#7CAE00", "Spikein trans
 pdf(file = "./supplementary_figures/fig2c_si.pdf", width = 2.5, height = 2)
 ggplot(aes(factor(Type), value,  fill = class), data = melt(df3)) + geom_bar(position = position_dodge(), stat = 'identity') + #facet_wrap(~variable) + 
   ggtitle(title) +  scale_fill_manual(values = cols) + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') + 
-  ggtitle('') + theme(axis.ticks = element_blank(), axis.text.x = element_blank()) + theme(strip.background = element_blank()) + nm_theme() + xlab('') + ylim(0, 1)
+  ggtitle('') + theme(axis.ticks = element_blank(), axis.text.x = element_text(angle = 30, hjust = .9)) + theme(strip.background = element_blank()) + nm_theme() + xlab('') + ylim(0, 1)
 dev.off()
 
 save.image('./RData/analysis_UMI_data.RData')

@@ -1,5 +1,6 @@
-library(devtools)
-load_all('~/Projects/monocle-dev')
+# library(devtools)
+# load_all('~/Projects/monocle-dev')
+library(monocle)
 library(xacHelper)
 library(grid)
 library(igraph)

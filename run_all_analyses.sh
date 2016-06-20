@@ -81,7 +81,7 @@ Rscript gen_supplementary_figure.R
 ###### The following are scripts developed for the resubmission #####
 ##
 #########################################################
-# New figures added in manuscript and rebuttal figures for resubmission 
+# New figures added in manuscript and rebuttal figures for first resubmission 
 # All the scripts below are depend on previous figures 
 # excepting deg_benchmark_analysis_HSMM_bulk.R and roc_curves.R 
 #
@@ -134,5 +134,21 @@ Rscript gen_lung_downsampling_figures.R
 ## Script to generate other figures not in scripts above 
 Rscript remaining_review_figures.R        
 
+#########################################################
+# New figures added in manuscript and rebuttal figures for second resubmission 
+# All the scripts below doesn't depend on previous figure 
+# excepting third_rebuttal
+#########################################################
 
+## Script to simulate the generative process of sc RNA-seq with spike-in 
+Rscript simulator.R        
+
+## Script to perform the isoform switch analysis
+Rscript isoform_analysis.R        
+
+## Script to perform the allele switch analysis
+Rscript allele_sandberg.R 
+
+## script to generte a few figures depends on the gen_lung_figures.R
+Rscript third_rebuttal.R
 
