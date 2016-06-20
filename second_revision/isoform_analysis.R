@@ -98,10 +98,10 @@ HSMM_isoform_fpkm_matrix_adj <- relative2abs(HSMM_isoform, estimate_t(HSMM_isofo
 pd <- new("AnnotatedDataFrame", data = sample_sheet)
 fd <- new("AnnotatedDataFrame", data = isoform_ann)
 HSMM_isoform <- newCellDataSet(as.matrix(HSMM_isoform_fpkm_matrix_adj), 
-						   phenoData = pd, 
-						   featureData = fd, 
-						   expressionFamily=negbinomial(), 
-						   lowerDetectionLimit=1)
+               phenoData = pd, 
+               featureData = fd, 
+               expressionFamily=negbinomial(), 
+               lowerDetectionLimit=1)
 
 pData(HSMM_isoform)$Total_mRNAs <- colSums(exprs(HSMM_isoform))
 
@@ -142,7 +142,7 @@ pData(HSMM_isoform)$CellType[cell_is_hsmm == FALSE] <-  "Fibroblast"
 HSMM <- HSMM[,pData(HSMM)$Total_mRNAs < 1e6]
 upper_bound <- 10^(mean(log10(pData(HSMM)$Total_mRNAs)) + 2*sd(log10(pData(HSMM)$Total_mRNAs)))
 lower_bound <- 10^(mean(log10(pData(HSMM)$Total_mRNAs)) - 2*sd(log10(pData(HSMM)$Total_mRNAs)))
-HSMM_myo <- HSMM[,pData(HSMM)$CellType == "Myoblast" & pData(HSMM)$Total_mRNAs > lower_bound & pData(HSMM)$Total_mRNAs < upper_bound]								  
+HSMM_myo <- HSMM[,pData(HSMM)$CellType == "Myoblast" & pData(HSMM)$Total_mRNAs > lower_bound & pData(HSMM)$Total_mRNAs < upper_bound]                 
 HSMM_myo_isoform <- HSMM_isoform[,row.names(pData(HSMM_myo))]                 
 
 qplot(Total_mRNAs, data=pData(HSMM_myo), color=Time, geom="density")
@@ -150,8 +150,8 @@ qplot(Total_mRNAs, data=pData(HSMM_myo), color=Time, geom="density")
 #######
 
 HSMM_expressed_genes <- row.names(subset(fData(HSMM_myo), 
-									num_cells_expressed >= 15 & 
-									biotype %in% c("protein_coding", "lincRNA")))
+                  num_cells_expressed >= 15 & 
+                  biotype %in% c("protein_coding", "lincRNA")))
 
 HSMM_myo <- estimateSizeFactors(HSMM_myo)
 
@@ -371,7 +371,7 @@ plot_genes_in_pseudotime(actins,
                          cell_size=1,
                          min_expr=0.5) + 
   theme(legend.position="none") + 
-  scale_color_brewer(palette="Set1") + nm_theme()
+  scale_color_brewer(palette="Set1") + nm_theme() + xlab('Pseudotime') + ylab('Transcript counts')
 dev.off()
 
 isoform_universe <- row.names(subset(fData(HSMM_myo_isoform), gene_id %in% HSMM_expressed_genes))
@@ -798,5 +798,4 @@ dev.off()
 
 
 save.image('./RData/analysis_hsmm_isoform.RData')
-
 
