@@ -104,6 +104,8 @@ return_spike_rpc_df <- function(libraries, total_ladder_transcripts, ladder, tru
 			read_sample <- lib$read_sample
 			tpm_est <- 1e6*read_sample / sum(read_sample)
 			mode_log_tpm_estimate = tryCatch({estimate_t(as.matrix(tpm_est))}, error=function(e) {print (e); NA })
+			#calculate the mode of the original distribution: 
+			mode_log_transcript_true <- 
 			# print(length(S))
 			# print(length(total_ladder_transcripts))
 			# print(length(ladder))
@@ -191,14 +193,14 @@ return_spike_rpc_df <- function(libraries, total_ladder_transcripts, ladder, tru
 	num_genes_converged_true_rpc <- num_genes_converged_true_rpc < 2 * sd_vec
 	num_genes_converged_true_rpc <- colSums(num_genes_converged_true_rpc) / nrow(true_rpc_matrix > 0)
 
-	cor_true_estimated <- unlist(lapply(1:10, function(x) cor(spike_rpc_matrix[, x], true_rpc_matrix[, x])))
+	cor_true_estimated <- unlist(lapply(1:ncol(spike_rpc_matrix), function(x) cor(spike_rpc_matrix[, x], true_rpc_matrix[, x])))
 
 	sd_vec <- apply(library_rpc_matrix, 1, sd)
 	num_genes_converged_library_rpc <- abs(spike_rpc_matrix - library_rpc_matrix)
 	num_genes_converged_library_rpc <- num_genes_converged_library_rpc < 2 * sd_vec
 	num_genes_converged_library_rpc <- colSums(num_genes_converged_library_rpc) / nrow(library_rpc_matrix > 0)
 
-	cor_library_estimated <- unlist(lapply(1:10, function(x) cor(library_rpc_matrix[, x], true_rpc_matrix[, x])))
+	cor_library_estimated <- unlist(lapply(1:ncol(library_rpc_matrix), function(x) cor(library_rpc_matrix[, x], true_rpc_matrix[, x])))
 
 	res$num_genes_converged_true_rpc <- num_genes_converged_true_rpc
 	res$num_genes_converged_library_rpc <- num_genes_converged_library_rpc
@@ -259,6 +261,39 @@ return_spike_tpm_mode <- function(libraries, total_ladder_transcripts, ladder){
 }
 
 
+explore_kb_relationship <- function(original_fpkm_distribution,
+										#genes_expressed=seq(1000, 25000, by=500), 
+										genes_expressed=c(1000, 2500, 5000, 7500, 10000, 20000),
+										total_mRNAs=c(10000, 25000, 50000, 100000, 250000, 500000, 750000, 1000000),
+										replicates=5
+										){
+	ldply(1:replicates, function(i) {
+		ldply(genes_expressed, function(num_genes){
+			expr_profile <- original_fpkm_dist[sample(length(original_fpkm_dist), num_genes)]
+			expr_profile <- expr_profile / sum(expr_profile)
+			ldply(total_mRNAs, function(total_mRNA) {
+				T <- rmultinom(1, total_mRNA, expr_profile)
+				#trial_modes <- colHistMode(T)
+				tpm_true = 1e6*T / sum(T)
 
+				mode_log_tpm = estimate_t(tpm_true)
+				mode_molecules_in_cell = 10^dmode(log10(T[T > 0]))
+
+				fit_df <- data.frame(log_T = log10(T), log_tpm=log10(tpm_true))
+				fit_df <- subset(fit_df, is.finite(log_T) & is.finite(log_tpm))
+				fit <- lm(log_T ~ log_tpm, data=fit_df)
+				print (summary(fit))
+				b <- coefficients(fit)[1]
+				k <- coefficients(fit)[2]
+				#print(qplot(tpm_true, T, log="xy"))
+				data.frame(rep_id=i,
+						   num_genes=num_genes, 
+						   total_mRNAs=total_mRNA, 
+						   regression_k=k,
+						   regression_b=b)
+			})
+		})
+	})
+}
 
 

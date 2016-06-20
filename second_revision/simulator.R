@@ -2,18 +2,19 @@ source('./simulator_helper.R')
 
 simulate_sequencing_with_ladder <- function(original_fpkm_dist,
 										#genes_expressed=seq(1000, 25000, by=500), 
-										genes_expressed=10000,
-										total_mRNAs=150000, #300000 
+										genes_expressed=5000,
+										total_mRNAs=37500, #15000 * 0.25
 										total_ladder_transcripts=50000,
 										ladder=rep(c(2^(seq(from=0,to=24, by=2))), 4),
 										ladder_degradation_rates=0,#c(0.01, 0.05, 0.15, 0.25, seq(0.1, 1, by=0.1)),
 										mRNA_degradation_rates=0,#c(0.01, 0.05, 0.15, 0.25, seq(0.1, 1, by=0.1)),
-										capture_rates=0.1, #0.25
+										capture_rates=0.25, #0.25
 										reads_per_cell=1000000,
 										cells=15,
 										run_rel2abs=TRUE,
 										return_matrices=FALSE,
 										calibration_trials=10,
+										return_matrix=FALSE,
 										... # Additional args passed to relative2abs
 										#mRNA_range=seq(10000, 500000, by=10000),
 										#seq_range=seq(10000, 2000000, by=10000)
@@ -107,8 +108,8 @@ simulate_sequencing_with_ladder <- function(original_fpkm_dist,
 		total_mRNA = rep(total_mRNA, length(split_relative_exprs)) 
        	capture_rate = rep(capture_rate, length(split_relative_exprs))
        	reads = rep(reads_per_cell, length(split_relative_exprs))
-		save(file = 'debug_simulation', split_relative_exprs, 
-               ladder, total_ladder_transcripts, total_mRNA, capture_rate, reads)
+		# save(file = 'debug_simulation', split_relative_exprs, 
+  #              ladder, total_ladder_transcripts, total_mRNA, capture_rate, reads)
 
 		calibrated_mc_modes <- lapply(1:length(split_relative_exprs), 
 			   monocle:::calibrate_mode, 
@@ -126,9 +127,9 @@ simulate_sequencing_with_ladder <- function(original_fpkm_dist,
 
 		capture_stats_df <- return_capture_stats_df(libraries, total_ladder_transcripts, ladder, capture_rate)
 		spike_rpc_df <- return_spike_rpc_df(libraries, total_ladder_transcripts, ladder, true_rpc_matrix, library_rpc_matrix)
-		spike_rpc_matrix <- return_spike_rpc_matrix(libraries, total_ladder_transcripts, ladder)
+		spike_rpc_matrix <<- return_spike_rpc_matrix(libraries, total_ladder_transcripts, ladder)
 
-		# return(spike_rpc_df)
+		# print(head(spike_rpc_matrix))
 
 
 		kb_lm <- rlm(regression_b ~ regression_k, data=spike_rpc_df)
@@ -178,13 +179,18 @@ simulate_sequencing_with_ladder <- function(original_fpkm_dist,
 								mode_log_tpm_estimate=spike_rpc_df$mode_log_tpm_estimate,
 								molecules_for_mode_log_tpm=spike_rpc_df$molecules_for_mode_log_tpm,
 								t_estimate=estimate_t(exprs(TPM_cds), relative_expr_thresh=TPM_thresh))
+		if(return_matrix == T) {
+		  spike_res$true_rpc_matrix <- apply(true_rpc_matrix, 2, function(x) list(x))
+		  spike_res$library_rpc_matrix <- apply(library_rpc_matrix, 2, function(x) list(x))
+		  spike_res$tpm_matrix <- esApply(TPM_cds, 2, function(x) list(x))
+		}
 
 		if (run_rel2abs){
 			message("running relative2abs())")
 			print ("****")
 			# print(qplot(tpm_matrix[,1], log="x"))
 			# print (calibrated_modes)
-			estimated_rpc_matrix <- as.matrix(relative2abs(TPM_cds,
+			estimated_rpc_all <<- relative2abs(TPM_cds,
 											 #total_RNAs=1000000, 
 											 estimate_t(exprs(TPM_cds), relative_expr_thresh=0.1),
 											 #alpha_v=spike_rpc_df$molecules_for_mode_log_tpm,
@@ -194,12 +200,20 @@ simulate_sequencing_with_ladder <- function(original_fpkm_dist,
 											 #kb_intercept=calibrated_mc[["c"]],
 											 #kb_slope_rng=sort(c(calibrated_mc[["m"]]*0.8, calibrated_mc[["m"]]*1.2)),
 											 #c_rng=sort(c(calibrated_mc[["c"]]*0.8, calibrated_mc[["c"]]*1.2)),
-											 expected_total_mRNAs = total_mRNA  / capture_rate,
+											 expected_total_mRNAs = total_mRNA,
 											 expected_capture_rate = capture_rate,
 											 reads_per_cell=reads,
 											 use_fixed_intercept=T,
-											 ...))
+											 cores = detectCores(),
+											 return_all = T,
+											 ...)
+			estimated_rpc_matrix <<- as.matrix(estimated_rpc_all$norm_cds)
 			print ("****")
+
+			print ("sum of estimated rpc: ")
+			print(colSums(estimated_rpc_matrix))
+			print ("sum of true rpc: ")
+			print(colSums(true_rpc_matrix))
 
 		    print(qplot(estimated_rpc_matrix[,1], true_rpc_matrix[,1], log="xy") + geom_abline(color="red") + 
 		    		ggtitle(paste('capture_rate:', capture_rate)))
@@ -222,22 +236,21 @@ simulate_sequencing_with_ladder <- function(original_fpkm_dist,
 			
 			#print (class(estimated_rpc_matrix))
 			#print (class(true_rpc_matrix))
-			save(file = 'test_simulation', estimated_rpc_matrix, spike_tpm_mode, library_rpc_matrix, spike_m, spike_c, true_rpc_matrix, TPM_cds, TPM_thresh, total_mRNA, capture_rate, reads)
+			# save(file = 'test_simulation', estimated_rpc_matrix, spike_tpm_mode, library_rpc_matrix, spike_m, spike_c, true_rpc_matrix, TPM_cds, TPM_thresh, total_mRNA, capture_rate, reads)
 
 			sd_vec <- apply(true_rpc_matrix, 1, sd)
 			num_genes_converged_true_rpc <- abs(estimated_rpc_matrix - true_rpc_matrix)
 			num_genes_converged_true_rpc <- num_genes_converged_true_rpc < 2 * sd_vec
 			num_genes_converged_true_rpc <- colSums(num_genes_converged_true_rpc) / nrow(true_rpc_matrix > 0)
 
-			cor_true_estimated <- mean(unlist(lapply(1:10, function(x) cor(estimated_rpc_matrix[, x], true_rpc_matrix[, x]))))
+			cor_true_estimated <- mean(unlist(lapply(1:cells, function(x) cor(estimated_rpc_matrix[, x], true_rpc_matrix[, x]))))
 
 			sd_vec <- apply(library_rpc_matrix, 1, sd)
 			num_genes_converged_library_rpc <- abs(estimated_rpc_matrix - library_rpc_matrix)
 			num_genes_converged_library_rpc <- num_genes_converged_library_rpc < 2 * sd_vec
 			num_genes_converged_library_rpc <- colSums(num_genes_converged_library_rpc) / nrow(library_rpc_matrix > 0)
 
-			cor_library_estimated <- mean(unlist(lapply(1:10, function(x) cor(estimated_rpc_matrix[, x], library_rpc_matrix[, x]))))
-
+			cor_library_estimated <- mean(unlist(lapply(1:cells, function(x) cor(estimated_rpc_matrix[, x], library_rpc_matrix[, x]))))
 
 			#print (colSums((abs(estimated_rpc_matrix[library_nzgenes,] - library_rpc_matrix[library_nzgenes,])/ library_rpc_matrix[library_nzgenes,])))
 			spike_free_res <- data.frame(total_mRNA=total_mRNA,
@@ -266,10 +279,16 @@ simulate_sequencing_with_ladder <- function(original_fpkm_dist,
 								calibrated_c=calibrated_mc[["c"]],
 								calibrated_mode = mean(calibrated_modes_cell),
 								#true_fixed_ladder_c=mean(capture_stats_df$true_fixed_c),
-								mode_log_tpm_estimate=NA,
-								molecules_for_mode_log_tpm=NA,
+								mode_log_tpm_estimate=spike_rpc_df$mode_log_tpm_estimate,
+								molecules_for_mode_log_tpm=estimated_rpc_all$calibrated_modes_df[, 1],
 								t_estimate=estimate_t(exprs(TPM_cds), relative_expr_thresh=TPM_thresh))
 
+			if(return_matrix == T) {
+			  spike_free_res$true_rpc_matrix <- apply(true_rpc_matrix, 2, function(x) list(x))
+			  spike_free_res$library_rpc_matrix <- apply(library_rpc_matrix, 2, function(x) list(x))
+			  spike_free_res$tpm_matrix <- esApply(TPM_cds, 2, function(x) list(x))
+			}
+			
 			res <- rbind(spike_res, spike_free_res)
 			# res[, c("capture_rate", "num_genes_converged_true_rpc", "num_genes_converged_library_rpc", "method")]
 
@@ -291,4 +310,3 @@ simulate_sequencing_with_ladder <- function(original_fpkm_dist,
 		return (list(true_rpc_matrix=true_rpc_matrix, spike_true_rpc_matrix = spike_true_rpc_matrix, library_rpc_matrix=library_rpc_matrix, tpm_matrix=tpm_matrix, spike_rpc_matrix=spike_rpc_matrix, estimated_rpc_matrix=estimated_rpc_matrix))
 	}
 }
-
