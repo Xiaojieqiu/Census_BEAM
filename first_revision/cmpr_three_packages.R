@@ -130,6 +130,11 @@ ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_w
 ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank())
 dev.off()
 
+#save the permutation result as a supplementary file: 
+permutate_df <- data.frame(FPKM = std_permutate_pval, read_count = readcount_permutate_pval, spike_free = mc_mode_size_norm_permutate_ratio_by_geometric_mean, spike = mode_size_norm_permutate_ratio_by_geometric_mean)
+row.names(permutate_df) <- names(std_permutate_pval)
+write.table(permutate_df, sep = "\t", quote = F, row.names = T, file = './supplementary_data/supplementary_file_1.txt')
+
 save.image('./RData/cmpr_three_packages.RData')
 
 

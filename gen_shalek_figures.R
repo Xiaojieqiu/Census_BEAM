@@ -87,6 +87,22 @@ pdf(file =paste(fig_root_dir, 'fig5c_go.pdf', sep = ''), height = 25, width = 12
 plot_gsa_hyper_heatmap(Shalek_abs_subset_ko_LPS, Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_go, significance=5e-2) + nm_theme()
 dev.off()
 
+save_hyper_df <- function (cds, gsa_results, significance = 0.05, sign_type = "qval") {
+    hyper_df <- ldply(gsa_results, function(gsa_res) {
+        data.frame(gene_set = names(gsa_res$pvalues), pval = gsa_res$pvalues,
+            qval = gsa_res$p.adj)
+    })
+    hyper_df$qval <- p.adjust(hyper_df$pval, method = 'fdr')
+    colnames(hyper_df)[1] <- "cluster_id"
+    hyper_df <- subset(hyper_df, hyper_df[, sign_type] <= significance)
+    hyper_df <- merge(hyper_df, ddply(hyper_df, .(gene_set),
+        function(x) {
+            nrow(x)
+        }), by = "gene_set")
+     write.table(hyper_df, sep = "\t", quote = F, row.names = F, 
+        file = file_name)
+}
+
 save_hyper_df(Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_go, './supplementary_data/go_ko_hyper_df.xls') 
 
 #overlap between branching genes: 

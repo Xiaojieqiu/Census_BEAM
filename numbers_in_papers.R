@@ -121,8 +121,8 @@ length(unique(fData(HSMM_myo_isoform)[iso_names[cutree(iso_switch_heatmap$tree_r
 
 
 
-sum(iso_switch_test_res$qval < 0.01)
-sum(count_iso_switch_test_res$qval < 0.1)
+dim(iso_switch_test_res$qval < 0.01)
+dim(count_iso_switch_test_res$qval < 0.1)
 
 #figure 6: 
 1-	nrow(subset(genes_interval_test_df, value > up)) / nrow(genes_interval_test_df)
