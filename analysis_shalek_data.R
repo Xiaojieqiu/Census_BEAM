@@ -13,9 +13,9 @@ library(pheatmap)
 library(RColorBrewer)
 
 #use monocle2: 
-# library(devtools)
-# load_all('~/Projects/monocle-dev')
-library(monocle)
+library(devtools)
+load_all('~/Projects/monocle-dev')
+# library(monocle)
 
 #   #load all the go/reactome/kegg datasets for the analysis: 
 root_directory <- "./data/Quake_data"
@@ -93,13 +93,7 @@ pData(Shalek_read_countdata_cds)$Total_mRNAs <- esApply(Shalek_read_countdata_cd
 pData(Shalek_read_countdata_cds)$endogenous_RNA <- esApply(Shalek_read_countdata_cds, 2, sum)
 
 # Convert expression measurements from FPKM to absolute transcript counts, using the isoforms object to estimate the t parameter
-Shalek_abs= relative2abs(Shalek_std, estimate_t(Shalek_std), modelFormulaStr = "~1", cores=detectCores(), reads_per_cell = pData(Shalek_read_countdata_cds[, colnames(Shalek_std)])$Total_mRNAs, verbose = T) #
-# Shalek_abs_37500= relative2abs(Shalek_std, estimate_t(Shalek_std), modelFormulaStr = "~1", cores=detectCores(), expected_total_mRNAs = 37500, reads_per_cell = pData(Shalek_read_countdata_cds[, colnames(Shalek_std)])$Total_mRNAs, verbose = T) #
-# Shalek_abs_50000= relative2abs(Shalek_std, estimate_t(Shalek_std), modelFormulaStr = "~1", cores=detectCores(), expected_total_mRNAs = 50000, reads_per_cell = pData(Shalek_read_countdata_cds[, colnames(Shalek_std)])$Total_mRNAs, verbose = T) #
-# Shalek_abs_50000_subset= relative2abs(Shalek_std[, pData(Shalek_abs)$experiment_name %in% c('Ifnar1_KO_LPS', 'Stat1_KO_LPS',  "LPS", "Unstimulated_Replicate")], 
-#                     estimate_t(Shalek_std), modelFormulaStr = "~1", cores=detectCores(), expected_total_mRNAs = 50000, reads_per_cell = pData(Shalek_read_countdata_cds[, colnames(Shalek_std)])$Total_mRNAs, verbose = T) #
-# Shalek_abs_37500_subset= relative2abs(Shalek_std[, pData(Shalek_abs)$experiment_name %in% c('Ifnar1_KO_LPS', 'Stat1_KO_LPS',  "LPS", "Unstimulated_Replicate")], 
-#                     estimate_t(Shalek_std), modelFormulaStr = "~1", cores=detectCores(), expected_total_mRNAs = 37500, reads_per_cell = pData(Shalek_read_countdata_cds[, colnames(Shalek_std)])$Total_mRNAs, verbose = T) #
+Shalek_abs= relative2abs(Shalek_std, t_estimate = estimate_t(Shalek_std), modelFormulaStr = "~1", cores=detectCores(), reads_per_cell = pData(Shalek_read_countdata_cds[, colnames(Shalek_std)])$Total_mRNAs, verbose = T) #
 
 pd <- new("AnnotatedDataFrame", data = pData(Shalek_std))
 fd <- new("AnnotatedDataFrame", data = fData(Shalek_std))
@@ -248,7 +242,7 @@ closeAllConnections()
 
 # golgi_branching_genes = branchTest(Shalek_golgi_update, fullModelFormulaStr = full_model_string, cores= detectCores(), relative_expr = T) #, weighted = T
 # closeAllConnections()
-
+ 
 # #figure 6: 
 # #pseudotime test for the WT cells
 # golgi_wt_0to4_pseudo <- differentialGeneTest(Shalek_golgi_update[, pData(Shalek_golgi_update)$experiment_name %in% c('LPS', 'Unstimulated_Replicate') & pData(Shalek_golgi_update)$time %in% c('', '1h', '2h', '4h')], fullModelFormulaStr="~sm.ns(Pseudotime, df = 3)", reducedModelFormulaStr="~1", cores=detectCores() / 1)
@@ -285,5 +279,7 @@ closeAllConnections()
 #                                          ], fullModelFormulaStr="~time", reducedModelFormulaStr="~1", cores=detectCores())
 # closeAllConnections()
 # golgi_plug0_wt0_gene_ids = row.names(subset(golgi_plug0_wt0, qval < 1e-2))
+
+save(Shalek_abs_subset_ko_LPS, file = './RData/Shalek_abs_subset_ko_LPS')
 
 save.image('./RData/analysis_shalek_data.RData')

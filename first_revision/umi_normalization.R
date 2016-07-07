@@ -1,4 +1,3 @@
-#test the UMI data using the census: 
 #load the data 
 load('./RData/analysis_UMI_data.RData')
 
@@ -98,6 +97,19 @@ UMI_mode_absolute_counts <- mapply(function(cell_exprs, molModel) {
 split(as.vector(t_estimate), names(t_estimate)), 
 UMI_molModels) 
 
+UMI_absolute_counts <- mapply(function(cell_exprs, molModel) {
+  tryCatch({
+    norm_df <- data.frame(log_fpkm=log10(as.numeric(cell_exprs)))
+    res <- 10^predict(molModel, type="response", newdata=norm_df)
+  }, 
+  error = function(e) {
+    rep(NA, length(cell_exprs))
+  })
+}, 
+split(exprs(UMI_TPM_cds), rep(1:ncol(exprs(UMI_TPM_cds)), each = nrow(exprs(UMI_TPM_cds)))), 
+UMI_molModels) 
+
+dimnames(UMI_absolute_counts) <- dimnames(UMI_TPM_cds)
 pdf('./supplementary_figures/UMI_mode_dist.pdf', width = 2, height = 2)
 qplot(UMI_mode_absolute_counts) + xlab('Transcript count for most frequent log10(TPM)') + nm_theme() + ylab('Cells')
 dev.off()
@@ -110,36 +122,9 @@ qplot(k, b, data = UMI_models_kd_df) + geom_smooth(method = 'rlm') +
   xlab('Slope from TPM vs. Median UMI counts \n for ERCC spike-in transcripts') + ylab('Intercept from TPM vs. Median UMI counts \n for ERCC spike-in transcripts') +  nm_theme()
 dev.off()
 
-rlm(b ~ k, data = UMI_models_kd_df) 
-
-UMI_norm_recovery_all_correct_mc <- relative2abs(UMI_TPM_cds, expected_total_mRNAs = pData(UMI_cds[, colnames(UMI_TPM_cds)])$Total_mRNAs, 
-                                                 t_estimate = estimate_t(exprs(UMI_TPM_cds)),  kb_slope = -1.9266285 , kb_slope_rng = c(-2.1, -1.9), 
-                                                 kb_intercept = 0.8270289, kb_intercept_rng = c(0.8270289, 0.8270289), 
-                                                 return_all = T, cores = 1)
-
-qplot(k, b, data = as.data.frame(t(UMI_norm_recovery_all_correct_mc$k_b_solution))) + geom_point(aes(x = k, y = b, color = 'red'), data = UMI_models_kd_df)
-rlm(b ~k , data = as.data.frame(t(UMI_norm_recovery_all_correct_mc$k_b_solution))) 
-
-pdf('./tmp/UMI_algorithm_total_10e5.pdf', width = 2, height = 2)
-qplot(apply(UMI_norm_recovery_all_correct_mc$norm_cds[-ERCC_ids, ], 2, sum), pData(UMI_cds[, colnames(UMI_TPM_cds)])$endogenous_RNA, log = 'xy') + 
-  geom_smooth(method = 'rlm') + geom_abline(color = 'red') + xlab('Total endogenous mRNA (algorithm)') + ylab('Total endogenous mRNA (spike-in regression)') + 
-  nm_theme()
-dev.off()
-
-pdf('./tmp/UMI_algorithm_total.pdf', width = 2, height = 2)
-qplot(apply(UMI_norm_recovery_all_correct_mc$norm_cds[-ERCC_ids, ], 2, sum), pData(UMI_cds[, colnames(UMI_TPM_cds)])$endogenous_RNA, log = 'xy') + 
-  geom_smooth(method = 'rlm') + geom_abline(color = 'red') + expand_limits(x = c(1, 1e6), y = c(1, 1e06)) + xlab('Total endogenous mRNA (algorithm)') + ylab('Total endogenous mRNA (spike-in regression)') + 
-  nm_theme()
-dev.off()
-
-pdf('./supplementary_figures/UMI_algorithm_mean.pdf', width = 2, height = 2)
-qplot(apply(UMI_norm_recovery_all_correct_mc$norm_cds[-ERCC_ids, ], 1, mean), esApply(UMI_cds[-ERCC_ids,  colnames(UMI_TPM_cds)], 1, mean), log = 'xy') + 
-  geom_smooth(method = 'rlm') + xlab('Mean endogenous mRNA count \n (algorithm)') + ylab('Mean endogenous mRNA count (regression)') + 
-  nm_theme()
-dev.off()
-
+rlm(b ~ k, data = UMI_models_kd_df)
 ################################################################################################################################################################################################################################
-#recover without setting range for m
+# recover without setting range for m
 UMI_norm_recovery_default_c <- relative2abs(UMI_TPM_cds, expected_total_mRNAs = median(apply(UMI_absolute_counts, 2, sum)), 
                                             t_estimate = estimate_t(exprs(UMI_TPM_cds)), # m = -1.9266285 , m_rng = c(-2.1, -1.9), 
                                             kb_intercept = 0.8270289, kb_intercept_rng = c(0.8270289, 0.8270289), #fix_c
@@ -172,7 +157,7 @@ qplot(apply(UMI_norm_recovery_default_c$norm_cds[ERCC_ids, ], 1, mean), esApply(
   nm_theme()
 dev.off()
 
-#recovery by setting correct capture rate: 
+recovery by setting correct capture rate: 
 UMI_norm_recovery_capture_rate <- relative2abs(UMI_TPM_cds, expected_total_mRNAs = median(apply(UMI_absolute_counts, 2, sum)), 
                                             t_estimate = estimate_t(exprs(UMI_TPM_cds)), expected_capture_rate = 0.03529354,
                                             return_all = T, cores = detectCores())
@@ -206,18 +191,6 @@ qplot(apply(UMI_norm_recovery_capture_rate$norm_cds[ERCC_ids, ], 1, mean), apply
 dev.off()
 
 #calculated c from the formula: 
-UMI_absolute_counts <- mapply(function(cell_exprs, molModel) {
-  tryCatch({
-    norm_df <- data.frame(log_fpkm=log10(as.numeric(cell_exprs)))
-    res <- 10^predict(molModel, type="response", newdata=norm_df)
-  }, 
-  error = function(e) {
-    rep(NA, length(cell_exprs))
-  })
-}, 
-split(exprs(UMI_TPM_cds), rep(1:ncol(exprs(UMI_TPM_cds)), each = nrow(exprs(UMI_TPM_cds)))), 
-UMI_molModels) 
-
 c_mean_y_ij <- mean(log10(subset_spike_df[row.names(UMI_TPM_ercc_controls)[esApply(UMI_TPM_ercc_controls, 1, function(x) all(x >0)) > 0], 'numMolecules']))
 UMI_norm_recovery_default_c <- relative2abs(UMI_TPM_cds, expected_total_mRNAs = median(apply(UMI_absolute_counts, 2, sum)), 
                                             t_estimate = estimate_t(exprs(UMI_TPM_cds)), # m = -1.9266285 , m_rng = c(-2.1, -1.9), 
@@ -336,8 +309,8 @@ num_time_spike_in_detect_df$empirical_p <- optim_res$empirical_p
 #make the plots: 
 ggplot(aes(rounded_numMolecules, tau), data = num_time_spike_in_detect_df) + 
   geom_line(aes(rounded_numMolecules, optim_predicted_tau)) + scale_x_log10() 
-ggplot(aes(rounded_numMolecules, tau), data = num_time_spike_in_detect_df) + 
-  geom_line(aes(rounded_numMolecules, predicted_tau)) + scale_x_log10() 
+# ggplot(aes(rounded_numMolecules, tau), data = num_time_spike_in_detect_df) + 
+#   geom_line(aes(rounded_numMolecules, predicted_tau)) + scale_x_log10() 
 
 pdf('./supplementary_figures//umi_sequencing_efficiency.pdf', width = 2, height = 2)
 ggplot(aes(rounded_numMolecules, tau), data = num_time_spike_in_detect_df) + geom_point(aes(color = Time), alpha = 0.5, size = 1) + 

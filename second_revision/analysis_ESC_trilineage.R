@@ -1,61 +1,46 @@
-library(monocle)
+# library(monocle)
+library(devtools)
+load_all('~/Projects/monocle-dev')
 
 library(DDRTree)
 library(R.matlab)
 library(igraph)
 library(MASS)
+library(reshape2)
+library(xacHelper)
 
-# Y_ori <- readMat('/Users/xqiu/Downloads/ReductionTreeCode/fstree_matlab/data/HSMM_exprs.mat')$HSMM.exprs
-# Y <- Y_ori[apply(Y_ori, 1, function(x) sd(x) > 0), ]
-# 
-
-rpkm <- read.table("/Users/xqiu/Dropbox (Personal)/Single-cell RNA-seq/Embryo_trilineage/rpkm.txt", header = T, row.names = 1)
-# rpkm_res <- readMat('/Users/xqiu/Dropbox (Personal)/Single-cell RNA-seq/Embryo_trilineage/rpkm.mat')
-#use diffusion map to generate the results: 
-# rpkm_dm_res <- readMat('/Users/xqiu/Dropbox (Personal)/Projects/DDRTree_fstree/DDRTree_fstree/dpt 2/psi_trilineage.mat')
-
-# rpkm_res_DDRTree_res <- DDRTree(as.matrix(rpkm[rpkm_res$weight > 1, ]), dimensions = 10, verbose = T, lambda =  10 * ncol(rpkm), Z = t(rpkm_dm_res$psi.trilineage)) #, maxIter = 5, sigma = 1e-2, lambda = 1, ncenter = 3, param.gamma = 10, tol = 1e-2
-# 
-# qplot(rpkm_res_DDRTree_res$Y[1, ], rpkm_res_DDRTree_res$Y[2, ], color = as.factor(EMTAB_sdrf$`Characteristics.developmental.stage.`)) #
-# qplot(rpkm_res_DDRTree_res$Y[1, ], rpkm_res_DDRTree_res$Y[3, ], color = as.factor(EMTAB_sdrf$`Characteristics.developmental.stage.`)) #
-
-ercc.rpkm <- read.table("/Users/xqiu/Dropbox (Personal)/Single-cell RNA-seq/Embryo_trilineage/ercc.rpkm.txt", header = T, row.names = 1)
-ercc.amount <- read.table("/Users/xqiu/Dropbox (Personal)/Single-cell RNA-seq/Embryo_trilineage/E-MTAB-3929.additional.1/ERCCamounts.txt", header = T, row.names = 1, sep = '\t')
+rpkm <- read.table("./data/Embryo_trilineage/rpkm.txt", header = T, row.names = 1)
+ercc.rpkm <- read.table("./data/Embryo_trilineage/ercc.rpkm.txt", header = T, row.names = 1)
+ercc.amount <- read.table("./data/Embryo_trilineage/E-MTAB-3929.additional.1/ERCCamounts.txt", header = T, row.names = 1, sep = '\t')
 #EMTAB_idf <-  read.table("/Users/xqiu/Dropbox (Personal)/Single-cell RNA-seq/Embryo_trilineage/E-MTAB-3929.idf.txt", header = T, row.names = 1, sep = '\t')
-EMTAB_sdrf <-  read.table("/Users/xqiu/Dropbox (Personal)/Single-cell RNA-seq/Embryo_trilineage/E-MTAB-3929.sdrf.txt", header = T, row.names = 1, sep = '\t')
+EMTAB_sdrf <-  read.table("./data/Embryo_trilineage/E-MTAB-3929.sdrf.txt", header = T, row.names = 1, sep = '\t')
 
 # writeMat('rpkm.Mat', rpkm = as.matrix(rpkm))
 
-#make a new cds: 
+# #make a new cds: 
 f_df <- data.frame(gene_short_name = row.names(rpkm), row.names = row.names(rpkm))
 fd <- new("AnnotatedDataFrame", data = f_df)
 pd <- new("AnnotatedDataFrame", data = EMTAB_sdrf)
 
 # Now, make a new CellDataSet using the RNA counts
 embryo_rpkm <- newCellDataSet(as.matrix(rpkm[row.names(f_df), row.names(EMTAB_sdrf)]),
-                               phenoData = pd,
-                               featureData = fd,
-                               lowerDetectionLimit=1,
-                               expressionFamily=tobit())
+                              phenoData = pd,
+                              featureData = fd,
+                              lowerDetectionLimit=1,
+                              expressionFamily=tobit())
 
 embryo_rpkm <- detectGenes(embryo_rpkm, min_expr = 0)
 qplot(pData(embryo_rpkm)$num_genes_expressed, color = pData(embryo_rpkm)$`Characteristics.developmental.stage.`, geom = 'density', log = 'x')
-embryo_fstree_res <- readMat('/Users/xqiu/Downloads/ReductionTreeCode/fstree_matlab/embryo.mat')
-
-order_genes <- row.names(embryo_rpkm)[embryo_fstree_res$weights > 0] #lung_res$weights > 1e-5, which(apply(Y_ori, 1, function(x) sd(x) > 0))[lung_fstree_res$weights > 0]
-embryo_rpkm <- setOrderingFilter(embryo_rpkm, order_genes)
-embryo_rpkm <- reduceDimension(embryo_rpkm, max_components = 4, use_irlba=T, use_vst=T, pseudo_expr=0)
-embryo_rpkm <- orderCells(embryo_rpkm, num_paths=1, root_state = NULL)
-
-plot_spanning_tree(embryo_rpkm, color_by="Characteristics.developmental.stage.", cell_size=2)
 
 #convert to absolute transcript counts:
+ercc.amount_all <- merge(ercc.amount, spike_df, by.x = 'row.names', by.y = 'row.names')
+row.names(ercc.amount_all) <- ercc.amount_all$Row.names
 
 # Fit a robust linear model of spike concentration vs. FPKM for each cell
-# identical(row.names(ercc.rpkm), row.names(spike_df)) #test the row.names are the same
+identical(row.names(ercc.rpkm), row.names(spike_df)) #test the row.names are the same
 ESC_molModels <- apply(ercc.rpkm, 2, function(cell_exprs, spike_df) {
   cell_exprs <- as.numeric(cell_exprs)
-  spike_df$rpkm <- cell_exprs
+  spike_df$fpkm <- cell_exprs
   spike_df <- spike_df[cell_exprs > 1e-10, ]
   spike_df$log_fpkm <- log10(cell_exprs[cell_exprs > 1e-10]) 
   spike_df$log_numMolecules <- log10(as.numeric(spike_df$Number.of.molecules))
@@ -71,29 +56,16 @@ ESC_molModels <- apply(ercc.rpkm, 2, function(cell_exprs, spike_df) {
   }, 
   error = function(e) { print(e); NULL })
   molModel
-}, ercc.amount)
+}, ercc.amount_all)
 
 #test the relationship between k/b: 
 ESC_kb_df <- t(rbind.data.frame(lapply(ESC_molModels, function(x) {
   if(is.null(x)) 
-   c(0, 0)
+    c(0, 0)
   else
     c(b = coef(x)[1], k = coef(x)[2])
 } )))
 colnames(ESC_kb_df) <- c('b', 'k')
-
-t <- -ESC_kb_df[, 'b'] / ESC_kb_df[, 'k'] 
-Time <- pData(embryo_rpkm)$`Characteristics.developmental.stage.`
-pdf('./main_figures/fig3c.pdf', width = 2, height = 2)
-qplot(k, b, data = as.data.frame(ESC_kb_df), size = 1, alpha = 0.5) + scale_size(range = c(0.1, 1),  limits = c(0.1, 1)) + 
-  geom_smooth(method = 'rlm', color = 'blue', se = T, size = 0.5) + 
-  xlab("Slope from FPKM vs.\n ERCC transcript counts") + ylab("Intercept from FPKM vs.\n ERCC transcript counts") + nm_theme()
-dev.off()
-
-#remove outlier cells: 
-rlm(b ~k, subset(as.data.frame(kb_df), k > 0 & k < 2))
-qplot(k, b, data = subset(as.data.frame(kb_df), k > 0 & k < 2),size = 1, alpha = 0.5) + geom_smooth(method = 'rlm') 
-dim(subset(as.data.frame(kb_df), k > 0 & k < 2))#1461
 
 # Now use the per-cell linear models to produce a matrix of absolute transcript abundances 
 # for each gene in the genome, in each cell
@@ -107,7 +79,7 @@ norm_fpkms <- mapply(function(cell_exprs, molModel) {
   })
 }, 
 split(exprs(embryo_rpkm), rep(1:ncol(exprs(embryo_rpkm)), each = nrow(exprs(embryo_rpkm)))), 
-molModels)
+ESC_molModels)
 
 row.names(norm_fpkms) <- row.names(exprs(embryo_rpkm))
 colnames(norm_fpkms) <- colnames(exprs(embryo_rpkm))
@@ -121,34 +93,39 @@ row.names(fpkm_matrix_abs) <- row.names(embryo_rpkm)
 #fpkm_matrix <- fpkm_matrix[,-1]
 
 absolute_embryo_cds <- newCellDataSet(as.matrix(fpkm_matrix_abs), 
-                               phenoData = pd, 
-                               featureData = fd, 
-                               expressionFamily=negbinomial(), 
-                               lowerDetectionLimit=1)
+                                      phenoData = pd, 
+                                      featureData = fd, 
+                                      expressionFamily=negbinomial(), 
+                                      lowerDetectionLimit=1)
 
 pData(absolute_embryo_cds)$Total_mRNAs <- esApply(absolute_embryo_cds, 2, sum)
 pData(absolute_embryo_cds)$endogenous_RNA <- esApply(absolute_embryo_cds, 2, function(x) sum(x))
 
-valid_cells <- intersect(row.names(subset(as.data.frame(kb_df), k > 0 & k < 2)), row.names(subset(pData(absolute_embryo_cds), Total_mRNAs < 1e10)))
+valid_cells <- intersect(row.names(subset(as.data.frame(ESC_kb_df), k > 0 & k < 2)), row.names(subset(pData(absolute_embryo_cds), Total_mRNAs < 1e8)))
+qplot(k, b, data = as.data.frame(ESC_kb_df[valid_cells, ]), alpha = 0.5, size = residuals(rlm(b ~ k, data = as.data.frame(ESC_kb_df[valid_cells, ]))) ) + geom_smooth(method = 'rlm') +
+  xlab('Slope from RPKM vs. \n for ERCC spike-in transcripts') + ylab('Intercept from RPKM vs. \n for ERCC spike-in transcripts') +  nm_theme()
 
-valid_cells_2 <- row.names(subset(pData(valid_absolute_embryo_cds), Total_mRNAs < 5e6))
-valid_cells_3 <- valid_cells_2[residuals(rlm(b ~ k, data = as.data.frame(ESC_kb_df[valid_cells_2, ]))) < 0.5]
+valid_cells <- row.names(ESC_kb_df[valid_cells[residuals(rlm(b ~ k, data = as.data.frame(ESC_kb_df[valid_cells, ]))) < 0.6], ])
+qplot(k, b, data = as.data.frame(ESC_kb_df[valid_cells, ]), alpha = 0.5, size = residuals(rlm(b ~ k, data = as.data.frame(ESC_kb_df[valid_cells, ]))) ) + geom_smooth(method = 'rlm') +
+  xlab('Slope from RPKM vs. \n for ERCC spike-in transcripts') + ylab('Intercept from RPKM vs. \n for ERCC spike-in transcripts') +  nm_theme()
 
-valid_absolute_embryo_cds <- absolute_embryo_cds[, valid_cells_3]
-valid_absolute_embryo_cds <- estimateSizeFactors(valid_absolute_embryo_cds)
-valid_absolute_embryo_cds <- estimateDispersions(valid_absolute_embryo_cds)
-valid_absolute_embryo_cds <- detectGenes(valid_absolute_embryo_cds, min_expr = 0)
+rlm(b ~ k, data = as.data.frame(ESC_kb_df[valid_cells, ]))
+valid_absolute_embryo_cds <- absolute_embryo_cds[, valid_cells]
 
-qplot(pData(valid_absolute_embryo_cds)$Total_mRNAs, color = pData(valid_absolute_embryo_cds)$`Characteristics.developmental.stage.`, geom = 'density', log = 'x')
-qplot(pData(valid_absolute_embryo_cds)$num_genes_expressed, color = pData(valid_absolute_embryo_cds)$`Characteristics.developmental.stage.`, geom = 'density', log = 'x')
+# valid_absolute_embryo_cds <- estimateSizeFactors(valid_absolute_embryo_cds)
+# valid_absolute_embryo_cds <- estimateDispersions(valid_absolute_embryo_cds)
+# valid_absolute_embryo_cds <- detectGenes(valid_absolute_embryo_cds, min_expr = 0)
+
+# qplot(pData(valid_absolute_embryo_cds)$Total_mRNAs, color = pData(valid_absolute_embryo_cds)$`Characteristics.developmental.stage.`, geom = 'density', log = 'x')
+# qplot(pData(valid_absolute_embryo_cds)$num_genes_expressed, color = pData(valid_absolute_embryo_cds)$`Characteristics.developmental.stage.`, geom = 'density', log = 'x')
 
 pdf('./supplementary_figures/ESC_kb_line.pdf', width = 2, height = 2)
-qplot(k, b, data = as.data.frame(ESC_kb_df[valid_cells_3, ]), alpha = 0.5) + geom_smooth(method = 'rlm') +
+qplot(k, b, data = as.data.frame(ESC_kb_df[valid_cells, ]), alpha = 0.5) + geom_smooth(method = 'rlm') +
   xlab('Slope from RPKM vs. \n for ERCC spike-in transcripts') + ylab('Intercept from RPKM vs. \n for ERCC spike-in transcripts') +  nm_theme()
 dev.off()
 #calculate the capture rate: 
 #generate the figure for calculating capture efficiency: 
-ercc_exprs <- ercc.rpkm[row.names(ercc.amount), valid_cells_3]
+ercc_exprs <- ercc.rpkm[row.names(ercc.amount), valid_cells]
 
 #fit the data: 
 detected_ercc_spikein <- apply(ercc_exprs, 2, function(x) as.numeric(x > 10e-4))
@@ -207,7 +184,7 @@ optim_p <- function(num_time_spike_in_detect_df, Time, rounded_numMolecules) {
   }
   
   empirical_p <- num_time_spike_in_detect_df[order(num_time_spike_in_detect_df$rounded_numMolecules), 'optim_predicted_tau']
-
+  
   list(optim_p_val = optim_p_val, optim_predict_tau = optim_predict_tau, predict_tau = predict_tau, empirical_p = empirical_p)
 }
 
@@ -223,8 +200,6 @@ num_time_spike_in_detect_df$empirical_p <- optim_res$empirical_p
 #make the plots: 
 ggplot(aes(rounded_numMolecules, tau), data = num_time_spike_in_detect_df) + 
   geom_line(aes(rounded_numMolecules, optim_predicted_tau)) + scale_x_log10() 
-ggplot(aes(rounded_numMolecules, tau), data = num_time_spike_in_detect_df) + 
-  geom_line(aes(rounded_numMolecules, predicted_tau)) + scale_x_log10() 
 
 pdf('./supplementary_figures/ESC_sequencing_efficiency.pdf', width = 2, height = 2)
 ggplot(aes(rounded_numMolecules, tau), data = num_time_spike_in_detect_df) + geom_point(aes(color = Time), alpha = 0.5, size = 1) + 
@@ -236,7 +211,7 @@ ggplot(aes(rounded_numMolecules, tau), data = num_time_spike_in_detect_df) + geo
   geom_line(aes(rounded_numMolecules, optim_predicted_tau, color = Time), size = 0.2) + scale_x_log10() 
 dev.off()
 
-t_estimate <- estimate_t(embryo_rpkm[, valid_cells_3])
+t_estimate <- estimate_t(embryo_rpkm[, valid_cells])
 ESC_mode_absolute_counts <- mapply(function(cell_exprs, molModel) {
   tryCatch({
     norm_df <- data.frame(log_fpkm=log10(as.numeric(cell_exprs)))
@@ -247,53 +222,58 @@ ESC_mode_absolute_counts <- mapply(function(cell_exprs, molModel) {
   })
 }, 
 split(as.vector(t_estimate), names(t_estimate)), 
-ESC_molModels[valid_cells_3]) 
+ESC_molModels[valid_cells]) 
+
+ESC_mode_df <- data.frame(Lysate = ESC_mode_absolute_counts, cDNA = ESC_mode_absolute_counts * optim_res$optim_p_val)
+mlt_ESC_mode_df <- melt(ESC_mode_df)
+mlt_ESC_mode_df$variable <- as.character(mlt_ESC_mode_df$variable)
+mlt_ESC_mode_df[mlt_ESC_mode_df$variable == 'Lysate', 'variable'] <- 'Lysate RNA'
+# cell lysate
+# cDNA #4682B4
 
 pdf('./supplementary_figures/ESC_mode_dist.pdf', width = 2, height = 2)
-qplot(ESC_mode_absolute_counts) + xlab('Transcript count for most frequent log10(TPM)') + nm_theme() + ylab('Cells')
+qplot(value, data = mlt_ESC_mode_df, fill = variable, geom = 'density', log = 'x', alpha = 0.7) + 
+  facet_wrap(~variable, scale = 'free_y', ncol = 1)  + xlab('Transcript count for most frequent \nlog10(TPM)') + 
+  nm_theme() + ylab('Cells') + scale_fill_manual(values = alpha(c("#ED1F24", "#4682B4"), 1))
 dev.off()
 
-ercc.amount_all <- merge(ercc.amount, spike_df, by.x = 'row.names', by.y = 'row.names')
-row.names(ercc.amount_all) <- ercc.amount_all$Row.names
+# abs_embryo_mat <- relative2abs(embryo_rpkm[, valid_cells], 
+#                                    t_estimate = estimate_t(embryo_rpkm[, valid_cells]), 
+#                                    cores=detectCores(), 
+#                                    verbose = T)
+# c_mean_y_ij <- mean(log10(ercc.amount[ercc.amount_all$conc_attomoles_ul_Mix1 > 80, 'Number.of.molecules']))
+# ESC_norm_recovery_default_c  <- relative2abs(embryo_rpkm[, valid_cells],  
+#                                             t_estimate = estimate_t(exprs(embryo_rpkm)[, valid_cells_3]), # m = -1.9266285 , m_rng = c(-2.1, -1.9), 
+#                                             kb_intercept = c_mean_y_ij, kb_intercept_rng = c(c_mean_y_ij,  c_mean_y_ij), #fix_c
+#                                             return_all = T, cores = detectCores())
+c_mean_y_ij <- mean(log10(ercc.amount[ercc.amount_all$Number.of.molecules > 1, 'Number.of.molecules']))
 
-c_mean_y_ij <- mean(log10(ercc.amount[ercc.amount_all$conc_attomoles_ul_Mix1 > 1, 'Number.of.molecules']))
-
-ESC_norm_recovery_default_c  <- relative2abs(embryo_rpkm[, valid_cells_3],  
-                                            t_estimate = estimate_t(exprs(embryo_rpkm)[, valid_cells_3]), # m = -1.9266285 , m_rng = c(-2.1, -1.9), 
-                                            kb_intercept = 2.03471, kb_intercept_rng = c(2.03471,  2.03471), #fix_c
-                                            return_all = T, cores = detectCores())
-ESC_norm_recovery_capture_rate <- relative2abs(embryo_rpkm[, valid_cells_3], expected_total_mRNAs = median(apply(absolute_embryo_cds[, valid_cells_3], 2, sum)), 
+ESC_norm_recovery_capture_rate <- relative2abs(embryo_rpkm[, valid_cells], expected_total_mRNAs = median(apply(absolute_embryo_cds[, valid_cells], 2, sum)), 
                                                calibrate_total_mRNA = F, 
-                                               #kb_intercept = 2.03471, kb_intercept_rng = c(2.03471,  2.03471), #fix_c
-                                               expected_capture_rate = 0.02068748,
+                                               kb_intercept = 2.010404, kb_intercept_rng = c(2.010404,  2.010404), #fix_c
+                                               expected_capture_rate = optim_res$optim_p_val,
                                                verbose = T, 
                                                return_all = T, cores = detectCores())
-ESC_norm_recovery_capture_rate_true_total_expect_rate <- ESC_norm_recovery_capture_rate
-ESC_norm_recovery_true_kb_intercept_total <- ESC_norm_recovery_capture_rate
 
-abs_embryo_mat <- relative2abs(embryo_rpkm[, valid_cells_3], 
-                                   t_estimate = estimate_t(embryo_rpkm[, valid_cells_3]), 
-                                   cores=detectCores(), 
-                                   verbose = T)
-qplot(k, b, data = as.data.frame(t(ESC_norm_recovery_capture_rate$k_b_solution))) + geom_point(aes(x = k, y = b, color = 'red'), data = as.data.frame(ESC_kb_df[valid_cells_3, ]))
+qplot(k, b, data = as.data.frame(t(ESC_norm_recovery_capture_rate$k_b_solution))) + geom_point(aes(x = k, y = b, color = 'red'), data = as.data.frame(ESC_kb_df[valid_cells, ]))
 rlm(b ~k , data = as.data.frame(t(ESC_norm_recovery_capture_rate$k_b_solution))) 
-qplot(ESC_mode_absolute_counts, ESC_norm_recovery_capture_rate$calibrated_mode, log = 'xy')
+qplot(ESC_mode_absolute_counts, ESC_norm_recovery_capture_rate$calibrated_mode$hypothetical_mode, log = 'xy')
 
 pData(absolute_embryo_cds)$Total_mRNAs <- esApply(absolute_embryo_cds, 2, sum)
 pdf('./supplementary_figures/ESC_algorithm_total_10e5_optim_m.pdf', width = 2, height = 2)
-qplot(esApply(absolute_embryo_cds[, valid_cells_3], 2, sum), apply(ESC_norm_recovery_capture_rate$norm_cds, 2, sum), log = 'xy') + 
+qplot(esApply(absolute_embryo_cds[, valid_cells], 2, sum), apply(ESC_norm_recovery_capture_rate$norm_cds, 2, sum), log = 'xy') + 
   geom_smooth(method = 'rlm') + geom_abline(color = 'red') + xlab('Total endogenous mRNA (algorithm)') + ylab('Total endogenous mRNA (spike-in regression)') + 
   nm_theme()
 dev.off()
 
 pdf('./supplementary_figures/ESC_algorithm_total_optim_m.pdf', width = 2, height = 2)
-qplot( esApply(absolute_embryo_cds[, valid_cells_3], 2, sum), apply(ESC_norm_recovery_capture_rate$norm_cds[, ], 2, sum),log = 'xy') + 
+qplot( esApply(absolute_embryo_cds[, valid_cells], 2, sum), apply(ESC_norm_recovery_capture_rate$norm_cds[, ], 2, sum),log = 'xy') + 
   geom_smooth(method = 'rlm') + geom_abline(color = 'red') + expand_limits(x = c(1, 1e6), y = c(1, 1e06)) + xlab('Total endogenous mRNA (algorithm)') + ylab('Total endogenous mRNA (spike-in regression)') + 
   nm_theme()
 dev.off()
 
 ESC_mean <- apply(ESC_norm_recovery_capture_rate$norm_cds[,  ], 1, mean)
-recovery_mean <- apply(absolute_embryo_cds[, valid_cells_3], 1, mean)
+recovery_mean <- apply(absolute_embryo_cds[, valid_cells], 1, mean)
 
 pdf('./supplementary_figures/ESC_algorithm_mean_optim_m.pdf', width = 2, height = 2)
 qplot(ESC_mean[ESC_mean > 0 & recovery_mean > 0], recovery_mean[ESC_mean > 0 & recovery_mean > 0], log = 'xy') + 
@@ -302,57 +282,7 @@ qplot(ESC_mean[ESC_mean > 0 & recovery_mean > 0], recovery_mean[ESC_mean > 0 & r
   nm_theme()
 dev.off()
 
-abs_embryo_mat_0.02707 <- relative2abs(embryo_rpkm[, valid_cells_3], 
-                               t_estimate = estimate_t(embryo_rpkm[, valid_cells_3]), 
-                               cores=detectCores(), expected_capture_rate = 0.0207, expected_total_mRNAs = 1e6, calibrate_total_mRNA = F, 
-                               verbose = T)
+############################################################################################################################################################
+#save the data
 
-sum(pData(valid_absolute_embryo_cds)$Total_mRNAs > 1e9, na.rm = T)
-
-#comparing this two methods: 
-qplot(colSums(abs_embryo_mat), pData(valid_absolute_embryo_cds)$endo, log = 'xy') + ggsave('cmpr_ESC_recovery.pdf')
-
-#use fstree: 
-lung_fstree_res <- fstree(Y, d, lambda, C = 0.1); # unsupervised
-
-#all genes:
-order_genes <- row.names(absolute_cds)[which(apply(Y_ori, 1, function(x) sd(x) > 0))[lung_fstree_res$weights > 0]] #lung_res$weights > 1e-5, which(apply(Y_ori, 1, function(x) sd(x) > 0))[lung_fstree_res$weights > 0]
-write.table(fData(absolute_cds)[order_genes, ]$gene_short_name, file = 'lung_gene.txt', quote = F, row.names = F)
-absolute_cds <- setOrderingFilter(absolute_cds, order_genes)
-absolute_cds <- reduceDimension(absolute_cds, max_components = 2, use_irlba=T, use_vst=T, pseudo_expr=0)
-absolute_cds <- orderCells(absolute_cds, num_paths=1, root_state = NULL)
-
-plot_spanning_tree(absolute_cds, color_by="Time", cell_size=2)
-
-
-#valid_subset_GSE72857
-valid_subset_GSE72857_exprs <- read.table('/Users/xqiu/Downloads/GSE72857_umitab.txt', header = T, row.names = 1)
-writeMat('valid_subset_GSE72857_exprs', valid_subset_GSE72857_exprs = as.matrix(valid_subset_GSE72857_exprs))
-rownames(valid_subset_GSE72857_exprs) <- paste('g', 1:nrow(valid_subset_GSE72857_exprs), sep = '')
-colnames(valid_subset_GSE72857_exprs) <- MAP_cells_clusters$V1
-
-fd <- new("AnnotatedDataFrame", data = data.frame(gene_short_name = row.names(valid_subset_GSE72857_exprs), row.names = row.names(valid_subset_GSE72857_exprs)))
-pd <- new("AnnotatedDataFrame", data = data.frame(clusters = MAP_cells_clusters$V2, row.names = MAP_cells_clusters$V1))
-
-# Now, make a new CellDataSet using the RNA counts
-valid_subset_GSE72857_exprs <- newCellDataSet(as.matrix(valid_subset_GSE72857_exprs), 
-                                              phenoData = pd, 
-                                              featureData = fd,
-                                              lowerDetectionLimit=1,
-                                              expressionFamily=negbinomial())
-
-valid_subset_GSE72857_exprs <- estimateSizeFactors(valid_subset_GSE72857_exprs)
-valid_subset_GSE72857_exprs <- estimateDispersions(valid_subset_GSE72857_exprs)
-
-options(expressions=500000)
-fData(valid_subset_GSE72857_exprs)$use_for_ordering <- T
-valid_subset_GSE72857_exprs <- reduceDimension(valid_subset_GSE72857_exprs, max_components = 2, use_irlba=T, use_vst=T)
-valid_subset_GSE72857_exprs <- orderCells(valid_subset_GSE72857_exprs, num_paths=1, root_state = NULL)
-plot_spanning_tree(valid_subset_GSE72857_exprs, color_by="clusters", cell_size=2) 
-
-# which(rpkm_res_DDRTree_res$Y[3, ] < -280 & EMTAB_sdrf$`Characteristics.developmental.stage.` == 'embryonic day 3')
-
-
-
-
-save.image('./RData/analysis_ESC_trilineage.R')
+save.image('./RData/analysis_ESC_trilineage_every_spike.RData')

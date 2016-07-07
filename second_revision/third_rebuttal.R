@@ -1,9 +1,9 @@
 #scripts for responding the third rebuttal submission: 
 # setwd('~/Dropbox (Personal)/Projects/BEAM/')
 
-library(monocle)
-# library(devtools)
-# load_all('~/Projects/monocle-dev') 
+# library(monocle)
+library(devtools)
+load_all('~/Projects/monocle-dev') 
 library(xacHelper)
 
 load_all_libraries()
@@ -12,7 +12,7 @@ library(igraph)
 library(grid)
 
 #load the data: 
-load('./RData/analysis_lung_data.RData')
+# load('./RData/analysis_lung_data.RData')
 
 pData(absolute_cds)$spike_in_RNA <-  esApply(absolute_cds, 2, function(x) sum(x[transcript_num:nrow(absolute_cds)]))
 pData(mc_adj_cds)$spike_in_RNA <-  esApply(mc_adj_cds, 2, function(x) sum(x[transcript_num:nrow(mc_adj_cds)]))
@@ -44,6 +44,7 @@ mc_abs_exprs_df <- data.frame(spikein = as.vector(c(E14.5_cell, E16.5_cell, E18.
                               mc_algorithm = as.vector(c(mc_E14.5_cell, mc_E16.5_cell, mc_E18.5_cell, mc_Adult_cell)),
                               cell = rep(c("E14.5_cell", "E16.5_cell", "E18.5_cell", "Adult_cell"), each = length(transcript_num:nrow(mc_adj_cds))))
 
+levels(mc_abs_exprs_df$cell) <- c("Adult", "E14.5", "E16.5", "E18.5")
 pdf('./main_figures/fig3g2_ercc_genes.pdf', width = 3, height = 2) #main_figures/
 qplot(spikein + 1, mc_algorithm + 1, log = 'xy', 
       color = cell, data = mc_abs_exprs_df, size  = 1.5) + facet_wrap(~cell, scales = 'free', ncol = 2) +  geom_smooth(method = 'rlm', aes(group = 199), size = .1) + 
@@ -62,7 +63,7 @@ dev.off()
 
 #figure 8c: 
 #use UMI counts
-load('/Users/xqiu/Dropbox (Personal)/Projects/BEAM/third_submission/RData/umi_normalization.RData')
+load('./RData/umi_normalization.RData')
 
 #save.image('./RData/umi_normalization.RData')
 pData(UMI_cds)$Total_mRNAs <- esApply(UMI_cds, 2, sum)

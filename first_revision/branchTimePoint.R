@@ -83,10 +83,10 @@ dev.off()
 
 #################################### Shalek data: #################################### 
 #no progenitor duplication
-weighted_abs_Shalek_KO_subset_all_gene_ILRs_list <- calILRs(cds = Shalek_abs_subset_ko_LPS[, ], lineage_states = c(2, 3), stretch = T, cores = 1, 
-    trend_formula = "~sm.ns(Pseudotime, df = 3) * Lineage", ILRs_limit = 3, 
-    relative_expr = T, weighted = T, label_by_short_name = F, 
-    useVST = T, round_exprs = FALSE, pseudocount = 0, output_type = "all", file = "weighted_abs_Shalek_KO_subset_all_gene_ILRs_list", return_all = T)
+# weighted_abs_Shalek_KO_subset_all_gene_ILRs_list <- calILRs(cds = Shalek_abs_subset_ko_LPS[, ], lineage_states = c(2, 3), stretch = T, cores = 1, 
+#     trend_formula = "~sm.ns(Pseudotime, df = 3) * Lineage", ILRs_limit = 3, 
+#     relative_expr = T, weighted = T, label_by_short_name = F, 
+#     useVST = T, round_exprs = FALSE, pseudocount = 0, output_type = "all", file = "weighted_abs_Shalek_KO_subset_all_gene_ILRs_list", return_all = T)
 
 #with progenitor duplication
 duplicate_progenitors_weighted_abs_Shalek_KO_subset_all_gene_ILRs_list <- calILRs(cds = Shalek_abs_subset_ko_LPS[, ], lineage_states = c(2, 3), stretch = T, cores = 1, 
@@ -102,7 +102,7 @@ rng_tmp <- (pData(Shalek_abs_subset_ko_LPS)$Pseudotime - MST_branch_range[2])
 first_branching_cell <- colnames(Shalek_abs_subset_ko_LPS)[which(abs(rng_tmp) == min(abs(rng_tmp)))]
 MST_branch_time <- round(pData(new_cds)[first_branching_cell, 'Pseudotime'])
 subset_MST_branch_abs_ko_bifurcation_time <- detectBifurcationPoint(duplicate_progenitors_weighted_abs_Shalek_KO_subset_all_gene_ILRs_list$norm_str_logfc_df[, MST_branch_time:100]) #weighted_abs_Shalek_KO_subset_all_gene_ILRs_list
-all_abs_ko_bifurcation_time <- detectBifurcationPoint(weighted_abs_Shalek_KO_subset_all_gene_ILRs_list$norm_str_logfc_df[, ]) #weighted_abs_Shalek_KO_subset_all_gene_ILRs_list
+all_abs_ko_bifurcation_time <- detectBifurcationPoint(duplicate_progenitors_weighted_abs_Shalek_KO_subset_all_gene_ILRs_list$norm_str_logfc_df[, ]) #weighted_abs_Shalek_KO_subset_all_gene_ILRs_list
 
 #collect list of grn from Aviv science paper: 
 grn_fig4a <- c("STAT2", "STAT1", "HHEX", "RBL1", "Timeless", "Ifnb1", "Cxcl9", "Ifit3", "Tsc22d1", "Tnfsf8", "Isg20", "Nmi", "Iigp1", "Irf7", "Lhx2", "Bbx", "Fus", "Tcf4", "Pml", "Usp12", "Irf7", "Ifit1", "Isg15", "Rbl1", "Usp25", "Daxx", "Cd40", "Atm", "Lrf1", "Ligp2", "Mertk", "Cxcl11", "Trim12", "Trim21", "NfkbIz")
@@ -115,22 +115,22 @@ grn_ids <- row.names(subset(fData(Shalek_abs_subset_ko_LPS), toupper(gene_short_
 # fData(Shalek_golgi_update)[grn_ids, 'gene_short_name']
 # grn_branch_time <- subset_MST_branch_abs_ko_bifurcation_time[grn_ids]
 # names(grn_branch_time) <- fData(Shalek_abs_subset_ko_LPS)[grn_ids, 'gene_short_name']
-# sort(abs(grn_branch_time), index.return = T)
+# sort(abs(grn_branch_time), index.return = T) 
 
 #two group comparison: 
 top_group <- c("STAT2", "STAT1", "HHEX", "RBL1", "Timeless", "FUS")
 bottom_group <- c("Ifnb1", "Cxcl9", "Ifit3", "Tsc22d1", "Tnfsf8", "Isg20", "Nmi", "Iigp1", "Irf7", "Lhx2", "Bbx", "Fus", "Tcf4", "Pml", "Usp12", "Irf7", "Ifit1", "Isg15", "Usp25", "Daxx", "Cd40", "Atm", "Lrf1", "Lgp2", "Mertk", "Cxcl11", "Trim12", "Trim21")
 
 top_group_ids <- row.names(subset(fData(Shalek_abs_subset_ko_LPS), toupper(gene_short_name) %in% toupper(top_group)))
-fData(Shalek_golgi_update)[grn_ids, 'gene_short_name']
+fData(Shalek_abs_subset_ko_LPS)[grn_ids, 'gene_short_name']
 bottom_group_ids <- row.names(subset(fData(Shalek_abs_subset_ko_LPS), toupper(gene_short_name) %in% toupper(bottom_group)))
 fData(Shalek_abs_subset_ko_LPS)[bottom_group_ids, 'gene_short_name']
 
 #select only the significant genes: 
-valid_ko_branching_genes_list <- intersect(row.names(subset(ko_branching_genes, qval < 0.05)), ko_valid_expressed_genes)
+valid_ko_branching_genes_list <- intersect(row.names(subset(ko_branching_genes, qval < 1e-3)), ko_valid_expressed_genes)
 valid_top_group_ids <- intersect(top_group_ids, valid_ko_branching_genes_list)
 top_group_branch_time <- all_abs_ko_bifurcation_time[valid_top_group_ids]
-names(top_group_branch_time) <- fData(Shalek_golgi_update)[valid_top_group_ids, 'gene_short_name']
+names(top_group_branch_time) <- fData(Shalek_abs_subset_ko_LPS)[valid_top_group_ids, 'gene_short_name']
 sort(abs(top_group_branch_time), index.return = T)
 
 valid_bottom_group_ids <- intersect(bottom_group_ids, valid_ko_branching_genes_list)

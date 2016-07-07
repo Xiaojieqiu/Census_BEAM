@@ -1,92 +1,133 @@
-library(monocle)
+# # library(monocle)
 # library(devtools)
 # load_all('~/Projects/monocle-dev')
-library(xacHelper)
+# library(xacHelper)
 
-load_all_libraries()
+# load_all_libraries()
 
-load('./RData/deg_benchmark_analysis.RData')
-load('./RData/analysis_lung_data_mc.RData') #load('./RData/analysis_lung_data.RData')
-load('./RData/analysis_HSMM_data.RData')
-load('./RData/analysis_distribution_fitting.RData')
-load('./RData/analysis_shalek_data.RData')
-load('./RData/cmpr_three_packages.RData')
+# load('./RData/deg_benchmark_analysis.RData')
+# load('./RData/analysis_lung_data_mc.RData') #load('./RData/analysis_lung_data.RData')
+# load('./RData/analysis_HSMM_data.RData')
+# load('./RData/analysis_distribution_fitting.RData')
+# load('./RData/analysis_shalek_data.RData')
+# load('./RData/cmpr_three_packages.RData')
 
-##################################################fig1_si############################################################
+# ##################################################fig1_si############################################################
 
-three_cells_cds <- data.frame(transcript = round(as.vector(exprs(absolute_cds)[1:38919, c("SRR1033854_0", "SRR1033855_0", "SRR1033856_0")])), 
-                              read_counts = as.vector(exprs(read_countdata_cds)[1:38919, c("SRR1033854_0", "SRR1033855_0", "SRR1033856_0")]), 
-                              cell = rep(c("SRR1033854_0", "SRR1033855_0", "SRR1033856_0"), each = 38919)
-)
+# three_cells_cds <- data.frame(transcript = round(as.vector(exprs(absolute_cds)[1:38919, c("SRR1033854_0", "SRR1033855_0", "SRR1033856_0")])), 
+#                               read_counts = as.vector(exprs(read_countdata_cds)[1:38919, c("SRR1033854_0", "SRR1033855_0", "SRR1033856_0")]), 
+#                               cell = rep(c("SRR1033854_0", "SRR1033855_0", "SRR1033856_0"), each = 38919)
+# )
 
-pdf('./supplementary_figures/fig1a_si.pdf', width = 2, height = 3)
-qplot(value, data = melt(three_cells_cds), log = 'x') + geom_histogram(aes(fill = variable)) + facet_wrap(~cell+variable, nrow = 3, scale = 'free') + xlab('') + ylab('Gene number') +  
-  theme(strip.background = element_blank(), strip.text.x = element_blank())+ nm_theme()
-dev.off()
+# pdf('./supplementary_figures/fig1a_si.pdf', width = 2, height = 3)
+# qplot(value, data = melt(three_cells_cds), log = 'x') + geom_histogram(aes(fill = variable)) + facet_wrap(~cell+variable, nrow = 3, scale = 'free') + xlab('') + ylab('Gene number') +  
+#   theme(strip.background = element_blank(), strip.text.x = element_blank())+ nm_theme()
+# dev.off()
 
 
-abs_gd_fit_res <- cal_gd_statistics(abs_gd_fit_df[, c('nb_pvalue', 'zinb_pvalue')], percentage = F, type = 'absolute', gene_list = valid_genes)
-readcount_gd_fit_res <- cal_gd_statistics(read_gd_fit_df[, c('nb_pvalue', 'zinb_pvalue')], percentage = F,  type = 'readcount', gene_list = valid_genes)
-gd_fit_res <- rbind(abs_gd_fit_res, readcount_gd_fit_res)
-gd_fit_res <- cbind(gd_fit_res, data_type = row.names(gd_fit_res))
-row.names(gd_fit_res) <- NULL
-gd_fit_res <- as.data.frame(gd_fit_res)
+# abs_gd_fit_res <- cal_gd_statistics(abs_gd_fit_df[, c('nb_pvalue', 'zinb_pvalue')], percentage = F, type = 'absolute', gene_list = valid_genes)
+# readcount_gd_fit_res <- cal_gd_statistics(read_gd_fit_df[, c('nb_pvalue', 'zinb_pvalue')], percentage = F,  type = 'readcount', gene_list = valid_genes)
+# gd_fit_res <- rbind(abs_gd_fit_res, readcount_gd_fit_res)
+# gd_fit_res <- cbind(gd_fit_res, data_type = row.names(gd_fit_res))
+# row.names(gd_fit_res) <- NULL
+# gd_fit_res <- as.data.frame(gd_fit_res)
 
-gd_fit_res_num <- subset(gd_fit_res, data_type == 'gd_fit_num')
-gd_fit_res_success_num <- subset(gd_fit_res, data_type == 'success_fit_num')
-# 
+# gd_fit_res_num <- subset(gd_fit_res, data_type == 'gd_fit_num')
+# gd_fit_res_success_num <- subset(gd_fit_res, data_type == 'success_fit_num')
+# # 
 
-#generate the result of goodness of fit for each gene: 
-colnames(gd_fit_res_num)[1:2] <- c('NB', 'ZINB')
-test <- melt(gd_fit_res_num[, 1:3], id.vars = 'type')
-p1 <- qplot(as.factor(variable), as.numeric(as.character(value)), geom = 'bar', stat = 'identity', data = test, fill = type) + facet_wrap('type') + nm_theme() + 
-  theme(legend.position = 'none') + xlab('Fit types') + ylab('number of genes') + theme(strip.background = element_blank(),
-                                                                                        strip.text.x = element_blank()) + theme(axis.text.x = element_text(angle = 30, hjust = .9))
-pdf('./supplementary_figures/fig1b_si.pdf', height = 1.5, width = 1)
-p1 + xlab('')
-dev.off()
+# #generate the result of goodness of fit for each gene: 
+# colnames(gd_fit_res_num)[1:2] <- c('NB', 'ZINB')
+# test <- melt(gd_fit_res_num[, 1:3], id.vars = 'type')
+# p1 <- qplot(as.factor(variable), as.numeric(as.character(value)), geom = 'bar', stat = 'identity', data = test, fill = type) + facet_wrap('type') + nm_theme() + 
+#   theme(legend.position = 'none') + xlab('Fit types') + ylab('number of genes') + theme(strip.background = element_blank(),
+#                                                                                         strip.text.x = element_blank()) + theme(axis.text.x = element_text(angle = 30, hjust = .9))
+# pdf('./supplementary_figures/fig1b_si.pdf', height = 1.5, width = 1)
+# p1 + xlab('')
+# dev.off()
 
-colnames(gd_fit_res_success_num)[1:2] <- c('NB', 'ZINB')
-test <- melt(gd_fit_res_success_num[, 1:3], id.vars = 'type')
+# colnames(gd_fit_res_success_num)[1:2] <- c('NB', 'ZINB')
+# test <- melt(gd_fit_res_success_num[, 1:3], id.vars = 'type')
 
-p2 <- qplot(as.factor(variable), as.numeric(as.character(value)), geom = 'bar', stat = 'identity', data = test, fill = type) + facet_wrap('type') + nm_theme() + 
-  theme(legend.position = 'none') + xlab('Fit types') + ylab('number of genes') + theme(strip.background = element_blank(),
-                                                                                        strip.text.x = element_blank()) + theme(axis.text.x = element_text(angle = 30, hjust = .9))
+# p2 <- qplot(as.factor(variable), as.numeric(as.character(value)), geom = 'bar', stat = 'identity', data = test, fill = type) + facet_wrap('type') + nm_theme() + 
+#   theme(legend.position = 'none') + xlab('Fit types') + ylab('number of genes') + theme(strip.background = element_blank(),
+#                                                                                         strip.text.x = element_blank()) + theme(axis.text.x = element_text(angle = 30, hjust = .9))
 
-pdf('./supplementary_figures/fig1c_si.pdf', height = 1.5, width = 1)
-p2 + xlab('')
-dev.off()
+# pdf('./supplementary_figures/fig1c_si.pdf', height = 1.5, width = 1)
+# p2 + xlab('')
+# dev.off()
 
-##################################################fig2_si############################################################
+# ##################################################fig2_si############################################################
 #add the benchmark plot with precision/recall/F1 score (for FPR/sensitivity plot, see the very bottom)
 #fig2a_si has already generated in the benchmark_analysis.R 
 
 #add the barplot for the overlapping genes: 
+q_thrsld <- 0.1
 element_all_list <- list(
-  names(default_edgeR_p[default_edgeR_p < 0.01]), 
-  names(default_deseq2_p[default_deseq2_p < 0.01]), 
-  names(readcount_permutate_pval[which(readcount_permutate_pval < .01)]), 
-  names(default_deseq_p[default_deseq_p < 0.01]), 
-  names(monocle_p_readcount[monocle_p_readcount < 0.01]), 
-  names(mast_count_pval_no_norm[mast_count_pval_no_norm < 0.01]))
+  intersect(select_genes, names(default_edgeR_p_glm[p.adjust(default_edgeR_p_glm, method = "BH") < q_thrsld])), 
+  intersect(select_genes, names(default_deseq2_p[p.adjust(default_deseq2_p, method = "BH") < q_thrsld])), 
+  intersect(select_genes, names(mode_size_norm_permutate_ratio_by_geometric_mean[p.adjust(mode_size_norm_permutate_ratio_by_geometric_mean, method = "BH") < q_thrsld]))#, 
+  # names(default_deseq_p[default_deseq_p < p_thrsld]), 
+  # intersect(select_genes, names(monocle_p_readcount[p.adjust(monocle_p_readcount, method = "BH") < q_thrsld])),  
+  # intersect(select_genes, names(scde_p[p.adjust(scde_p, method = "BH") < q_thrsld])) 
+  # names(mast_count_pval_no_norm[mast_count_pval_no_norm < p_thrsld])
+  )
+
+census_element_all_list <- list(
+  intersect(select_genes, names(mc_edgeR_p_glm[p.adjust(mc_edgeR_p_glm, method = "BH") < q_thrsld])), 
+  intersect(select_genes, names(mc_default_deseq2_p[p.adjust(mc_default_deseq2_p, method = "BH") < q_thrsld])), 
+  intersect(select_genes, names(new_mc_size_norm_monocle_p_ratio_by_geometric_mean[p.adjust(new_mc_size_norm_monocle_p_ratio_by_geometric_mean, method = "BH") < q_thrsld]))#, 
+  # intersect(select_genes, names(mode_size_norm_permutate_ratio_by_geometric_mean[p.adjust(mode_size_norm_permutate_ratio_by_geometric_mean, method = "BH") < q_thrsld])), 
+
+  # intersect(select_genes, names(mc_scde_p[mc_scde_p < q_thrsld]))
+ 
+  # names(abs_default_deseq_p[abs_default_deseq_p < p_thrsld]), 
+  # names(mode_size_norm_permutate_ratio_by_geometric_mean[mode_size_norm_permutate_ratio_by_geometric_mean < p_thrsld])
+  )
 
 abs_element_all_list <- list(
-  names(abs_default_edgeR_p[abs_default_edgeR_p < 0.01]), 
-  names(abs_default_deseq2_p[abs_default_deseq2_p < 0.01]), 
-  names(new_abs_size_norm_monocle_p_ratio_by_geometric_mean[which(new_abs_size_norm_monocle_p_ratio_by_geometric_mean < .01)]), 
-  names(abs_default_deseq_p[abs_default_deseq_p < 0.01]), 
-  names(mode_size_norm_permutate_ratio_by_geometric_mean[which(mode_size_norm_permutate_ratio_by_geometric_mean < 0.01)]), 
-  names(mode_size_norm_permutate_ratio_by_geometric_mean[mode_size_norm_permutate_ratio_by_geometric_mean < 0.01]))
-
+  intersect(select_genes, names(abs_default_edgeR_p_glm[p.adjust(abs_default_edgeR_p_glm, method = "BH") < q_thrsld])), 
+  intersect(select_genes, names(abs_default_deseq2_p[p.adjust(abs_default_deseq2_p, method = "BH") < q_thrsld])), 
+  intersect(select_genes, names(new_abs_size_norm_monocle_p_ratio_by_geometric_mean[p.adjust(new_abs_size_norm_monocle_p_ratio_by_geometric_mean, method = "BH") < q_thrsld]))#, 
+  # names(abs_default_deseq_p[abs_default_deseq_p < p_thrsld]), 
+  # intersect(select_genes, names(mode_size_norm_permutate_ratio_by_geometric_mean[p.adjust(mode_size_norm_permutate_ratio_by_geometric_mean, method = "BH") < q_thrsld])), 
+  
+  # intersect(select_genes, names(abs_scde_p[p.adjust(abs_scde_p, method = "BH") < q_thrsld])
+  )
+  
 readcount_overlap <- Reduce(intersect, element_all_list)
 readcount_union <- Reduce(union, element_all_list)
+census_overlap <- Reduce(intersect, census_element_all_list)
+census_union <- Reduce(union, census_element_all_list)
 abs_overlap <- Reduce(intersect, abs_element_all_list)
 abs_union <- Reduce(union, abs_element_all_list)
 
+overlap_union_df <- data.frame(Measurement = factor(rep(c('Read counts', 'Census counts', 'Spikein Transcripts'), each = 2), levels = c('Read counts', 'Census counts', 'Spikein Transcripts')), 
+			Number = c(length(readcount_overlap), length(setdiff(readcount_union, readcount_overlap)), length(census_overlap), length(setdiff(census_union, census_overlap)), length(abs_overlap), length(setdiff(abs_union, abs_overlap))),
+			Type = rep(c('Overlapping', 'Union'), 3))
+
+#levels(overlap_union_df$Measurement) <- c('Read counts', 'Census counts', 'Spikein Transcripts')
+cols <- c("Read counts" = "#00BFC4", "Read.counts" = "#00BFC4", "read.counts" = "#00BFC4", "MC transcripts" = "#7CAE00", 'Census counts' = "#7CAE00", 'Census.counts' = "#7CAE00", "Spikein transcripts" = "#C77CFF", "Spikein.transcripts" = "#C77CFF", "transcript.counts" = "#C77CFF", "FPKM" = "#F8766D", 'read_counts' = "#00BFC4", transcript_counts = '#C77CFF')
+
+cols <- c("Read_overlap" = "#7093CB", "Read_union" = "#A1BCE2", "spike_overlap" = "#010101", "spike_union" = "#7B7C7C", 'census_overlap' = "#7BAE41", 'census_union' = "#A0C174")
+overlap_union_df$col <- c('Read_overlap', 'Read_union', 'census_overlap', 'census_union', 'spike_overlap', 'spike_union')
+
+pdf('./supplementary_figures/fig2b_three_measurements_fraction.pdf', width = 1, height = 2) 
+qplot(Measurement, Number, geom = 'bar', stat = 'identity', position = 'fill', fill = col, data = overlap_union_df)  + 
+	theme(axis.text.x = element_text(angle = 30, hjust = 1)) + nm_theme() + xlab('') + scale_fill_manual(values = cols)
+dev.off()
+
+pdf('./supplementary_figures/fig2b_three_measurements_number.pdf', width = 1, height = 2) 
+qplot(Measurement, Number, geom = 'bar', stat = 'identity', position = 'stack', fill = col, data = overlap_union_df)  + 
+	theme(axis.text.x = element_text(angle = 30, hjust = 1)) + nm_theme() + xlab('') + scale_fill_manual(values = cols) + ylab('DE genes')
+dev.off()
+
+pdf('./supplementary_figures/fig2b_three_measurements.pdf', width = 4, height = 4) 
+qplot(Measurement, Number, geom = 'bar', stat = 'identity', position = 'fill', fill = Type, data = overlap_union_df)  + ylab('DE genes') #+ scale_fill_manual(values = cols) 
+dev.off()
+
 overlap_df <- data.frame("read.counts" = length(readcount_overlap), "transcript.counts" = length(abs_overlap)) 
 union_df <- data.frame("read.counts" = length(readcount_union), "transcript.counts" = length(abs_union))  
-
-cols <- c("Read counts" = "#00BFC4", "read.counts" = "#00BFC4", "MC transcripts" = "#7CAE00", "Spikein transcripts" = "#C77CFF", "transcript.counts" = "#C77CFF", "FPKM" = "#F8766D", 'read_counts' = "#00BFC4", transcript_counts = '#C77CFF')
 
 pdf('./supplementary_figures/fig2b.1.pdf', width = 0.75, height = 1.5)
 qplot(variable, value, geom = 'bar', stat = 'identity', fill = variable, data = melt(overlap_df)) + xlab('') + ylab('number') + nm_theme() + 
@@ -100,112 +141,6 @@ dev.off()
 
 ##UMI data: 
 #fig2c_si has already generated in the analysis_UMI_data.R
-
-##################################################fig3_si############################################################
-##code needed to be integrated from Cole 
-# # library(cummeRbund)
-theme_set(theme_bw())
-theme_update(strip.text.x = element_text(colour="black", size=6),
-             strip.text.y = element_text(colour="black", size=6),
-             legend.title = element_text(colour="black", size = 6),
-             legend.text = element_text(colour="black", size = 6),
-             axis.text.x = element_text(colour="black", size = 6),
-             axis.title.x = element_text(colour="black", size = 6),
-             axis.text.y = element_text(colour="black", size = 6),
-             axis.title.y = element_text(colour="black", size = 6, angle=90)) 
-generate_multinomial_profiles <- function(expr_profile, mRNA_range=c(10000, 25000, 50000, 100000, 250000, 500000, 750000, 1000000)){
-  names(mRNA_range) <- mRNA_range
-  
-  res <- ldply(mRNA_range, function(mRNA_yield) {
-    
-    T <- rmultinom(1, mRNA_yield, expr_profile)
-    #trial_modes <- colHistMode(T)
-    data.frame(mRNA_yield=mRNA_yield, expression=T)
-  })
-  #res <- cbind(res)
-  #colnames(res) <- "mRNA_yield"
-  # res$mRNA_yield <- as.numeric(res$mRNA_yield)
-  res
-}
-#original_fpkm_dist <- IFM[,1]
-#write.table(IFM[,1], "hypothetical_rna_seq_profile.txt", sep="\t", row.names=F, col.names=F, quote=F)
-original_fpkm_dist <- as.vector(read.delim("./hypothetical_rna_seq_profile.txt", header=F)[,1])
-original_fpkm_dist <- original_fpkm_dist[original_fpkm_dist > 0.01]
-original_fpkm_dist <- original_fpkm_dist / sum(original_fpkm_dist)
-# Pick around 5,000 transcripts to "express" from this hypothetical cell, consistent
-# with what we typically see with current gen SC-RNA-Seq
-reduced_fpkm_dist <- original_fpkm_dist[sample(length(original_fpkm_dist), 5000)]
-reduced_fpkm_dist <- reduced_fpkm_dist / sum(reduced_fpkm_dist)
-profiles <- generate_multinomial_profiles(reduced_fpkm_dist)
-pdf("./supplementary_figures/RPC_dist_by_yield.pdf", width=5, height=2)
-qplot(expression, geom="histogram", data=profiles, log="x") + 
-  facet_wrap(~mRNA_yield, ncol=4) + 
-  scale_x_log10(breaks=c(1, 10, 100, 1000)) +
-  theme(axis.text.y=element_text(size=6)) +
-  theme(axis.text.x=element_text(size=6)) +
-  theme(axis.title.y=element_text(size=6)) +
-  theme(axis.title.x=element_text(size=6)) +
-  xlab("Expression (RPC)") +
-  ylab("Transcript isoforms") +
-  theme(panel.border = element_blank(), axis.line = element_line()) +
-  theme(panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) +
-  theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank()) +
-  theme(panel.background=element_blank()) +
-  theme(legend.position = "none") +
-  theme(strip.background = element_rect(colour = 'white', fill = 'white')) +
-  theme(strip.text = element_text(size=6))
-dev.off()
-pdf("./supplementary_figures/RPC_dist_sampled.pdf", width=2, height=2)
-qplot(reduced_fpkm_dist, geom="histogram", log="x") +
-  theme(axis.text.y=element_text(size=6)) +
-  theme(axis.text.x=element_text(size=6)) +
-  theme(axis.title.y=element_text(size=6)) +
-  theme(axis.title.x=element_text(size=6)) +
-  xlab("Relative abundance") +
-  ylab("Genes") +
-  theme(panel.border = element_blank(), axis.line = element_line()) +
-  theme(panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) +
-  theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank()) +
-  theme(panel.background=element_blank()) +
-  theme(legend.position = "none") +
-  theme(strip.background = element_rect(colour = 'white', fill = 'white')) +
-  theme(strip.text = element_text(size=6))
-dev.off()
-pdf("./supplementary_figures/RPC_dist_orig.pdf", width=2, height=2)
-qplot(original_fpkm_dist, geom="histogram", log="x") +
-  theme(axis.text.y=element_text(size=6)) +
-  theme(axis.text.x=element_text(size=6)) +
-  theme(axis.title.y=element_text(size=6)) +
-  theme(axis.title.x=element_text(size=6)) +
-  xlab("Relative abundance") +
-  ylab("Genes") +
-  theme(panel.border = element_blank(), axis.line = element_line()) +
-  theme(panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) +
-  theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank()) +
-  theme(panel.background=element_blank()) +
-  theme(legend.position = "none") +
-  theme(strip.background = element_rect(colour = 'white', fill = 'white')) +
-  theme(strip.text = element_text(size=6))
-dev.off()
-fpkm_dist_df <- rbind(data.frame(type="Bulk cell population", expression=original_fpkm_dist),
-                      data.frame(type="Hypothetical single cell", expression=reduced_fpkm_dist))
-pdf("./supplementary_figures/RPC_dist_combined.pdf", width=2, height=2)
-qplot(expression, fill=type, data=fpkm_dist_df, geom="histogram", log="x") +
-  facet_wrap(~type, ncol=1, scales="free_y")+
-  theme(axis.text.y=element_text(size=6)) +
-  theme(axis.text.x=element_text(size=6)) +
-  theme(axis.title.y=element_text(size=6)) +
-  theme(axis.title.x=element_text(size=6)) +
-  xlab("Relative abundance") +
-  ylab("Transcript isoforms") +
-  theme(panel.border = element_blank(), axis.line = element_line()) +
-  theme(panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) +
-  theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank()) +
-  theme(panel.background=element_blank()) +
-  theme(legend.position = "none") +
-  theme(strip.background = element_rect(colour = 'white', fill = 'white')) +
-  theme(strip.text = element_text(size=6)) + scale_fill_brewer(palette="Set1")
-dev.off()
 
 #################################################fig4_si############################################################
 #read the read count data for the genes: 
@@ -243,15 +178,15 @@ Shalek_read_countdata_cds <- newCellDataSet(as.matrix(Shalek_read_countdata),
 pData(Shalek_read_countdata_cds)$Total_mRNAs <- esApply(Shalek_read_countdata_cds, 2, sum)
 pData(Shalek_read_countdata_cds)$endogenous_RNA <- esApply(Shalek_read_countdata_cds, 2, sum)
 
-Shalek_golgi_update <- Shalek_abs[,pData(Shalek_abs)$experiment_name %in% c("LPS_GolgiPlug", "LPS", "Unstimulated_Replicate")] #Shalek_golgi_update is commented in the current analysis, added back here 
-Shalek_gene_df <- data.frame(experiment_name = pData(Shalek_read_countdata_cds[, c(colnames(Shalek_abs_subset_ko_LPS), colnames(Shalek_golgi_update))])$experiment_name, 
-                             sum_readcounts = esApply(Shalek_read_countdata_cds[, c(colnames(Shalek_abs_subset_ko_LPS), colnames(Shalek_golgi_update))], 2, sum))
+# Shalek_golgi_update <- Shalek_abs[,pData(Shalek_abs)$experiment_name %in% c("LPS_GolgiPlug", "LPS", "Unstimulated_Replicate")] #Shalek_golgi_update is commented in the current analysis, added back here 
+Shalek_gene_df <- data.frame(experiment_name = pData(Shalek_read_countdata_cds[, c(colnames(Shalek_abs_subset_ko_LPS))])$experiment_name, #, colnames(Shalek_golgi_update)
+                             sum_readcounts = esApply(Shalek_read_countdata_cds[, c(colnames(Shalek_abs_subset_ko_LPS))], 2, sum)) #, colnames(Shalek_golgi_update)
 
 
-Shalek_gene_df <- data.frame(experiment_name = pData(Shalek_read_countdata_cds[, c(colnames(Shalek_abs_subset_ko_LPS), colnames(Shalek_golgi_update))])$experiment_name, 
-                             sum_readcounts = esApply(Shalek_read_countdata_cds[, c(colnames(Shalek_abs_subset_ko_LPS), colnames(Shalek_golgi_update))], 2, sum))
+Shalek_gene_df <- data.frame(experiment_name = pData(Shalek_read_countdata_cds[, c(colnames(Shalek_abs_subset_ko_LPS))])$experiment_name, #, colnames(Shalek_golgi_update)
+                             sum_readcounts = esApply(Shalek_read_countdata_cds[, c(colnames(Shalek_abs_subset_ko_LPS))], 2, sum)) #, colnames(Shalek_golgi_update)
 
-pdf('./supplementary_figures/fig_4c_si.pdf', height = 3, width = 2)
+pdf('./supplementary_figures/fig_4c_si.pdf', height = 1.5, width = 2)
 qplot(sum_readcounts, fill = experiment_name, log = 'x', data = Shalek_gene_df) + facet_wrap(~~experiment_name, ncol = 1, scales = 'free_y') + nm_theme() + xlab('Total reads') + ylab('Cells')
 dev.off()
 
@@ -284,7 +219,7 @@ plot_tree_pairwise_cor2 <- function (std_tree_cds, absolute_tree_cds)
   return(p)
 }
 
-std_HSMM <- orderCells(std_HSMM, reverse = T) #reverse the tree
+std_HSMM <- orderCells(std_HSMM, reverse = F) #reverse the tree
 pdf('./supplementary_figures/fig5c_si.pdf', width = 4, height = 2)
 plot_tree_pairwise_cor2(std_HSMM, HSMM_myo) + nm_theme()
 dev.off()
@@ -318,7 +253,8 @@ table(sets_all) #number of genes
 
 names(muscle_size_normalized_mc_glm_perm_pval < 0.05)
 
-muscle_df$data_type = c("Transcript (size normalization)", "Transcript (size normalization)", "FPKM", "FPKM")
+cols <- c("FPKM" = "#F2756D", "Read counts" = "#6F94CC", "Transcript counts" = "#000202", "Estimated transcript counts" = "#7AAE41") ##A680B9
+muscle_df$data_type = c("Estimated transcript counts", "Estimated transcript counts", "FPKM", "FPKM")
 
 muscle_df$class = '3relative'
 muscle_df.1 <- muscle_df
@@ -329,11 +265,17 @@ colnames(muscle_df)[1:3] <- c('Precision', 'Recall', 'F1')
 
 pdf('./supplementary_figures/fig5e_si_ori.pdf', width = 1.8, height = 1.5)
 qplot(factor(Type), value, stat = "identity", geom = 'bar', position = 'dodge', fill = data_type, data = melt(muscle_df), log = 'y') + #facet_wrap(~variable) + 
-  ggtitle(title) + scale_fill_discrete('Type') + xlab('') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
+  ggtitle(title) + scale_fill_manual(values = cols, name = "Type")  + xlab('') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
   ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + ylim(0, 1) + 
   theme(strip.background = element_blank(), strip.text.x = element_blank()) + nm_theme() + theme(strip.background = element_blank(), strip.text.x = element_blank())
 dev.off()
 
+pdf('./supplementary_figures/fig5e_si_ori_helper.pdf', width = 1.8, height = 1.5)
+qplot(factor(Type), value, stat = "identity", geom = 'bar', position = 'dodge', fill = data_type, data = melt(muscle_df), log = 'y') + #facet_wrap(~variable) + 
+  ggtitle(title) + scale_fill_manual(values = cols, name = "Type")  + xlab('') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
+  ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + ylim(0, 1) + 
+  theme(strip.background = element_blank(), strip.text.x = element_blank()) + theme(strip.background = element_blank(), strip.text.x = element_blank())
+dev.off()
 
 ####4. enrichment for GO/motif analysis for the muscle permuation test ####
 abs_HSMM_ids <- row.names(HSMM_myo_size_norm_res[HSMM_myo_size_norm_res$pval <0.05, ]) 
@@ -345,15 +287,15 @@ std_HSMM_name <- fData(HSMM_myo[std_HSMM_ids, ])$gene_short_name
 write.table(std_HSMM_name, file = '../std_muscle_pseudotime_gene.txt', sep = '\t', row.names = F, quote = F)
 write.table(abs_HSMM_name, file = '../abs_muscle_pseudotime_gene.txt', sep = '\t', row.names = F, quote = F)
 
-# abs_gsaRes <- runGSAhyper(unique(abs_HSMM_name), gsc=human_go_gsc, universe=unique(as.vector(fData(HSMM_myo)$gene_short_name)))
-# std_gsaRes <- runGSAhyper(unique(std_HSMM_name), gsc=human_go_gsc, universe=unique(as.vector(fData(HSMM_myo)$gene_short_name)))
+abs_gsaRes <- runGSAhyper(unique(abs_HSMM_name), gsc=human_go_gsc, universe=unique(as.vector(fData(HSMM_myo)$gene_short_name)))
+std_gsaRes <- runGSAhyper(unique(std_HSMM_name), gsc=human_go_gsc, universe=unique(as.vector(fData(HSMM_myo)$gene_short_name)))
 
 abs_gsaRes_reactome <- runGSAhyper(unique(abs_HSMM_name), gsc=human_reactome_gsc, universe=unique(as.vector(fData(HSMM_myo)$gene_short_name)))
 std_gsaRes_reactome <- runGSAhyper(unique(std_HSMM_name), gsc=human_reactome_gsc, universe=unique(as.vector(fData(HSMM_myo)$gene_short_name)))
 
 #plot the terms and significance: 
-# gsa_results <- list('Transcript_counts' = abs_gsaRes, 'FPKM' = std_gsaRes)
-# plot_gsa_hyper_heatmap(HSMM_myo, gsa_results, significance=1e-3)
+gsa_results <- list('Transcript_counts' = abs_gsaRes, 'FPKM' = std_gsaRes)
+plot_gsa_hyper_heatmap(HSMM_myo, gsa_results, significance=1e-3)
 
 gsa_results_reactome <- list('Transcript_counts' = abs_gsaRes_reactome, 'FPKM' = std_gsaRes_reactome)
 plot_gsa_hyper_heatmap(HSMM_myo, gsa_results_reactome, significance=1e-3)
@@ -384,8 +326,8 @@ benchmark_pseudotime_test <- function(abs_gsaRes , std_gsaRes ) {
     )
     
     #show the number for the overlapping:
-    table(sets_all)
-    intersect(abs_hyper_df$cluster_id, std_hyper_df$cluster_id)
+    print(table(sets_all))
+    print(intersect(abs_hyper_df$cluster_id, std_hyper_df$cluster_id))
 
     pdf(file = './supplementary_figures/overlap_enriched_muscle_term.pdf')
     venneuler_venn(element_all_list, sets_all)
@@ -530,7 +472,7 @@ plot_fdr_sensitivity <- function (test_p_list = list(monocle_p = monocle_p, dese
   return(p1)
 }
 
-fdr_sensitivity_cal <- function (est_pval, true_pval, type = c("precision", "recall", "fpr", 'sensitivity'),
+fdr_sensitivity_cal <- function (est_pval, true_pval, type = c("precision", "recall", "fpr", 'sensitivity', 'fdr'),
                                  q_thrsld = 0.1)
 {
   qval <- p.adjust(est_pval, method = "BH")
@@ -552,15 +494,22 @@ fdr_sensitivity_cal <- function (est_pval, true_pval, type = c("precision", "rec
     length(fp) / length(union(fp, tn))
   else if (type == 'sensitivity')
     length(tp) / length(union(tp, fn))
+  else if (type == 'fdr')
+    length(fp) / length(union(tp, fp))
 }
 
 fdr_sensitivity <- function (est_pval, true_pval, TF_PN_vec, q_thrsld = 0.1, beta = 1) {
-  fpr <- fdr_sensitivity_cal(est_pval, true_pval, type = c("fpr"),
+  fdr <- fdr_sensitivity_cal(est_pval, true_pval, type = c("fdr"),
                              q_thrsld = 0.1)
   sensitivity <- fdr_sensitivity_cal(est_pval, true_pval, type = c("sensitivity"),
                                      q_thrsld = 0.1)
-  data.frame(fpr = fpr, sensitivity = sensitivity)
+  data.frame(fdr = fdr, sensitivity = sensitivity)
 }
+
+fdr_sensitivity_cal(monocle_p_readcount, readcount_permutate_pval, 'fdr')
+fdr_sensitivity_cal(new_abs_size_norm_monocle_p_ratio_by_geometric_mean, mode_size_norm_permutate_ratio_by_geometric_mean, 'fdr')
+fdr_sensitivity_cal(default_deseq2_p, readcount_permutate_pval, 'fdr')
+fdr_sensitivity_cal(abs_default_deseq2_p, mode_size_norm_permutate_ratio_by_geometric_mean, 'fdr')
 
 fdr_sensitivity_df <- plot_fdr_sensitivity(test_p_list = list(monocle_p = monocle_p, 
                                                               monocle_p_readcount = monocle_p_readcount,
@@ -578,26 +527,26 @@ fdr_sensitivity_df <- plot_fdr_sensitivity(test_p_list = list(monocle_p = monocl
                                                               mast_mc_pval_no_norm = mast_mc_pval_no_norm, 
                                                               mast_std_pval_no_norm = mast_std_pval_no_norm, 
                                                               mast_count_pval_no_norm = mast_count_pval_no_norm),
-                                           permutate_pval = list(monocle_p = std_permutate_pval, #readcount_permutate_pval, #std_permutate_pval, 
-                                                                 monocle_p_readcount = readcount_permutate_pval, 
-                                                                 mode_size_norm_permutate_ratio_by_geometric_mean = mode_size_norm_permutate_ratio_by_geometric_mean,
-                                                                 mc_mode_size_norm_permutate_ratio_by_geometric_mean = mc_mode_size_norm_permutate_ratio_by_geometric_mean,
-                                                                 default_edgeR_p = readcount_permutate_pval, #readcount_permutate_pval use readcount instead of std_permutate_pval
-                                                                 abs_default_edgeR_p = mode_size_norm_permutate_ratio_by_geometric_mean, 
-                                                                 default_deseq2_p = readcount_permutate_pval, #readcount_permutate_pval use readcount instead of std_permutate_pval
-                                                                 abs_default_deseq2_p = mode_size_norm_permutate_ratio_by_geometric_mean, 
-                                                                 default_deseq_p = readcount_permutate_pval, #readcount_permutate_pval use readcount instead of std_permutate_pval
-                                                                 abs_default_deseq_p = mode_size_norm_permutate_ratio_by_geometric_mean, 
+                                           permutate_pval = list(monocle_p = mode_size_norm_permutate_ratio_by_geometric_mean, #std_permutate_pval, #readcount_permutate_pval, #std_permutate_pval, 
+                                                                 monocle_p_readcount = mode_size_norm_permutate_ratio_by_geometric_mean, #readcount_permutate_pval, 
+                                                                 mode_size_norm_permutate_ratio_by_geometric_mean = mode_size_norm_permutate_ratio_by_geometric_mean, #mode_size_norm_permutate_ratio_by_geometric_mean,
+                                                                 mc_mode_size_norm_permutate_ratio_by_geometric_mean = mode_size_norm_permutate_ratio_by_geometric_mean, #mc_mode_size_norm_permutate_ratio_by_geometric_mean,
+                                                                 default_edgeR_p = mode_size_norm_permutate_ratio_by_geometric_mean, #readcount_permutate_pval, #readcount_permutate_pval use readcount instead of std_permutate_pval
+                                                                 abs_default_edgeR_p = mode_size_norm_permutate_ratio_by_geometric_mean, #mode_size_norm_permutate_ratio_by_geometric_mean, 
+                                                                 default_deseq2_p = mode_size_norm_permutate_ratio_by_geometric_mean, #readcount_permutate_pval, #readcount_permutate_pval use readcount instead of std_permutate_pval
+                                                                 abs_default_deseq2_p = mode_size_norm_permutate_ratio_by_geometric_mean, #mode_size_norm_permutate_ratio_by_geometric_mean, 
+                                                                 default_deseq_p = mode_size_norm_permutate_ratio_by_geometric_mean, #readcount_permutate_pval, #readcount_permutate_pval use readcount instead of std_permutate_pval
+                                                                 abs_default_deseq_p = mode_size_norm_permutate_ratio_by_geometric_mean, #mode_size_norm_permutate_ratio_by_geometric_mean, 
                                                                  # abs_default_deseq_p_new_norm = mode_size_norm_permutate_ratio_by_geometric_mean, 
-                                                                 scde_p = readcount_permutate_pval, 
-                                                                 abs_scde_p = mode_size_norm_permutate_ratio_by_geometric_mean, 
-                                                                 mast_abs_pval_no_norm = mode_size_norm_permutate_ratio_by_geometric_mean, 
-                                                                 mast_mc_pval_no_norm = mc_mode_size_norm_permutate_ratio_by_geometric_mean, 
-                                                                 mast_std_pval_no_norm = std_permutate_pval, 
-                                                                 mast_count_pval_no_norm = readcount_permutate_pval),
+                                                                 scde_p = mode_size_norm_permutate_ratio_by_geometric_mean, #readcount_permutate_pval, 
+                                                                 abs_scde_p = mode_size_norm_permutate_ratio_by_geometric_mean, #mode_size_norm_permutate_ratio_by_geometric_mean, 
+                                                                 mast_abs_pval_no_norm = mode_size_norm_permutate_ratio_by_geometric_mean, #mode_size_norm_permutate_ratio_by_geometric_mean, 
+                                                                 mast_mc_pval_no_norm = mode_size_norm_permutate_ratio_by_geometric_mean, #mc_mode_size_norm_permutate_ratio_by_geometric_mean, 
+                                                                 mast_std_pval_no_norm = mode_size_norm_permutate_ratio_by_geometric_mean, #std_permutate_pval, 
+                                                                 mast_count_pval_no_norm = mode_size_norm_permutate_ratio_by_geometric_mean), #readcount_permutate_pval),
                                            row.names(absolute_cds), #gene_list, overlap_genes, high_gene_list
                                            return_df = T, #na.rm = T, 
-                                           p_thrsld = 0.01, #0.05
+                                           p_thrsld = 0.05, #0.05
                                            rownames = c('monocle (FPKM)', 'monocle (readcount)', 'monocle (New size normalization)', 'monocle (New size normalization, Estimate transcript)', 
                                                         'edgeR (edgeR size normalization)', 'edgeR (New Size normalization)', 'DESeq2 (DESeq2 size normalization)', 'DESeq2 (New Size normalization)',
                                                         'DESeq (DESeq size normalization)', "DESeq (New Size normalization)", 'SCDE (Read Counts)', 'SCDE (New size normalization)', 
@@ -632,39 +581,6 @@ ggplot(aes(factor(Type), value), data = df_res) + geom_bar(stat = "identity", po
   ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + nm_theme()
 dev.off()
 
-################################################################################################
-#show the reproducibility for each run: 
-################################################################################################
-
-replicates_recovery <- list()
-res <- lapply(1:10, function(x) {
-  print(paste('the current iteration is ', x))
-  replicates_recovery <- c(replicates_recovery, relative2abs(standard_cds, cores = detectCores(), return_all = T, verbose = T))
-})
-
-#plot the mean VS CV: 
-recovery_mean <- lapply(res, function(x) apply(x$norm_cds[1:transcript_num, ], 1, mean))
-recovery_mean <- do.call(rbind.data.frame, recovery_mean)
-cv <- apply(recovery_mean, 2, function(x) sd(x) / mean(x))
-mean_exprs <- apply(recovery_mean, 2, function(x) mean(x))
-  
-pdf('./supplementary_figures/mean_expr_cv_census.pdf', height = 2.5, width = 2.5)
-qplot(mean_exprs[mean_exprs > 0.01], cv[mean_exprs > 0.01], log = 'x', alpha = I(0.4), size = 0.5) + xlab('mean gene expression') + 
-  ylab('CV') + geom_density2d(lwd = 0.1) + scale_size(range = c(0.1, 0.5)) + nm_theme()
-dev.off()
-
-#do this for a few cells instead of averaging across different cells: 
-cell_ind <- 180
-recovery_cell_select <- lapply(replicates_recovery, function(x) x$norm_cds[1:transcript_num, cell_ind])
-recovery_mean <- do.call(rbind.data.frame, recovery_cell_select)
-cv <- apply(recovery_mean, 2, function(x) sd(x) / mean(x))
-mean_exprs <- apply(recovery_mean, 2, function(x) mean(x))
-sd_exprs <- apply(recovery_mean, 2, function(x) sd(x))
-  
-pdf('./supplementary_figures/mean_expr_cv_census_sample_cells.pdf', height = 2.5, width = 2.5)
-qplot(mean_exprs[mean_exprs > 0.01], cv[mean_exprs > 0.01], log = 'x', alpha = I(0.4), size = 0.5) + xlab('mean gene expression') + 
-  ylab('CV') + geom_density2d(lwd = 0.1) + scale_size(range = c(0.1, 0.5)) + nm_theme()
-dev.off()
 
 #generate the figure for calculating capture efficiency: 
 Time <- pData(absolute_cds)$Time
@@ -765,19 +681,20 @@ pdf('./supplementary_figures/capture_rate.pdf', width = 2, height = 1.4)
 ggplot(aes(Time, unique(optim_p_val)), data = unique(num_time_spike_in_detect_df[, c('Time', 'optim_p_val')])) + geom_bar(stat = 'identity', aes(fill = unique(Time))) + ylab('Estimated capture rate') + nm_theme()
 dev.off()
 
-#generate the perfect recovery figure: 
-test <- mapply(function(cell_dmode, model) {
-  predict(model, newdata = data.frame(log_fpkm = log10(cell_dmode)), type = 'response')
-}, as.list(estimate_t(exprs(standard_cds)[1:transcript_num, ])), molModels_select) #molModels_select
+# #generate the perfect recovery figure: 
+# test <- mapply(function(cell_dmode, model) {
+#   predict(model, newdata = data.frame(log_fpkm = log10(cell_dmode)), type = 'response')
+# }, as.list(estimate_t(exprs(standard_cds)[1:transcript_num, ])), molModels_select) #molModels_select
 
-df <- pData(absolute_cds)
-df$mode_transcript <- 10^test
-df$estimate_mode <- estimate_t(exprs(standard_cds))
+# df <- pData(absolute_cds)
+# df$mode_transcript <- 10^test
+# df$estimate_mode <- estimate_t(exprs(standard_cds))
 
-abs_mat_1 <- relative2abs(standard_cds, verbose = T, return_all = T, reads_per_cell = colSums(read_countdata), expected_total_mRNAs = exp(dmode(log(pData(absolute_cds)$endo ))), use_fixed_intercept = T, expected_mRNA_mode = df$mode_transcript,
-                          expected_capture_rate = c(rep(0.2326, sum(Time == 'E18.5')), rep(0.2987, sum(Time == 'E14.5')), rep(0.3093, sum(Time == 'Adult')), rep(0.09174, sum(Time == 'E16.5'))), 
-                          cores = detectCores(), kb_intercept = 2.268025, kb_slope = -3.655828, kb_slope_rng = c(-3.665828, -3.645828))
-source('/Users/xqiu/Dropbox (Personal)/Projects/BEAM/third_submission/transcript_count_cmpr.R', echo = T)
+# abs_mat_1 <- relative2abs(standard_cds, verbose = T, return_all = T, reads_per_cell = colSums(read_countdata), expected_total_mRNAs = exp(dmode(log(pData(absolute_cds)$endo ))), use_fixed_intercept = T, expected_mRNA_mode = df$mode_transcript,
+#                           expected_capture_rate = c(rep(0.2326, sum(Time == 'E18.5')), rep(0.2987, sum(Time == 'E14.5')), rep(0.3093, sum(Time == 'Adult')), rep(0.09174, sum(Time == 'E16.5'))), 
+#                           cores = detectCores(), kb_intercept = 2.268025, kb_slope = -3.655828, kb_slope_rng = c(-3.665828, -3.645828))
+# script.dir <- dirname(sys.frame(1)$ofile)
+# source(paste(script.dir, '/second_revision/transcript_count_cmpr.R', sep = ''))
 
-file.rename(c('./main_figures/fig3f_new.pdf', './main_figures/fig3g2_new.pdf'), c('./main_figures/fig3f_perferct_recovery.pdf', './main_figures/fig3g_perferct_recovery.pdf'))
+# file.rename(c('./main_figures/fig3f_new.pdf', './main_figures/fig3g2_new.pdf'), c('./main_figures/fig3f_perferct_recovery.pdf', './main_figures/fig3g_perferct_recovery.pdf'))
 save.image('./RData/gen_supplementary_figure.RData') 

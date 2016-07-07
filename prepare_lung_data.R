@@ -1,8 +1,8 @@
 use_select_algorithm = T
 
-# library(devtools)
-# load_all('~/Projects/monocle-dev')
-library(monocle)
+library(devtools)
+load_all('~/Projects/monocle-dev')
+# library(monocle)
 library(xacHelper)
 
 load_all_libraries()
@@ -300,7 +300,7 @@ pData(read_countdata_cds)$Total_mRNAs <- esApply(read_countdata_cds, 2, sum)
 pData(read_countdata_cds)$endogenous_RNA <- esApply(read_countdata_cds, 2, function(x) sum(x[1:transcript_num]))
 
 #use the algorithm to recover the transcript counts based on mode inferred from isoform data 
-norm_matrix <- relative2abs(standard_cds, t_estimate = estimate_t(exprs(standard_cds)), reads_per_cell = colSums(read_countdata), expected_total_mRNAs = 162578, cores = detectCores()) #dmode(pData(absolute_cds)$total)
+norm_matrix <- relative2abs(standard_cds, t_estimate = estimate_t(exprs(standard_cds)), reads_per_cell = colSums(read_countdata), cores = detectCores()) #dmode(pData(absolute_cds)$total)
 mc_adj_cds <- newCellDataSet(as.matrix(norm_matrix),
                              phenoData = new("AnnotatedDataFrame", data = pData(standard_cds)),
                              featureData = new("AnnotatedDataFrame", data = fData(standard_cds)),

@@ -1,9 +1,9 @@
 ########################################
 # Downsampling the number of cells
 # ########################################
-library(monocle)
-# library(devtools)
-# load_all('~/Projects/monocle-dev')
+# library(monocle)
+library(devtools)
+load_all('~/Projects/monocle-dev')
 library(xacHelper)
 # source("monocle_helper_functions.R")
 library(plyr)
@@ -11,24 +11,26 @@ library(stringr)
 library(dplyr) 
 library(grid)
 library(gridExtra)
-# load("RData/analysis_shalek_data.RData")
+load("RData/analysis_shalek_data.RData")
 
 #functions used in the scripts
-order_shalek_cells_by_original_states <- function(cds_subset, original_cds, root_state, cells_state_2, cells_state_3) {
+order_shalek_cells_by_original_states <- function(cds_subset, original_cds, root_state, cells_state_2, cells_state_3, genes_in_range_vec = genes_in_range) {
   cds_subset = estimateSizeFactors(cds_subset)
   cds_subset = estimateDispersions(cds_subset)
   cds_subset = detectGenes(cds_subset)
 
   closeAllConnections()
-  expressed_genes <- row.names(subset(fData(original_cds), num_cells_expressed > 50))
-  genes_in_range <- selectGenesInExpressionRange(original_cds[expressed_genes,], 2, Inf, 0.1, stat_fun=function(x) { median(round(x)) })
+  # expressed_genes <- row.names(subset(fData(original_cds), num_cells_expressed > 50))
+  # genes_in_range <- selectGenesInExpressionRange(original_cds[expressed_genes,], 2, Inf, 0.1, stat_fun=function(x) { median(round(x)) })
 
-  differential_genes = differentialGeneTest(cds_subset[genes_in_range, ], fullModelFormulaStr = '~experiment_name + stim_time', cores =detectCores())
+  differential_genes = differentialGeneTest(cds_subset[genes_in_range_vec, ], fullModelFormulaStr = '~experiment_name + stim_time', cores =detectCores())
   closeAllConnections()
   
   # Filter out high mRNAs
-  cds_subset <- cds_subset[, pData(cds_subset)$Total_mRNAs < 75000]
-  order_genes = subset(differential_genes, qval < 0.05) %>% top_n(34, -qval)
+  # cds_subset <- cds_subset[, pData(cds_subset)$Total_mRNAs < 170000]
+  top_gene_num <- sum(fData(cds_subset)$use_for_ordering)
+  print(paste('top_gen_num is', top_gene_num))
+  order_genes = subset(differential_genes, qval < 0.05) %>% top_n(top_gene_num, -qval)
   order_genes = order_genes$gene_id
   cds_subset = setOrderingFilter(cds_subset, order_genes)
 
@@ -73,15 +75,17 @@ root_state <- row.names(subset(pData(Shalek_abs_subset_ko_LPS), State == 1))
 cells_state_2 <- row.names(subset(pData(Shalek_abs_subset_ko_LPS), State == 2))
 cells_state_3 <- row.names(subset(pData(Shalek_abs_subset_ko_LPS), State == 3))
 
-# Now get the original Shalek KO transcript counts for subsetting
-Shalek_abs_subset_ko_LPS <- Shalek_abs[, pData(Shalek_abs)$experiment_name %in% c('Ifnar1_KO_LPS', 'Stat1_KO_LPS',  "LPS", "Unstimulated_Replicate")]
-pData(Shalek_abs_subset_ko_LPS)[, 'stim_time'] <- as.character(pData(Shalek_abs_subset_ko_LPS)$time)
-pData(Shalek_abs_subset_ko_LPS)$stim_time[pData(Shalek_abs_subset_ko_LPS)$stim_time == ''] <- 0
-pData(Shalek_abs_subset_ko_LPS)$stim_time <- as.integer(revalue(pData(Shalek_abs_subset_ko_LPS)$stim_time, c("1h" = 1, "2h" = 2, "4h" = 4, "6h" = 6)))
-Shalek_abs_subset_ko_LPS <- detectGenes(Shalek_abs_subset_ko_LPS, min_expr = 0.1)
+# # Now get the original Shalek KO transcript counts for subsetting
+# Shalek_abs_subset_ko_LPS <- Shalek_abs[, pData(Shalek_abs)$experiment_name %in% c('Ifnar1_KO_LPS', 'Stat1_KO_LPS',  "LPS", "Unstimulated_Replicate")]
+# pData(Shalek_abs_subset_ko_LPS)[, 'stim_time'] <- as.character(pData(Shalek_abs_subset_ko_LPS)$time)
+# pData(Shalek_abs_subset_ko_LPS)$stim_time[pData(Shalek_abs_subset_ko_LPS)$stim_time == ''] <- 0
+# pData(Shalek_abs_subset_ko_LPS)$stim_time <- as.integer(revalue(pData(Shalek_abs_subset_ko_LPS)$stim_time, c("1h" = 1, "2h" = 2, "4h" = 4, "6h" = 6)))
+# Shalek_abs_subset_ko_LPS <- detectGenes(Shalek_abs_subset_ko_LPS, min_expr = 0.1)
+
+print(paste('number of cells for the ko data is: ', ncol(Shalek_abs_subset_ko_LPS)))
+set.seed(2016)
 
 # Generate downsampled sets of cells
-set.seed(5)
 MIN_PROPORTION = 0.1
 MAX_PROPORTION = 1
 STEP = 0.1
@@ -93,17 +97,34 @@ names(downsampled_proportions) = downsampled_proportions  # will tie CDS objects
 
 cds_downsampled_cells = lapply(downsampled_proportions, function(x) { Shalek_abs_subset_ko_LPS[, sample(ncol(Shalek_abs_subset_ko_LPS), round(ncol(Shalek_abs_subset_ko_LPS) * x))] })
 
-# Reorder those subsets
-cds_downsampled_cells_ordered = lapply(cds_downsampled_cells, order_shalek_cells_by_original_states, Shalek_abs_subset_ko_LPS, root_state, cells_state_2, cells_state_3)
-save(cds_downsampled_cells_ordered, Shalek_abs_subset_ko_LPS, file="analysis_cell_downsampling.gz")
+#avoid that we get bad sampling for low downsampling situation: 
+root_state <- row.names(subset(pData(Shalek_abs_subset_ko_LPS), State == 1))
+cells_state_2 <- row.names(subset(pData(Shalek_abs_subset_ko_LPS), State == 2))
+cells_state_3 <- row.names(subset(pData(Shalek_abs_subset_ko_LPS), State == 3))
+
+# cds_downsampled_cells = lapply(downsampled_proportions[1:6], function(x) { 
+#   sample_cells <- c(sample(root_state, length(root_state) * x), sample(cells_state_2, length(cells_state_2) * x), sample(cells_state_3, length(cells_state_3) * x))
+#   Shalek_abs_subset_ko_LPS[, sample_cells] })
+
+# # Reorder those subsets
+# cds_downsampled_cells_ordered = lapply(cds_downsampled_cells, order_shalek_cells_by_original_states, Shalek_abs_subset_ko_LPS, root_state, cells_state_2, cells_state_3)
+# save(cds_downsampled_cells_ordered, Shalek_abs_subset_ko_LPS, file="analysis_cell_downsampling.gz")
 
 #################################################Parallel the above analysis#####################################################
 # cds_subset, original_cds, root_state, cells_state_2, cells_state_3
-abs_cds_downsampled_cells_branch_genes = lapply(cds_downsampled_cells[1:6], function(cds) { 
+abs_cds_downsampled_cells_branch_genes = lapply(cds_downsampled_cells[1:3], function(cds) { 
   cds <- order_shalek_cells_by_original_states(cds, Shalek_abs_subset_ko_LPS, root_state, cells_state_2, cells_state_3)
   res <- branchTest(cds[, ], fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', cores = detectCores(), relative_expr = T, weighted = T)
   return(list(order_cds = cds, res = res))
    })
-abs_cds_downsampled_cells_branch_genes_1 <- abs_cds_downsampled_cells_branch_genes
-save(abs_cds_downsampled_cells_branch_genes_1, file = 'abs_cds_downsampled_cells_branch_genes_1')
+abs_cds_downsampled_cells_branch_genes_1_a <- abs_cds_downsampled_cells_branch_genes
+save(abs_cds_downsampled_cells_branch_genes_1_a, file = 'abs_cds_downsampled_cells_branch_genes_1_a')
+
+abs_cds_downsampled_cells_branch_genes = lapply(cds_downsampled_cells[4:6], function(cds) { 
+  cds <- order_shalek_cells_by_original_states(cds, Shalek_abs_subset_ko_LPS, root_state, cells_state_2, cells_state_3)
+  res <- branchTest(cds[, ], fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', cores = detectCores(), relative_expr = T, weighted = T)
+  return(list(order_cds = cds, res = res))
+   })
+abs_cds_downsampled_cells_branch_genes_1_b <- abs_cds_downsampled_cells_branch_genes
+save(abs_cds_downsampled_cells_branch_genes_1_b, file = 'abs_cds_downsampled_cells_branch_genes_1_b')
 

@@ -1,9 +1,9 @@
 ######################################################################
 # Downsampling the number of cells to benchmark BEAM performance 
 # ####################################################################
-library(monocle)
-# library(devtools)
-# load_all('~/Projects/monocle-dev')
+# library(monocle)
+library(devtools)
+load_all('~/Projects/monocle-dev')
 library(xacHelper)
 # source("monocle_helper_functions.R")
 library(dplyr) 
@@ -55,6 +55,7 @@ closeAllConnections()
 closeAllConnections()
 
 ######################################################################################################
+setseed(2016)
 
 std_cds_downsampled_cells_branch_genes = lapply(downsampled_proportions[1:6], function(x) { 
   cell_id_list <- sample(ncol(Shalek_abs_subset_ko_LPS), round(ncol(Shalek_std_subset_KO_LPS) * x))

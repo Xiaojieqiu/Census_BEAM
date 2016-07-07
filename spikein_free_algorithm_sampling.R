@@ -1,12 +1,12 @@
 load('./RData/prepare_lung_data.RData')
-# library(devtools)
-# load_all('~/Projects/monocle-dev')
-library(monocle)
+library(devtools)
+library(xacHelper)
+load_all('~/Projects/monocle-dev')
+# library(monocle)
 library(MASS)
 library(sp)
 library(plyr)
 library(raster)
-library(xacHelper)
 library(grid)
 library(RColorBrewer)
 load_all_libraries()
@@ -34,7 +34,7 @@ split_relative_exprs <- split(exprs(standard_cds), rep(1:ncol(exprs(standard_cds
 
 test <- mapply(function(cell_dmode, model) {
   predict(model, newdata = data.frame(log_fpkm = log10(cell_dmode)), type = 'response')
-}, as.list(estimate_t(exprs(standard_cds)[1:transcript_num, ])), molModels) #molModels_select
+}, as.list(estimate_t(exprs(standard_cds)[1:transcript_num, ])), molModels_select) 
 
 df <- pData(absolute_cds)
 df$mode_transcript <- 10^test
@@ -46,6 +46,10 @@ optim_mc_func_fix_c(mc_select[2], kb_intercept = mc_select[1], t_estimate = esti
           alpha = df$mode_transcript, total_RNAs = pData(absolute_cds)$endo,
           cores = 1, weight_mode=0.17, weight_relative_expr=0.50, weight_total_rna=0.33, verbose = F)
 
+optim_mc_func_fix_c_simulation(c(mc_select[2], mc_select[1]), t_estimate = estimate_t(standard_cds),
+          relative_expr_matrix = exprs(standard_cds), split_relative_expr_matrix = split_relative_exprs,
+          alpha = df$mode_transcript, total_RNAs = pData(absolute_cds)$endo,
+          cores = 1, weight_mode=0.17, weight_relative_expr=0.50, weight_total_rna=0.33, verbose = F)
 # # provide perfect parameters: 
 optim_mc_func_fix_c_simulation <- function (mc_list, t_estimate = estimate_t(TPM_isoform_count_cds),
           relative_expr_matrix = relative_expr_matrix, split_relative_expr_matrix = split_relative_exprs,
@@ -180,6 +184,8 @@ ratio <- ( e@xmax - e@xmin ) / ( e@ymax - e@ymin )
 
 # Create template raster to sample to
 r <- raster( nrows = 10 , ncols = floor( 9 * ratio ) , ext = extent(spdf) ) 
+# r <- raster( nrows = 56 , ncols = floor( 56 * ratio ) , ext = extent(spdf) )
+
 rf <- rasterize( spdf , r , field = "z" , fun = mean )
 
 # We can then plot this using `geom_tile()` or `geom_raster()`
@@ -216,7 +222,7 @@ ggplot( NULL ) + geom_raster( data = rdf , aes( x , y , fill = log10(layer) ) ) 
     theme(panel.border = element_blank(), axis.line = element_line()) +
     theme(panel.grid.minor.x = element_blank(), panel.grid.minor.y = element_blank()) +
     theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_blank()) + scale_size(range = c(0.1, 2)) + 
-    theme(panel.background = element_rect(fill='white')) + nm_theme()
+    theme(panel.background = element_rect(fill='white')) #+ nm_theme()
 dev.off()
 
 save.image('./RData/spikein_free_algorithm_sampling.RData')

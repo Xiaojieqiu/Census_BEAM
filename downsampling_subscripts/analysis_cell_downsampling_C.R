@@ -1,9 +1,9 @@
 ########################################
 # Downsampling the number of cells
 # ########################################
-library(monocle)
-# library(devtools)
-# load_all('~/Projects/monocle-dev')
+# library(monocle)
+library(devtools)
+load_all('~/Projects/monocle-dev')
 library(xacHelper)
 # source("monocle_helper_functions.R")
 library(plyr)
@@ -68,18 +68,19 @@ plot_monocle_spanning_tree_vectorized = function(cds) {
         
 }
 
-# Get the states assignment used in the manuscript
-root_state <- row.names(subset(pData(Shalek_abs_subset_ko_LPS), State == 1))
-cells_state_2 <- row.names(subset(pData(Shalek_abs_subset_ko_LPS), State == 2))
-cells_state_3 <- row.names(subset(pData(Shalek_abs_subset_ko_LPS), State == 3))
+# # Get the states assignment used in the manuscript
+# root_state <- row.names(subset(pData(Shalek_abs_subset_ko_LPS), State == 1))
+# cells_state_2 <- row.names(subset(pData(Shalek_abs_subset_ko_LPS), State == 2))
+# cells_state_3 <- row.names(subset(pData(Shalek_abs_subset_ko_LPS), State == 3))
 
-# Now get the original Shalek KO transcript counts for subsetting
-Shalek_abs_subset_ko_LPS <- Shalek_abs[, pData(Shalek_abs)$experiment_name %in% c('Ifnar1_KO_LPS', 'Stat1_KO_LPS',  "LPS", "Unstimulated_Replicate")]
-pData(Shalek_abs_subset_ko_LPS)[, 'stim_time'] <- as.character(pData(Shalek_abs_subset_ko_LPS)$time)
-pData(Shalek_abs_subset_ko_LPS)$stim_time[pData(Shalek_abs_subset_ko_LPS)$stim_time == ''] <- 0
-pData(Shalek_abs_subset_ko_LPS)$stim_time <- as.integer(revalue(pData(Shalek_abs_subset_ko_LPS)$stim_time, c("1h" = 1, "2h" = 2, "4h" = 4, "6h" = 6)))
-Shalek_abs_subset_ko_LPS <- detectGenes(Shalek_abs_subset_ko_LPS, min_expr = 0.1)
+# # Now get the original Shalek KO transcript counts for subsetting
+# Shalek_abs_subset_ko_LPS <- Shalek_abs[, pData(Shalek_abs)$experiment_name %in% c('Ifnar1_KO_LPS', 'Stat1_KO_LPS',  "LPS", "Unstimulated_Replicate")]
+# pData(Shalek_abs_subset_ko_LPS)[, 'stim_time'] <- as.character(pData(Shalek_abs_subset_ko_LPS)$time)
+# pData(Shalek_abs_subset_ko_LPS)$stim_time[pData(Shalek_abs_subset_ko_LPS)$stim_time == ''] <- 0
+# pData(Shalek_abs_subset_ko_LPS)$stim_time <- as.integer(revalue(pData(Shalek_abs_subset_ko_LPS)$stim_time, c("1h" = 1, "2h" = 2, "4h" = 4, "6h" = 6)))
+# Shalek_abs_subset_ko_LPS <- detectGenes(Shalek_abs_subset_ko_LPS, min_expr = 0.1)
 
+setseed(2016)
 PILOT_SAMPLING_C = rep(c(0.5, 0.4, 0.3, 0.2, 0.1), each = 3)
 # Get branching genes for all these subsets
 PILOT_SAMPLING_branch_genes_C = lapply(PILOT_SAMPLING_C, function(fraction) { 
@@ -87,4 +88,5 @@ PILOT_SAMPLING_branch_genes_C = lapply(PILOT_SAMPLING_C, function(fraction) {
 
   branchTest(Shalek_abs_subset_ko_LPS[, ], fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', cores = detectCores(), relative_expr = T, weighted = T, cell_id_list = cell_id_list) })
 
+save(file = './RData/PILOT_SAMPLING_branch_genes_C.RData', PILOT_SAMPLING_branch_genes_C)
 

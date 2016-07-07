@@ -1,9 +1,9 @@
 ######################################################################
 # Downsampling the number of cells to benchmark BEAM performance 
 # ####################################################################
-library(monocle)
-# library(devtools)
-# load_all('~/Projects/monocle-dev')
+# library(monocle)
+library(devtools)
+load_all('~/Projects/monocle-dev')
 library(xacHelper)
 # source("monocle_helper_functions.R")
 library(dplyr) 
@@ -55,13 +55,14 @@ closeAllConnections()
 closeAllConnections()
 
 ######################################################################################################
+setseed(2016)
 
-std_cds_downsampled_cells_branch_genes = lapply(downsampled_proportions[13:19], function(x) { 
+std_cds_downsampled_cells_branch_genes = lapply(downsampled_proportions[7:12], function(x) { 
   cell_id_list <- sample(ncol(Shalek_abs_subset_ko_LPS), round(ncol(Shalek_std_subset_KO_LPS) * x))
   res <- branchTest_downsampling(Shalek_std_subset_KO_LPS[, ], cell_id_list, relative_expr = F, cores = 1)
 
   return(list(cell_id_list = cell_id_list, res = res))
    })
-std_cds_downsampled_cells_branch_genes_3 <- std_cds_downsampled_cells_branch_genes
-save(std_cds_downsampled_cells_branch_genes_3, file = 'std_cds_downsampled_cells_branch_genes_3')
+std_cds_downsampled_cells_branch_genes_2 <- std_cds_downsampled_cells_branch_genes
+save(std_cds_downsampled_cells_branch_genes_2, file = 'std_cds_downsampled_cells_branch_genes_2')
 

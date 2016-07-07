@@ -1,6 +1,6 @@
-# library(devtools)
-# load_all('~/Projects/monocle-dev')
-library(monocle)
+library(devtools)
+load_all('~/Projects/monocle-dev')
+# library(monocle)
 library(xacHelper)
 
 load_all_libraries()
@@ -41,7 +41,7 @@ mc_AT12_cds_subset_all_gene@dim_reduce_type <- "ICA" #set dim_reduce_type to "IC
 
 pdf('./main_figures/fig1a_mc.pdf', height = 2, width = 2.5)
 plot_spanning_tree(mc_AT12_cds_subset_all_gene, color_by="Time", show_backbone=T, backbone_color = 'black', #show_all_lineages = T,
-                   markers=markers, show_cell_names = F, cell_link_size = 0.1)  + scale_y_reverse() + 
+                   markers=markers, show_cell_names = F, cell_link_size = 0.1)  + scale_x_reverse() + 
   scale_size(range = c(0.1, 2.5)) + nm_theme()
 dev.off()
 
@@ -256,7 +256,7 @@ tmp <- relative2abs(standard_cds, verbose = T, return_all = T, use_fixed_interce
                     expected_capture_rate = rep(0.25, 183),
                     cores = detectCores()) 
 
-df$estimate_mode <- tmp$calibrated_modes[, 1]
+df$estimate_mode <- tmp$calibrated_modes$hypothetical_mode
 pdf('./main_figures/fig3b_mode_time.pdf', width = 1.4, height = 1.4)
 qplot(mode_transcript, estimate_mode,  data = df, log = 'xy', color = Time, size = 1)  +  scale_size(range = c(0.1, 1)) + 
   xlab('Mode \n (spike-in regression)') + ylab('Mode (calibration)') + geom_abline(color = I('red'), size = .1) + 
@@ -290,7 +290,7 @@ dev.off()
 pdf('./main_figures/fig3f.pdf', width = 2, height = 1.7)
 qplot(pData(absolute_cds)$endogenous_RNA[pData(absolute_cds)$endogenous_RNA > 1e3], 
       pData(mc_adj_cds)$endogenous_RNA[pData(absolute_cds)$endogenous_RNA > 1e3], log="xy", color=pData(absolute_cds)$Time[pData(absolute_cds)$endogenous_RNA > 1e3], size = I(1)) + 
-  geom_smooth(method="lm", color="black", size = .1) + geom_abline(color="red") +  
+  geom_smooth(method="lm", color = 'blue', size = .1) + geom_abline(color="black") +  
   xlab("Total endogenous mRNA \n (spike-in)") +
   ylab("Total endogenous mRNA \n (spike-in free algorithm)") + #scale_size(range = c(0.25, 0.25)) + 
   scale_color_discrete(name = "Time points") + nm_theme()
@@ -319,6 +319,7 @@ qplot(spikein + 1, mc_algorithm + 1, log = 'xy',
   ylab('Transcript counts (Recovery algorithm)') + nm_theme()
 dev.off()
 
+levels(mc_abs_exprs_df$cell) <- c("Adult", "E14.5", "E16.5", "E18.5")
 pdf('./main_figures/fig3g.pdf', width = 2.5, height = 2.5)
 ggplot(mc_abs_exprs_df) + aes(x=spikein + 1, y= mc_algorithm + 1) + scale_x_log10() + scale_y_log10() + facet_wrap(~cell, scales = 'free', ncol = 2) + 
   xlab('Transcript counts (Spike-in)') + #scale_size(range = c(0.25, 0.25)) + 
@@ -432,7 +433,7 @@ plot_genes_branched_pseudotime2(mc_AT12_cds_subset_all_gene[branch_motif_Tfs_id,
   ylab('Transcript counts') + nm_theme() + xlab('Pseudotime')
 dev.off()
 
-pdf('./supplementary_figures/fig4d_si.pdf', width = 5, height = 3)
+pdf('./supplementary_figures/fig4d_si2.pdf', width = 5, height = 3)
 # pdf('fig4d.pdf', width = 5, height = 3)
 plot_genes_branched_pseudotime2(mc_AT12_cds_subset_all_gene[setdiff(branch_motif_Tfs_id, c('ENSMUSG00000022463.7', 'ENSMUSG00000055320.10', 'ENSMUSG00000005698.9')), ], cell_color_by = "State", 
                                 trajectory_color_by = "Lineage", fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', normalize = F, stretch = T,

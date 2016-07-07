@@ -1,9 +1,18 @@
+#use mse, correlation: 
+# spike_mse_true_rpc <- mean((spike_rpc[true_nzgenes] - E[true_nzgenes])^2, na.rm=T)
+# spike_mse_library_rpc <- mean((spike_rpc[library_nzgenes] - S[library_nzgenes])^2, na.rm=T)
+# 
+# num_genes_converged_true_rpc <- sum((abs(spike_rpc[true_nzgenes] - E[true_nzgenes]) / E[true_nzgenes]) < 0.2) / length(true_nzgenes)
+# num_genes_converged_library_rpc <- sum((abs(spike_rpc[library_nzgenes] - S[library_nzgenes]) / S[library_nzgenes]) < 0.2) / length(library_nzgenes)
+
+# cor_true_estimated <- mean(unlist(lapply(1:cells, function(x) cor(estimated_rpc_matrix[, x], true_rpc_matrix[, x]))))
+
 library(tidyr)
 library(grid)
 library(gridExtra)
-library(monocle) 
-# library(devtools)
-# load_all('~/Projects/monocle-dev')
+# library(monocle) 
+library(devtools)
+load_all('~/Projects/monocle-dev')
 library(xacHelper)
 library(plyr)
 library(data.table)
@@ -12,12 +21,11 @@ library(modeest)
 library(dplyr)
 library(matrixStats)
 
-names(cds_to_compare_transcript_counts) <- names(cds_to_compare_transcript_counts_regression)
 
 ####################################################
 # Load prepared downsampling data and required code
 ####################################################
-# load("RData/prepare_downsampling_data.RData")
+# load("RData/prepare_downsampling_data_no_seed.RData")
 # source("monocle_helper_functions.R")
 
 ####################################################
@@ -27,58 +35,42 @@ names(cds_to_compare_transcript_counts) <- names(cds_to_compare_transcript_count
 # Helper function to take expression matrix, reference matrix, a threshold, and set of quartile assignments and return
 # Proportion of genes quantified within error_threshold of the original value in reference matrix for each quartile of gene expression
 calculate_fraction_of_genes_detected_within_error = function(expression_matrix, reference_matrix, error_threshold, quartiles) {
-    if(class(expression_matrix) == "CellDataSet") {
-      expression_matrix = exprs(expression_matrix)[names(quartiles), ]
-      reference_matrix = exprs(reference_matrix)[names(quartiles), ]
-    }
-    else if(class(expression_matrix) == "matrix") {
-      expression_matrix = expression_matrix[names(quartiles), ]
-      reference_matrix = reference_matrix[names(quartiles), ]    
-    }
+  expression_matrix = exprs(expression_matrix)[names(quartiles), ]
+  reference_matrix = exprs(reference_matrix)[names(quartiles), ]
+  
+  # Split dataframe into quantiles
+  expression_matrix_by_quartile = split(as.data.frame(expression_matrix), quartiles)
+  reference_matrix_by_quartile = split(as.data.frame(reference_matrix), quartiles)
+  
+  get_performance = function(expression_matrix, reference_matrix) {
+    error = abs(expression_matrix - reference_matrix) / (reference_matrix)
+    
+    proportion_detected = colSums(error < error_threshold, na.rm=T) / colSums(reference_matrix > 0)
+    return ( list(mean_value=mean(proportion_detected, na.rm=T), lower_bound=quantile(proportion_detected, na.rm=T)[[2]], upper_bound=quantile(proportion_detected, na.rm=T)[[4]]))
+  }
+  
+  performance_by_quartile = as.data.frame(t(mapply(get_performance, expression_matrix_by_quartile, reference_matrix_by_quartile)))
+  performance_by_quartile$quartile = row.names(performance_by_quartile)
+  row.names(performance_by_quartile) = NULL
+  return(performance_by_quartile)
+}
 
-    # Split dataframe into quantiles
-    expression_matrix_by_quartile = split(as.data.frame(expression_matrix), quartiles)
-    reference_matrix_by_quartile = split(as.data.frame(reference_matrix), quartiles)
+# New metrics for showing the performance of the recovery algorithm: 
+calculate_mse_cor <- function(expression_matrix, reference_matrix) {
+  mse <- (expression_matrix - reference_matrix)^2
+  cor_true_estimated <- unlist(lapply(1:cells, function(x) cor(expression_matrix[, x], reference_matrix[, x])))
 
-    get_performance = function(expression_matrix, reference_matrix) {
-        error = abs(expression_matrix - reference_matrix) / (reference_matrix)
-
-        proportion_detected = colSums(error < error_threshold, na.rm=T) / colSums(reference_matrix > 0)
-        return ( list(mean_value=mean(proportion_detected, na.rm=T), lower_bound=quantile(proportion_detected, na.rm=T)[[2]], upper_bound=quantile(proportion_detected, na.rm=T)[[4]]))
-    }
-
-    performance_by_quartile = as.data.frame(t(mapply(get_performance, expression_matrix_by_quartile, reference_matrix_by_quartile)))
-    performance_by_quartile$quartile = row.names(performance_by_quartile)
-    row.names(performance_by_quartile) = NULL
-    return(performance_by_quartile)
+return(data.frame(mse = mse, cor = cor_true_estimated))
 }
 
 # Helper function to massage results obtained with lapply calls to calculate_fraction_of_genes_detected_within_error
 # into a more usable format
 process_performance_dataframe = function(performance_results, quantification_type) {
-    performance_results = as.data.frame(apply(performance_results, 2, unlist))  # lapply strategy has columns as lists... need to undo
-    performance_results$depth = as.numeric(stringr::str_replace(row.names(performance_results), '\\..+', ''))
-    performance_results$quantification_type = quantification_type
-    performance_results$quartile = performance_results$quartile
-    return(performance_results)
-}
-
-# New metrics for showing the performance of the recovery algorithm: 
-calculate_mse_cor <- function(expression_cds, reference_cds) {
-    if(class(expression_cds) == "CellDataSet") {
-      expression_matrix = exprs(expression_cds)[1:transcript_num, ]
-      reference_matrix = exprs(reference_cds)[1:transcript_num, ]
-    }
-    else if(class(expression_cds) == "matrix") {
-      expression_matrix = expression_cds[1:transcript_num, ]
-      reference_matrix = reference_cds[1:transcript_num, ]    
-    }
-
-    mse <- mean((expression_matrix - reference_matrix)^2)
-    cor_true_estimated <- mean(unlist(lapply(1:ncol(expression_matrix), function(x) cor(expression_matrix[, x], reference_matrix[, x]))))
-    total_difference <- mean(abs(colSums(expression_matrix) - colSums(reference_matrix)))
-
-    return(data.frame(mse = mse, cor = cor_true_estimated, total_difference = total_difference))
+  performance_results = as.data.frame(apply(performance_results, 2, unlist))  # lapply strategy has columns as lists... need to undo
+  performance_results$depth = as.numeric(stringr::str_replace(row.names(performance_results), '\\..+', ''))
+  performance_results$quantification_type = quantification_type
+  performance_results$quartile = performance_results$quartile
+  return(performance_results)
 }
 
 ####################################################
@@ -94,9 +86,12 @@ total_expression <- total_expression[total_expression > 0.9]
 quartiles = cut(total_expression, breaks=quantile(total_expression, probs=seq(0,1, by=0.25)), include.lowest=TRUE)
 names(quartiles) = names(total_expression)
 
+# quartiles = cut(total_expression, breaks=quantile(total_expression, probs=seq(0,1, by=0.25)), include.lowest=TRUE)
+# names(quartiles) = names(total_expression)
+
 # Calculate performance per quartile
 ERROR_THRESHOLD = 0.20
-performance_transcript_counts = as.data.frame(do.call(rbind, lapply(cds_to_compare_transcript_counts, calculate_fraction_of_genes_detected_within_error, reference_matrix=cds_to_compare_transcript_counts[[8]], error_threshold=ERROR_THRESHOLD, quartiles=quartiles)))
+performance_transcript_counts = as.data.frame(do.call(rbind, lapply(cds_to_compare_transcript_counts, calculate_fraction_of_genes_detected_within_error, reference_matrix=original_depth_cds_transcript_counts, error_threshold=ERROR_THRESHOLD, quartiles=quartiles)))
 performance_fpkm = as.data.frame(do.call(rbind, lapply(cds_to_compare, calculate_fraction_of_genes_detected_within_error, reference_matrix=original_depth_cds, error_threshold=ERROR_THRESHOLD, quartiles=quartiles)))
 performance_transcript_counts_regression = as.data.frame(do.call(rbind, lapply(cds_to_compare_transcript_counts_regression, calculate_fraction_of_genes_detected_within_error, reference_matrix=original_depth_cds_transcript_counts_regression, error_threshold=ERROR_THRESHOLD, quartiles=quartiles)))
 
@@ -120,28 +115,29 @@ performance$quartile = factor(performance$quartile, levels=unique(performance$qu
 # Make plot
 pdf("./supplementary_figures/fig7c_si.pdf", height=3, width=3)
 ggplot(performance, aes(as.numeric(depth), as.numeric(as.character(mean_value)), color=quantification_type)) +
-    geom_point() +
-    geom_line() +
-    geom_hline(y=1, linetype="longdash", color="black", alpha=0.75) + 
-    ylim(c(0, 1)) +
-    facet_wrap(~ quartile, nrow=2) +
-    nm_theme() +
-    xlab("max depth per cell (read pairs)") +
-    ylab("median proportion of genes quantified within 20% of original per cell") +
-    scale_color_brewer(palette="Set1") +
-    scale_fill_brewer(palette="Set1")
+  geom_point() +
+  geom_line() +
+  geom_hline(yintercept = 1, linetype="longdash", color="black", alpha=0.75) + 
+  ylim(c(0, 1)) +
+  facet_wrap(~ quartile, nrow=2) +
+  nm_theme() +
+  xlab("max depth per cell (read pairs)") +
+  ylab("median proportion of genes quantified within 20% of original per cell") + theme(axis.text.x = element_text(angle = 30, hjust = 1)) +
+  scale_color_brewer(palette="Set1") +
+  scale_fill_brewer(palette="Set1")
 dev.off()
-    
 
-# ####################################################
-# # Quantify how normalization-based recovery algorithm performance
-# # changes with depth
-# ####################################################
 
-# # Get median transcript count value across all cells for both regression and recovery algorithm
-# regression = melt(do.call(rbind, lapply(cds_to_compare_transcript_counts_regression, function(x) { rowMedians(exprs(x)[valid_genes, ]) })))
-# colnames(regression) = c("depth", "gene", "transcript_counts_regression")
-recovery = melt(do.call(rbind, lapply(cds_to_compare_transcript_counts, function(x) { rowMedians(x[valid_genes, ]) })))
+####################################################
+# Quantify how normalization-based recovery algorithm performance
+# changes with depth
+####################################################
+
+# Get median transcript count value across all cells for both regression and recovery algorithm
+regression = melt(do.call(rbind, lapply(cds_to_compare_transcript_counts_regression, function(x) { rowMedians(exprs(x)[valid_genes, ]) })))
+colnames(regression) = c("depth", "gene", "transcript_counts_regression")
+
+recovery = melt(do.call(rbind, lapply(cds_to_compare_transcript_counts, function(x) { rowMedians(exprs(x)[valid_genes, ]) })))
 colnames(recovery) = c("depth", "gene", "transcript_counts_recovery")
 
 # Combine results into a single dataframe for plotting
@@ -151,12 +147,12 @@ combined_recovery_and_regression_by_depth = regression %>% left_join(recovery, b
 pdf("./supplementary_figures/fig7a_si.pdf", width=3, height=3)
 
 ggplot(combined_recovery_and_regression_by_depth, aes(log10(transcript_counts_regression + 0.1), log10(transcript_counts_recovery + 0.1))) +
-    geom_point(size=0.3) + 
-    geom_abline(color="red", alpha=0.75) + 
-    facet_wrap(~ depth, ncol=3) + 
-    xlab("log10(spike-in regression transcript counts + 0.1)") + 
-    ylab("log10(spike-free transcript counts + 0.1)") + 
-    nm_theme()
+  geom_point(size=0.3) + 
+  geom_abline(color="red", alpha=0.75) + 
+  facet_wrap(~ depth, ncol=3) + 
+  xlab("log10(spike-in regression transcript counts + 0.1)") + 
+  ylab("log10(spike-free transcript counts + 0.1)") + 
+  nm_theme()
 
 dev.off()
 
@@ -171,13 +167,13 @@ median_proportion_of_error_per_depth = combined_recovery_and_regression_by_depth
 
 pdf("./supplementary_figures/fig7b_si.pdf", width=3, height=3)
 ggplot(median_proportion_of_error_per_depth, aes(depth, median)) +
-    geom_hline(y=0, linetype="longdash", color="red", alpha=0.75) + 
-    geom_errorbar(aes(ymax=quartile_3, ymin=quartile_2), color="#d3d3d3") +
-    geom_point(size=1) +
-    geom_line() +
-    xlab("max depth per cell (read pairs)") +
-    ylab("median normalized difference between recovery methods") + 
-    nm_theme()
+  geom_hline(yintercept = 0, linetype="longdash", color="red", alpha=0.75) + 
+  geom_errorbar(aes(ymax=quartile_3, ymin=quartile_2), color="#d3d3d3") +
+  geom_point(size=1) +
+  geom_line() +
+  xlab("max depth per cell (read pairs)") +
+  ylab("median normalized difference between recovery methods") + theme(axis.text.x = element_text(angle = 30, hjust = 1)) + 
+  nm_theme()
 dev.off()
 
 
@@ -186,22 +182,22 @@ dev.off()
 # approach are relatively robust to depth
 ####################################################
 # Plot of M and C parameter stability
-recovery_algorithm_stability_df = data.frame(m=unlist(cds_to_compare_conversion_m_values), c=unlist(cds_to_compare_conversion_c_values), depth=as.numeric(names(cds_to_compare)))
+recovery_algorithm_stability_df = data.frame(m=unlist(cds_to_compare_conversion_m_values), c=unlist(cds_to_compare_conversion_c_values), depth=as.numeric(names(cds_to_compare_conversion_c_values)))
 recovery_algorithm_stability_df = reshape2::melt(recovery_algorithm_stability_df, id="depth")
 
 # Temporary hack to fix depth of original dataset (not 10,000,000)
 recovery_algorithm_stability_df$depth[recovery_algorithm_stability_df$depth == 10000000] = 5000000
 
-pdf("./supplementary_figures/fig7d_si.pdf", width=2.5, height=2.5)
+pdf("./supplementary_figures/fig7d_si.pdf", width=2.5, height=1.5)
 
 ggplot(recovery_algorithm_stability_df, aes(depth, value, color=variable)) +
-    geom_point() +
-    geom_line() +
-    xlab("max depth per cell (read pairs)") +
-    ylab("spike-free method parameter value") +
-    facet_grid(variable ~ ., scales="free_y") + 
-    scale_color_brewer(palette="Set1") + 
-    nm_theme()
+  geom_point() +
+  geom_line() +
+  xlab("max depth per cell (read pairs)") +
+  ylab("parameter value\n (Census)") +
+  facet_grid(variable ~ ., scales="free_y") + theme(axis.text.x = element_text(angle = 30, hjust = 1)) + 
+  scale_color_brewer(palette="Set1") + 
+  nm_theme()
 
 dev.off()
 
@@ -211,21 +207,21 @@ dev.off()
 # over the dowsampled datasets  
 ####################################################
 get_proportion_modes_correct_per_depth = function(cds_list, original_depth_cds, error_threshold = 0.2) {
-    # Calculate modes for each depth and join with metadata
-    modes = as.data.frame(do.call(rbind, lapply(cds_list, function(x) estimate_t(x))))
-    modes$depth = as.numeric(row.names(modes))
-    modes_melted = melt(modes, id="depth")
-    modes_melted = merge(modes_melted, pData(original_depth_cds), by.x="variable", by.y="row.names")
-
-    # Calculate proportion of cells with mode within 20% of original at each depth
-    proportion_correct = modes_melted %>%
-        group_by(variable) %>%
-            mutate(percent_error=(value - value[depth == max(depth)]) / value[depth == max(depth)]) %>%
-            ungroup() %>%
-        group_by(depth) %>%
-            summarize(proportion_correct = sum(percent_error <= error_threshold) / n())
-
-    return(proportion_correct)
+  # Calculate modes for each depth and join with metadata
+  modes = as.data.frame(do.call(rbind, lapply(cds_list, function(x) estimate_t(x))))
+  modes$depth = as.numeric(row.names(modes))
+  modes_melted = melt(modes, id="depth")
+  modes_melted = merge(modes_melted, pData(original_depth_cds), by.x="variable", by.y="row.names")
+  
+  # Calculate proportion of cells with mode within 20% of original at each depth
+  proportion_correct = modes_melted %>%
+    group_by(variable) %>%
+    mutate(percent_error=(value - value[depth == max(depth)]) / value[depth == max(depth)]) %>%
+    ungroup() %>%
+    group_by(depth) %>%
+    summarize(proportion_correct = sum(percent_error <= error_threshold) / n())
+  
+  return(proportion_correct)
 }
 
 names(input_data$isoform_matrices_to_compare) = downsampled_depths
@@ -243,84 +239,15 @@ proportion_correct_transcript_counts$method = "spike-in free"
 # Combine all results and generate plot
 proportion_correct = rbind(proportion_correct_fpkm, proportion_correct_transcript_counts_regression, proportion_correct_transcript_counts)
 
-pdf("./supplementary_figures/three_precision_helper.pdf", width=2.5, height=2.5)
+pdf("./supplementary_figures/panel_e.pdf", width=2.5, height=1.5)
 ggplot(proportion_correct, aes(depth, proportion_correct, color=method)) +
-    geom_point() +
-    geom_line() +
-    ylim(c(0, 1)) + 
-    scale_color_brewer(palette="Set1") +
-    ylab("proportion of cells within 20% of original value") +
-    xlab("max depth per cell (total aligned PE reads)") +
-    theme_bw() 
+  geom_point() +
+  geom_line() +
+  ylim(c(0, 1)) + 
+  scale_color_brewer(palette="Set1") +
+  ylab("proportion of cells within\n 20% of original value") + theme(axis.text.x = element_text(angle = 30, hjust = 1)) +
+  xlab("max depth per cell (total aligned PE reads)") +
+  nm_theme() 
 dev.off()
 
-pdf("./supplementary_figures/three_precision.pdf", width=2.5, height=2.5)
-ggplot(proportion_correct, aes(depth, proportion_correct, color=method)) +
-    geom_point() +
-    geom_line() +
-    ylim(c(0, 1)) + 
-    scale_color_brewer(palette="Set1") +
-    ylab("proportion of cells within 20% of original value") +
-    xlab("max depth per cell (total aligned PE reads)") +
-    nm_theme() 
-dev.off()
-
-####################################################
-# Use the new metric for downstream analysis
-####################################################
-mse_cor_transcript_counts = do.call(rbind.data.frame, lapply(cds_to_compare_transcript_counts, calculate_mse_cor, cds_to_compare_transcript_counts[[8]]))
-mse_cor_transcript_counts$fraction <- names(cds_to_compare_transcript_counts)
-mse_cor_transcript_counts$Type <- "Census"
-mse_cor_transcript_counts_regression = do.call(rbind.data.frame, lapply(cds_to_compare_transcript_counts_regression, calculate_mse_cor, cds_to_compare_transcript_counts_regression[[8]]))
-mse_cor_transcript_counts_regression$fraction <- names(cds_to_compare_transcript_counts_regression[[8]])
-mse_cor_transcript_counts_regression$Type <- "spike-in regression"
-
-# Combine all results and generate plot
-mse_cor_df = rbind(mse_cor_transcript_counts[, colnames(mse_cor_transcript_counts_regression)], mse_cor_transcript_counts_regression)
-
-mse_cor_df$fraction <- row.names(mse_cor_df)
-pdf("./supplementary_figures/censusperformance_rmse.pdf", width=2.5, height=2.5)
-ggplot(mse_cor_transcript_counts, aes(fraction, mse + 1, color=Type)) + 
-    geom_point() +
-    scale_y_log10() + 
-    scale_color_brewer(palette="Set1") +
-    ylab("proportion of cells sampled") +
-    xlab("mse of expression to the full dataset") +
-    nm_theme() 
-dev.off()
-
-pdf("./supplementary_figures/performance_rmse.pdf", width=2.5, height=2.5)
-ggplot(mse_cor_df, aes(fraction, mse + 1, color=Type)) + 
-    geom_point() +
-    scale_y_log10() + 
-    scale_color_brewer(palette="Set1") +
-    ylab("proportion of cells sampled") +
-    xlab("mse of expression to the full dataset") +
-    nm_theme() 
-dev.off()
-
-pdf("./supplementary_figures/performance_cor.pdf", width=2.5, height=2.5)
-ggplot(mse_cor_df, aes(fraction, cor, color=Type)) +
-    geom_point() +
-    geom_line() +
-    ylim(c(0, 1)) + 
-    scale_color_brewer(palette="Set1") +
-    ylab("proportion of cells sampled") +
-    xlab("correlation of expression to the full dataset") +
-    nm_theme() 
-dev.off()
-
-pdf("./supplementary_figures/performance_total_difference.pdf", width=2.5, height=2.5)
-ggplot(mse_cor_df, aes(fraction, total_difference, color=Type)) +
-    geom_point() +
-    scale_y_log10() + 
-    scale_color_brewer(palette="Set1") +
-    ylab("proportion of cells sampled") +
-    xlab("mean difference of total mRNA to the full dataset") +
-    nm_theme() 
-dev.off()
-
-save.image("RData/gen_lung_downsampling_figures.R")
-
-
-
+save.image('./RData/gen_lung_downsampling_figures.RData')

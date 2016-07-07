@@ -1,307 +1,253 @@
-library(argparse)
+#use mse, correlation: 
+# spike_mse_true_rpc <- mean((spike_rpc[true_nzgenes] - E[true_nzgenes])^2, na.rm=T)
+# spike_mse_library_rpc <- mean((spike_rpc[library_nzgenes] - S[library_nzgenes])^2, na.rm=T)
+# 
+# num_genes_converged_true_rpc <- sum((abs(spike_rpc[true_nzgenes] - E[true_nzgenes]) / E[true_nzgenes]) < 0.2) / length(true_nzgenes)
+# num_genes_converged_library_rpc <- sum((abs(spike_rpc[library_nzgenes] - S[library_nzgenes]) / S[library_nzgenes]) < 0.2) / length(library_nzgenes)
+
+# cor_true_estimated <- mean(unlist(lapply(1:cells, function(x) cor(estimated_rpc_matrix[, x], true_rpc_matrix[, x]))))
+
 library(tidyr)
 library(grid)
 library(gridExtra)
-library(monocle)
-# library(devtools) 
-# load_all('~/Projects/monocle-dev')
+# library(monocle) 
+library(devtools)
+load_all('~/Projects/monocle-dev')
 library(xacHelper)
 library(plyr)
 library(data.table)
 library(MASS)
 library(modeest)
 library(dplyr)
-library(matrixStats) 
+library(matrixStats)
 
 
 ####################################################
-# Load in data from initial lung analysis (mostly need marker genes and a few other sets of genes)
+# Load prepared downsampling data and required code
 ####################################################
-# load("RData/prepare_lung_data.RData")
-valid_cells = c("SRR1033854_thout_0", "SRR1033855_thout_0", "SRR1033856_thout_0", "SRR1033859_thout_0", "SRR1033860_thout_0", "SRR1033861_thout_0", "SRR1033862_thout_0", "SRR1033863_thout_0", "SRR1033864_thout_0", "SRR1033867_thout_0", "SRR1033869_thout_0", "SRR1033871_thout_0", "SRR1033872_thout_0", "SRR1033874_thout_0", "SRR1033875_thout_0", "SRR1033876_thout_0", "SRR1033877_thout_0", "SRR1033878_thout_0", "SRR1033879_thout_0", "SRR1033880_thout_0", "SRR1033881_thout_0", "SRR1033882_thout_0", "SRR1033883_thout_0", "SRR1033884_thout_0", "SRR1033885_thout_0", "SRR1033886_thout_0", "SRR1033887_thout_0", "SRR1033888_thout_0", "SRR1033889_thout_0", "SRR1033890_thout_0", "SRR1033891_thout_0", "SRR1033892_thout_0", "SRR1033893_thout_0", "SRR1033894_thout_0", "SRR1033895_thout_0", "SRR1033896_thout_0", "SRR1033897_thout_0", "SRR1033898_thout_0", "SRR1033899_thout_0", "SRR1033900_thout_0", "SRR1033901_thout_0", "SRR1033902_thout_0", "SRR1033904_thout_0", "SRR1033905_thout_0", "SRR1033906_thout_0", "SRR1033907_thout_0", "SRR1033908_thout_0", "SRR1033909_thout_0", "SRR1033910_thout_0", "SRR1033911_thout_0", "SRR1033914_thout_0", "SRR1033915_thout_0", "SRR1033916_thout_0", "SRR1033917_thout_0", "SRR1033919_thout_0", "SRR1033921_thout_0", "SRR1033922_thout_0", "SRR1033923_thout_0", "SRR1033926_thout_0", "SRR1033927_thout_0", "SRR1033928_thout_0", "SRR1033929_thout_0", "SRR1033931_thout_0", "SRR1033932_thout_0", "SRR1033933_thout_0", "SRR1033934_thout_0", "SRR1033936_thout_0", "SRR1033937_thout_0", "SRR1033938_thout_0", "SRR1033939_thout_0", "SRR1033940_thout_0", "SRR1033941_thout_0", "SRR1033942_thout_0", "SRR1033943_thout_0", "SRR1033945_thout_0", "SRR1033946_thout_0", "SRR1033947_thout_0", "SRR1033948_thout_0", "SRR1033949_thout_0", "SRR1033950_thout_0", "SRR1033951_thout_0", "SRR1033952_thout_0", "SRR1033953_thout_0", "SRR1033954_thout_0", "SRR1033955_thout_0", "SRR1033956_thout_0", "SRR1033957_thout_0", "SRR1033958_thout_0", "SRR1033959_thout_0", "SRR1033960_thout_0", "SRR1033961_thout_0", "SRR1033962_thout_0", "SRR1033963_thout_0", "SRR1033964_thout_0", "SRR1033965_thout_0", "SRR1033966_thout_0", "SRR1033967_thout_0", "SRR1033968_thout_0", "SRR1033969_thout_0", "SRR1033970_thout_0", "SRR1033971_thout_0", "SRR1033972_thout_0", "SRR1033973_thout_0", "SRR1033974_thout_0", "SRR1033975_thout_0", "SRR1033976_thout_0", "SRR1033977_thout_0", "SRR1033978_thout_0", "SRR1033979_thout_0", "SRR1033980_thout_0", "SRR1033981_thout_0", "SRR1033982_thout_0", "SRR1033983_thout_0", "SRR1033984_thout_0", "SRR1033985_thout_0", "SRR1033986_thout_0", "SRR1033987_thout_0", "SRR1033988_thout_0", "SRR1033989_thout_0", "SRR1033990_thout_0", "SRR1033991_thout_0", "SRR1033992_thout_0", "SRR1033993_thout_0", "SRR1033994_thout_0", "SRR1033995_thout_0", "SRR1033996_thout_0", "SRR1033997_thout_0", "SRR1033998_thout_0", "SRR1033999_thout_0", "SRR1034000_thout_0", "SRR1034001_thout_0", "SRR1034002_thout_0", "SRR1034003_thout_0", "SRR1034004_thout_0", "SRR1034005_thout_0", "SRR1034006_thout_0", "SRR1034007_thout_0", "SRR1034008_thout_0", "SRR1034009_thout_0", "SRR1034010_thout_0", "SRR1034011_thout_0", "SRR1034012_thout_0", "SRR1034013_thout_0", "SRR1034014_thout_0", "SRR1034015_thout_0", "SRR1034016_thout_0", "SRR1034017_thout_0", "SRR1034018_thout_0", "SRR1034019_thout_0", "SRR1034020_thout_0", "SRR1034021_thout_0", "SRR1034022_thout_0", "SRR1034023_thout_0", "SRR1034024_thout_0", "SRR1034025_thout_0", "SRR1034026_thout_0", "SRR1034027_thout_0", "SRR1034028_thout_0", "SRR1034029_thout_0", "SRR1034030_thout_0", "SRR1034031_thout_0", "SRR1034032_thout_0", "SRR1034033_thout_0", "SRR1034034_thout_0", "SRR1034035_thout_0", "SRR1034036_thout_0", "SRR1034037_thout_0", "SRR1034038_thout_0", "SRR1034039_thout_0", "SRR1034040_thout_0", "SRR1034041_thout_0", "SRR1034042_thout_0", "SRR1034043_thout_0", "SRR1034044_thout_0", "SRR1034045_thout_0", "SRR1034046_thout_0", "SRR1034047_thout_0", "SRR1034048_thout_0", "SRR1034049_thout_0", "SRR1034050_thout_0", "SRR1034051_thout_0", "SRR1034052_thout_0", "SRR1034053_thout_0")
+load("RData/prepare_downsampling_data_no_seed.RData")
+# source("monocle_helper_functions.R")
 
 ####################################################
 # Helper functions for analysis
 ####################################################
 
-# Wraps generation of CDS objects for use with lapply
-get_monocle_cds <- function(fpkm_matrix, pd, fd, valid_cells) {
-
-    row.names(fpkm_matrix) = fpkm_matrix[, 1]
-    row.names(pd) = pd[, 1]
-    row.names(fd) = fd[, 1]
-
-    # Filter to a set of valid cells
-    fpkm_matrix = fpkm_matrix[, valid_cells]
-    pd = pd[valid_cells, ]
-
-    # Normalize the gene short names to all uppercase
-    fd$gene_short_name = toupper(fd$gene_short_name)
-
-    # Make sure the order of each dataframe is the same
-    fpkm_matrix = fpkm_matrix[, row.names(pd)]
-    fd = fd[row.names(fpkm_matrix), ]
-
-    # Initialize data structures for monocle and return HSMM
-    pd = new("AnnotatedDataFrame", data = pd)
-    fd = new("AnnotatedDataFrame", data = fd)
-    cds = new("CellDataSet", exprs = as.matrix(fpkm_matrix), phenoData = pd, featureData = fd, expressionFamily=tobit(), lowerDetectionLimit=0.1)
-
-    return(cds)
+# Helper function to take expression matrix, reference matrix, a threshold, and set of quartile assignments and return
+# Proportion of genes quantified within error_threshold of the original value in reference matrix for each quartile of gene expression
+calculate_fraction_of_genes_detected_within_error = function(expression_matrix, reference_matrix, error_threshold, quartiles) {
+  expression_matrix = exprs(expression_matrix)[names(quartiles), ]
+  reference_matrix = exprs(reference_matrix)[names(quartiles), ]
+  
+  # Split dataframe into quantiles
+  expression_matrix_by_quartile = split(as.data.frame(expression_matrix), quartiles)
+  reference_matrix_by_quartile = split(as.data.frame(reference_matrix), quartiles)
+  
+  get_performance = function(expression_matrix, reference_matrix) {
+    error = abs(expression_matrix - reference_matrix) / (reference_matrix)
+    
+    proportion_detected = colSums(error < error_threshold, na.rm=T) / colSums(reference_matrix > 0)
+    return ( list(mean_value=mean(proportion_detected, na.rm=T), lower_bound=quantile(proportion_detected, na.rm=T)[[2]], upper_bound=quantile(proportion_detected, na.rm=T)[[4]]))
+  }
+  
+  performance_by_quartile = as.data.frame(t(mapply(get_performance, expression_matrix_by_quartile, reference_matrix_by_quartile)))
+  performance_by_quartile$quartile = row.names(performance_by_quartile)
+  row.names(performance_by_quartile) = NULL
+  return(performance_by_quartile)
 }
 
-# Wraps conversion to transcript counts while also returning the m and c statistics from each run
-get_recovered_transcript_counts_with_stats = function(cds, kb_intercept = 2.62, isoform_matrix) {
-    closeAllConnections()
+# New metrics for showing the performance of the recovery algorithm: 
+calculate_mse_cor <- function(expression_matrix, reference_matrix) {
+  mse <- (expression_matrix - reference_matrix)^2
+  cor_true_estimated <- unlist(lapply(1:cells, function(x) cor(expression_matrix[, x], reference_matrix[, x])))
 
-    # set.seed(1:(300*ncol(cds))) #set the seed so that we get the same result every time
-    normalized_cds_stats = relative2abs(cds, estimate_t(exprs(cds)), cores=detectCores(), 
-          return_all=T, calibration_trial = 1000) #kb_intercept = kb_intercept,  also get m and c from return="all"
-    closeAllConnections()
-
-    # Update the expression matrix
-    exprs(cds) = as.matrix(normalized_cds_stats$norm_cds)
-
-    # Update expression family and estimate size factors, etc.
-    cds@expressionFamily = negbinomial()
-    # cds = estimateSizeFactors(cds)
-    # cds = estimateDispersions(cds)
-
-    # Put the CDS in the list and return with m and c parameters
-    normalized_cds_stats$norm_cds = cds
-    return(normalized_cds_stats[c("norm_cds", "kb_intercept", "kb_slope")])
+return(data.frame(mse = mse, cor = cor_true_estimated))
 }
 
-# Wraps code borrowed from lung analysis to do spike-in regression
-convert_monocle_cds_to_transcript_counts_regression <- function(cds) {
-  # Prepare spike DF and their expression values
-  spike_names <- row.names(cds)[grepl("ERCC", row.names(cds))]
-  
-  ercc_controls <- cds[spike_names,]
-  mean_spike_fpkms <- rowMeans(exprs(ercc_controls))
-  
-  spike_df <- cbind(spike_df, mean_spike_fpkms[row.names(spike_df)])
-  pData(ercc_controls)$Cell = row.names(pData(ercc_controls))
-  
-  # Perform regression on spike DF
-  molModels <- esApply(ercc_controls, 2, function(cell_exprs, input.ERCC.annotation, volume = volume, dilution = dilution, select_above_thresh = T, capture_efficiency) {
-    
-    spike_df <- input.ERCC.annotation 
-    spike_df <- cbind(spike_df, cell_exprs[row.names(spike_df)])
-    colnames(spike_df)[length(colnames(spike_df))] <- "FPKM"
-    spike_df$numMolecules <- spike_df$conc_attomoles_ul_Mix1*(volume*10^(-3)*dilution*10^(-18)*6.02214179*10^(23))
-    if(!is.na(capture_efficiency))
-      spike_df$numMolecules <- spike_df$numMolecules * capture_efficiency
-    spike_df$rounded_numMolecules <- round(spike_df$conc_attomoles_ul_Mix1*(volume*10^(-3)*dilution*10^(-18)*6.02214179*10^(23)))
-    
-    if(select_above_thresh){
-      spike_df <- subset(spike_df, conc_attomoles_ul_Mix1 >= 800)
-      spike_df <- subset(spike_df, FPKM >= 1e-10)    
-    }
-    spike_df$log_fpkm <- log10(spike_df$FPKM) 
-    spike_df$log_numMolecules <- log10(spike_df$numMolecules)
-    
-    molModel <- tryCatch({
-      molModel <- rlm(log_numMolecules ~ log_fpkm, data=spike_df)
-      molModel
-    }, 
-    error = function(e) { print(e); NULL })
-    molModel
-  }, spike_df, volume = 10, dilution = 1/ 40000, capture_efficiency = 1)
-  
-  
-  # Now use the per-cell linear models to produce a matrix of absolute transcript abundances 
-  # for each gene in the genome, in each cell
-  norm_fpkms <- mapply(function(cell_exprs, molModel) {
-    tryCatch({
-      norm_df <- data.frame(log_fpkm=log10(cell_exprs))
-      res <- 10^predict(molModel, type="response", newdata=norm_df)
-    }, 
-    error = function(e) {
-      rep(NA, length(cell_exprs))
-    })
-  }, 
-  split(exprs(cds), rep(1:ncol(exprs(cds)), each = nrow(exprs(cds)))), 
-  molModels)
-  
-  row.names(norm_fpkms) <- row.names(exprs(cds))
-  colnames(norm_fpkms) <- colnames(exprs(cds))
-  
-  # Now generate a new CellDataSet that uses the absolute transcript counts
-  fpkm_matrix_abs <- norm_fpkms
-  colnames(fpkm_matrix_abs) <- colnames(exprs(cds))
-  row.names(fpkm_matrix_abs) <- row.names(exprs(cds))
-  
-  pd <- new("AnnotatedDataFrame", data = pData(cds)[colnames(fpkm_matrix_abs),])
-  fd <- new("AnnotatedDataFrame", data = fData(cds)[rownames(fpkm_matrix_abs),])
-  
-  absolute_cds <- newCellDataSet(fpkm_matrix_abs, 
-                                 phenoData = pd, 
-                                 featureData = fd, 
-                                 expressionFamily=negbinomial(), 
-                                 lowerDetectionLimit=1)
-  
-  return( absolute_cds )
+# Helper function to massage results obtained with lapply calls to calculate_fraction_of_genes_detected_within_error
+# into a more usable format
+process_performance_dataframe = function(performance_results, quantification_type) {
+  performance_results = as.data.frame(apply(performance_results, 2, unlist))  # lapply strategy has columns as lists... need to undo
+  performance_results$depth = as.numeric(stringr::str_replace(row.names(performance_results), '\\..+', ''))
+  performance_results$quantification_type = quantification_type
+  performance_results$quartile = performance_results$quartile
+  return(performance_results)
 }
 
-
 ####################################################
-# Load and process sample metadata
-####################################################
-sra_table = read.delim("data/Quake_data/quake_lung/SraRunTable.txt")
-sra_table$Run = paste(sra_table$Run, "_thout_0", sep="")  # match sample names in other files
-
-sample_sheet = read.delim("data/Quake_data/quake_lung/standard_normalized_out/samples.table", row.names="sample_id")
-row.names(sample_sheet) = stringr::str_replace(row.names(sample_sheet), "_0", "_thout_0") # match sample names in other files
-
-# Merge sample data to generate sample sheet
-sample_sheet = merge(sample_sheet, sra_table, by.x="row.names", by.y="Run")
-row.names(sample_sheet) = sample_sheet$Row.names
-
-# Switch sample name conventions to short names
-sample_sheet$Time = NULL
-sample_sheet$Time[sample_sheet$age == "Embryonic day 14.5"] <- "E14.5"
-sample_sheet$Time[sample_sheet$age == "Embryonic day 16.5"] <- "E16.5"
-sample_sheet$Time[sample_sheet$age == "Embryonic day 18.5"] <- "E18.5"
-sample_sheet$Time[sample_sheet$age == "post natal day 107"] <- "Adult"
-
-
-####################################################
-# Define files to read in and reorder according to depth
-####################################################
-original_expression_matrix = "data/Quake_data/downsampled_normalized_out/7645000_cuffnorm_output/genes.fpkm_table"
-original_isoform_matrix = "data/Quake_data/downsampled_normalized_out/7645000_cuffnorm_output/isoforms.fpkm_table"
-gene_annotation = "data/Quake_data/downsampled_normalized_out/7645000_cuffnorm_output/genes.attr_table"
-
-expression_matrices_to_compare = Sys.glob("data/Quake_data/downsampled_normalized_out/*_cuffnorm_output/genes.fpkm_table")
-isoform_matrices_to_compare = Sys.glob("data/Quake_data/downsampled_normalized_out/*_cuffnorm_output/isoforms.fpkm_table")
-downsampled_depths = stringr::str_match(expression_matrices_to_compare, "([0-9]+)_cuffnorm_output")[,2]
-
-order_by_depth = order(as.numeric(as.character(downsampled_depths)))
-
-downsampled_depths = downsampled_depths[order_by_depth]
-expression_matrices_to_compare = expression_matrices_to_compare[order_by_depth]
-isoform_matrices_to_compare = isoform_matrices_to_compare[order_by_depth]
-
-
-####################################################
-# Read in data files
-####################################################
-# Read in input files
-input_files = c("original_expression_matrix"=original_expression_matrix, "original_isoform_matrix"=original_isoform_matrix, "gene_annotation"=gene_annotation)
-input_data=lapply(input_files, function(i){read.table(i, sep="\t", header=TRUE)})
-input_data$sample_metadata = sample_sheet  # add in the sample sheet
-
-# Read in expression matrices not at original depth that you want to compare
-names(expression_matrices_to_compare) = downsampled_depths
-input_data$expression_matrices_to_compare = lapply(expression_matrices_to_compare, function(i){read.table(i, sep="\t", header=TRUE)})
-
-# Also read in isoform expression matrices for transcript count estimations
-input_data$isoform_matrices_to_compare = lapply(isoform_matrices_to_compare, function(i){read.table(i, sep="\t", header=TRUE)})
-
-
-####################################################
-# Generate CDS objects for data analysis and preprocess data (only including valid cells)
+# Calculate CDF curves of proportions of genes quantified within
+# threshold of error of original measurement for quantiles of gene 
+# expression for each of the downsampled depths.
 ####################################################
 
-# Generate CDS objects
-original_depth_cds=get_monocle_cds(input_data$original_expression_matrix, input_data$sample_metadata, input_data$gene_annotation, valid_cells)
-cds_to_compare=lapply(input_data$expression_matrices_to_compare, get_monocle_cds, input_data$sample_metadata, input_data$gene_annotation, valid_cells)
+# Define quantiles of gene expression based on full depth FPKM data
+valid_genes = row.names(original_depth_cds[rowSums(exprs(original_depth_cds)) > 0, ])
+total_expression = apply(exprs(original_depth_cds)[valid_genes, ], 1, mean)
+total_expression <- total_expression[total_expression > 0.9]
+quartiles = cut(total_expression, breaks=quantile(total_expression, probs=seq(0,1, by=0.25)), include.lowest=TRUE)
+names(quartiles) = names(total_expression)
 
-# Ensure that the original dataframe and new ones have same gene ordering of genes
-cds_to_compare = lapply(cds_to_compare, function(cds) { cds[row.names(original_depth_cds), ]})
+# quartiles = cut(total_expression, breaks=quantile(total_expression, probs=seq(0,1, by=0.25)), include.lowest=TRUE)
+# names(quartiles) = names(total_expression)
 
-# Prepare the isoform matrices
-## Set row names
-row.names(input_data$original_isoform_matrix) = input_data$original_isoform_matrix$tracking_id
-input_data$isoform_matrices_to_compare = lapply(input_data$isoform_matrices_to_compare, function(expression_matrix) { row.names(expression_matrix) = input_data$original_isoform_matrix$tracking_id; return(expression_matrix)})
+# Calculate performance per quartile
+ERROR_THRESHOLD = 0.20
+performance_transcript_counts = as.data.frame(do.call(rbind, lapply(cds_to_compare_transcript_counts, calculate_fraction_of_genes_detected_within_error, reference_matrix=original_depth_cds_transcript_counts, error_threshold=ERROR_THRESHOLD, quartiles=quartiles)))
+performance_fpkm = as.data.frame(do.call(rbind, lapply(cds_to_compare, calculate_fraction_of_genes_detected_within_error, reference_matrix=original_depth_cds, error_threshold=ERROR_THRESHOLD, quartiles=quartiles)))
+performance_transcript_counts_regression = as.data.frame(do.call(rbind, lapply(cds_to_compare_transcript_counts_regression, calculate_fraction_of_genes_detected_within_error, reference_matrix=original_depth_cds_transcript_counts_regression, error_threshold=ERROR_THRESHOLD, quartiles=quartiles)))
 
-## Make sure they have the same cells as the expression matrices
-input_data$original_isoform_matrix = input_data$original_isoform_matrix[, colnames(original_depth_cds)]
-input_data$isoform_matrices_to_compare = lapply(input_data$isoform_matrices_to_compare, function(expression_matrix) { return (expression_matrix[, colnames(original_depth_cds)])})
+# Prepare dataframes for plotting
+performance_fpkm = process_performance_dataframe(performance_fpkm, "FPKM")
+performance_transcript_counts = process_performance_dataframe(performance_transcript_counts, "spike-free transcript counts")
+performance_transcript_counts_regression = process_performance_dataframe(performance_transcript_counts_regression, "spike-in regression transcript counts")
+
+newperformance_fpkm = process_performance_dataframe(performance_fpkm, "FPKM")
+performance_transcript_counts = process_performance_dataframe(performance_transcript_counts, "spike-free transcript counts")
+performance_transcript_counts_regression = process_performance_dataframe(performance_transcript_counts_regression, "spike-in regression transcript counts")
+
+# Generate a single matrix with methods (FPKM, normalization, and spike-in regression)
+performance = rbind(performance_transcript_counts_regression, performance_transcript_counts, performance_fpkm)
+
+# Reorder by quartile magnitude
+performance$quartile_start = stringr::str_match(performance$quartile, "([0-9e\\-\\.]+),")[, 2]
+performance = performance %>% dplyr::arrange(as.numeric(quartile_start))
+performance$quartile = factor(performance$quartile, levels=unique(performance$quartile))
+
+# Make plot
+pdf("./supplementary_figures/fig7c_si.pdf", height=3, width=3)
+ggplot(performance, aes(as.numeric(depth), as.numeric(as.character(mean_value)), color=quantification_type)) +
+  geom_point() +
+  geom_line() +
+  geom_hline(yintercept = 1, linetype="longdash", color="black", alpha=0.75) + 
+  ylim(c(0, 1)) +
+  facet_wrap(~ quartile, nrow=2) +
+  nm_theme() +
+  xlab("max depth per cell (read pairs)") +
+  ylab("median proportion of genes quantified within 20% of original per cell") +
+  scale_color_brewer(palette="Set1") +
+  scale_fill_brewer(palette="Set1")
+dev.off()
 
 
 ####################################################
-# Convert the CDS to transcript counts using normalization algorithm
+# Quantify how normalization-based recovery algorithm performance
+# changes with depth
 ####################################################
 
-# Convert the dataset to transcript counts and keep info about m and c values
-original_depth_cds_conversion_stats = get_recovered_transcript_counts_with_stats(original_depth_cds, input_data$original_isoform_matrix)
-original_depth_cds_transcript_counts = original_depth_cds_conversion_stats$norm_cds
+# Get median transcript count value across all cells for both regression and recovery algorithm
+regression = melt(do.call(rbind, lapply(cds_to_compare_transcript_counts_regression, function(x) { rowMedians(exprs(x)[valid_genes, ]) })))
+colnames(regression) = c("depth", "gene", "transcript_counts_regression")
 
-# #test the consistency
-# original_depth_cds_conversion_stats2 = get_recovered_transcript_counts_with_stats(original_depth_cds, input_data$original_isoform_matrix)
-# original_depth_cds_transcript_counts2 = original_depth_cds_conversion_stats2$norm_cds
+recovery = melt(do.call(rbind, lapply(cds_to_compare_transcript_counts, function(x) { rowMedians(exprs(x)[valid_genes, ]) })))
+colnames(recovery) = c("depth", "gene", "transcript_counts_recovery")
 
-closeAllConnections()
-cds_to_compare_conversion_stats_rep1 = mapply(get_recovered_transcript_counts_with_stats, cds_to_compare, input_data$isoform_matrices_to_compare)
-closeAllConnections()
-cds_to_compare_conversion_stats_rep2 = mapply(get_recovered_transcript_counts_with_stats, cds_to_compare, input_data$isoform_matrices_to_compare)
-closeAllConnections()
-cds_to_compare_conversion_stats_rep3 = mapply(get_recovered_transcript_counts_with_stats, cds_to_compare, input_data$isoform_matrices_to_compare)
-closeAllConnections()
-cds_to_compare_conversion_stats_rep4 = mapply(get_recovered_transcript_counts_with_stats, cds_to_compare, input_data$isoform_matrices_to_compare)
-closeAllConnections()
-cds_to_compare_conversion_stats_rep5 = mapply(get_recovered_transcript_counts_with_stats, cds_to_compare, input_data$isoform_matrices_to_compare)
-closeAllConnections()
-cds_to_compare_conversion_stats_rep6 = mapply(get_recovered_transcript_counts_with_stats, cds_to_compare, input_data$isoform_matrices_to_compare)
-closeAllConnections()
-cds_to_compare_conversion_stats_rep7 = mapply(get_recovered_transcript_counts_with_stats, cds_to_compare, input_data$isoform_matrices_to_compare)
-closeAllConnections()
-cds_to_compare_conversion_stats_rep8 = mapply(get_recovered_transcript_counts_with_stats, cds_to_compare, input_data$isoform_matrices_to_compare)
-closeAllConnections()
-cds_to_compare_conversion_stats_rep9 = mapply(get_recovered_transcript_counts_with_stats, cds_to_compare, input_data$isoform_matrices_to_compare)
-closeAllConnections()
-cds_to_compare_conversion_stats_rep10 = mapply(get_recovered_transcript_counts_with_stats, cds_to_compare, input_data$isoform_matrices_to_compare)
-closeAllConnections()
+# Combine results into a single dataframe for plotting
+combined_recovery_and_regression_by_depth = regression %>% left_join(recovery, by=c("depth", "gene"))
 
-save.image('./RData/prepare_lung_downsampling_tmp.RData')
+# Generate scatterplots at different depths to show how recovery algorithm performance changes with depth 
+pdf("./supplementary_figures/fig7a_si.pdf", width=3, height=3)
 
-num_downsampling <- ncol(cds_to_compare_conversion_stats_rep1)
-cds_to_compare_transcript_counts = lapply(1:num_downsampling,function(i) 
-  (exprs(cds_to_compare_conversion_stats_rep1[1, ][[i]]) + exprs(cds_to_compare_conversion_stats_rep2[1, ][[i]]) + exprs(cds_to_compare_conversion_stats_rep3[1, ][[i]]) + exprs(cds_to_compare_conversion_stats_rep4[1, ][[i]]) + exprs(cds_to_compare_conversion_stats_rep5[1, ][[i]]) + 
-                                    exprs(cds_to_compare_conversion_stats_rep6[1, ][[i]]) + exprs(cds_to_compare_conversion_stats_rep7[1, ][[i]]) + exprs(cds_to_compare_conversion_stats_rep8[1, ][[i]]) + exprs(cds_to_compare_conversion_stats_rep9[1, ][[i]]) + exprs(cds_to_compare_conversion_stats_rep10[1, ][[i]])) / 10)
-cds_to_compare_conversion_m_values = lapply(1:num_downsampling,function(i) 
-  (cds_to_compare_conversion_stats_rep1[2, ][[i]] + cds_to_compare_conversion_stats_rep2[2, ][[i]] + cds_to_compare_conversion_stats_rep3[2, ][[i]] + cds_to_compare_conversion_stats_rep4[2, ][[i]] + cds_to_compare_conversion_stats_rep5[2, ][[i]] + 
-                                    cds_to_compare_conversion_stats_rep6[2, ][[i]] + cds_to_compare_conversion_stats_rep7[2, ][[i]] + cds_to_compare_conversion_stats_rep8[2, ][[i]] + cds_to_compare_conversion_stats_rep9[2, ][[i]] + cds_to_compare_conversion_stats_rep10[2, ][[i]]) / 10)
-cds_to_compare_conversion_c_values = lapply(1:num_downsampling,function(i) 
-  (cds_to_compare_conversion_stats_rep1[3, ][[i]] + cds_to_compare_conversion_stats_rep2[3, ][[i]] + cds_to_compare_conversion_stats_rep3[3, ][[i]] + cds_to_compare_conversion_stats_rep4[3, ][[i]] + cds_to_compare_conversion_stats_rep5[3, ][[i]] + 
-                                    cds_to_compare_conversion_stats_rep6[3, ][[i]] + cds_to_compare_conversion_stats_rep7[3, ][[i]] + cds_to_compare_conversion_stats_rep8[3, ][[i]] + cds_to_compare_conversion_stats_rep9[3, ][[i]] + cds_to_compare_conversion_stats_rep10[3, ][[i]]) / 10)
+ggplot(combined_recovery_and_regression_by_depth, aes(log10(transcript_counts_regression + 0.1), log10(transcript_counts_recovery + 0.1))) +
+  geom_point(size=0.3) + 
+  geom_abline(color="red", alpha=0.75) + 
+  facet_wrap(~ depth, ncol=3) + 
+  xlab("log10(spike-in regression transcript counts + 0.1)") + 
+  ylab("log10(spike-free transcript counts + 0.1)") + 
+  nm_theme()
 
-# Also convert using spike-in regression for comparison (no stats need to be collected here)
-original_depth_cds_transcript_counts_regression = convert_monocle_cds_to_transcript_counts_regression(original_depth_cds)
-cds_to_compare_transcript_counts_regression = mapply(convert_monocle_cds_to_transcript_counts_regression, cds_to_compare)
+dev.off()
 
-# #########################################
-# # Reduce dimension and order cells
-# #########################################
-# ## use all marker genes and the quake_gene_list used before for performing the tree construction used for the later analysis: 
-# get_root_state <- function(cds, root_cell ) {
-#   pData(cds[, root_cell])$State
-# }
+####################################################
+# Quantify median error in regression vs. normalization
+# plots from figure 2
+####################################################
+## Filter out transcripts not detected in either the spike-in regression or normalization
+combined_recovery_and_regression_by_depth = subset(combined_recovery_and_regression_by_depth, ! (transcript_counts_regression == 0 & transcript_counts_recovery == 0))
 
-# reduce_dimension_and_order_cells_transcript_counts = function(cds, root_cell) {
-#   cds = estimateSizeFactors(cds)
-#   cds = estimateDispersions(cds)
-#   fData(cds)$use_for_ordering = T
-#   cds = reduceDimension(cds[add_quake_gene_all_marker_ids, ], use_irlba = F, use_vst=T, method="ICA", scaling=F, pseudo_expr=0) 
-#   cds = orderCells(cds, num_paths = 2, reverse = T)
-#   root_state = get_root_state(cds, root_cell)  # get state that was assigned to root cell
-#   cds = orderCells(cds, root_state, num_paths = 2, reverse = T)  # now set root cell state as root state
-#   return(cds)
-# }
+median_proportion_of_error_per_depth = combined_recovery_and_regression_by_depth %>% group_by(depth) %>% summarize(median=median((transcript_counts_recovery - transcript_counts_regression) / sum(transcript_counts_regression)), quartile_2=quantile((transcript_counts_recovery - transcript_counts_regression) / sum(transcript_counts_regression))[[2]], quartile_3=quantile((transcript_counts_recovery - transcript_counts_regression) / sum(transcript_counts_regression))[[4]])
 
-# # Reduce dimension and order all transcript counts matrices 
-# original_depth_cds_transcript_counts_ordered = reduce_dimension_and_order_cells_transcript_counts(original_depth_cds_transcript_counts, "SRR1033943_thout_0")
-# original_depth_cds_transcript_counts_regression_ordered = reduce_dimension_and_order_cells_transcript_counts(original_depth_cds_transcript_counts_regression, "SRR1033943_thout_0")
+pdf("./supplementary_figures/fig7b_si.pdf", width=3, height=3)
+ggplot(median_proportion_of_error_per_depth, aes(depth, median)) +
+  geom_hline(yintercept = 0, linetype="longdash", color="red", alpha=0.75) + 
+  geom_errorbar(aes(ymax=quartile_3, ymin=quartile_2), color="#d3d3d3") +
+  geom_point(size=1) +
+  geom_line() +
+  xlab("max depth per cell (read pairs)") +
+  ylab("median normalized difference between recovery methods") + 
+  nm_theme()
+dev.off()
 
-# cds_to_compare_transcript_counts_ordered = lapply(cds_to_compare_transcript_counts, reduce_dimension_and_order_cells_transcript_counts, "SRR1033943_thout_0") 
-# cds_to_compare_transcript_counts_regression_ordered = lapply(cds_to_compare_transcript_counts_regression, reduce_dimension_and_order_cells_transcript_counts, "SRR1033943_thout_0") 
 
-# cor(pData(original_depth_cds_transcript_counts_regression_ordered)$Pseudotime, pData(cds_to_compare_transcript_counts_regression_ordered$"7645000")$Pseudotime)
-# cor(pData(original_depth_cds_transcript_counts_ordered)$Pseudotime, pData(cds_to_compare_transcript_counts_ordered$"7645000")$Pseudotime)
+####################################################
+# Verify that m and c parameters in normalization
+# approach are relatively robust to depth
+####################################################
+# Plot of M and C parameter stability
+recovery_algorithm_stability_df = data.frame(m=unlist(cds_to_compare_conversion_m_values), c=unlist(cds_to_compare_conversion_c_values), depth=as.numeric(names(cds_to_compare_conversion_c_values)))
+recovery_algorithm_stability_df = reshape2::melt(recovery_algorithm_stability_df, id="depth")
 
-#########################################
-# Save results for figure generation script
-#########################################
-save.image("RData/prepare_downsampling_data.RData")
+# Temporary hack to fix depth of original dataset (not 10,000,000)
+recovery_algorithm_stability_df$depth[recovery_algorithm_stability_df$depth == 10000000] = 5000000
+
+pdf("./supplementary_figures/fig7d_si.pdf", width=2.5, height=1.2)
+
+ggplot(recovery_algorithm_stability_df, aes(depth, value, color=variable)) +
+  geom_point() +
+  geom_line() +
+  xlab("max depth per cell (read pairs)") +
+  ylab("spike-free method parameter value") +
+  facet_grid(variable ~ ., scales="free_y") + 
+  scale_color_brewer(palette="Set1") + 
+  nm_theme()
+
+dev.off()
+
+
+####################################################
+# Examine the mode of the transcript counts and log10(FPKM) distribution
+# over the dowsampled datasets  
+####################################################
+get_proportion_modes_correct_per_depth = function(cds_list, original_depth_cds, error_threshold = 0.2) {
+  # Calculate modes for each depth and join with metadata
+  modes = as.data.frame(do.call(rbind, lapply(cds_list, function(x) estimate_t(x))))
+  modes$depth = as.numeric(row.names(modes))
+  modes_melted = melt(modes, id="depth")
+  modes_melted = merge(modes_melted, pData(original_depth_cds), by.x="variable", by.y="row.names")
+  
+  # Calculate proportion of cells with mode within 20% of original at each depth
+  proportion_correct = modes_melted %>%
+    group_by(variable) %>%
+    mutate(percent_error=(value - value[depth == max(depth)]) / value[depth == max(depth)]) %>%
+    ungroup() %>%
+    group_by(depth) %>%
+    summarize(proportion_correct = sum(percent_error <= error_threshold) / n())
+  
+  return(proportion_correct)
+}
+
+names(input_data$isoform_matrices_to_compare) = downsampled_depths
+
+# Calculate proportion of cells with mode within 20% of the original value
+proportion_correct_fpkm = get_proportion_modes_correct_per_depth(input_data$isoform_matrices_to_compare, original_depth_cds)
+proportion_correct_fpkm$method = "fpkm"
+
+proportion_correct_transcript_counts_regression = get_proportion_modes_correct_per_depth(cds_to_compare_transcript_counts_regression, original_depth_cds)
+proportion_correct_transcript_counts_regression$method = "spike-in regression"
+
+proportion_correct_transcript_counts = get_proportion_modes_correct_per_depth(cds_to_compare_transcript_counts, original_depth_cds)
+proportion_correct_transcript_counts$method = "spike-in free"
+
+# Combine all results and generate plot
+proportion_correct = rbind(proportion_correct_fpkm, proportion_correct_transcript_counts_regression, proportion_correct_transcript_counts)
+
+pdf("./supplementary_figures/panel_e.pdf", width=2.5, height=1.2)
+ggplot(proportion_correct, aes(depth, proportion_correct, color=method)) +
+  geom_point() +
+  geom_line() +
+  ylim(c(0, 1)) + 
+  scale_color_brewer(palette="Set1") +
+  ylab("proportion of cells within 20% of original value") +
+  xlab("max depth per cell (total aligned PE reads)") +
+  nm_theme() 
+dev.off()
+
+save.image('./RData/gen_lung_downsampling_figures.RData')

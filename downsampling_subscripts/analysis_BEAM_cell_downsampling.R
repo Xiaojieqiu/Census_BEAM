@@ -1,9 +1,9 @@
 ######################################################################
 # Downsampling the number of cells to benchmark BEAM performance 
 # ####################################################################
-library(monocle)
-# library(devtools)
-# load_all('~/Projects/monocle-dev')
+# library(monocle)
+library(devtools)
+load_all('~/Projects/monocle-dev')
 library(xacHelper)
 # source("monocle_helper_functions.R")
 library(dplyr) 
@@ -49,19 +49,19 @@ Shalek_std_subset_KO_LPS@auxOrderingData <- Shalek_abs_subset_ko_LPS@auxOrdering
 Shalek_std_subset_KO_LPS@dim_reduce_type <- 'ICA'
 
 #calculate the branch genes for knockout experiment, using fpkm values
-std_ko_branching_genes <- branchTest(Shalek_std_subset_KO_LPS[, ], fullModelFormulaStr = full_model_string, cores = 1, relative_expr = F, weighted = T) #detectCores()
+# std_ko_branching_genes <- branchTest(Shalek_std_subset_KO_LPS[, ], fullModelFormulaStr = full_model_string, cores = 1, relative_expr = F, weighted = T) #detectCores()
 closeAllConnections()
 
 closeAllConnections()
 
-load('std_cds_downsampled_cells_branch_genes_1')
-load('std_cds_downsampled_cells_branch_genes_2')
-load('std_cds_downsampled_cells_branch_genes_3')
-load('std_cds_downsampled_cells_branch_genes_4')
-load('std_cds_downsampled_cells_branch_genes_5')
-load('std_cds_downsampled_cells_branch_genes_6')
-load('std_cds_downsampled_cells_branch_genes_7')
-load('std_cds_downsampled_cells_branch_genes_8')
+load('./RData/std_cds_downsampled_cells_branch_genes_1')
+load('./RData/std_cds_downsampled_cells_branch_genes_2')
+load('./RData/std_cds_downsampled_cells_branch_genes_3')
+load('./RData/std_cds_downsampled_cells_branch_genes_4')
+load('./RData/std_cds_downsampled_cells_branch_genes_5')
+load('./RData/std_cds_downsampled_cells_branch_genes_6')
+load('./RData/std_cds_downsampled_cells_branch_genes_7')
+load('./RData/std_cds_downsampled_cells_branch_genes_8')
 
 std_cds_downsampled_cells_branch_genes <- c(std_cds_downsampled_cells_branch_genes_1, std_cds_downsampled_cells_branch_genes_2, 
                                 std_cds_downsampled_cells_branch_genes_3, std_cds_downsampled_cells_branch_genes_4, 
@@ -130,9 +130,9 @@ statistics_per_depth_all <- rbind(abs_statistics_per_depth[, c('proportion_origi
 
 subset_statistics_per_depth_all <- subset(statistics_per_depth_all, proportion_original_cells != 1)
 
-pdf("./supplementary_figures/beam_fpkm_abs_recall.pdf", height=5, width=5)
+pdf("./supplementary_figures/beam_fpkm_abs_recall.pdf", height=1.5, width=1.5)
 ggplot(subset_statistics_per_depth_all, aes(proportion_original_cells, recall)) +
-    geom_point(aes(color = Type), size = 0.75) + xlab('Proportion of original cells') + ylab('recall') + xlim(0, 1) + ylim(0, 1) #nm_theme() 
+    geom_point(aes(color = Type), size = 0.75) + xlab('Proportion of original cells') + ylab('recall') + xlim(0, 1) + ylim(0, 1) + nm_theme() 
 dev.off()
 
 pdf("./supplementary_figures/beam_fpkm_abs_recall_helper.pdf", height=1.5, width=1.5)
@@ -140,7 +140,7 @@ ggplot(subset_statistics_per_depth_all, aes(proportion_original_cells, recall)) 
     geom_point(aes(color = Type), size = 0.75) + xlab('Proportion of original cells') + ylab('recall') + xlim(0, 1) + ylim(0, 1) 
 dev.off()
 
-pdf("./supplementary_figures/beam_fpkm_abs_precision.pdf", height=1.5, width=1.5)
+pdf("./supplementary_figures/beam_fpkm_abs_precision2.pdf", height=1.5, width=1.5)
 ggplot(subset_statistics_per_depth_all, aes(proportion_original_cells, precision)) +
     geom_point(aes(color = Type), size = 0.75) + xlab('Proportion of original cells') + ylab('Precision') + xlim(0, 1) + ylim(0, 1) +
     nm_theme()

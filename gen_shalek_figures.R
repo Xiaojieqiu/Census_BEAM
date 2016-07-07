@@ -1,6 +1,6 @@
-# library(devtools)
-# load_all('~/Projects/monocle-dev')
-library(monocle)
+library(devtools)
+load_all('~/Projects/monocle-dev')
+# library(monocle)
 library(xacHelper)
 library(grid)
 library(igraph)
@@ -43,7 +43,7 @@ fData(Shalek_abs_subset_ko_LPS)$num_cell_expressed <- esApply(Shalek_abs_subset_
 ko_valid_expressed_genes <- row.names(subset(fData(Shalek_abs_subset_ko_LPS), num_cell_expressed > 5))
 
 rm(plot_genes_branched_heatmap)
-pdf(paste(fig_root_dir, 'fig5c.pdf', sep = ''))
+pdf(paste(fig_root_dir, 'fig5c_ori.pdf', sep = ''))
 Shalek_abs_subset_ko_LPS_heatmap_annotations = plot_genes_branched_heatmap(Shalek_abs_subset_ko_LPS[intersect(row.names(subset(ko_branching_genes, qval < 0.05)), ko_valid_expressed_genes) ,], num_clusters=6, norm_method = "vstExprs", 
     cores=detectCores(), ABC_df=NULL, branchTest_df=ko_branching_genes, hmcols=NULL, lineage_labels = c('Normal cells', 'Knockout cells'), return_all = T)
 dev.off()
@@ -83,25 +83,9 @@ save_hyper_df(Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_reactome, '.
 
 Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_go <- collect_gsa_hyper_results(Shalek_abs_subset_ko_LPS, gsc = mouse_go_gsc, Shalek_abs_subset_ko_LPS_tree_heatmap_clusters)
 
-pdf(file =paste(fig_root_dir, 'fig5c_go.pdf', sep = ''), height = 25, width = 12)
+pdf(file =paste(fig_root_dir, 'fig5c_go.pdf', sep = ''), height = 70, width = 12)
 plot_gsa_hyper_heatmap(Shalek_abs_subset_ko_LPS, Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_go, significance=5e-2) + nm_theme()
 dev.off()
-
-save_hyper_df <- function (cds, gsa_results, significance = 0.05, sign_type = "qval") {
-    hyper_df <- ldply(gsa_results, function(gsa_res) {
-        data.frame(gene_set = names(gsa_res$pvalues), pval = gsa_res$pvalues,
-            qval = gsa_res$p.adj)
-    })
-    hyper_df$qval <- p.adjust(hyper_df$pval, method = 'fdr')
-    colnames(hyper_df)[1] <- "cluster_id"
-    hyper_df <- subset(hyper_df, hyper_df[, sign_type] <= significance)
-    hyper_df <- merge(hyper_df, ddply(hyper_df, .(gene_set),
-        function(x) {
-            nrow(x)
-        }), by = "gene_set")
-     write.table(hyper_df, sep = "\t", quote = F, row.names = F, 
-        file = file_name)
-}
 
 save_hyper_df(Shalek_abs_subset_ko_LPS_tree_hyper_geometric_results_go, './supplementary_data/go_ko_hyper_df.xls') 
 
@@ -148,13 +132,16 @@ load('hyper_df')
 
 max_cluster_id <- as.vector(which(table(Shalek_abs_subset_ko_LPS_tree_heatmap_clusters)  == max(table(Shalek_abs_subset_ko_LPS_tree_heatmap_clusters))))
 hyper_df_cluster2 <- subset(hyper_df, cluster_id == max_cluster_id) #
+hyper_df_cluster2 <- hyper_df_cluster2[hyper_df_cluster2$qval !=0 , ] #remove outlier
+
 hyper_df_cluster2_order <- hyper_df_cluster2[order(hyper_df_cluster2$pval), ]
 hyper_df_cluster2_order$label <- hyper_df_cluster2_order$gene_set
 STAT1_id <- which(hyper_df_cluster2_order$label == 'STAT1')
 hyper_df_cluster2_order$label[c(5:STAT1_id, STAT1_id:nrow(hyper_df_cluster2_order))] <- ""
 
+
 #add the barplot with the horizontal line: 
-pdf(file = paste(fig_root_dir, 'fig5d.pdf', sep = ''), height = 2, width = 3)
+pdf(file = paste(fig_root_dir, 'fig5d_ori.pdf', sep = ''), height = 2, width = 3)
 qplot(1:nrow(hyper_df_cluster2_order), - log10(qval), data=hyper_df_cluster2_order, geom = c('bar'), stat = 'identity', fill = 'red') +  
 nm_theme()+ geom_hline(yintercept = 1, linetype = 2, size  = 0.2, color = 'blue') + xlab('')
 dev.off()

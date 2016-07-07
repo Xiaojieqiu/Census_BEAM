@@ -55,6 +55,7 @@ closeAllConnections()
 closeAllConnections()
 
 #################################################Parallel the above analysis#####################################################
+setseed(2016)
 
 std_cds_downsampled_cells_branch_genes = lapply(downsampled_proportions[33:36], function(x) { 
   cell_id_list <- sample(ncol(Shalek_abs_subset_ko_LPS), round(ncol(Shalek_std_subset_KO_LPS) * x))

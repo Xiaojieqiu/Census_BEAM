@@ -1,9 +1,9 @@
-########################################
+#######################################
 # Downsampling the number of cells
 # ########################################
-library(monocle)
-# library(devtools)
-# load_all('~/Projects/monocle-dev')
+# library(monocle)gg
+library(devtools)
+load_all('~/Projects/monocle-dev')
 library(xacHelper)
 # source("monocle_helper_functions.R")
 library(plyr)
@@ -80,14 +80,14 @@ pData(Shalek_abs_subset_ko_LPS)$stim_time[pData(Shalek_abs_subset_ko_LPS)$stim_t
 pData(Shalek_abs_subset_ko_LPS)$stim_time <- as.integer(revalue(pData(Shalek_abs_subset_ko_LPS)$stim_time, c("1h" = 1, "2h" = 2, "4h" = 4, "6h" = 6)))
 Shalek_abs_subset_ko_LPS <- detectGenes(Shalek_abs_subset_ko_LPS, min_expr = 0.1)
 
-load('abs_cds_downsampled_cells_branch_genes_1')
-load('abs_cds_downsampled_cells_branch_genes_2')
-load('abs_cds_downsampled_cells_branch_genes_3')
-load('abs_cds_downsampled_cells_branch_genes_4')
-load('abs_cds_downsampled_cells_branch_genes_5')
-load('abs_cds_downsampled_cells_branch_genes_6')
-load('abs_cds_downsampled_cells_branch_genes_7')
-load('abs_cds_downsampled_cells_branch_genes_8')
+load('./RData/abs_cds_downsampled_cells_branch_genes_1')
+load('./RData/abs_cds_downsampled_cells_branch_genes_2')
+load('./RData/abs_cds_downsampled_cells_branch_genes_3')
+load('./RData/abs_cds_downsampled_cells_branch_genes_4')
+load('./RData/abs_cds_downsampled_cells_branch_genes_5')
+load('./RData/abs_cds_downsampled_cells_branch_genes_6')
+load('./RData/abs_cds_downsampled_cells_branch_genes_7')
+load('./RData/abs_cds_downsampled_cells_branch_genes_8')
 
 cds_downsampled_cells_ordered <- c(lapply(abs_cds_downsampled_cells_branch_genes_1, function(x) x$order_cds), 
                                 lapply(abs_cds_downsampled_cells_branch_genes_2, function(x) x$order_cds), 
@@ -106,6 +106,18 @@ cds_downsampled_cells_branch_genes <- c(lapply(abs_cds_downsampled_cells_branch_
                                 lapply(abs_cds_downsampled_cells_branch_genes_6, function(x) x$res),
                                 lapply(abs_cds_downsampled_cells_branch_genes_7, function(x) x$res),
                                 lapply(abs_cds_downsampled_cells_branch_genes_8, function(x) x$res))
+
+# Generate downsampled sets of cells
+set.seed(5)
+MIN_PROPORTION = 0.1
+MAX_PROPORTION = 1
+STEP = 0.1
+REPS_PER = 3
+EXTRA_PROPORTIONS = c(0.85, 0.95) 
+
+downsampled_proportions = sort(rep(c(seq(MIN_PROPORTION, MAX_PROPORTION, by=STEP), EXTRA_PROPORTIONS) , REPS_PER))
+names(downsampled_proportions) = downsampled_proportions  # will tie CDS objects to proportion for later
+
 ## Plot the reordered trajectories
 cds_downsampled_cells_ordered_trajectories = lapply(cds_downsampled_cells_ordered, plot_monocle_spanning_tree_vectorized)
 
@@ -119,6 +131,7 @@ for(i in 1:length(cds_downsampled_cells_ordered)) {
 
 #get the number of cells: 
 lapply(cds_downsampled_cells_ordered[c(3, 6, 9, 12, 15, 17, 21, 24, 27, 30, 33, 36)], ncol)
+lapply(cds_downsampled_cells_ordered[c(1, 5, 8, 12, 15, 16, 20, 22, 27, 30, 33, 36)], ncol)
 
 # # Get branching genes for all these subsets
 # #parallel on multiple clusters (think about MPI, etc): 
@@ -160,7 +173,7 @@ statistics_per_depth$recall = unlist(recall)
 statistics_per_depth$spearman_correlation <- unlist(spearman_correlation)
 
 #number of cells assigned correct states: 
-load('Shalek_abs_subset_ko_LPS')
+load('./RData/Shalek_abs_subset_ko_LPS')
 state_correct_fraction <- lapply(cds_downsampled_cells_ordered, function(cds) {
   state_correct_num <- sum(as.numeric(pData(cds)$State) - as.numeric(pData(Shalek_abs_subset_ko_LPS)[colnames(cds), 'State']) == 0) #cds_downsampled_cells_ordered[[36]]
   state_correct_num / ncol(cds)
@@ -189,18 +202,12 @@ dev.off()
 #BEAM gene overlap, FPR, p-value spearman correlation without tree re-ordering: 
 #######just sample the cells: 
 # Generate downsampled sets of cells
-set.seed(5)
-MIN_PROPORTION = 0.1
-MAX_PROPORTION = 0.9
-STEP = 0.1
-REPS_PER = 3
 
-#################################################Parallel the above analysis in three individual runs#####################################################
-load('PILOT_SAMPLING_branch_genes_A')
-load('PILOT_SAMPLING_branch_genes_B')
-load('PILOT_SAMPLING_branch_genes_C')
-#################################################Parallel the above analysis in three individual runs#####################################################
-
+################################################Parallel the above analysis in three individual runs#####################################################
+load('./RData/PILOT_SAMPLING_branch_genes_A.RData')
+load('./RData/PILOT_SAMPLING_branch_genes_B.RData')
+load('./RData/PILOT_SAMPLING_branch_genes_C.RData')
+################################################Parallel the above analysis in three individual runs#####################################################
 #calculate the result: 
 PILOT_SAMPLING_branch_genes <- Reduce(append, list(PILOT_SAMPLING_branch_genes_A, PILOT_SAMPLING_branch_genes_B, PILOT_SAMPLING_branch_genes_C))
 
@@ -218,6 +225,11 @@ spearman_correlation = lapply(PILOT_SAMPLING_branch_genes, function(branching_ge
     cor(ko_branching_genes[row.names(branching_genes), 'pval'], branching_genes[, 'pval'], method = 'spearman') 
   }
   )
+
+
+PILOT_SAMPLING_A = rep(c(0.99, 0.98, 0.96, 0.94, 0.9), each = 3)
+PILOT_SAMPLING_B = rep(c(0.85, 0.8, 0.75, 0.7, 0.6), each = 3)
+PILOT_SAMPLING_C = rep(c(0.5, 0.4, 0.3, 0.2, 0.1), each = 3)
 
 statistics_per_depth_fix_tree <- do.call(rbind.data.frame, statistics_per_depth_fix_tree)
 statistics_per_depth_fix_tree$proportion_original_cells = c(PILOT_SAMPLING_A, PILOT_SAMPLING_B, PILOT_SAMPLING_C)

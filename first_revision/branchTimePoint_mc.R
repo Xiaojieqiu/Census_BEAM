@@ -1,10 +1,10 @@
 #update this with mc values: 
 
 load('./RData/gen_shalek_figures.RData')
-load('./RData/gen_lung_figures_mc.RData')
-library(monocle)
-# library(devtools)
-# load_all('~/Projects/monocle-dev') 
+# load('./RData/gen_lung_figures_mc.RData')
+# library(monocle)
+library(devtools)
+load_all('~/Projects/monocle-dev') 
 library(xacHelper)
 library(grid)
 
@@ -12,77 +12,77 @@ library(grid)
 
 #################################### Quake data: ####################################  
 
-# 1. add branching time point for the casual genes
-bifurcation_time  = abs(all_mc_bifurcation_time[branch_motif_Tfs_id])
+# # 1. add branching time point for the casual genes
+# bifurcation_time  = abs(all_mc_bifurcation_time[branch_motif_Tfs_id])
 
-names(bifurcation_time) <- fData(mc_AT12_cds_subset_all_gene[branch_motif_Tfs_id, ])$gene_short_name
-pdf('./main_figures/fig4d_branch_time.pdf', height = 4, width = 6)
-plot_genes_branched_pseudotime2(mc_AT12_cds_subset_all_gene[branch_motif_Tfs_id, ], color_by = "State", trajectory_color_by = 'Lineage', #panel_order = names(bifurcation_time),
-  fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', reducedModelFormulaStr = '~sm.ns(Pseudotime, df = 3)', normalize = T, stretch = T,
-  lineage_labels = c('AT1', 'AT2'), cell_size = 1, ncol = 2, bifurcation_time  = abs(bifurcation_time)) + nm_theme()+ ylab('Transcript counts') + xlab('Pseudotime')
-dev.off()
+# names(bifurcation_time) <- fData(mc_AT12_cds_subset_all_gene[branch_motif_Tfs_id, ])$gene_short_name
+# pdf('./main_figures/fig4d_branch_time.pdf', height = 4, width = 6)
+# plot_genes_branched_pseudotime2(mc_AT12_cds_subset_all_gene[branch_motif_Tfs_id, ], color_by = "State", trajectory_color_by = 'Lineage', #panel_order = names(bifurcation_time),
+#   fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', reducedModelFormulaStr = '~sm.ns(Pseudotime, df = 3)', normalize = T, stretch = T,
+#   lineage_labels = c('AT1', 'AT2'), cell_size = 1, ncol = 2, bifurcation_time  = abs(bifurcation_time)) + nm_theme()+ ylab('Transcript counts') + xlab('Pseudotime')
+# dev.off()
 
-#enriched TFs and the corresponding targets from Lung data: 
-#branching time between TFs and their targets: 
-branch_motif_Tfs_id_time <- all_mc_bifurcation_time[branch_motif_Tfs_id]
+# #enriched TFs and the corresponding targets from Lung data: 
+# #branching time between TFs and their targets: 
+# branch_motif_Tfs_id_time <- all_mc_bifurcation_time[branch_motif_Tfs_id]
 
-#find the targets of each enriched branching TF: 
-valid_quake_branch_genes <- quake_branch_genes[quake_branch_genes %in% valid_expressed_genes]
+# #find the targets of each enriched branching TF: 
+# valid_quake_branch_genes <- quake_branch_genes[quake_branch_genes %in% valid_expressed_genes]
 
-enrich_branching_TF_gsc_names <- names(lung_TF_5k_enrichment_gsc$gsc)[which(names(lung_TF_5k_enrichment_gsc$gsc) %in% toupper(fData(mc_AT12_cds_subset_all_gene[branch_motif_Tfs_id, ])$gene_short_name))]
-valid_quake_branch_genes_names <- as.character(fData(absolute_cds[valid_quake_branch_genes, ])$gene_short_name)
+# enrich_branching_TF_gsc_names <- names(lung_TF_5k_enrichment_gsc$gsc)[which(names(lung_TF_5k_enrichment_gsc$gsc) %in% toupper(fData(mc_AT12_cds_subset_all_gene[branch_motif_Tfs_id, ])$gene_short_name))]
+# valid_quake_branch_genes_names <- as.character(fData(absolute_cds[valid_quake_branch_genes, ])$gene_short_name)
 
-#intersect the enriched TFs' targets with ALL significant branch genes 
-branching_TF_TF_5k_enrichment_gsc <- lapply(enrich_branching_TF_gsc_names, function(x) intersect(lung_TF_5k_enrichment_gsc$gsc[[x]], valid_quake_branch_genes_names))
+# #intersect the enriched TFs' targets with ALL significant branch genes 
+# branching_TF_TF_5k_enrichment_gsc <- lapply(enrich_branching_TF_gsc_names, function(x) intersect(lung_TF_5k_enrichment_gsc$gsc[[x]], valid_quake_branch_genes_names))
 
-# targets of genes for each enriched branching TF at the CORRESPONDING enriched clusters 
-significant_branching_TF_TF_5k_enrichment_gsc <- lapply(enrich_branching_TF_gsc_names, function(x) {
-	if(toupper(x) %in% c('TCF7L2', 'MAFF')){
-		res <- intersect(lung_TF_5k_enrichment_gsc$gsc[[x]], names(clusters[clusters == 6])) #check the correct cluster
-	}
-	else{	
-		res <- intersect(lung_TF_5k_enrichment_gsc$gsc[[x]], names(clusters[clusters %in% c(4, 6)]))
-	}
-	data.frame(regulators = x, targets = res, branching_time = all_mc_bifurcation_time[res])
-})
+# # targets of genes for each enriched branching TF at the CORRESPONDING enriched clusters 
+# significant_branching_TF_TF_5k_enrichment_gsc <- lapply(enrich_branching_TF_gsc_names, function(x) {
+# 	if(toupper(x) %in% c('TCF7L2', 'MAFF')){
+# 		res <- intersect(lung_TF_5k_enrichment_gsc$gsc[[x]], names(clusters[clusters == 6])) #check the correct cluster
+# 	}
+# 	else{	
+# 		res <- intersect(lung_TF_5k_enrichment_gsc$gsc[[x]], names(clusters[clusters %in% c(4, 6)]))
+# 	}
+# 	data.frame(regulators = x, targets = res, branching_time = all_mc_bifurcation_time[res])
+# })
 
-#obtain the branching time for the genes: 
-names(all_mc_bifurcation_time_gene_names) <- as.character(fData(absolute_cds[names(all_mc_bifurcation_time), ])$gene_short_name)
+# #obtain the branching time for the genes: 
+# names(all_mc_bifurcation_time_gene_names) <- as.character(fData(absolute_cds[names(all_mc_bifurcation_time), ])$gene_short_name)
 
-branching_TF_TF_5k_enrichment_gsc_branch_time <- all_mc_bifurcation_time_gene_names[unique(unlist(branching_TF_TF_5k_enrichment_gsc))]
+# branching_TF_TF_5k_enrichment_gsc_branch_time <- all_mc_bifurcation_time_gene_names[unique(unlist(branching_TF_TF_5k_enrichment_gsc))]
 
-#
-#enriched TFs and the corresponding targets from Lung data:
-#branching time between TFs and their targets:
-branch_motif_Tfs_id_time <- all_mc_bifurcation_time[branch_motif_Tfs_id]
+# #
+# #enriched TFs and the corresponding targets from Lung data:
+# #branching time between TFs and their targets:
+# branch_motif_Tfs_id_time <- all_mc_bifurcation_time[branch_motif_Tfs_id]
 
-#find the targets of each enriched branching TF:
-enrich_branching_TF_gsc_names <- names(lung_TF_5k_enrichment_gsc$gsc)[which(names(lung_TF_5k_enrichment_gsc$gsc) %in% toupper(fData(mc_AT12_cds_subset_all_gene[branch_motif_Tfs_id, ])$gene_short_name))]
-valid_quake_branch_genes_names <- as.character(fData(absolute_cds[valid_quake_branch_genes, ])$gene_short_name)
+# #find the targets of each enriched branching TF:
+# enrich_branching_TF_gsc_names <- names(lung_TF_5k_enrichment_gsc$gsc)[which(names(lung_TF_5k_enrichment_gsc$gsc) %in% toupper(fData(mc_AT12_cds_subset_all_gene[branch_motif_Tfs_id, ])$gene_short_name))]
+# valid_quake_branch_genes_names <- as.character(fData(absolute_cds[valid_quake_branch_genes, ])$gene_short_name)
 
-#intersect the enriched TFs' targets with ALL significant branch genes
-branching_TF_TF_5k_enrichment_gsc <- lapply(enrich_branching_TF_gsc_names, function(x) intersect(lung_TF_5k_enrichment_gsc$gsc[[x]], valid_quake_branch_genes_names))
+# #intersect the enriched TFs' targets with ALL significant branch genes
+# branching_TF_TF_5k_enrichment_gsc <- lapply(enrich_branching_TF_gsc_names, function(x) intersect(lung_TF_5k_enrichment_gsc$gsc[[x]], valid_quake_branch_genes_names))
 
-#targets of genes for each enriched branching TF at the CORRESPONDING enriched clusters
-significant_branching_TF_TF_5k_enrichment_gsc <- lapply(enrich_branching_TF_gsc_names, function(x) {
-    if(toupper(x) %in% c('TCF7L2', 'MAFF')){
-        res <- intersect(TF_5k_enrichment_gsc$gsc[[x]], names(clusters[clusters == 6]))
-    }
-    else{
-        res <- intersect(TF_5k_enrichment_gsc$gsc[[x]], names(clusters[clusters %in% c(4, 6)]))
-    }
-    data.frame(regulators = x, targets = res, branching_time = all_abs_bifurcation_time_gene_names[res])
-})
+# #targets of genes for each enriched branching TF at the CORRESPONDING enriched clusters
+# significant_branching_TF_TF_5k_enrichment_gsc <- lapply(enrich_branching_TF_gsc_names, function(x) {
+#     if(toupper(x) %in% c('TCF7L2', 'MAFF')){
+#         res <- intersect(TF_5k_enrichment_gsc$gsc[[x]], names(clusters[clusters == 6]))
+#     }
+#     else{
+#         res <- intersect(TF_5k_enrichment_gsc$gsc[[x]], names(clusters[clusters %in% c(4, 6)]))
+#     }
+#     data.frame(regulators = x, targets = res, branching_time = all_abs_bifurcation_time_gene_names[res])
+# })
 
-#obtain the branching time for the genes:
-all_abs_bifurcation_time_gene_names <- all_abs_bifurcation_time
-names(all_abs_bifurcation_time_gene_names) <- as.character(fData(absolute_cds[names(all_abs_bifurcation_time), ])$gene_short_name)
+# #obtain the branching time for the genes:
+# all_abs_bifurcation_time_gene_names <- all_abs_bifurcation_time
+# names(all_abs_bifurcation_time_gene_names) <- as.character(fData(absolute_cds[names(all_abs_bifurcation_time), ])$gene_short_name)
 
-branching_TF_TF_5k_enrichment_gsc_branch_time <- all_abs_bifurcation_time_gene_names[unique(unlist(branching_TF_TF_5k_enrichment_gsc))]
+# branching_TF_TF_5k_enrichment_gsc_branch_time <- all_abs_bifurcation_time_gene_names[unique(unlist(branching_TF_TF_5k_enrichment_gsc))]
 
-significant_branching_TF_TF_5k_enrichment_gsc_branch_time <- all_abs_bifurcation_time_gene_names[unique(unlist(significant_branching_TF_TF_5k_enrichment_gsc))]
+# significant_branching_TF_TF_5k_enrichment_gsc_branch_time <- all_abs_bifurcation_time_gene_names[unique(unlist(significant_branching_TF_TF_5k_enrichment_gsc))]
 
-significant_branching_TF_TF_5k_enrichment_gsc_branch_time <- all_abs_bifurcation_time_gene_names[unique(unlist(significant_branching_TF_TF_5k_enrichment_gsc))]
+# significant_branching_TF_TF_5k_enrichment_gsc_branch_time <- all_abs_bifurcation_time_gene_names[unique(unlist(significant_branching_TF_TF_5k_enrichment_gsc))]
 
 #################################### Shalek data: #################################### 
 #no progenitor duplication
@@ -130,7 +130,7 @@ bottom_group_ids <- row.names(subset(fData(Shalek_abs_subset_ko_LPS), toupper(ge
 fData(Shalek_abs_subset_ko_LPS)[bottom_group_ids, 'gene_short_name']
 
 #select only the significant genes: 
-valid_ko_branching_genes_list <- intersect(row.names(subset(ko_branching_genes, qval < 0.05)), ko_valid_expressed_genes)
+valid_ko_branching_genes_list <- intersect(row.names(subset(ko_branching_genes, qval < 1e-3)), ko_valid_expressed_genes)
 valid_top_group_ids <- intersect(top_group_ids, valid_ko_branching_genes_list)
 top_group_branch_time <- all_abs_ko_bifurcation_time[valid_top_group_ids]
 names(top_group_branch_time) <- fData(Shalek_abs_subset_ko_LPS)[valid_top_group_ids, 'gene_short_name']
@@ -146,7 +146,7 @@ df <- data.frame(bifurcation_time = c(top_group_branch_time, bottom_group_branch
 
 pdf('main_figures/DC_regulation_hierarchy.pdf', width = 1.7, height = 1)
 qplot(type, abs(bifurcation_time), color = type, geom = c('jitter', 'boxplot'), data = df, alpha = I(0.7), log = 'y') + 
-    xlab('') + ylab('bifurcation time point') + coord_flip() + #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
+    xlab('') + ylab('bifurcation time point') + coord_flip() + scale_y_continuous(breaks = round(seq(min(abs(df$bifurcation_time), na.rm = T), max(abs(df$bifurcation_time), na.rm = T), by = 12),1)) + #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
     nm_theme()
 dev.off()
 
@@ -211,9 +211,9 @@ df <- subset(df, regulators != 'PRDM1')
 pdf('./main_figures/ko_regulation_hierarchy.pdf', width = 1.5, height = 1.5)
 qplot(regulators, abs(branching_time), color = regulators, geom = c('jitter', 'boxplot'), 
 	data = df, alpha = I(0.5), log = 'y') +  
-    ylab('bifurcation time point') + 
-    geom_point(aes(regulators, abs(regulators_time)), color = 'black', data = df) + 
-    coord_flip() + scale_y_continuous(breaks = round(seq(min(abs(df$regulators_time), na.rm = T), max(abs(df$branching_time), na.rm = T), by = 12),1)) + #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
+    ylab('Bifurcation time point') + 
+    geom_point(aes(regulators, abs(regulators_time)), color = 'black', data = df) + ylim(5, 90) + 
+    coord_flip() + scale_y_continuous(breaks = round(seq(min(abs(df$regulators_time), na.rm = T), max(abs(df$branching_time), na.rm = T), by = 24),1)) + #geom_boxplot(stat = "identity", aes(ymin = `0%`, lower = `25%`, middle = `50%`, upper = `75%`, ymax = `100%`)) 
     nm_theme()
 dev.off()
 

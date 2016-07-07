@@ -412,7 +412,7 @@ pdf('./main_figures/fig4d.pdf', width = 5, height = 1.5)
                 ylab('Transcript counts') + nm_theme() + xlab('Pseudotime')
 dev.off()
 
-pdf('./supplementary_figures/fig4d_si.pdf', width = 5, height = 3)
+pdf('./supplementary_figures/fig4d_si2.pdf', width = 5, height = 3)
 # pdf('fig4d.pdf', width = 5, height = 3)
   plot_genes_branched_pseudotime2(abs_AT12_cds_subset_all_gene[branch_motif_Tfs_id, ], cell_color_by = "State", 
                 trajectory_color_by = "Lineage", fullModelFormulaStr = '~sm.ns(Pseudotime, df = 3)*Lineage', normalize = F, stretch = T,
