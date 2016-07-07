@@ -121,7 +121,7 @@ unlist(lapply(c(1, 6, 8, 10, 14, 18, 19, 23, 27, 30, 33, 36), function(x) ncol(c
 #     371     387
 
 #figure 5: 
-unique(subset(iso_switch_test_res, qval < 0.01)$gene_short_name
+unique(subset(iso_switch_test_res, qval < 0.1)$gene_short_name)
 
 fData(HSMM_myo_isoform[row.names(subset(fData(HSMM_myo_isoform), 
                                    gene_short_name %in% c("ACTA1", "ACTA2", "ACTB", "ACTG1", "ACTG2", "ACTC1") & num_cells_expressed >= 15)),])
@@ -137,8 +137,8 @@ fData(HSMM_myo_isoform[row.names(subset(fData(HSMM_myo_isoform),
 # ENST00000331789.5  ENSG00000075624.9            ACTB protein_coding ENSG00000075624.9_TSS85736                 174
 
 table(cutree(iso_switch_heatmap$tree_row, 6))
-#  1  2  3  4  5  6 
-# 44 58 29 15 21 56 
+ #  1   2   3   4   5   6 
+ # 72 135 150 171 127  50
 
 iso_names <- names(cutree(iso_switch_heatmap$tree_row, 6))
 length(unique(fData(HSMM_myo_isoform)[iso_names[cutree(iso_switch_heatmap$tree_row, 6) == 1], 'gene_short_name']))
@@ -147,6 +147,12 @@ length(unique(fData(HSMM_myo_isoform)[iso_names[cutree(iso_switch_heatmap$tree_r
 length(unique(fData(HSMM_myo_isoform)[iso_names[cutree(iso_switch_heatmap$tree_row, 6) == 4], 'gene_short_name']))
 length(unique(fData(HSMM_myo_isoform)[iso_names[cutree(iso_switch_heatmap$tree_row, 6) == 5], 'gene_short_name']))
 length(unique(fData(HSMM_myo_isoform)[iso_names[cutree(iso_switch_heatmap$tree_row, 6) == 6], 'gene_short_name']))
+
+
+#ACTA1, ACTA2: 
+table(cutree(iso_switch_heatmap$tree_row, 6))
+subset_ACTA12_fd <- subset(fData(HSMM_myo_isoform), gene_short_name %in% c('ACTA1', 'ACTA2'))
+cutree(iso_switch_heatmap$tree_row, 6)[row.names(subset_ACTA12_fd)]
 
 #PSI
 cluster_summaries
