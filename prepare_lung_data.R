@@ -1,8 +1,8 @@
 use_select_algorithm = T
 
-library(devtools)
-load_all('~/Projects/monocle-dev')
-# library(monocle)
+# library(devtools)
+# load_all('~/Projects/monocle-dev')
+library(monocle)
 library(xacHelper)
 
 load_all_libraries()

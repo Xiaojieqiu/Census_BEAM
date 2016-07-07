@@ -1,8 +1,10 @@
 load('./RData/prepare_lung_data.RData')
-library(devtools)
+
 library(xacHelper)
-load_all('~/Projects/monocle-dev')
-# library(monocle)
+
+# library(devtools)
+# load_all('~/Projects/monocle-dev')
+library(monocle)
 library(MASS)
 library(sp)
 library(plyr)

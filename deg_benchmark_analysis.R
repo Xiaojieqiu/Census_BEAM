@@ -162,9 +162,9 @@ DESeq2_deg <- function (dir, cds, Time, test_type = "LRT", design = as.formula("
 ######################################################
 
 load('./RData/prepare_lung_data.RData')
-library(devtools)
-load_all('~/Projects/monocle-dev')
-# library(monocle)
+# library(devtools)
+# load_all('~/Projects/monocle-dev')
+library(monocle)
 
 library(xacHelper)
 
@@ -202,158 +202,158 @@ count_cds <- newCellDataSet(read_countdata[row.names(new_abs_cds_14_18), colname
 
 count_cds <- estimateSizeFactors(count_cds)
 
-# #calculate the pval with the readcount with scde: (calculate the scde associate DEG test result LOCALLY, this part is super slow, parallel doesn't work) 
-# std_scde_res_list <- scde_DEG(dir = NULL, count_cds = count_cds, DEG_attribute = 'Time', contrast = conditions, n.cores = 1)
-# save(std_scde_res_list, file = paste(conditions[1], conditions[2], 'std_scde_res_list', sep = ''))
+#calculate the pval with the readcount with scde: (calculate the scde associate DEG test result LOCALLY, this part is super slow, parallel doesn't work) 
+std_scde_res_list <- scde_DEG(dir = NULL, count_cds = count_cds, DEG_attribute = 'Time', contrast = conditions, n.cores = 1)
+save(std_scde_res_list, file = paste(conditions[1], conditions[2], 'std_scde_res_list', sep = ''))
 
-# std_scde_res_list_no_normalize <- scde_DEG(dir = NULL, count_cds = count_cds, DEG_attribute = 'Time', contrast = conditions, n.cores = 1)
-# save(std_scde_res_list_no_normalize, file = paste(conditions[1], conditions[2], 'std_scde_res_list_no_normalize', sep = ''))
+std_scde_res_list_no_normalize <- scde_DEG(dir = NULL, count_cds = count_cds, DEG_attribute = 'Time', contrast = conditions, n.cores = 1)
+save(std_scde_res_list_no_normalize, file = paste(conditions[1], conditions[2], 'std_scde_res_list_no_normalize', sep = ''))
 
-# #calculate the pval with the normalized transcripts with scde: 
-# abs_scde_res_list <- scde_DEG(dir = NULL, count_cds = new_abs_cds_14_18, DEG_attribute = 'Time', contrast = conditions, n.cores = 1, normalize = T)
-# save(abs_scde_res_list, file = paste(conditions[1], conditions[2], 'abs_scde_res_list', sep = ''))
+#calculate the pval with the normalized transcripts with scde: 
+abs_scde_res_list <- scde_DEG(dir = NULL, count_cds = new_abs_cds_14_18, DEG_attribute = 'Time', contrast = conditions, n.cores = 1, normalize = T)
+save(abs_scde_res_list, file = paste(conditions[1], conditions[2], 'abs_scde_res_list', sep = ''))
 
-# abs_scde_res_list_no_normalize <- scde_DEG(dir = NULL, count_cds = new_abs_cds_14_18, DEG_attribute = 'Time', contrast = conditions, n.cores = 1)
-# save(abs_scde_res_list_no_normalize, file = paste(conditions[1], conditions[2], 'abs_scde_res_list_no_normalize', sep = ''))
+abs_scde_res_list_no_normalize <- scde_DEG(dir = NULL, count_cds = new_abs_cds_14_18, DEG_attribute = 'Time', contrast = conditions, n.cores = 1)
+save(abs_scde_res_list_no_normalize, file = paste(conditions[1], conditions[2], 'abs_scde_res_list_no_normalize', sep = ''))
 
-# mc_scde_res_list_no_normalize <- scde_DEG(dir = NULL, count_cds = new_mc_cds_14_18, DEG_attribute = 'Time', contrast = conditions, n.cores = 1, normalize = F)
-# save(mc_scde_res_list_no_normalize, file = paste(conditions[1], conditions[2], 'mc_scde_res_list_no_normalize', sep = ''))
+mc_scde_res_list_no_normalize <- scde_DEG(dir = NULL, count_cds = new_mc_cds_14_18, DEG_attribute = 'Time', contrast = conditions, n.cores = 1, normalize = F)
+save(mc_scde_res_list_no_normalize, file = paste(conditions[1], conditions[2], 'mc_scde_res_list_no_normalize', sep = ''))
 
-# mc_scde_res_list <- scde_DEG(dir = NULL, count_cds = new_mc_cds_14_18, DEG_attribute = 'Time', contrast = conditions, n.cores = 1, normalize = T)
-# save(mc_scde_res_list, file = paste(conditions[1], conditions[2], 'mc_scde_res_list', sep = ''))
+mc_scde_res_list <- scde_DEG(dir = NULL, count_cds = new_mc_cds_14_18, DEG_attribute = 'Time', contrast = conditions, n.cores = 1, normalize = T)
+save(mc_scde_res_list, file = paste(conditions[1], conditions[2], 'mc_scde_res_list', sep = ''))
 
-# load(paste(conditions[1], conditions[2], 'std_scde_res_list', sep = ''))
-# load(paste(conditions[1], conditions[2], 'std_scde_res_list_no_normalize', sep = ''))
-# load(paste(conditions[1], conditions[2], 'abs_scde_res_list', sep = ''))
-# load(paste(conditions[1], conditions[2], 'abs_scde_res_list_no_normalize', sep = ''))
-# load(paste(conditions[1], conditions[2], 'mc_scde_res_list_no_normalize', sep = ''))
-# load(paste(conditions[1], conditions[2], 'mc_scde_res_list', sep = ''))
+load(paste(conditions[1], conditions[2], 'std_scde_res_list', sep = ''))
+load(paste(conditions[1], conditions[2], 'std_scde_res_list_no_normalize', sep = ''))
+load(paste(conditions[1], conditions[2], 'abs_scde_res_list', sep = ''))
+load(paste(conditions[1], conditions[2], 'abs_scde_res_list_no_normalize', sep = ''))
+load(paste(conditions[1], conditions[2], 'mc_scde_res_list_no_normalize', sep = ''))
+load(paste(conditions[1], conditions[2], 'mc_scde_res_list', sep = ''))
 
-# # load all other necessary packages: 
-# load_all_libraries()
+# load all other necessary packages: 
+load_all_libraries()
 
-# # #perform  the stastical tests on the data: 
-# new_std_diff_test_res <- differentialGeneTest(new_std_cds_14_18[1:transcript_num, ], 
-#                                               fullModelFormulaStr = "~Time", 
-#                                               reducedModelFormulaStr = "~1", cores = detectCores(), relative = F)  
+# #perform  the stastical tests on the data: 
+new_std_diff_test_res <- differentialGeneTest(new_std_cds_14_18[1:transcript_num, ], 
+                                              fullModelFormulaStr = "~Time", 
+                                              reducedModelFormulaStr = "~1", cores = detectCores(), relative = F)  
 
-# new_std_diff_test_res_relative <- differentialGeneTest(new_std_cds_14_18[1:transcript_num, ], 
-#                                               fullModelFormulaStr = "~Time", 
-#                                               reducedModelFormulaStr = "~1", cores = detectCores(), relative = T)  
+new_std_diff_test_res_relative <- differentialGeneTest(new_std_cds_14_18[1:transcript_num, ], 
+                                              fullModelFormulaStr = "~Time", 
+                                              reducedModelFormulaStr = "~1", cores = detectCores(), relative = T)  
 
-# new_size_norm_abs_diff_test_res <- differentialGeneTest(new_abs_cds_14_18[1:transcript_num, ], 
-#                                                         fullModelFormulaStr = "~Time", 
-#                                                         reducedModelFormulaStr = "~1", cores = detectCores(), relative = T)
+new_size_norm_abs_diff_test_res <- differentialGeneTest(new_abs_cds_14_18[1:transcript_num, ], 
+                                                        fullModelFormulaStr = "~Time", 
+                                                        reducedModelFormulaStr = "~1", cores = detectCores(), relative = T)
 
-# new_size_norm_mc_diff_test_res <- differentialGeneTest(new_mc_cds_14_18[1:transcript_num, ], 
-#                                                        fullModelFormulaStr = "~Time", 
-#                                                        reducedModelFormulaStr = "~1", cores = detectCores(), relative = T)
+new_size_norm_mc_diff_test_res <- differentialGeneTest(new_mc_cds_14_18[1:transcript_num, ], 
+                                                       fullModelFormulaStr = "~Time", 
+                                                       reducedModelFormulaStr = "~1", cores = detectCores(), relative = T)
 
-# new_cds_diff_test_res <- differentialGeneTest(count_cds[1:transcript_num, ], 
-#                                               fullModelFormulaStr = "~Time", 
-#                                               reducedModelFormulaStr = "~1", cores = detectCores(), relative = T)
+new_cds_diff_test_res <- differentialGeneTest(count_cds[1:transcript_num, ], 
+                                              fullModelFormulaStr = "~Time", 
+                                              reducedModelFormulaStr = "~1", cores = detectCores(), relative = T)
 
-# new_cds_diff_test_res_no_relative <- differentialGeneTest(count_cds[1:transcript_num, ], 
-#                                                           fullModelFormulaStr = "~Time", 
-#                                                           reducedModelFormulaStr = "~1", cores = detectCores(), relative = F)
+new_cds_diff_test_res_no_relative <- differentialGeneTest(count_cds[1:transcript_num, ], 
+                                                          fullModelFormulaStr = "~Time", 
+                                                          reducedModelFormulaStr = "~1", cores = detectCores(), relative = F)
 
-# Time_ori <- pData(new_abs_cds_14_18)$Time #Time as input for newCountDataSet
+Time_ori <- pData(new_abs_cds_14_18)$Time #Time as input for newCountDataSet
 
-# #calculate the pval with the readcount with DESeq: 
-# readcount_sf_mat <- matrix(rep(sizeFactors(count_cds), nrow(count_cds)), nrow = nrow(count_cds), byrow = T, dimnames = dimnames(count_cds))
-# abs_sf_mat <- matrix(rep(sizeFactors(new_abs_cds_14_18), nrow(new_abs_cds_14_18)), nrow = nrow(new_abs_cds_14_18), byrow = T)
-# mc_sf_mat <- matrix(rep(sizeFactors(new_mc_cds_14_18), nrow(new_mc_cds_14_18)), nrow = nrow(new_mc_cds_14_18), byrow = T)
+#calculate the pval with the readcount with DESeq: 
+readcount_sf_mat <- matrix(rep(sizeFactors(count_cds), nrow(count_cds)), nrow = nrow(count_cds), byrow = T, dimnames = dimnames(count_cds))
+abs_sf_mat <- matrix(rep(sizeFactors(new_abs_cds_14_18), nrow(new_abs_cds_14_18)), nrow = nrow(new_abs_cds_14_18), byrow = T)
+mc_sf_mat <- matrix(rep(sizeFactors(new_mc_cds_14_18), nrow(new_mc_cds_14_18)), nrow = nrow(new_mc_cds_14_18), byrow = T)
 
-# read_count_d <- newCountDataSet(round(read_countdata[, ]), Time_ori) #/ readcount_sf_mat[, colnames(read_countdata)]
-# std_dtable_pool_max_nbinomTest <- DESeq1_test(read_count_d, pd = pData(count_cds), disp_method = 'pooled', sharing = 'maximum', test_type = 'nbinomTest', scale = T) 
-# row.names(std_dtable_pool_max_nbinomTest$dtalbe) <- std_dtable_pool_max_nbinomTest$dtalbe$id
+read_count_d <- newCountDataSet(round(read_countdata[, ]), Time_ori) #/ readcount_sf_mat[, colnames(read_countdata)]
+std_dtable_pool_max_nbinomTest <- DESeq1_test(read_count_d, pd = pData(count_cds), disp_method = 'pooled', sharing = 'maximum', test_type = 'nbinomTest', scale = T) 
+row.names(std_dtable_pool_max_nbinomTest$dtalbe) <- std_dtable_pool_max_nbinomTest$dtalbe$id
 
-# #calculate the pval with the normalized transcripts with DESeq: 
-# abs_count_d <- newCountDataSet(round(t(t(exprs(new_abs_cds_14_18)) )), (Time_ori)) #Don't normalized the data by size factor
-# abs_dtable_pool_max_nbinomTest <- DESeq1_test(abs_count_d, pd = pData(new_abs_cds_14_18), disp_method = 'pooled', sharing = 'maximum', test_type = 'nbinomTest', scale = T) 
-# row.names(abs_dtable_pool_max_nbinomTest$dtalbe) <- abs_dtable_pool_max_nbinomTest$dtalbe$id
+#calculate the pval with the normalized transcripts with DESeq: 
+abs_count_d <- newCountDataSet(round(t(t(exprs(new_abs_cds_14_18)) )), (Time_ori)) #Don't normalized the data by size factor
+abs_dtable_pool_max_nbinomTest <- DESeq1_test(abs_count_d, pd = pData(new_abs_cds_14_18), disp_method = 'pooled', sharing = 'maximum', test_type = 'nbinomTest', scale = T) 
+row.names(abs_dtable_pool_max_nbinomTest$dtalbe) <- abs_dtable_pool_max_nbinomTest$dtalbe$id
 
-# #DESeq glm: (GLM tests are more relevant to our software)
-# std_dtable_pool_max_nbinomGLMTest <- DESeq1_test(read_count_d[1:transcript_num, ], pd = pData(count_cds), disp_method = 'pooled', sharing = 'maximum', test_type = 'nbinomGLMTest', scale = T) 
-# row.names(std_dtable_pool_max_nbinomGLMTest$dtalbe) <-  row.names(read_count_d[1:transcript_num, ])
-# abs_dtable_pool_max_nbinomGLMTest <- DESeq1_test(abs_count_d[1:transcript_num, ], pd = pData(new_abs_cds_14_18), disp_method = 'pooled', sharing = 'maximum', test_type = 'nbinomGLMTest', scale = T) 
-# row.names(abs_dtable_pool_max_nbinomGLMTest$dtalbe) <- row.names(new_abs_cds_14_18[1:transcript_num, ])
+#DESeq glm: (GLM tests are more relevant to our software)
+std_dtable_pool_max_nbinomGLMTest <- DESeq1_test(read_count_d[1:transcript_num, ], pd = pData(count_cds), disp_method = 'pooled', sharing = 'maximum', test_type = 'nbinomGLMTest', scale = T) 
+row.names(std_dtable_pool_max_nbinomGLMTest$dtalbe) <-  row.names(read_count_d[1:transcript_num, ])
+abs_dtable_pool_max_nbinomGLMTest <- DESeq1_test(abs_count_d[1:transcript_num, ], pd = pData(new_abs_cds_14_18), disp_method = 'pooled', sharing = 'maximum', test_type = 'nbinomGLMTest', scale = T) 
+row.names(abs_dtable_pool_max_nbinomGLMTest$dtalbe) <- row.names(new_abs_cds_14_18[1:transcript_num, ])
 
-# #permutation results for two group test on the FPKM value (gold standard for monocle on FPKM values with tobit model): 
-# Time_order <- order(Time_ori) #order the E14.5 cell at the begining (ensure E14.5 cells number is 43 while E18.5 is 74)
-# std_split_cds <- split(t(exprs(new_std_cds_14_18[1:transcript_num, Time_order])), col(t(exprs(new_std_cds_14_18[1:transcript_num, Time_order])), as.factor = T))
-# std_fc <- esApply(new_std_cds_14_18[1:transcript_num, ], 1, mean_fc, grp0 = conditions[1], grp1 = conditions[2])
-# std_split_fc <- split(t(std_fc), col(t(std_fc), as.factor = T))
+#permutation results for two group test on the FPKM value (gold standard for monocle on FPKM values with tobit model): 
+Time_order <- order(Time_ori) #order the E14.5 cell at the begining (ensure E14.5 cells number is 43 while E18.5 is 74)
+std_split_cds <- split(t(exprs(new_std_cds_14_18[1:transcript_num, Time_order])), col(t(exprs(new_std_cds_14_18[1:transcript_num, Time_order])), as.factor = T))
+std_fc <- esApply(new_std_cds_14_18[1:transcript_num, ], 1, mean_fc, grp0 = conditions[1], grp1 = conditions[2])
+std_split_fc <- split(t(std_fc), col(t(std_fc), as.factor = T))
 
-# permuation_pval <- function (x, fc, alpha = table(pData(new_abs_cds_14_18)$Time)[conditions[1]], beta = table(pData(new_abs_cds_14_18)$Time)[conditions[2]], permutate_num = 10000,
-#     return_fc = F)
-# {
-#     fc_vec <- rep(0, permutate_num)
-#     if (is.na(fc))
-#         return(1)
-#     for (i in 1:permutate_num) {
-#         x <- sample(x, length(x))
-#         x_0 <- (mean(x[1:alpha]))
-#         x_1 <- (mean(x[(alpha + 1):(alpha + beta)]))
-#         mean_fc <- log2(x_1/x_0)
-#         fc_vec[i] <- mean_fc
-#     }
-#     if (fc > 0)
-#         pval <- sum(fc <= fc_vec)/length(fc_vec)
-#     else pval <- sum(fc >= fc_vec)/length(fc_vec)
-#     if (return_fc)
-#         return(list(pval = pval, fc_vec = fc_vec))
-#     else return(pval)
-# }
-# closeAllConnections()
-# save.image('./RData/deg_benchmark_analysis_tmp.RData')
-# std_permutate_pval <- mcmapply(permuation_pval, std_split_cds, std_split_fc, mc.cores = detectCores()) #multiple cores 
+permuation_pval <- function (x, fc, alpha = table(pData(new_abs_cds_14_18)$Time)[conditions[1]], beta = table(pData(new_abs_cds_14_18)$Time)[conditions[2]], permutate_num = 10000,
+    return_fc = F)
+{
+    fc_vec <- rep(0, permutate_num)
+    if (is.na(fc))
+        return(1)
+    for (i in 1:permutate_num) {
+        x <- sample(x, length(x))
+        x_0 <- (mean(x[1:alpha]))
+        x_1 <- (mean(x[(alpha + 1):(alpha + beta)]))
+        mean_fc <- log2(x_1/x_0)
+        fc_vec[i] <- mean_fc
+    }
+    if (fc > 0)
+        pval <- sum(fc <= fc_vec)/length(fc_vec)
+    else pval <- sum(fc >= fc_vec)/length(fc_vec)
+    if (return_fc)
+        return(list(pval = pval, fc_vec = fc_vec))
+    else return(pval)
+}
+closeAllConnections()
+save.image('./RData/deg_benchmark_analysis_tmp.RData')
+std_permutate_pval <- mcmapply(permuation_pval, std_split_cds, std_split_fc, mc.cores = detectCores()) #multiple cores 
 
-# closeAllConnections()
-# # permutation results for two group test on the readcounts value (gold standard for DESEeq / SCDE on readcount data): 
-# # no size factor normalization: 
-# readcount_split_cds <- split(t(exprs(count_cds[1:transcript_num, Time_order])), col(t(exprs(count_cds[1:transcript_num, Time_order])), as.factor = T))
-# readcount_fc <- esApply(count_cds[1:transcript_num, ], 1, mean_fc, grp0 = conditions[1], grp1 = conditions[2]) #valid_gene_id
+closeAllConnections()
+# permutation results for two group test on the readcounts value (gold standard for DESEeq / SCDE on readcount data): 
+# no size factor normalization: 
+readcount_split_cds <- split(t(exprs(count_cds[1:transcript_num, Time_order])), col(t(exprs(count_cds[1:transcript_num, Time_order])), as.factor = T))
+readcount_fc <- esApply(count_cds[1:transcript_num, ], 1, mean_fc, grp0 = conditions[1], grp1 = conditions[2]) #valid_gene_id
 
-# readcount_split_cds <- split(t(round(exprs(count_cds[1:transcript_num, Time_order]) / readcount_sf_mat[1:transcript_num, Time_order])), col(t(exprs(count_cds[1:transcript_num, Time_order])), as.factor = T))
-# readcount_fc <- apply(round(exprs(count_cds)[1:transcript_num, Time_order] / readcount_sf_mat[1:transcript_num, Time_order]), 1, mean_fc, grp0 = conditions[1], grp1 = conditions[2], grp = pData(count_cds[1:transcript_num, Time_order])$Time) #valid_gene_id
-# readcount_split_fc <- split(t(readcount_fc), col(t(readcount_fc), as.factor = T))
-# readcount_permutate_pval <- mcmapply(permuation_pval, readcount_split_cds, readcount_split_fc, mc.cores = detectCores()) #multiple core
-# closeAllConnections()
+readcount_split_cds <- split(t(round(exprs(count_cds[1:transcript_num, Time_order]) / readcount_sf_mat[1:transcript_num, Time_order])), col(t(exprs(count_cds[1:transcript_num, Time_order])), as.factor = T))
+readcount_fc <- apply(round(exprs(count_cds)[1:transcript_num, Time_order] / readcount_sf_mat[1:transcript_num, Time_order]), 1, mean_fc, grp0 = conditions[1], grp1 = conditions[2], grp = pData(count_cds[1:transcript_num, Time_order])$Time) #valid_gene_id
+readcount_split_fc <- split(t(readcount_fc), col(t(readcount_fc), as.factor = T))
+readcount_permutate_pval <- mcmapply(permuation_pval, readcount_split_cds, readcount_split_fc, mc.cores = detectCores()) #multiple core
+closeAllConnections()
 
-# # no size factortwo-group permutation tests (the same as above)
-# # permutation results for two group test on the normalized absolute value (gold standard for DESEeq / SCDE on readcount data): 
-# # readcount_permutate_pval <- permu_two_group_gen(count_cds[, Time_order], alpha = 43, beta = 60, grp0 = conditions[1], grp1 = conditions[2], group = pData(count_cds)$Time)
-# #mode_size_norm_permutate_ratio_by_geometric_mean <- cal_perm_pval_size_norm(new_abs_cds_14_18[1:transcript_num, Time_order])
-# #mc_mode_size_norm_permutate_ratio_by_geometric_mean <- cal_perm_pval_size_norm(new_mc_cds_14_18[1:transcript_num, Time_order])
+# no size factortwo-group permutation tests (the same as above)
+# permutation results for two group test on the normalized absolute value (gold standard for DESEeq / SCDE on readcount data): 
+# readcount_permutate_pval <- permu_two_group_gen(count_cds[, Time_order], alpha = 43, beta = 60, grp0 = conditions[1], grp1 = conditions[2], group = pData(count_cds)$Time)
+#mode_size_norm_permutate_ratio_by_geometric_mean <- cal_perm_pval_size_norm(new_abs_cds_14_18[1:transcript_num, Time_order])
+#mc_mode_size_norm_permutate_ratio_by_geometric_mean <- cal_perm_pval_size_norm(new_mc_cds_14_18[1:transcript_num, Time_order])
 
-# # new implementation with size factor normalization: 
-# abs_split_cds <- split(round(t(exprs(new_abs_cds_14_18[1:transcript_num, Time_order]) / abs_sf_mat[1:transcript_num, Time_order])), col(t(exprs(new_abs_cds_14_18[1:transcript_num, Time_order])), as.factor = T))
-# abs_fc <- apply(round(exprs(new_abs_cds_14_18)[1:transcript_num, Time_order] / abs_sf_mat[1:transcript_num, Time_order]), 1, mean_fc, grp0 = conditions[1], grp1 = conditions[2], grp = pData(new_abs_cds_14_18[1:transcript_num, Time_order])$Time) #valid_gene_id
-# abs_split_fc <- split(t(abs_fc), col(t(abs_fc), as.factor = T))
-# mode_size_norm_permutate_ratio_by_geometric_mean <- mcmapply(permuation_pval, abs_split_cds, abs_split_fc, mc.cores = detectCores()) #multiple core
-# closeAllConnections()
+# new implementation with size factor normalization: 
+abs_split_cds <- split(round(t(exprs(new_abs_cds_14_18[1:transcript_num, Time_order]) / abs_sf_mat[1:transcript_num, Time_order])), col(t(exprs(new_abs_cds_14_18[1:transcript_num, Time_order])), as.factor = T))
+abs_fc <- apply(round(exprs(new_abs_cds_14_18)[1:transcript_num, Time_order] / abs_sf_mat[1:transcript_num, Time_order]), 1, mean_fc, grp0 = conditions[1], grp1 = conditions[2], grp = pData(new_abs_cds_14_18[1:transcript_num, Time_order])$Time) #valid_gene_id
+abs_split_fc <- split(t(abs_fc), col(t(abs_fc), as.factor = T))
+mode_size_norm_permutate_ratio_by_geometric_mean <- mcmapply(permuation_pval, abs_split_cds, abs_split_fc, mc.cores = detectCores()) #multiple core
+closeAllConnections()
 
-# mc_split_cds <- split(round(t(exprs(new_mc_cds_14_18[1:transcript_num, Time_order]) / mc_sf_mat[1:transcript_num, Time_order])), col(t(exprs(new_mc_cds_14_18[1:transcript_num, Time_order])), as.factor = T))
-# mc_fc <- apply(round(exprs(new_mc_cds_14_18)[1:transcript_num, Time_order] / mc_sf_mat[1:transcript_num, Time_order]), 1, mean_fc, grp0 = conditions[1], grp1 = conditions[2], grp = pData(new_mc_cds_14_18[1:transcript_num, Time_order])$Time) #valid_gene_id
-# mc_split_fc <- split(t(mc_fc), col(t(mc_fc), as.factor = T))
-# mc_mode_size_norm_permutate_ratio_by_geometric_mean <- mcmapply(permuation_pval, mc_split_cds, mc_split_fc, mc.cores = detectCores()) #multiple core
-# closeAllConnections()
+mc_split_cds <- split(round(t(exprs(new_mc_cds_14_18[1:transcript_num, Time_order]) / mc_sf_mat[1:transcript_num, Time_order])), col(t(exprs(new_mc_cds_14_18[1:transcript_num, Time_order])), as.factor = T))
+mc_fc <- apply(round(exprs(new_mc_cds_14_18)[1:transcript_num, Time_order] / mc_sf_mat[1:transcript_num, Time_order]), 1, mean_fc, grp0 = conditions[1], grp1 = conditions[2], grp = pData(new_mc_cds_14_18[1:transcript_num, Time_order])$Time) #valid_gene_id
+mc_split_fc <- split(t(mc_fc), col(t(mc_fc), as.factor = T))
+mc_mode_size_norm_permutate_ratio_by_geometric_mean <- mcmapply(permuation_pval, mc_split_cds, mc_split_fc, mc.cores = detectCores()) #multiple core
+closeAllConnections()
 
-# # # # add the DEG tests using edgeR / DESeq2: 
-# edgeR_res <- edgeR_test(counts = exprs(count_cds)[1:transcript_num, ], sf = sizeFactors(count_cds), glm = F)
-# abs_edgeR_res <- edgeR_test(exprs(new_abs_cds_14_18[1:transcript_num, ]), sf = sizeFactors(new_abs_cds_14_18), group = Time_ori, glm = F)
+# # # add the DEG tests using edgeR / DESeq2: 
+edgeR_res <- edgeR_test(counts = exprs(count_cds)[1:transcript_num, ], sf = sizeFactors(count_cds), glm = F)
+abs_edgeR_res <- edgeR_test(exprs(new_abs_cds_14_18[1:transcript_num, ]), sf = sizeFactors(new_abs_cds_14_18), group = Time_ori, glm = F)
 
-# edgeR_res_glm <- edgeR_test(counts = exprs(count_cds)[1:transcript_num, ], sf = sizeFactors(count_cds), glm = T)
-# abs_edgeR_res_glm <- edgeR_test(exprs(new_abs_cds_14_18[1:transcript_num, ]), sf = sizeFactors(new_abs_cds_14_18), group = Time_ori, glm = T)
+edgeR_res_glm <- edgeR_test(counts = exprs(count_cds)[1:transcript_num, ], sf = sizeFactors(count_cds), glm = T)
+abs_edgeR_res_glm <- edgeR_test(exprs(new_abs_cds_14_18[1:transcript_num, ]), sf = sizeFactors(new_abs_cds_14_18), group = Time_ori, glm = T)
   
-# deseq2_res <- DESeq2_deg(dir = NULL, count_cds[1:transcript_num, ], Time = Time_ori, pd = pData(count_cds))
-# abs_deseq2_res <- DESeq2_deg(dir = NULL, new_abs_cds_14_18[1:transcript_num, ], Time = Time_ori, pd = pData(new_abs_cds_14_18))
+deseq2_res <- DESeq2_deg(dir = NULL, count_cds[1:transcript_num, ], Time = Time_ori, pd = pData(count_cds))
+abs_deseq2_res <- DESeq2_deg(dir = NULL, new_abs_cds_14_18[1:transcript_num, ], Time = Time_ori, pd = pData(new_abs_cds_14_18))
 
-# #add the analysis for the mc counts: 
-# new_mc_cds_14_18_d <- newCountDataSet(round(exprs(new_mc_cds_14_18))[, ], Time_ori) 
-# mc_dtable_pool_max_nbinomGLMTest <- DESeq1_test(new_mc_cds_14_18_d[1:transcript_num, ], pd = pData(new_mc_cds_14_18), disp_method = 'pooled', sharing = 'maximum', test_type = 'nbinomGLMTest', scale = T) 
-# row.names(mc_dtable_pool_max_nbinomGLMTest$dtalbe) <-  row.names(new_mc_cds_14_18[1:transcript_num, ])
+#add the analysis for the mc counts: 
+new_mc_cds_14_18_d <- newCountDataSet(round(exprs(new_mc_cds_14_18))[, ], Time_ori) 
+mc_dtable_pool_max_nbinomGLMTest <- DESeq1_test(new_mc_cds_14_18_d[1:transcript_num, ], pd = pData(new_mc_cds_14_18), disp_method = 'pooled', sharing = 'maximum', test_type = 'nbinomGLMTest', scale = T) 
+row.names(mc_dtable_pool_max_nbinomGLMTest$dtalbe) <-  row.names(new_mc_cds_14_18[1:transcript_num, ])
 
 mc_dtable_pool_max_nbinomTest <- DESeq1_test(new_mc_cds_14_18_d, pd = pData(new_mc_cds_14_18), disp_method = 'pooled', sharing = 'maximum', test_type = 'nbinomTest', scale = T) 
 row.names(mc_dtable_pool_max_nbinomTest$dtalbe) <- mc_dtable_pool_max_nbinomTest$dtalbe$id
@@ -569,181 +569,181 @@ dev.off()
 # save.image('./RData/deg_benchmark_analysis.RData')
 save.image(paste('./RData/deg_benchmark_analysis', conditions[1], conditions[2], '.RData', sep = ''))
 
-# ###############################################################################################################################################################################################
-# #benchmark with TPM times median total mRNAs: 
+###############################################################################################################################################################################################
+#benchmark with TPM times median total mRNAs: 
 
-# #create a cds with TPM times the a median expression level: 
-# lung_TPM_mat_14_18 <- exprs(TPM_cds[row.names(new_abs_cds_14_18), colnames(new_abs_cds_14_18)]) * median(pData(new_abs_cds_14_18)$Total_mRNAs) / 10^6
+#create a cds with TPM times the a median expression level: 
+lung_TPM_mat_14_18 <- exprs(TPM_cds[row.names(new_abs_cds_14_18), colnames(new_abs_cds_14_18)]) * median(pData(new_abs_cds_14_18)$Total_mRNAs) / 10^6
 
-# lung_TPM_count_cds_14_18 <- newCellDataSet(lung_TPM_mat_14_18,
-#                             phenoData = new("AnnotatedDataFrame", data = pData(new_abs_cds_14_18)),
-#                             featureData = new("AnnotatedDataFrame", data = fData(new_abs_cds_14_18)),
-#                             expressionFamily = negbinomial(),
-#                             lowerDetectionLimit = 1)
-# lung_TPM_count_cds_14_18 <- estimateSizeFactors(lung_TPM_count_cds_14_18)
-# lung_TPM_count_cds_14_18 <- estimateDispersions(lung_TPM_count_cds_14_18)
+lung_TPM_count_cds_14_18 <- newCellDataSet(lung_TPM_mat_14_18,
+                            phenoData = new("AnnotatedDataFrame", data = pData(new_abs_cds_14_18)),
+                            featureData = new("AnnotatedDataFrame", data = fData(new_abs_cds_14_18)),
+                            expressionFamily = negbinomial(),
+                            lowerDetectionLimit = 1)
+lung_TPM_count_cds_14_18 <- estimateSizeFactors(lung_TPM_count_cds_14_18)
+lung_TPM_count_cds_14_18 <- estimateDispersions(lung_TPM_count_cds_14_18)
 
-# lung_TPM_count_scde_res_list <- scde_DEG(dir = NULL, count_cds = lung_TPM_count_cds_14_18, DEG_attribute = 'Time', contrast = conditions, n.cores = 1)
-# lung_TPM_count_diff_test_res <- differentialGeneTest(lung_TPM_count_cds_14_18[1:transcript_num, ], 
-#                                                         fullModelFormulaStr = "~Time", 
-#                                                         reducedModelFormulaStr = "~1", cores = detectCores(), relative = T)
+lung_TPM_count_scde_res_list <- scde_DEG(dir = NULL, count_cds = lung_TPM_count_cds_14_18, DEG_attribute = 'Time', contrast = conditions, n.cores = 1)
+lung_TPM_count_diff_test_res <- differentialGeneTest(lung_TPM_count_cds_14_18[1:transcript_num, ], 
+                                                        fullModelFormulaStr = "~Time", 
+                                                        reducedModelFormulaStr = "~1", cores = detectCores(), relative = T)
 
-# Time_order <- order(Time_ori) #order the E14.5 cell at the begining (ensure E14.5 cells number is 43 while E18.5 is 74)
+Time_order <- order(Time_ori) #order the E14.5 cell at the begining (ensure E14.5 cells number is 43 while E18.5 is 74)
 
-# lung_TPM_count_d <- newCountDataSet(round(lung_TPM_mat_14_18)[, ], Time_ori) 
-# lung_TPM_count_dtable_pool_max_nbinomGLMTest <- DESeq1_test(lung_TPM_count_d[1:transcript_num, ], pd = pData(lung_TPM_mat_14_18), disp_method = 'pooled', sharing = 'maximum', test_type = 'nbinomGLMTest', scale = T) 
-# row.names(lung_TPM_count_dtable_pool_max_nbinomGLMTest$dtalbe) <-  row.names(lung_TPM_count_d[1:transcript_num, ])
+lung_TPM_count_d <- newCountDataSet(round(lung_TPM_mat_14_18)[, ], Time_ori) 
+lung_TPM_count_dtable_pool_max_nbinomGLMTest <- DESeq1_test(lung_TPM_count_d[1:transcript_num, ], pd = pData(lung_TPM_mat_14_18), disp_method = 'pooled', sharing = 'maximum', test_type = 'nbinomGLMTest', scale = T) 
+row.names(lung_TPM_count_dtable_pool_max_nbinomGLMTest$dtalbe) <-  row.names(lung_TPM_count_d[1:transcript_num, ])
 
-# permutation results for two group test on the FPKM value (gold standard for monocle on FPKM values with tobit model): 
-# TPM_split_cds <- split(t(exprs(lung_TPM_count_cds_14_18[1:transcript_num, Time_order])), col(t(exprs(lung_TPM_count_cds_14_18[1:transcript_num, Time_order])), as.factor = T))
-# TPM_fc <- esApply(lung_TPM_count_cds_14_18[1:transcript_num, Time_order], 1, mean_fc, grp0 = conditions[1], grp1 = conditions[2], grp = pData(lung_TPM_count_cds_14_18[1:transcript_num, Time_order])$Time)
-# TPM_split_fc <- split(t(TPM_fc), col(t(TPM_fc), as.factor = T))
-# TPM_permutate_pval <- mcmapply(permuation_pval, TPM_split_cds, TPM_split_fc, mc.cores = detectCores()) #multiple cores 
+permutation results for two group test on the FPKM value (gold standard for monocle on FPKM values with tobit model): 
+TPM_split_cds <- split(t(exprs(lung_TPM_count_cds_14_18[1:transcript_num, Time_order])), col(t(exprs(lung_TPM_count_cds_14_18[1:transcript_num, Time_order])), as.factor = T))
+TPM_fc <- esApply(lung_TPM_count_cds_14_18[1:transcript_num, Time_order], 1, mean_fc, grp0 = conditions[1], grp1 = conditions[2], grp = pData(lung_TPM_count_cds_14_18[1:transcript_num, Time_order])$Time)
+TPM_split_fc <- split(t(TPM_fc), col(t(TPM_fc), as.factor = T))
+TPM_permutate_pval <- mcmapply(permuation_pval, TPM_split_cds, TPM_split_fc, mc.cores = detectCores()) #multiple cores 
 
-# TPM_sf_mat <- matrix(rep(sizeFactors(lung_TPM_count_cds_14_18), nrow(lung_TPM_count_cds_14_18)), nrow = nrow(lung_TPM_count_cds_14_18), byrow = T)
-# TPM_split_cds <- split(t(round(exprs(lung_TPM_count_cds_14_18[1:transcript_num, Time_order]) / TPM_sf_mat[1:transcript_num, Time_order])), col(t(exprs(lung_TPM_count_cds_14_18[1:transcript_num, Time_order])), as.factor = T))
-# TPM_round_fc <- apply(round(exprs(lung_TPM_count_cds_14_18[1:transcript_num, Time_order]) / TPM_sf_mat[1:transcript_num, Time_order]), col(t(exprs(lung_TPM_count_cds_14_18[1:transcript_num, Time_order]))), 1, mean_fc, grp0 = conditions[1], grp1 = conditions[2], pData(lung_TPM_count_cds_14_18[1:transcript_num, Time_order])$Time) #valid_gene_id
-# TPM_round_split_fc <- split(t(TPM_round_fc), col(t(TPM_round_fc), as.factor = T))
-# TPM_round_permutate_pval <- mcmapply(permuation_pval, TPM_split_cds, TPM_round_split_fc, mc.cores = detectCores()) #multiple core
+TPM_sf_mat <- matrix(rep(sizeFactors(lung_TPM_count_cds_14_18), nrow(lung_TPM_count_cds_14_18)), nrow = nrow(lung_TPM_count_cds_14_18), byrow = T)
+TPM_split_cds <- split(t(round(exprs(lung_TPM_count_cds_14_18[1:transcript_num, Time_order]) / TPM_sf_mat[1:transcript_num, Time_order])), col(t(exprs(lung_TPM_count_cds_14_18[1:transcript_num, Time_order])), as.factor = T))
+TPM_round_fc <- apply(round(exprs(lung_TPM_count_cds_14_18[1:transcript_num, Time_order]) / TPM_sf_mat[1:transcript_num, Time_order]), col(t(exprs(lung_TPM_count_cds_14_18[1:transcript_num, Time_order]))), 1, mean_fc, grp0 = conditions[1], grp1 = conditions[2], pData(lung_TPM_count_cds_14_18[1:transcript_num, Time_order])$Time) #valid_gene_id
+TPM_round_split_fc <- split(t(TPM_round_fc), col(t(TPM_round_fc), as.factor = T))
+TPM_round_permutate_pval <- mcmapply(permuation_pval, TPM_split_cds, TPM_round_split_fc, mc.cores = detectCores()) #multiple core
 
-# lung_TPM_count_edgeR_res <- edgeR_test(counts = exprs(lung_TPM_count_cds_14_18)[1:transcript_num, ], glm = F)
-# lung_TPM_count_deseq2_res <- DESeq2_deg(dir = NULL, lung_TPM_count_cds_14_18[1:transcript_num, ], Time = Time_ori, pd = pData(count_cds))
+lung_TPM_count_edgeR_res <- edgeR_test(counts = exprs(lung_TPM_count_cds_14_18)[1:transcript_num, ], glm = F)
+lung_TPM_count_deseq2_res <- DESeq2_deg(dir = NULL, lung_TPM_count_cds_14_18[1:transcript_num, ], Time = Time_ori, pd = pData(count_cds))
 
-# ###############################################################################################################################################################################################
-# #make the new figure: 
-# #new monocle_p: 
-# tpm_count_monocle_p <- lung_TPM_count_diff_test_res[, 'pval'] 
-# names(tpm_count_monocle_p) <- row.names(lung_TPM_count_diff_test_res)
+###############################################################################################################################################################################################
+#make the new figure: 
+#new monocle_p: 
+tpm_count_monocle_p <- lung_TPM_count_diff_test_res[, 'pval'] 
+names(tpm_count_monocle_p) <- row.names(lung_TPM_count_diff_test_res)
 
-# #deseq
-# tpm_count_deseq_p <- lung_TPM_count_dtable_pool_max_nbinomGLMTest$dtalbe[, 'pval'] #std_dtable_pool_max_nbinomTest
-# names(tpm_count_deseq_p) <- row.names(lung_TPM_count_dtable_pool_max_nbinomGLMTest$dtalbe) #std_dtable_pool_max_nbinomGLMTest
+#deseq
+tpm_count_deseq_p <- lung_TPM_count_dtable_pool_max_nbinomGLMTest$dtalbe[, 'pval'] #std_dtable_pool_max_nbinomTest
+names(tpm_count_deseq_p) <- row.names(lung_TPM_count_dtable_pool_max_nbinomGLMTest$dtalbe) #std_dtable_pool_max_nbinomGLMTest
 
-# # scde
-# tpm_count_scde_p <- lung_TPM_count_scde_res_list$pval 
-# tpm_count_scde_p <- tpm_count_scde_p[names(tpm_count_monocle_p)]
-# #prepare the data for the DESeq2 / edgeR: 
-# tpm_count_edgeR_p_glm = lung_TPM_count_edgeR_res$et$table$PValue
-# names(tpm_count_edgeR_p_glm) <- row.names(lung_TPM_count_edgeR_res$et$table)
+# scde
+tpm_count_scde_p <- lung_TPM_count_scde_res_list$pval 
+tpm_count_scde_p <- tpm_count_scde_p[names(tpm_count_monocle_p)]
+#prepare the data for the DESeq2 / edgeR: 
+tpm_count_edgeR_p_glm = lung_TPM_count_edgeR_res$et$table$PValue
+names(tpm_count_edgeR_p_glm) <- row.names(lung_TPM_count_edgeR_res$et$table)
 
-# tpm_count_deseq2_p = results(lung_TPM_count_deseq2_res)$pvalue
-# names(tpm_count_deseq2_p) <- row.names(results(lung_TPM_count_deseq2_res))
+tpm_count_deseq2_p = results(lung_TPM_count_deseq2_res)$pvalue
+names(tpm_count_deseq2_p) <- row.names(results(lung_TPM_count_deseq2_res))
  
-# #generate the dataframe for making the benchmarking plots: 
-# df3 <- plot_pre_rec_f1(test_p_list = list(tpm_count_monocle_p = tpm_count_monocle_p, 
-#                                         tpm_count_edgeR_p_glm = tpm_count_edgeR_p_glm, 
-#                                         tpm_count_deseq2_p = tpm_count_deseq2_p, 
-#                                         tpm_count_deseq_p = tpm_count_deseq_p, 
-#                                         tpm_count_scde_p = tpm_count_scde_p),
-#                      permutate_pval = list(tpm_count_monocle_p = TPM_permutate_pval, #readcount_permutate_pval, #std_permutate_pval, 
-#                                            tpm_count_edgeR_p_glm = TPM_permutate_pval, 
-#                                            tpm_count_deseq2_p = TPM_permutate_pval,
-#                                            tpm_count_deseq_p = TPM_permutate_pval,
-#                                            tpm_count_scde_p = TPM_permutate_pval),
-#                      row.names(absolute_cds[, ]), #1:transcript_num gene_list, overlap_genes, high_gene_list
-#                      return_df = T, #na.rm = T, 
-#                      p_thrsld = 0.05, #0.05
-#                      rownames = c('monocle (TPM counts)', 
-#                         'edgeR (TPM counts)', 'DESeq2 (TPM counts)',
-#                         'DESeq (TPM counts)', 'SCDE (TPM counts)'))
-# df3$data_type = c("TPM counts", "TPM counts", "TPM counts", "TPM counts", "TPM counts")
+#generate the dataframe for making the benchmarking plots: 
+df3 <- plot_pre_rec_f1(test_p_list = list(tpm_count_monocle_p = tpm_count_monocle_p, 
+                                        tpm_count_edgeR_p_glm = tpm_count_edgeR_p_glm, 
+                                        tpm_count_deseq2_p = tpm_count_deseq2_p, 
+                                        tpm_count_deseq_p = tpm_count_deseq_p, 
+                                        tpm_count_scde_p = tpm_count_scde_p),
+                     permutate_pval = list(tpm_count_monocle_p = TPM_permutate_pval, #readcount_permutate_pval, #std_permutate_pval, 
+                                           tpm_count_edgeR_p_glm = TPM_permutate_pval, 
+                                           tpm_count_deseq2_p = TPM_permutate_pval,
+                                           tpm_count_deseq_p = TPM_permutate_pval,
+                                           tpm_count_scde_p = TPM_permutate_pval),
+                     row.names(absolute_cds[, ]), #1:transcript_num gene_list, overlap_genes, high_gene_list
+                     return_df = T, #na.rm = T, 
+                     p_thrsld = 0.05, #0.05
+                     rownames = c('monocle (TPM counts)', 
+                        'edgeR (TPM counts)', 'DESeq2 (TPM counts)',
+                        'DESeq (TPM counts)', 'SCDE (TPM counts)'))
+df3$data_type = c("TPM counts", "TPM counts", "TPM counts", "TPM counts", "TPM counts")
 
-# df3$class = '3relative'
-
-
-# # only show new size normalization: 
-# df3.1 <- df3
-# df3.1[, 'Type'] <- c('SCDE', 'DESeq1', 'DESeq2', 'edgeR', 'Monocle') # geom_bar(stat = 'identity', position = 'dodge') 
-
-# pdf('./supplementary_figures/fig2a_si_tpm_counts.pdf', width = 3, height = 2)
-# qplot(factor(Type), value, stat = "identity", geom = 'bar', position = 'dodge', fill = data_type, data = melt(df3.1)) + #facet_wrap(~variable) + 
-# ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
-# ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + nm_theme()
-# dev.off()
-
-# pdf('./supplementary_figures/fig2a_si_tpm_counts_helper.pdf', width = 3, height = 2)
-# qplot(factor(Type), value, stat = "identity", geom = 'bar', position = 'dodge', fill = data_type, data = melt(df3.1)) + #facet_wrap(~variable) + 
-# ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
-# ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) #+ nm_theme()
-# dev.off()
-
-# save.image('./RData/TPM_median_total_mRNA_analysis.RData')
-
-# # ###############################################################################################################################################################################################
-# #add the test without size factor normalization: 
-# no_sf_mode_size_norm_permutate_ratio_by_geometric_mean <- cal_perm_pval_size_norm(new_abs_cds_14_18[1:transcript_num, Time_order])
-# no_sf_mc_mode_size_norm_permutate_ratio_by_geometric_mean <- cal_perm_pval_size_norm(new_mc_cds_14_18[1:transcript_num, Time_order])
-
-# mc_sf_mat <- matrix(rep(sizeFactors(new_mc_cds_14_18), nrow(new_mc_cds_14_18)), nrow = nrow(new_mc_cds_14_18), byrow = T)
-# mc_split_cds <- split(t(exprs(new_mc_cds_14_18[1:transcript_num, Time_order]) / mc_sf_mat[1:transcript_num, Time_order]), col(t(exprs(new_mc_cds_14_18[1:transcript_num, Time_order])), as.factor = T))
-# mc_fc <- apply(exprs(new_mc_cds_14_18)[1:transcript_num, Time_order] / mc_sf_mat[1:transcript_num, Time_order], 1, mean_fc, grp0 = conditions[1], grp1 = conditions[2], grp = pData(new_mc_cds_14_18[1:transcript_num, Time_order])$Time) #valid_gene_id
-# mc_split_fc <- split(t(mc_fc), col(t(mc_fc), as.factor = T))
-# mc_mode_size_norm_permutate_ratio_by_geometric_mean <- mcmapply(permuation_pval, mc_split_cds, mc_split_fc, mc.cores = detectCores()) #multiple core
-# closeAllConnections()
-
-# no_sf_readcount_split_cds <- split(t(exprs(count_cds[1:transcript_num, Time_order])), col(t(exprs(count_cds[1:transcript_num, Time_order])), as.factor = T))
-# no_sf_readcount_fc <- apply(exprs(count_cds[1:transcript_num, Time_order]), 1, mean_fc, grp0 = conditions[1], grp1 = conditions[2], grp = pData(count_cds[, Time_order])$Time) #valid_gene_id
-# no_sf_readcount_split_fc <- split(t(readcount_fc), col(t(readcount_fc), as.factor = T))
-# no_sf_readcount_permutate_pval <- mcmapply(permuation_pval, no_sf_readcount_split_cds, no_sf_readcount_split_fc, mc.cores = detectCores()) #multiple core
+df3$class = '3relative'
 
 
-# TPM_cds_14_18 <- TPM_cds[, colnames(new_mc_cds_14_18)]
-# #do the analysis for the TPM values: 
-# no_sf_TPM_split_cds <- split(t(exprs(TPM_cds_14_18[1:transcript_num, Time_order])), col(t(exprs(TPM_cds_14_18[1:transcript_num, Time_order])), as.factor = T))
-# no_sf_TPM_fc <- apply(exprs(TPM_cds_14_18[1:transcript_num, Time_order]), 1, mean_fc, grp0 = conditions[1], grp1 = conditions[2], grp = pData(TPM_cds_14_18[, Time_order])$Time) #valid_gene_id
-# no_sf_TPM_split_fc <- split(t(no_sf_TPM_fc), col(t(no_sf_TPM_fc), as.factor = T))
+# only show new size normalization: 
+df3.1 <- df3
+df3.1[, 'Type'] <- c('SCDE', 'DESeq1', 'DESeq2', 'edgeR', 'Monocle') # geom_bar(stat = 'identity', position = 'dodge') 
 
-# no_sf_TPM_permutate_pval <- mcmapply(permuation_pval, no_sf_TPM_split_cds, no_sf_TPM_split_fc, mc.cores = detectCores()) #multiple core
+pdf('./supplementary_figures/fig2a_si_tpm_counts.pdf', width = 3, height = 2)
+qplot(factor(Type), value, stat = "identity", geom = 'bar', position = 'dodge', fill = data_type, data = melt(df3.1)) + #facet_wrap(~variable) + 
+ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
+ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) + nm_theme()
+dev.off()
 
-# #do the anlaysis for the TPM with size factor: 
-# TPM_split_cds <- split(t(exprs(TPM_cds_14_18[1:transcript_num, Time_order]) / readcount_sf_mat[1:transcript_num, Time_order]), col(t(exprs(TPM_cds_14_18[1:transcript_num, Time_order])), as.factor = T))
-# TPM_fc <- apply(exprs(TPM_cds_14_18[1:transcript_num, Time_order] / readcount_sf_mat[1:transcript_num, Time_order]), 1, mean_fc, grp0 = conditions[1], grp1 = conditions[2], grp = pData(TPM_cds_14_18[, Time_order])$Time) #valid_gene_id
-# TPM_split_fc <- split(t(readcount_fc), col(t(readcount_fc), as.factor = T))
+pdf('./supplementary_figures/fig2a_si_tpm_counts_helper.pdf', width = 3, height = 2)
+qplot(factor(Type), value, stat = "identity", geom = 'bar', position = 'dodge', fill = data_type, data = melt(df3.1)) + #facet_wrap(~variable) + 
+ggtitle(title) + scale_fill_discrete('Type') + xlab('Type') + ylab('') + facet_wrap(~variable, scales = 'free_x') +  theme(axis.text.x = element_text(angle = 30, hjust = .9)) + 
+ggtitle('') + monocle_theme_opts() + theme(strip.text.x = element_blank(), strip.text.y = element_blank()) + theme(strip.background = element_blank()) #+ nm_theme()
+dev.off()
 
-# TPM_permutate_pval <- mcmapply(permuation_pval, TPM_split_cds, TPM_split_fc, mc.cores = detectCores()) #multiple core
+save.image('./RData/TPM_median_total_mRNA_analysis.RData')
 
-# save(file = './no_size_permutation.RData', 
-#   no_sf_mode_size_norm_permutate_ratio_by_geometric_mean, no_sf_mc_mode_size_norm_permutate_ratio_by_geometric_mean, no_sf_readcount_split_cds, no_sf_readcount_fc, no_sf_readcount_split_fc, no_sf_readcount_permutate_pval)
-# #analysis from Census counts: 
-# mc_scde_res_list <- scde_DEG(dir = NULL, count_cds = new_mc_cds_14_18, DEG_attribute = 'Time', contrast = conditions, n.cores = 1, normalize = T)
-# save(file = './RData/mc_scde_res_list', mc_scde_res_list)
+# ###############################################################################################################################################################################################
+#add the test without size factor normalization: 
+no_sf_mode_size_norm_permutate_ratio_by_geometric_mean <- cal_perm_pval_size_norm(new_abs_cds_14_18[1:transcript_num, Time_order])
+no_sf_mc_mode_size_norm_permutate_ratio_by_geometric_mean <- cal_perm_pval_size_norm(new_mc_cds_14_18[1:transcript_num, Time_order])
 
-# mc_scde_res_list_no_normalize <- scde_DEG(dir = NULL, count_cds = new_mc_cds_14_18, DEG_attribute = 'Time', contrast = conditions, n.cores = 1, normalize = F)
-# save(file = './RData/mc_scde_res_list_no_normalize', mc_scde_res_list_no_normalize)
+mc_sf_mat <- matrix(rep(sizeFactors(new_mc_cds_14_18), nrow(new_mc_cds_14_18)), nrow = nrow(new_mc_cds_14_18), byrow = T)
+mc_split_cds <- split(t(exprs(new_mc_cds_14_18[1:transcript_num, Time_order]) / mc_sf_mat[1:transcript_num, Time_order]), col(t(exprs(new_mc_cds_14_18[1:transcript_num, Time_order])), as.factor = T))
+mc_fc <- apply(exprs(new_mc_cds_14_18)[1:transcript_num, Time_order] / mc_sf_mat[1:transcript_num, Time_order], 1, mean_fc, grp0 = conditions[1], grp1 = conditions[2], grp = pData(new_mc_cds_14_18[1:transcript_num, Time_order])$Time) #valid_gene_id
+mc_split_fc <- split(t(mc_fc), col(t(mc_fc), as.factor = T))
+mc_mode_size_norm_permutate_ratio_by_geometric_mean <- mcmapply(permuation_pval, mc_split_cds, mc_split_fc, mc.cores = detectCores()) #multiple core
+closeAllConnections()
 
-# new_mc_cds_14_18_d <- newCountDataSet(round(exprs(new_mc_cds_14_18))[, ], Time_ori) 
-# mc_dtable_pool_max_nbinomGLMTest <- DESeq1_test(new_mc_cds_14_18_d[1:transcript_num, ], pd = pData(new_mc_cds_14_18), disp_method = 'pooled', sharing = 'maximum', test_type = 'nbinomGLMTest', scale = T) 
-# row.names(mc_dtable_pool_max_nbinomGLMTest$dtalbe) <-  row.names(new_mc_cds_14_18[1:transcript_num, ])
-# mc_edgeR_res_glm <- edgeR_test(exprs(new_mc_cds_14_18[1:transcript_num, ]), group = Time_ori, glm = T)
-# mc_edgeR_res <- edgeR_test(exprs(new_mc_cds_14_18[1:transcript_num, ]), group = Time_ori, glm = F)
-# mc_deseq2_res <- DESeq2_deg(dir = NULL, new_mc_cds_14_18[1:transcript_num, ], Time = Time_ori, pd = pData(new_mc_cds_14_18))
+no_sf_readcount_split_cds <- split(t(exprs(count_cds[1:transcript_num, Time_order])), col(t(exprs(count_cds[1:transcript_num, Time_order])), as.factor = T))
+no_sf_readcount_fc <- apply(exprs(count_cds[1:transcript_num, Time_order]), 1, mean_fc, grp0 = conditions[1], grp1 = conditions[2], grp = pData(count_cds[, Time_order])$Time) #valid_gene_id
+no_sf_readcount_split_fc <- split(t(readcount_fc), col(t(readcount_fc), as.factor = T))
+no_sf_readcount_permutate_pval <- mcmapply(permuation_pval, no_sf_readcount_split_cds, no_sf_readcount_split_fc, mc.cores = detectCores()) #multiple core
 
-# TPM_scde_res_list_no_normalize <- scde_DEG(dir = NULL, count_cds = TPM_cds_14_18, DEG_attribute = 'Time', contrast = conditions, n.cores = 1, normalize = F)
-# new_tpm_cds_14_18_d <- newCountDataSet(round(exprs(TPM_cds_14_18))[, ], Time_ori) 
-# tpm_dtable_pool_max_nbinomGLMTest <- DESeq1_test(TPM_cds_14_18[1:transcript_num, ], pd = pData(TPM_cds_14_18), disp_method = 'pooled', sharing = 'maximum', test_type = 'nbinomGLMTest', scale = T) 
-# row.names(tpm_dtable_pool_max_nbinomGLMTest$dtalbe) <-  row.names(TPM_cds_14_18[1:transcript_num, ])
-# tpm_edgeR_res_glm <- edgeR_test(exprs(TPM_cds_14_18[1:transcript_num, ]), group = Time_ori, glm = T)
-# tpm_deseq2_res <- DESeq2_deg(dir = NULL, TPM_cds_14_18[1:transcript_num, ], Time = Time_ori, pd = pData(TPM_cds_14_18))
 
-# #pseudotime test on lineage 2/3:    
-# std_pseudotime_test_lineage2_res <- differentialGeneTest(std_AT12_cds_subset_all_gene[1:transcript_num, pData(std_AT12_cds_subset_all_gene)$State %in% c(1, 2)], 
-#                                               fullModelFormulaStr = "~sm.ns(Pseudotime, df = 3)", 
-#                                               reducedModelFormulaStr = "~1", cores = detectCores(), relative = F)  
-# std_pseudotime_test_lineage3_res <- differentialGeneTest(std_AT12_cds_subset_all_gene[1:transcript_num, pData(std_AT12_cds_subset_all_gene)$State %in% c(1, 3)], 
-#                                                       fullModelFormulaStr = "~sm.ns(Pseudotime, df = 3)", 
-#                                                       reducedModelFormulaStr = "~1", cores = detectCores(), relative = F)
-# abs_pseudotime_test_lineage2_res <- differentialGeneTest(abs_AT12_cds_subset_all_gene[1:transcript_num, pData(abs_AT12_cds_subset_all_gene)$State %in% c(1, 2)], 
-#                                                 fullModelFormulaStr = "~sm.ns(Pseudotime, df = 3)", 
-#                                                 reducedModelFormulaStr = "~1", cores = detectCores(), relative = T)  
-# abs_pseudotime_test_lineage3_res <- differentialGeneTest(abs_AT12_cds_subset_all_gene[1:transcript_num, pData(abs_AT12_cds_subset_all_gene)$State %in% c(1, 3)], 
-#                                                       fullModelFormulaStr = "~sm.ns(Pseudotime, df = 3)", 
-#                                                       reducedModelFormulaStr = "~1", cores = detectCores(), relative = T)
-# mc_pseudotime_test_lineage2_res <- differentialGeneTest(mc_AT12_cds_subset_all_gene[1:transcript_num, pData(mc_AT12_cds_subset_all_gene)$State %in% c(1, 2)], 
-#                                                 fullModelFormulaStr = "~sm.ns(Pseudotime, df = 3)", 
-#                                                 reducedModelFormulaStr = "~1", cores = detectCores(), relative = T)    
-# mc_pseudotime_test_lineage3_res <- differentialGeneTest(mc_AT12_cds_subset_all_gene[1:transcript_num, pData(mc_AT12_cds_subset_all_gene)$State %in% c(1, 3)], 
-#                                                       fullModelFormulaStr = "~sm.ns(Pseudotime, df = 3)", 
-#                                                       reducedModelFormulaStr = "~1", cores = detectCores(), relative = T)
+TPM_cds_14_18 <- TPM_cds[, colnames(new_mc_cds_14_18)]
+#do the analysis for the TPM values: 
+no_sf_TPM_split_cds <- split(t(exprs(TPM_cds_14_18[1:transcript_num, Time_order])), col(t(exprs(TPM_cds_14_18[1:transcript_num, Time_order])), as.factor = T))
+no_sf_TPM_fc <- apply(exprs(TPM_cds_14_18[1:transcript_num, Time_order]), 1, mean_fc, grp0 = conditions[1], grp1 = conditions[2], grp = pData(TPM_cds_14_18[, Time_order])$Time) #valid_gene_id
+no_sf_TPM_split_fc <- split(t(no_sf_TPM_fc), col(t(no_sf_TPM_fc), as.factor = T))
+
+no_sf_TPM_permutate_pval <- mcmapply(permuation_pval, no_sf_TPM_split_cds, no_sf_TPM_split_fc, mc.cores = detectCores()) #multiple core
+
+#do the anlaysis for the TPM with size factor: 
+TPM_split_cds <- split(t(exprs(TPM_cds_14_18[1:transcript_num, Time_order]) / readcount_sf_mat[1:transcript_num, Time_order]), col(t(exprs(TPM_cds_14_18[1:transcript_num, Time_order])), as.factor = T))
+TPM_fc <- apply(exprs(TPM_cds_14_18[1:transcript_num, Time_order] / readcount_sf_mat[1:transcript_num, Time_order]), 1, mean_fc, grp0 = conditions[1], grp1 = conditions[2], grp = pData(TPM_cds_14_18[, Time_order])$Time) #valid_gene_id
+TPM_split_fc <- split(t(readcount_fc), col(t(readcount_fc), as.factor = T))
+
+TPM_permutate_pval <- mcmapply(permuation_pval, TPM_split_cds, TPM_split_fc, mc.cores = detectCores()) #multiple core
+
+save(file = './no_size_permutation.RData', 
+  no_sf_mode_size_norm_permutate_ratio_by_geometric_mean, no_sf_mc_mode_size_norm_permutate_ratio_by_geometric_mean, no_sf_readcount_split_cds, no_sf_readcount_fc, no_sf_readcount_split_fc, no_sf_readcount_permutate_pval)
+#analysis from Census counts: 
+mc_scde_res_list <- scde_DEG(dir = NULL, count_cds = new_mc_cds_14_18, DEG_attribute = 'Time', contrast = conditions, n.cores = 1, normalize = T)
+save(file = './RData/mc_scde_res_list', mc_scde_res_list)
+
+mc_scde_res_list_no_normalize <- scde_DEG(dir = NULL, count_cds = new_mc_cds_14_18, DEG_attribute = 'Time', contrast = conditions, n.cores = 1, normalize = F)
+save(file = './RData/mc_scde_res_list_no_normalize', mc_scde_res_list_no_normalize)
+
+new_mc_cds_14_18_d <- newCountDataSet(round(exprs(new_mc_cds_14_18))[, ], Time_ori) 
+mc_dtable_pool_max_nbinomGLMTest <- DESeq1_test(new_mc_cds_14_18_d[1:transcript_num, ], pd = pData(new_mc_cds_14_18), disp_method = 'pooled', sharing = 'maximum', test_type = 'nbinomGLMTest', scale = T) 
+row.names(mc_dtable_pool_max_nbinomGLMTest$dtalbe) <-  row.names(new_mc_cds_14_18[1:transcript_num, ])
+mc_edgeR_res_glm <- edgeR_test(exprs(new_mc_cds_14_18[1:transcript_num, ]), group = Time_ori, glm = T)
+mc_edgeR_res <- edgeR_test(exprs(new_mc_cds_14_18[1:transcript_num, ]), group = Time_ori, glm = F)
+mc_deseq2_res <- DESeq2_deg(dir = NULL, new_mc_cds_14_18[1:transcript_num, ], Time = Time_ori, pd = pData(new_mc_cds_14_18))
+
+TPM_scde_res_list_no_normalize <- scde_DEG(dir = NULL, count_cds = TPM_cds_14_18, DEG_attribute = 'Time', contrast = conditions, n.cores = 1, normalize = F)
+new_tpm_cds_14_18_d <- newCountDataSet(round(exprs(TPM_cds_14_18))[, ], Time_ori) 
+tpm_dtable_pool_max_nbinomGLMTest <- DESeq1_test(TPM_cds_14_18[1:transcript_num, ], pd = pData(TPM_cds_14_18), disp_method = 'pooled', sharing = 'maximum', test_type = 'nbinomGLMTest', scale = T) 
+row.names(tpm_dtable_pool_max_nbinomGLMTest$dtalbe) <-  row.names(TPM_cds_14_18[1:transcript_num, ])
+tpm_edgeR_res_glm <- edgeR_test(exprs(TPM_cds_14_18[1:transcript_num, ]), group = Time_ori, glm = T)
+tpm_deseq2_res <- DESeq2_deg(dir = NULL, TPM_cds_14_18[1:transcript_num, ], Time = Time_ori, pd = pData(TPM_cds_14_18))
+
+#pseudotime test on lineage 2/3:    
+std_pseudotime_test_lineage2_res <- differentialGeneTest(std_AT12_cds_subset_all_gene[1:transcript_num, pData(std_AT12_cds_subset_all_gene)$State %in% c(1, 2)], 
+                                              fullModelFormulaStr = "~sm.ns(Pseudotime, df = 3)", 
+                                              reducedModelFormulaStr = "~1", cores = detectCores(), relative = F)  
+std_pseudotime_test_lineage3_res <- differentialGeneTest(std_AT12_cds_subset_all_gene[1:transcript_num, pData(std_AT12_cds_subset_all_gene)$State %in% c(1, 3)], 
+                                                      fullModelFormulaStr = "~sm.ns(Pseudotime, df = 3)", 
+                                                      reducedModelFormulaStr = "~1", cores = detectCores(), relative = F)
+abs_pseudotime_test_lineage2_res <- differentialGeneTest(abs_AT12_cds_subset_all_gene[1:transcript_num, pData(abs_AT12_cds_subset_all_gene)$State %in% c(1, 2)], 
+                                                fullModelFormulaStr = "~sm.ns(Pseudotime, df = 3)", 
+                                                reducedModelFormulaStr = "~1", cores = detectCores(), relative = T)  
+abs_pseudotime_test_lineage3_res <- differentialGeneTest(abs_AT12_cds_subset_all_gene[1:transcript_num, pData(abs_AT12_cds_subset_all_gene)$State %in% c(1, 3)], 
+                                                      fullModelFormulaStr = "~sm.ns(Pseudotime, df = 3)", 
+                                                      reducedModelFormulaStr = "~1", cores = detectCores(), relative = T)
+mc_pseudotime_test_lineage2_res <- differentialGeneTest(mc_AT12_cds_subset_all_gene[1:transcript_num, pData(mc_AT12_cds_subset_all_gene)$State %in% c(1, 2)], 
+                                                fullModelFormulaStr = "~sm.ns(Pseudotime, df = 3)", 
+                                                reducedModelFormulaStr = "~1", cores = detectCores(), relative = T)    
+mc_pseudotime_test_lineage3_res <- differentialGeneTest(mc_AT12_cds_subset_all_gene[1:transcript_num, pData(mc_AT12_cds_subset_all_gene)$State %in% c(1, 3)], 
+                                                      fullModelFormulaStr = "~sm.ns(Pseudotime, df = 3)", 
+                                                      reducedModelFormulaStr = "~1", cores = detectCores(), relative = T)
 
 
 

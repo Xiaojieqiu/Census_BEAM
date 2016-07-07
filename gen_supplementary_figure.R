@@ -1,61 +1,61 @@
-# # library(monocle)
+library(monocle)
 # library(devtools)
 # load_all('~/Projects/monocle-dev')
-# library(xacHelper)
+library(xacHelper)
 
-# load_all_libraries()
+load_all_libraries()
 
-# load('./RData/deg_benchmark_analysis.RData')
-# load('./RData/analysis_lung_data_mc.RData') #load('./RData/analysis_lung_data.RData')
-# load('./RData/analysis_HSMM_data.RData')
-# load('./RData/analysis_distribution_fitting.RData')
-# load('./RData/analysis_shalek_data.RData')
-# load('./RData/cmpr_three_packages.RData')
+load('./RData/deg_benchmark_analysis.RData')
+load('./RData/analysis_lung_data_mc.RData') #load('./RData/analysis_lung_data.RData')
+load('./RData/analysis_HSMM_data.RData')
+load('./RData/analysis_distribution_fitting.RData')
+load('./RData/analysis_shalek_data.RData')
+load('./RData/cmpr_three_packages.RData')
 
-# ##################################################fig1_si############################################################
+##################################################fig1_si############################################################
 
-# three_cells_cds <- data.frame(transcript = round(as.vector(exprs(absolute_cds)[1:38919, c("SRR1033854_0", "SRR1033855_0", "SRR1033856_0")])), 
-#                               read_counts = as.vector(exprs(read_countdata_cds)[1:38919, c("SRR1033854_0", "SRR1033855_0", "SRR1033856_0")]), 
-#                               cell = rep(c("SRR1033854_0", "SRR1033855_0", "SRR1033856_0"), each = 38919)
-# )
+three_cells_cds <- data.frame(transcript = round(as.vector(exprs(absolute_cds)[1:38919, c("SRR1033854_0", "SRR1033855_0", "SRR1033856_0")])), 
+                              read_counts = as.vector(exprs(read_countdata_cds)[1:38919, c("SRR1033854_0", "SRR1033855_0", "SRR1033856_0")]), 
+                              cell = rep(c("SRR1033854_0", "SRR1033855_0", "SRR1033856_0"), each = 38919)
+)
 
-# pdf('./supplementary_figures/fig1a_si.pdf', width = 2, height = 3)
-# qplot(value, data = melt(three_cells_cds), log = 'x') + geom_histogram(aes(fill = variable)) + facet_wrap(~cell+variable, nrow = 3, scale = 'free') + xlab('') + ylab('Gene number') +  
-#   theme(strip.background = element_blank(), strip.text.x = element_blank())+ nm_theme()
-# dev.off()
+pdf('./supplementary_figures/fig1a_si.pdf', width = 2, height = 3)
+qplot(value, data = melt(three_cells_cds), log = 'x') + geom_histogram(aes(fill = variable)) + facet_wrap(~cell+variable, nrow = 3, scale = 'free') + xlab('') + ylab('Gene number') +  
+  theme(strip.background = element_blank(), strip.text.x = element_blank())+ nm_theme()
+dev.off()
 
 
-# abs_gd_fit_res <- cal_gd_statistics(abs_gd_fit_df[, c('nb_pvalue', 'zinb_pvalue')], percentage = F, type = 'absolute', gene_list = valid_genes)
-# readcount_gd_fit_res <- cal_gd_statistics(read_gd_fit_df[, c('nb_pvalue', 'zinb_pvalue')], percentage = F,  type = 'readcount', gene_list = valid_genes)
-# gd_fit_res <- rbind(abs_gd_fit_res, readcount_gd_fit_res)
-# gd_fit_res <- cbind(gd_fit_res, data_type = row.names(gd_fit_res))
-# row.names(gd_fit_res) <- NULL
-# gd_fit_res <- as.data.frame(gd_fit_res)
+abs_gd_fit_res <- cal_gd_statistics(abs_gd_fit_df[, c('nb_pvalue', 'zinb_pvalue')], percentage = F, type = 'absolute', gene_list = valid_genes)
+readcount_gd_fit_res <- cal_gd_statistics(read_gd_fit_df[, c('nb_pvalue', 'zinb_pvalue')], percentage = F,  type = 'readcount', gene_list = valid_genes)
+gd_fit_res <- rbind(abs_gd_fit_res, readcount_gd_fit_res)
+gd_fit_res <- cbind(gd_fit_res, data_type = row.names(gd_fit_res))
+row.names(gd_fit_res) <- NULL
+gd_fit_res <- as.data.frame(gd_fit_res)
 
-# gd_fit_res_num <- subset(gd_fit_res, data_type == 'gd_fit_num')
-# gd_fit_res_success_num <- subset(gd_fit_res, data_type == 'success_fit_num')
-# # 
+gd_fit_res_num <- subset(gd_fit_res, data_type == 'gd_fit_num')
+gd_fit_res_success_num <- subset(gd_fit_res, data_type == 'success_fit_num')
+# 
 
-# #generate the result of goodness of fit for each gene: 
-# colnames(gd_fit_res_num)[1:2] <- c('NB', 'ZINB')
-# test <- melt(gd_fit_res_num[, 1:3], id.vars = 'type')
-# p1 <- qplot(as.factor(variable), as.numeric(as.character(value)), geom = 'bar', stat = 'identity', data = test, fill = type) + facet_wrap('type') + nm_theme() + 
-#   theme(legend.position = 'none') + xlab('Fit types') + ylab('number of genes') + theme(strip.background = element_blank(),
-#                                                                                         strip.text.x = element_blank()) + theme(axis.text.x = element_text(angle = 30, hjust = .9))
-# pdf('./supplementary_figures/fig1b_si.pdf', height = 1.5, width = 1)
-# p1 + xlab('')
-# dev.off()
+#generate the result of goodness of fit for each gene: 
+colnames(gd_fit_res_num)[1:2] <- c('NB', 'ZINB')
+test <- melt(gd_fit_res_num[, 1:3], id.vars = 'type')
+p1 <- qplot(as.factor(variable), as.numeric(as.character(value)), geom = 'bar', stat = 'identity', data = test, fill = type) + facet_wrap('type') + nm_theme() + 
+  theme(legend.position = 'none') + xlab('Fit types') + ylab('number of genes') + theme(strip.background = element_blank(),
+                                                                                        strip.text.x = element_blank()) + theme(axis.text.x = element_text(angle = 30, hjust = .9))
+pdf('./supplementary_figures/fig1b_si.pdf', height = 1.5, width = 1)
+p1 + xlab('')
+dev.off()
 
-# colnames(gd_fit_res_success_num)[1:2] <- c('NB', 'ZINB')
-# test <- melt(gd_fit_res_success_num[, 1:3], id.vars = 'type')
+colnames(gd_fit_res_success_num)[1:2] <- c('NB', 'ZINB')
+test <- melt(gd_fit_res_success_num[, 1:3], id.vars = 'type')
 
-# p2 <- qplot(as.factor(variable), as.numeric(as.character(value)), geom = 'bar', stat = 'identity', data = test, fill = type) + facet_wrap('type') + nm_theme() + 
-#   theme(legend.position = 'none') + xlab('Fit types') + ylab('number of genes') + theme(strip.background = element_blank(),
-#                                                                                         strip.text.x = element_blank()) + theme(axis.text.x = element_text(angle = 30, hjust = .9))
+p2 <- qplot(as.factor(variable), as.numeric(as.character(value)), geom = 'bar', stat = 'identity', data = test, fill = type) + facet_wrap('type') + nm_theme() + 
+  theme(legend.position = 'none') + xlab('Fit types') + ylab('number of genes') + theme(strip.background = element_blank(),
+                                                                                        strip.text.x = element_blank()) + theme(axis.text.x = element_text(angle = 30, hjust = .9))
 
-# pdf('./supplementary_figures/fig1c_si.pdf', height = 1.5, width = 1)
-# p2 + xlab('')
-# dev.off()
+pdf('./supplementary_figures/fig1c_si.pdf', height = 1.5, width = 1)
+p2 + xlab('')
+dev.off()
 
 # ##################################################fig2_si############################################################
 #add the benchmark plot with precision/recall/F1 score (for FPR/sensitivity plot, see the very bottom)

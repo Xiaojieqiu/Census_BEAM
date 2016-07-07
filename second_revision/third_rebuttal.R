@@ -1,9 +1,9 @@
 #scripts for responding the third rebuttal submission: 
 # setwd('~/Dropbox (Personal)/Projects/BEAM/')
 
-# library(monocle)
-library(devtools)
-load_all('~/Projects/monocle-dev') 
+library(monocle)
+# library(devtools)
+# load_all('~/Projects/monocle-dev') 
 library(xacHelper)
 
 load_all_libraries()

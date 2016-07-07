@@ -1,9 +1,9 @@
 #load the data 
 load('./RData/analysis_UMI_data.RData')
 
-# library(monocle)
-library(devtools)
-load_all('~/Projects/monocle-dev')
+library(monocle)
+# library(devtools)
+# load_all('~/Projects/monocle-dev')
 
 library(xacHelper)
 load_all_libraries()

@@ -106,9 +106,9 @@ DESeq2_deg <- function (dir, cds, Time, test_type = "LRT", design = as.formula("
 ######################################################
 
 load('./RData/prepare_lung_data.RData')
-library(devtools)
-load_all('~/Projects/monocle-dev')
-#library(monocle)
+# library(devtools)
+# load_all('~/Projects/monocle-dev')
+library(monocle)
 
 library(xacHelper)
 

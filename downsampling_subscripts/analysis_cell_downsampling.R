@@ -1,9 +1,9 @@
 #######################################
 # Downsampling the number of cells
 # ########################################
-# library(monocle)gg
-library(devtools)
-load_all('~/Projects/monocle-dev')
+library(monocle)
+# library(devtools)
+# load_all('~/Projects/monocle-dev')
 library(xacHelper)
 # source("monocle_helper_functions.R")
 library(plyr)

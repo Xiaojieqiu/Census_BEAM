@@ -2,9 +2,9 @@
 
 load('./RData/gen_shalek_figures.RData')
 # load('./RData/gen_lung_figures_mc.RData')
-# library(monocle)
-library(devtools)
-load_all('~/Projects/monocle-dev') 
+library(monocle)
+# library(devtools)
+# load_all('~/Projects/monocle-dev') 
 library(xacHelper)
 library(grid)
 

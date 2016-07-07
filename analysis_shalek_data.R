@@ -13,9 +13,9 @@ library(pheatmap)
 library(RColorBrewer)
 
 #use monocle2: 
-library(devtools)
-load_all('~/Projects/monocle-dev')
-# library(monocle)
+# library(devtools)
+# load_all('~/Projects/monocle-dev')
+library(monocle)
 
 #   #load all the go/reactome/kegg datasets for the analysis: 
 root_directory <- "./data/Quake_data"

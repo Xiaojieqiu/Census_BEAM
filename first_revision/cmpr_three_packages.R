@@ -1,85 +1,85 @@
 #function to compare the performance of the three packages
-# load(paste('./RData/deg_benchmark_analysis', conditions[1], conditions[2], '.RData', sep = ''))
+load(paste('./RData/deg_benchmark_analysis', conditions[1], conditions[2], '.RData', sep = ''))
 # #1. MAST 
 # library(devtools)
-# # install_github('RGLab/MAST')
-# # library(monocle)
+# install_github('RGLab/MAST')
+library(monocle)
 # library(devtools)
 # load_all('~/Projects/monocle-dev')
-# # library(MAST)
-# library(xacHelper)
-# library(grid)
+# library(MAST)
+library(xacHelper)
+library(grid)
 
-# MAST_deg <- function(cds, grp = 'Time', test.type = 'hurdle', pseudo_cnt = 1, normalization = F) {
-#   data <- as.matrix(exprs(cds))
+MAST_deg <- function(cds, grp = 'Time', test.type = 'hurdle', pseudo_cnt = 1, normalization = F) {
+  data <- as.matrix(exprs(cds))
   
-#   if(normalization)
-#     data <- log2(t(t(data) / sizeFactors(cds)) + pseudo_cnt)
-#   else
-#     data <- log2(data + pseudo_cnt)
+  if(normalization)
+    data <- log2(t(t(data) / sizeFactors(cds)) + pseudo_cnt)
+  else
+    data <- log2(data + pseudo_cnt)
   
-#   data <- melt(data)
-#   colnames(data) <- c('Gene', 'Cell', 'exprs')
-#   data[, grp] <- c(pData(cds)[data[, 2], grp])
-#   data$ncells <- 1 
+  data <- melt(data)
+  colnames(data) <- c('Gene', 'Cell', 'exprs')
+  data[, grp] <- c(pData(cds)[data[, 2], grp])
+  data$ncells <- 1 
   
-#   mast_cds <- FluidigmAssay(data, idvars="Cell", 
-#                             primerid='Gene', measurement='exprs', geneid="Gene", 
-#                             ncells = 'ncells', phenovars=grp)
+  mast_cds <- FluidigmAssay(data, idvars="Cell", 
+                            primerid='Gene', measurement='exprs', geneid="Gene", 
+                            ncells = 'ncells', phenovars=grp)
   
-#   zlm.output <- zlm.SingleCellAssay(as.formula(paste("~ ", grp)), mast_cds, method='glm', ebayes=TRUE) #
-#   # show(zlm.output)
-#   zlm.lr <- lrTest(zlm.output, grp)
-#   # dimnames(zlm.lr)
+  zlm.output <- zlm.SingleCellAssay(as.formula(paste("~ ", grp)), mast_cds, method='glm', ebayes=TRUE) #
+  # show(zlm.output)
+  zlm.lr <- lrTest(zlm.output, grp)
+  # dimnames(zlm.lr)
   
-#   pval_df <- zlm.lr[,,'Pr(>Chisq)']
-#   pval <- pval_df[, test.type]
+  pval_df <- zlm.lr[,,'Pr(>Chisq)']
+  pval <- pval_df[, test.type]
   
-#   return(pval)
-# }
+  return(pval)
+}
 
-#run the following separately because MAST requires a different version of ggplot2 we are using
-# mast_abs_pval_no_norm <- MAST_deg(new_abs_cds_14_18)
-# mast_mc_pval_no_norm <- MAST_deg(new_mc_cds_14_18)
-# mast_std_pval_no_norm <- MAST_deg(new_std_cds_14_18)
-# mast_count_pval_no_norm <- MAST_deg(count_cds)
-# mast_TPM_pval_no_norm <- MAST_deg(lung_TPM_count_cds_14_18)
+run the following separately because MAST requires a different version of ggplot2 we are using
+mast_abs_pval_no_norm <- MAST_deg(new_abs_cds_14_18)
+mast_mc_pval_no_norm <- MAST_deg(new_mc_cds_14_18)
+mast_std_pval_no_norm <- MAST_deg(new_std_cds_14_18)
+mast_count_pval_no_norm <- MAST_deg(count_cds)
+mast_TPM_pval_no_norm <- MAST_deg(lung_TPM_count_cds_14_18)
 
-# mast_abs_pval_norm <- MAST_deg(new_abs_cds_14_18, normalization = T)
-# mast_mc_pval_norm <- MAST_deg(new_mc_cds_14_18, pseudo_cnt = 0.1, normalization = T)
-# mast_std_pval_norm <- MAST_deg(new_std_cds_14_18, pseudo_cnt = 0.1, normalization = T)
-# mast_count_pval_norm <- MAST_deg(count_cds, pseudo_cnt = 0.1, normalization = T)
-# mast_TPM_pval_norm <- MAST_deg(lung_TPM_count_cds_14_18, normalization = T)
+mast_abs_pval_norm <- MAST_deg(new_abs_cds_14_18, normalization = T)
+mast_mc_pval_norm <- MAST_deg(new_mc_cds_14_18, pseudo_cnt = 0.1, normalization = T)
+mast_std_pval_norm <- MAST_deg(new_std_cds_14_18, pseudo_cnt = 0.1, normalization = T)
+mast_count_pval_norm <- MAST_deg(count_cds, pseudo_cnt = 0.1, normalization = T)
+mast_TPM_pval_norm <- MAST_deg(lung_TPM_count_cds_14_18, normalization = T)
 
-# # save(mast_abs_pval_no_norm, mast_mc_pval_no_norm, mast_std_pval_no_norm, mast_count_pval_no_norm, mast_TPM_pval_no_norm, mast_abs_pval_norm, mast_mc_pval_norm, mast_std_pval_norm, mast_count_pval_norm, mast_TPM_pval_norm, file = './RData/cmpr_three_package_mast_res')
+# save(mast_abs_pval_no_norm, mast_mc_pval_no_norm, mast_std_pval_no_norm, mast_count_pval_no_norm, mast_TPM_pval_no_norm, mast_abs_pval_norm, mast_mc_pval_norm, mast_std_pval_norm, mast_count_pval_norm, mast_TPM_pval_norm, file = './RData/cmpr_three_package_mast_res')
 
 
-# MAST_readcount_split_cds <- split(log2(t(round(exprs(count_cds[1:transcript_num, Time_order]) / readcount_sf_mat[1:transcript_num, Time_order])) + 1), col(t(exprs(count_cds[1:transcript_num, Time_order])), as.factor = T))
-# MAST_readcount_fc <- apply(log2(round(exprs(count_cds)[1:transcript_num, Time_order] / readcount_sf_mat[1:transcript_num, Time_order]) + 1), 1, mean_fc, grp0 = 'E14.5', grp1 = 'E18.5', grp = pData(count_cds[1:transcript_num, Time_order])$Time) #valid_gene_id
-# MAST_readcount_split_fc <- split(t(MAST_readcount_fc), col(t(MAST_readcount_fc), as.factor = T))
-# MAST_readcount_permutate_pval <- mcmapply(permuation_pval, MAST_readcount_split_cds, MAST_readcount_fc, mc.cores = detectCores()) #multiple core
-# closeAllConnections()
+MAST_readcount_split_cds <- split(log2(t(round(exprs(count_cds[1:transcript_num, Time_order]) / readcount_sf_mat[1:transcript_num, Time_order])) + 1), col(t(exprs(count_cds[1:transcript_num, Time_order])), as.factor = T))
+MAST_readcount_fc <- apply(log2(round(exprs(count_cds)[1:transcript_num, Time_order] / readcount_sf_mat[1:transcript_num, Time_order]) + 1), 1, mean_fc, grp0 = 'E14.5', grp1 = 'E18.5', grp = pData(count_cds[1:transcript_num, Time_order])$Time) #valid_gene_id
+MAST_readcount_split_fc <- split(t(MAST_readcount_fc), col(t(MAST_readcount_fc), as.factor = T))
+MAST_readcount_permutate_pval <- mcmapply(permuation_pval, MAST_readcount_split_cds, MAST_readcount_fc, mc.cores = detectCores()) #multiple core
+closeAllConnections()
 
-# MAST_abs_split_cds <- split(log2(round(t(exprs(new_abs_cds_14_18[1:transcript_num, Time_order]) / abs_sf_mat[1:transcript_num, Time_order])) + 0.1), col(t(exprs(new_abs_cds_14_18[1:transcript_num, Time_order])), as.factor = T))
-# MAST_abs_fc <- apply(log2(round(exprs(new_abs_cds_14_18)[1:transcript_num, Time_order] / abs_sf_mat[1:transcript_num, Time_order]) + 0.1), 1, mean_fc, grp0 = 'E14.5', grp1 = 'E18.5', grp = pData(new_abs_cds_14_18[1:transcript_num, Time_order])$Time) #valid_gene_id
-# MAST_abs_split_fc <- split(t(MAST_abs_fc), col(t(MAST_abs_fc), as.factor = T))
-# MAST_mode_size_norm_permutate_ratio_by_geometric_mean <- mcmapply(permuation_pval, MAST_abs_split_cds, MAST_abs_split_fc, mc.cores = detectCores()) #multiple core
-# closeAllConnections()
+MAST_abs_split_cds <- split(log2(round(t(exprs(new_abs_cds_14_18[1:transcript_num, Time_order]) / abs_sf_mat[1:transcript_num, Time_order])) + 0.1), col(t(exprs(new_abs_cds_14_18[1:transcript_num, Time_order])), as.factor = T))
+MAST_abs_fc <- apply(log2(round(exprs(new_abs_cds_14_18)[1:transcript_num, Time_order] / abs_sf_mat[1:transcript_num, Time_order]) + 0.1), 1, mean_fc, grp0 = 'E14.5', grp1 = 'E18.5', grp = pData(new_abs_cds_14_18[1:transcript_num, Time_order])$Time) #valid_gene_id
+MAST_abs_split_fc <- split(t(MAST_abs_fc), col(t(MAST_abs_fc), as.factor = T))
+MAST_mode_size_norm_permutate_ratio_by_geometric_mean <- mcmapply(permuation_pval, MAST_abs_split_cds, MAST_abs_split_fc, mc.cores = detectCores()) #multiple core
+closeAllConnections()
 
-# MAST_mc_split_cds <- split(log2(round(t(exprs(new_mc_cds_14_18[1:transcript_num, Time_order]) / mc_sf_mat[1:transcript_num, Time_order])) + 0.1), col(t(exprs(new_mc_cds_14_18[1:transcript_num, Time_order])), as.factor = T))
-# MAST_mc_fc <- apply(log2(round(exprs(new_mc_cds_14_18)[1:transcript_num, Time_order] / mc_sf_mat[1:transcript_num, Time_order]) + 0.1), 1, mean_fc, grp0 = 'E14.5', grp1 = 'E18.5', grp = pData(new_mc_cds_14_18[1:transcript_num, Time_order])$Time) #valid_gene_id
-# MAST_mc_split_fc <- split(t(MAST_mc_fc), col(t(MAST_mc_fc), as.factor = T))
-# MAST_mc_mode_size_norm_permutate_ratio_by_geometric_mean <- mcmapply(permuation_pval, MAST_mc_split_cds, MAST_mc_split_fc, mc.cores = detectCores()) #multiple core
-# closeAllConnections()
+MAST_mc_split_cds <- split(log2(round(t(exprs(new_mc_cds_14_18[1:transcript_num, Time_order]) / mc_sf_mat[1:transcript_num, Time_order])) + 0.1), col(t(exprs(new_mc_cds_14_18[1:transcript_num, Time_order])), as.factor = T))
+MAST_mc_fc <- apply(log2(round(exprs(new_mc_cds_14_18)[1:transcript_num, Time_order] / mc_sf_mat[1:transcript_num, Time_order]) + 0.1), 1, mean_fc, grp0 = 'E14.5', grp1 = 'E18.5', grp = pData(new_mc_cds_14_18[1:transcript_num, Time_order])$Time) #valid_gene_id
+MAST_mc_split_fc <- split(t(MAST_mc_fc), col(t(MAST_mc_fc), as.factor = T))
+MAST_mc_mode_size_norm_permutate_ratio_by_geometric_mean <- mcmapply(permuation_pval, MAST_mc_split_cds, MAST_mc_split_fc, mc.cores = detectCores()) #multiple core
+closeAllConnections()
 
-# MAST_std_split_cds <- split(log2(t(exprs(new_std_cds_14_18[1:transcript_num, Time_order])) + 1), col(t(exprs(new_std_cds_14_18[1:transcript_num, Time_order])), as.factor = T))
-# MAST_std_fc <- apply(log2(exprs(new_std_cds_14_18[1:transcript_num, ]) + 1), 1, mean_fc, grp0 = 'E14.5', grp1 = 'E18.5', grp = pData(count_cds[1:transcript_num, Time_order])$Time)
-# MAST_std_split_fc <- split(t(MAST_std_fc), col(t(MAST_std_fc), as.factor = T))
-# MAST_std_permutate_pval <- mcmapply(permuation_pval, MAST_std_split_cds, MAST_std_split_fc, mc.cores = detectCores()) #multiple cores 
+MAST_std_split_cds <- split(log2(t(exprs(new_std_cds_14_18[1:transcript_num, Time_order])) + 1), col(t(exprs(new_std_cds_14_18[1:transcript_num, Time_order])), as.factor = T))
+MAST_std_fc <- apply(log2(exprs(new_std_cds_14_18[1:transcript_num, ]) + 1), 1, mean_fc, grp0 = 'E14.5', grp1 = 'E18.5', grp = pData(count_cds[1:transcript_num, Time_order])$Time)
+MAST_std_split_fc <- split(t(MAST_std_fc), col(t(MAST_std_fc), as.factor = T))
+MAST_std_permutate_pval <- mcmapply(permuation_pval, MAST_std_split_cds, MAST_std_split_fc, mc.cores = detectCores()) #multiple cores 
 
-# save(file = 'MAST_permutation_res', MAST_readcount_permutate_pval, MAST_mode_size_norm_permutate_ratio_by_geometric_mean, 
-#   MAST_mc_mode_size_norm_permutate_ratio_by_geometric_mean, MAST_std_permutate_pval)
-
+save(file = 'MAST_permutation_res', MAST_readcount_permutate_pval, MAST_mode_size_norm_permutate_ratio_by_geometric_mean, 
+  MAST_mc_mode_size_norm_permutate_ratio_by_geometric_mean, MAST_std_permutate_pval)
+ 
 load('./RData/cmpr_three_package_mast_res')
 
 #select genes for benchmarking the performance: (this should matach with the roc_auc plot) 
